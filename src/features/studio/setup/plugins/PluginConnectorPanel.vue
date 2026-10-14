@@ -7,7 +7,7 @@ import { constructConnectorCategoryConfig } from '@dpuse/dpuse-shared';
 import type { ConnectorConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import type { SetupOptionConfig } from '@/utilities/index.ts';
+import type { SetupOptionConfig } from '@/features/studio/setup/useSetupOptions';
 import { TEXT } from './PluginConnectorPanel_.json';
 import { localeId, t } from '@/state/locale';
 

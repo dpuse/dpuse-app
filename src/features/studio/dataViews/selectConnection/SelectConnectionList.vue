@@ -17,7 +17,7 @@ import { TEXT } from './SelectConnectionList_.json';
 import { useDialogs } from '@/state/dialogs';
 import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
 import { connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
-import { useDataView, useUpdateDataView } from '@/state/dataViews';
+import { useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';

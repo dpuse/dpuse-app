@@ -10,7 +10,7 @@ import { localiseConfig, localiseConfigs } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { sessionIsAuthenticated } from '@/state/session';
-import { useDataView } from '@/state/dataViews';
+import { useDataView } from '@/features/studio/dataViews/_dataViews';
 import { useQueryFailure } from '@/services/queryClient';
 import { useUnsavedWork } from '@/state/unsavedWork';
 import { accountConfigStatus, configStatus, connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';

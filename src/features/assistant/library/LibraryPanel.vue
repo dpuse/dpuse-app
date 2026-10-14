@@ -18,7 +18,7 @@ import { TEXT } from './LibraryPanel_.json';
 
 // ── Local Framework
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
-import { type LibraryDocument, type LibraryDocumentType, libraryDocumentTypeLabels, useAssistantLibrary } from '@/state/assistantLibrary';
+import { type LibraryDocument, type LibraryDocumentType, libraryDocumentTypeLabels, useAssistantLibrary } from '@/features/assistant/_assistantLibrary';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';

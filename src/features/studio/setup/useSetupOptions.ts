@@ -2,14 +2,27 @@
 import { computed, type ComputedRef } from 'vue';
 
 // ── DPUse Framework
-import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared';
+import { localiseConfigs } from '@dpuse/dpuse-shared';
+import type { BaseConfig, ConnectorConfig, CookbookConfig, LocalisedConfig, PresenterConfig, ToolConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { localeId } from '@/state/locale';
-import type { SetupOptionConfig } from '@/utilities/index.ts';
 
 // ── Data
 import setupOptionConfigsData from './_data/setupOptionConfigs.json';
+
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+export interface SetupOptionConfig<TIcon = string> extends Omit<BaseConfig, 'icon' | 'iconDark'> {
+    icon: TIcon | null;
+    iconDark: TIcon | null;
+    to?: string;
+    rightAligned?: boolean;
+}
+
+// The module types loaded at run time, as listed under 'Manage Configuration'. A union rather than 'ModuleConfig', so
+// each panel can narrow on 'typeId' and reach its own fields.
+export type PluginConfig = ConnectorConfig | CookbookConfig | PresenterConfig | ToolConfig;
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

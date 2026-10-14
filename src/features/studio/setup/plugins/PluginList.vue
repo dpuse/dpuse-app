@@ -8,10 +8,11 @@ import { localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { TEXT } from './PluginList_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
-import { useSetupSelection } from '../../useSetupSelection';
-import { assertDefined, defineLazyComponent, type PluginConfig, type SetupOptionConfig } from '@/utilities/index.ts';
+import { useSetupSelection } from '../useSetupSelection';
+import { assertDefined, defineLazyComponent } from '@/utilities/index.ts';
 import { configStatus, connectorConfigs, cookbookConfigs, presenterConfigs, toolConfigs } from '@/state/configs';
 import { localeId, t } from '@/state/locale';
+import type { PluginConfig, SetupOptionConfig } from '@/features/studio/setup/useSetupOptions';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';

@@ -4,10 +4,9 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 // ── Local Framework
-import { isPWA } from '@/state/device';
-import { isSafariBrowser } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 import { useStudioOptions } from './useStudioOptions';
+import { isPWA, isSafariBrowser } from '@/state/device';
 
 // ── Static Components
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';

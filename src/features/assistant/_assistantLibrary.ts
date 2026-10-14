@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router';
 // ── Local Framework
 import { replaceRouteQuery } from '@/router';
 import { t } from '@/state/locale';
-import { TEXT } from './assistantLibrary_.json';
+import { TEXT } from './_assistantLibrary_.json';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

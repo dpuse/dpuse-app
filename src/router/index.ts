@@ -28,7 +28,7 @@ const DataAppsPanel = defineLazyLoader('DataAppsPanel', 0, () => import('@/featu
 const SetupLayout = defineLazyLoader('SetupLayout', 0, () => import('@/features/studio/setup/SetupLayout.vue'));
 const SetupHomePanel = defineLazyLoader('SetupHomePanel', 1, () => import('@/features/studio/setup/SetupHomePanel.vue'));
 const ContextModelList = defineLazyLoader('ContextModelList', 1, () => import('@/features/studio/setup/context/ContextModelList.vue'));
-const PluginList = defineLazyLoader('PluginList', 1, () => import('@/features/studio/setup/plugins/_components/PluginList.vue'));
+const PluginList = defineLazyLoader('PluginList', 1, () => import('@/features/studio/setup/plugins/PluginList.vue'));
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

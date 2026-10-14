@@ -5,6 +5,7 @@ import { debounceFilter, useLocalStorage } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
+import { defineLazyComponent } from '@/utilities/index.ts';
 import { initialiseServices } from '@/state/session';
 import { t } from '@/state/locale';
 import { TEXT } from './App_.json';
@@ -23,22 +24,21 @@ import {
     studioPaneIsVisible,
     studioPaneWasOpened
 } from '@/state/appPanes';
-import { defineLazyComponent, isSafariBrowser } from '@/utilities/index.ts';
-import { isPWA, viewportIsWide } from '@/state/device';
+import { isPWA, isSafariBrowser, viewportIsWide } from '@/state/device';
 import { moduleUpdateIsAvailable, newAppVersionIsAvailable } from '@/state/appVersion';
 import { navigationPendingDepth, replaceRouteQuery } from '@/router';
 
 // ── Static Components
-import AssistantPaneToggle from '@/features/assistant/_components/AssistantPaneToggle.vue'; // Static, because it is always visible.
+import AssistantPaneToggle from '@/features/assistant/AssistantPaneToggle.vue'; // Static, because it is always visible.
 import Dialog from '@/components/ui/dialog/Dialog.vue'; // Static, so the frame opens while the dialog's own chunk loads.
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue'; // Static, so it can show even when a chunk fails to load.
 import NewVersionNotice from '@/components/ui/NewVersionNotice.vue'; // Static, because once a new version is deployed this version's chunks are gone.
 import RouterViewTransition from '@/components/ui/RouterViewTransition.vue'; // Static, so its spinner can show while other chunks load.
 import SessionButton from '@/features/session/SessionButton.vue'; // Static, because it is always visible.
-import StudioPaneToggle from '@/features/studio/_components/StudioPaneToggle.vue'; // Static, because it is always visible.
+import StudioPaneToggle from '@/features/studio/StudioPaneToggle.vue'; // Static, because it is always visible.
 
 // ── Dynamic Components
-const AssistantLayout = defineLazyComponent(() => import('@/features/assistant/_components/AssistantLayout.vue'), 'AssistantLayout');
+const AssistantLayout = defineLazyComponent(() => import('@/features/assistant/AssistantLayout.vue'), 'AssistantLayout');
 const OptionBar = defineLazyComponent(() => import('@/features/studio/options/OptionBar.vue'), 'OptionBar', { hasPlaceholder: false });
 const PaneSplitter = defineLazyComponent(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
 

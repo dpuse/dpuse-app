@@ -2,9 +2,6 @@
 import { promiseTimeout } from '@vueuse/core';
 import { type AsyncComponentLoader, type Component, type ComponentPublicInstance, defineAsyncComponent, defineComponent, h, ref, type VNode } from 'vue';
 
-// ── DPUse Framework
-import type { BaseConfig, ConnectorConfig, CookbookConfig, PresenterConfig, ToolConfig } from '@dpuse/dpuse-shared';
-
 // ── Local Framework
 import { throwOnFault, throwOnStaleFault } from '@/observability/faultInjection';
 
@@ -30,17 +27,6 @@ export interface AsyncPanelSimulation {
     delayMs?: number;
     failsToLoad?: boolean;
 }
-
-export interface SetupOptionConfig<TIcon = string> extends Omit<BaseConfig, 'icon' | 'iconDark'> {
-    icon: TIcon | null;
-    iconDark: TIcon | null;
-    to?: string;
-    rightAligned?: boolean;
-}
-
-// The module types loaded at run time, as listed under 'Manage Configuration'. A union rather than 'ModuleConfig', so
-// each panel can narrow on 'typeId' and reach its own fields.
-export type PluginConfig = ConnectorConfig | CookbookConfig | PresenterConfig | ToolConfig;
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -118,12 +104,6 @@ export function defineLazyComponent(loader: AsyncComponentLoader, name: string, 
             return () => h(asyncComponent, { ...attrs, key: attempt.value, ref: panel }, slots);
         }
     });
-}
-
-// Read from the user agent because no feature test tells Safari apart. iPadOS Safari reports itself as macOS, and every
-// iOS browser also names Safari, so the other browsers are excluded by their own tokens.
-export function isSafariBrowser(): boolean {
-    return /^(?:(?!chrome|chromium|android|crios|edgios|fxios).)*safari/i.test(navigator.userAgent);
 }
 
 // Callers that arrive while a load is running share it, and a load that succeeded is kept. A failed load is dropped,

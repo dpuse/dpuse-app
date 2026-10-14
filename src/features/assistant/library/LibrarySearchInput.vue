@@ -7,7 +7,7 @@ import { t } from '@/state/locale';
 import { TEXT } from './LibrarySearchInput_.json';
 
 // ── Local Framework
-import { useAssistantLibrary } from '@/state/assistantLibrary';
+import { useAssistantLibrary } from '@/features/assistant/_assistantLibrary';
 
 // ── Static Components
 import IconButton from '@/components/ui/action/IconButton.vue';

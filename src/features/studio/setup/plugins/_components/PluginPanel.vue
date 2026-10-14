@@ -10,7 +10,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { TEXT } from './PluginPanel_.json';
 import { localeId, t } from '@/state/locale';
-import type { PluginConfig, SetupOptionConfig } from '@/utilities/index.ts';
+import type { PluginConfig, SetupOptionConfig } from '@/features/studio/setup/useSetupOptions';
 
 // ── Static Components
 import GitHubLogo from '@/components/branding/GitHubLogo.vue';

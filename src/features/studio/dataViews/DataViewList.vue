@@ -20,7 +20,7 @@ import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useQueryFailure } from '@/services/queryClient';
 import { type DataViewConnection, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
-import { useCreateDataView, useDataViews, useDeleteDataView } from '@/state/dataViews';
+import { useCreateDataView, useDataViews, useDeleteDataView } from '@/features/studio/dataViews/_dataViews';
 
 // ── Static Components
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';

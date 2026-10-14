@@ -16,7 +16,7 @@ import { TEXT } from './DataViewPanel_.json'; // TODO: 'item.title' names every 
 import { useUnsavedWork } from '@/state/unsavedWork';
 import { constructItemPath, type DataViewConnection } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
-import { useDataView, useUpdateDataView } from '@/state/dataViews';
+import { useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';

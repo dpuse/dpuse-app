@@ -35,7 +35,7 @@ import { ignoreReportedNavigationFailure } from '@/router';
 import { t } from '@/state/locale';
 import { TEXT } from './SelectItemPanel_.json';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
-import { useDataView, useUpdateDataView } from '@/state/dataViews';
+import { useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
 
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';

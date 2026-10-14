@@ -83,6 +83,11 @@ Design rules:
 ### Feature folders
 
 - A `_` prefix (`_components/`, `_data/`, `_context.ts`) marks files private to their feature folder.
+- Code that only one feature uses lives in that feature: one file as `_name.ts` (`_dataViews.ts`), several in a `_`
+  folder. It sits in the lowest folder that holds all its users, and moves to a shared top-level folder (`src/state/`,
+  `src/composables/`) once a second feature uses it. A file used from outside its feature, by `App.vue` or the router,
+  is not private and takes no `_`. A feature's own components and route views take no `_` either, and shared UI
+  building blocks in `src/components/ui/` stay there even when one feature uses them today.
 - Variants of a shared panel are thin wrapper files (`PluginToolPanel.vue` around `PluginPanel.vue`), not branches
   inside one generic component.
 - Setup master-detail screens use `GridDetailPanel` with `useSetupSelection()`. The selection lives in the route's
