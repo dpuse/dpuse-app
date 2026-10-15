@@ -1,7 +1,9 @@
 // ── External Dependencies & Registrations
+import type { Router } from 'vue-router';
 import { VueQueryPlugin } from '@tanstack/vue-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { enableAutoUnmount, flushPromises, mount, type VueWrapper } from '@vue/test-utils';
+import { type Ref, ref } from 'vue';
 
 // ── Local Framework
 import App from '@/App.vue';
@@ -9,6 +11,7 @@ import { createAppRouter } from '@/router';
 import { queryClient } from '@/services/queryClient';
 import { resetAppPanes } from '@/state/appPanes';
 import { settle } from '~/tests/support/settle';
+import { viewportIsWide } from '@/state/device';
 import { clearAppFailures, handleRaiseVueError } from '@/state/errors';
 
 // Unmounts after each test, so a test that fails still leaves an empty page for the next.
@@ -18,24 +21,37 @@ enableAutoUnmount(afterEach);
 // frame and routing, so the check is left out rather than failing against the network and logging an error.
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
 
+// Every media query reads false in tests, so the viewport width is a ref each test can set.
+vi.mock('@/state/device', async (importOriginal) => ({
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
+    ...(await importOriginal<typeof import('@/state/device')>()),
+    viewportIsWide: ref(false)
+}));
+
 vi.mock('@/state/session', async (importOriginal) => ({
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
     ...(await importOriginal<typeof import('@/state/session')>()),
     initialiseServices: vi.fn()
 }));
 
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const viewportIsWideMock = viewportIsWide as unknown as Ref<boolean>; // Writable, because the mock replaces it with a plain ref.
+
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Registered as 'main.ts' does. A rejected first navigation is left for the caller to assert on. Vue errors are
-// collected from the start of the mount, so a caller can check none was raised.
-async function mountApp(entryUrl: string): Promise<{ errors: unknown[]; router: ReturnType<typeof createAppRouter>; wrapper: VueWrapper }> {
+// collected from the start of the mount, so a caller can check none was raised. 'prepareRouter' runs before the first
+// navigation, so a caller can add a guard to it.
+async function mountApp(entryUrl: string, prepareRouter?: (router: Router) => void): Promise<{ errors: unknown[]; router: Router; wrapper: VueWrapper }> {
     const router = createAppRouter();
+    prepareRouter?.(router);
     try {
         await router.push(entryUrl);
+        await router.isReady();
     } catch {
         // The landing is asserted by the caller.
     }
-    await router.isReady();
 
     const errors: unknown[] = [];
     const errorHandler = (error: unknown): void => {
@@ -51,6 +67,7 @@ async function mountApp(entryUrl: string): Promise<{ errors: unknown[]; router: 
 describe('App', () => {
     beforeEach(() => {
         resetAppPanes();
+        viewportIsWideMock.value = false;
     });
 
     it('renders both pane toggles', async () => {
@@ -128,6 +145,52 @@ describe('App', () => {
 
             expect(wrapper.find('[data-region="StudioPane"]').attributes('hidden')).toBeDefined();
             expect(wrapper.find('[data-region="AssistantPane"]').attributes('hidden')).toBeUndefined();
+        });
+
+        // The URL cannot be trusted when the router fails to start, so the app falls back to the studio alone.
+        it('opens only the studio pane when the first navigation fails, whatever the URL asks for', async () => {
+            const { wrapper } = await mountApp('/?assistant=1', (router) => {
+                router.beforeEach(() => {
+                    throw new Error('Navigation guard failed.');
+                });
+            });
+
+            expect(wrapper.find('[data-region="StudioPane"]').attributes('hidden')).toBeUndefined();
+            expect(wrapper.find('[data-region="AssistantPane"]').exists()).toBe(false);
+            clearAppFailures();
+        });
+    });
+
+    // A wide display shows every open pane side by side. A pane that is the only one showing stays open, so the app is
+    // never left empty.
+    describe('wide display', () => {
+        beforeEach(() => {
+            viewportIsWideMock.value = true;
+        });
+
+        it('shows the option bar beside the studio content', async () => {
+            const { wrapper } = await mountApp('/');
+
+            expect(wrapper.find('[data-region="StudioPane"]').classes()).toContain('grid-cols-[65px_1fr]');
+        });
+
+        it('opens the assistant beside the studio, then closes the studio but never the last pane showing', async () => {
+            const { wrapper } = await mountApp('/');
+            const studioPane = (): ReturnType<VueWrapper['find']> => wrapper.find('[data-region="StudioPane"]');
+            const assistantPane = (): ReturnType<VueWrapper['find']> => wrapper.find('[data-region="AssistantPane"]');
+
+            await wrapper.find('button[aria-label="Toggle assistant panel"]').trigger('click');
+            await settle();
+            expect(studioPane().attributes('hidden')).toBeUndefined();
+            expect(assistantPane().attributes('hidden')).toBeUndefined();
+
+            await wrapper.find('button[aria-label="Toggle studio panel"]').trigger('click');
+            await settle();
+            expect(studioPane().attributes('hidden')).toBeDefined();
+
+            await wrapper.find('button[aria-label="Toggle assistant panel"]').trigger('click');
+            await settle();
+            expect(assistantPane().attributes('hidden')).toBeUndefined();
         });
     });
 

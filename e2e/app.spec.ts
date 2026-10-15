@@ -20,4 +20,12 @@ test.describe('App', () => {
         await expect(page.locator('[data-region="ErrorNotice"]')).toHaveCount(0);
         expect(errorMessages).toEqual([]);
     });
+
+    test('opens a workflow step from its card on the studio home', async ({ page }) => {
+        await page.goto('/');
+        await page.getByRole('link', { name: 'Step 1: Establish Data Views' }).click();
+
+        await expect(page).toHaveURL(/\/dataViews/);
+        await expect(page.getByRole('heading', { level: 1, name: 'Establish Data Views' })).toBeVisible();
+    });
 });

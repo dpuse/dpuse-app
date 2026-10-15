@@ -34,7 +34,6 @@ than three. Cut anything the code already shows.
 - **Stand alone.** A comment must make sense by itself. Never point to "above" or "below"; say the reason again.
 - **One term per idea.** Use the same word for the same thing everywhere ("stale deployment", not also "stale
   deploy"). Prefer a code name in quotes ('ErrorBoundary') or plain words over app-specific terms.
-- **Name the fault.** Code that exists only for fault injection names its fault: `'?fault=bootstrap' throws here…`.
 - **Plain, active sentences, one idea each.** Avoid chains of semicolons and dashes, and casual phrasing.
 - **Accurate.** Every claim must match the code. Check claims about browser or library behaviour before writing
   them, and state security trade-offs plainly.
