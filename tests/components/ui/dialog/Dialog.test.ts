@@ -1,6 +1,9 @@
-import Dialog from '@/components/ui/dialog/Dialog.vue';
+// ── External Dependencies & Registrations
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
+
+// ── Local Framework
+import Dialog from '@/components/ui/dialog/Dialog.vue';
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -22,7 +25,8 @@ describe('Dialog', () => {
         expect(wrapper.find('dialog').element.hasAttribute('open')).toBe(false);
     });
 
-    // What dismissal means is the caller's; the frame only reports it. See 'dialogs.spec.ts' for the URL side.
+    // What dismissal means is the caller's; the frame only reports it. 'tests/state/dialogs.test.ts' covers the URL
+    // side.
     it('emits "close" however the dialog was dismissed', () => {
         const wrapper = mount(Dialog, { attachTo: document.body, props: { isOpen: true }, slots: { default: '<p>Body.</p>' } });
 

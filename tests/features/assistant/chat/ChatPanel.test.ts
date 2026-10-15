@@ -1,7 +1,14 @@
-import type { AssistantChatMessage } from '@/features/assistant/chat/assistantChat';
+// ── External Dependencies & Registrations
+import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
-import { describe, expect, it, vi } from 'vitest';
-import { flushPromises, mount } from '@vue/test-utils';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+// ── Local Framework
+import type { AssistantChatMessage } from '@/features/assistant/chat/assistantChat';
+import { TEXT as CHAT_INPUT_TEXT } from '@/features/assistant/chat/ChatInput_.json';
+import { TEXT as CHAT_PANEL_TEXT } from '@/features/assistant/chat/ChatPanel_.json';
+import { settle } from '~/tests/support/settle';
+import { t } from '@/state/locale';
 
 // The panel reads its session from the composable, so the spec drives that directly rather than standing up a fake
 // component: the refs below are the session, and the tests move them the way a real run would.
@@ -38,6 +45,8 @@ vi.mock('@/services/useMarkedTool', async () => {
     };
 });
 
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 interface SessionForTest {
     messages: { value: AssistantChatMessage[] };
     status: { value: string };
@@ -49,6 +58,8 @@ interface SessionForTest {
     stop: ReturnType<typeof vi.fn>;
 }
 
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 async function getSession(): Promise<SessionForTest> {
     const module_ = (await import('@/features/assistant/chat/useChatSession')) as unknown as { sessionForTest: SessionForTest };
     return module_.sessionForTest;
@@ -57,7 +68,8 @@ async function getSession(): Promise<SessionForTest> {
 // Found by its own label rather than by position: the composer shares the bar with the model menu, and the text box
 // contributes a clear button of its own.
 function composerButton(wrapper: ReturnType<typeof mount>): ReturnType<ReturnType<typeof mount>['get']> {
-    const button = wrapper.findAll('button').find((candidate) => ['Send the message', 'Stop the response'].includes(candidate.attributes('aria-label') ?? ''));
+    const labels = new Set([t(CHAT_INPUT_TEXT, 'send.aria'), t(CHAT_INPUT_TEXT, 'stop.aria')]);
+    const button = wrapper.findAll('button').find((candidate) => labels.has(candidate.attributes('aria-label') ?? ''));
     if (!button) throw new Error('The composer button is not rendered.');
     return button;
 }
@@ -73,224 +85,230 @@ async function mountPanel(): Promise<ReturnType<typeof mount>> {
         // router this spec has no reason to stand up. Nothing here asserts on an empty thread's contents.
         global: { stubs: { ChatEmptyState: true } }
     });
-    for (let index = 0; index < 8; index++) {
-        await flushPromises();
-        await nextTick();
-    }
+    await settle(8);
     return wrapper;
 }
 
-// The composer button carries both actions, so which one it is has to follow the run state exactly: a send that fires
-// mid-run reaches a session that cannot take it, and a stop the user cannot reach leaves a run they cannot end.
-describe('chat composer send/stop button', () => {
-    it('sends while the thread is idle', async () => {
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+describe('ChatPanel', () => {
+    // Every test starts from an idle, empty session, so none depends on what an earlier one left behind.
+    beforeEach(async () => {
         const session = await getSession();
-        session.sendMessage.mockClear();
+        session.messages.value = [];
         session.status.value = 'ready';
-        const wrapper = await mountPanel();
-
-        // Nothing to send yet, so the button waits for a draft.
-        expect(composerButton(wrapper).attributes('aria-label')).toBe('Send the message');
-        expect(composerButton(wrapper).attributes('disabled')).toBeDefined();
-
-        await wrapper.get('textarea').setValue('Hello');
-        await composerButton(wrapper).trigger('click');
-
-        expect(session.sendMessage).toHaveBeenCalledExactlyOnceWith('Hello');
-    });
-
-    it('becomes a stop button while a response is running, and cancels rather than sending', async () => {
-        const session = await getSession();
+        session.sendFailure.value = undefined;
+        session.runWasStopped.value = false;
+        session.runHasFinished.value = false;
+        session.unansweredQuestionIds.value = [];
         session.sendMessage.mockClear();
         session.stop.mockClear();
-        const wrapper = await mountPanel();
-
-        session.status.value = 'streaming';
-        await nextTick();
-
-        const button = composerButton(wrapper);
-        expect(button.attributes('aria-label')).toBe('Stop the response');
-        // The tokens the composer's two states resolve to, not the raw colours: 'danger' while a run is cancellable and
-        // 'info' otherwise. The trailing '!' is Tailwind's important flag, which puts them over the button's own look.
-        expect(button.classes()).toContain('bg-danger!');
-        expect(button.classes()).not.toContain('bg-info!');
-
-        await button.trigger('click');
-        expect(session.stop).toHaveBeenCalledOnce();
-        expect(session.sendMessage).not.toHaveBeenCalled();
     });
 
-    it('stands in with a placeholder until the response has something to show', async () => {
-        const session = await getSession();
-        session.status.value = 'ready';
-        session.messages.value = [];
-        const wrapper = await mountPanel();
+    // The composer button carries both actions, so which one it is has to follow the run state exactly: a send that
+    // fires mid-run reaches a session that cannot take it, and a stop the user cannot reach leaves a run they cannot
+    // end.
+    describe('composer button', () => {
+        it('sends while the thread is idle', async () => {
+            const session = await getSession();
+            const wrapper = await mountPanel();
 
-        expect(wrapper.text()).not.toContain('Working…');
+            // Nothing to send yet, so the button waits for a draft.
+            expect(composerButton(wrapper).attributes('aria-label')).toBe(t(CHAT_INPUT_TEXT, 'send.aria'));
+            expect(composerButton(wrapper).attributes('disabled')).toBeDefined();
 
-        // Sent, nothing back yet.
-        session.status.value = 'submitted';
-        session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }];
-        await nextTick();
-        expect(wrapper.text()).toContain('Working…');
+            await wrapper.get('textarea').setValue('Hello');
+            await composerButton(wrapper).trigger('click');
 
-        // A tool round: the assistant turn exists but normalises to nothing renderable, so the silence continues.
-        session.messages.value = [
-            { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
-            { id: 'a1', role: 'assistant', parts: [], errors: [] }
-        ];
-        await nextTick();
-        expect(wrapper.text()).toContain('Working…');
+            expect(session.sendMessage).toHaveBeenCalledExactlyOnceWith('Hello');
+        });
 
-        // First content — the standalone placeholder gives way to the answer, and the heading carries the wait on
-        // while the rest of the text is still arriving.
-        session.messages.value = [
-            { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
-            { id: 'a1', role: 'assistant', parts: [{ type: 'text', content: 'An answer' }], errors: [] }
-        ];
-        session.status.value = 'streaming';
-        await nextTick();
-        expect(wrapper.text()).toContain('An answer');
-        expect(wrapper.text()).toContain('Working…');
+        it('becomes a stop button while a response is running, and cancels rather than sending', async () => {
+            const session = await getSession();
+            const wrapper = await mountPanel();
 
-        // Step complete: the heading settles and the wait is over.
-        session.status.value = 'ready';
-        await nextTick();
-        expect(wrapper.text()).not.toContain('Working…');
-        expect(wrapper.text()).toContain('An answer');
+            session.status.value = 'streaming';
+            await nextTick();
+
+            const button = composerButton(wrapper);
+            expect(button.attributes('aria-label')).toBe(t(CHAT_INPUT_TEXT, 'stop.aria'));
+            // The tokens the composer's two states resolve to, not the raw colours: 'danger' while a run is cancellable
+            // and 'info' otherwise. The trailing '!' is Tailwind's important flag, which puts them over the button's
+            // own look.
+            expect(button.classes()).toContain('bg-danger!');
+            expect(button.classes()).not.toContain('bg-info!');
+
+            await button.trigger('click');
+            expect(session.stop).toHaveBeenCalledOnce();
+            expect(session.sendMessage).not.toHaveBeenCalled();
+        });
+
+        it('stays available while a run is in flight, even with an empty composer', async () => {
+            const session = await getSession();
+            const wrapper = await mountPanel();
+            session.status.value = 'submitted';
+            await nextTick();
+
+            expect(composerButton(wrapper).attributes('disabled')).toBeUndefined();
+        });
     });
 
-    // 'Done' marks the answer to the question, so it belongs to the last message alone — the earlier turns are steps
-    // on the way to it, and nothing is finished while the run is still going.
-    it('heads only the final answer with Done, and only once the run has ended', async () => {
-        const session = await getSession();
-        const wrapper = await mountPanel();
-        const thread: AssistantChatMessage[] = [
-            { id: 'a1', role: 'assistant', parts: [{ type: 'text', content: 'An interim answer' }], errors: [] },
-            { id: 'u2', role: 'user', parts: [{ type: 'text', content: 'A second question' }], errors: [] },
-            { id: 'a2', role: 'assistant', parts: [{ type: 'text', content: 'The final answer' }], errors: [] }
-        ];
+    describe('thread', () => {
+        it('stands in with a placeholder until the response has something to show', async () => {
+            const session = await getSession();
+            const wrapper = await mountPanel();
 
-        session.messages.value = thread;
-        session.status.value = 'streaming';
-        await nextTick();
-        expect(wrapper.text()).not.toContain('Done'); // Still running: nothing is finished.
-        expect(wrapper.text()).toContain('Working…'); // The live step says so until it completes.
+            expect(wrapper.text()).not.toContain('Working…');
 
-        session.status.value = 'ready';
-        await nextTick();
+            // Sent, nothing back yet.
+            session.status.value = 'submitted';
+            session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }];
+            await nextTick();
+            expect(wrapper.text()).toContain('Working…');
 
-        const text = wrapper.text();
-        expect(text.match(/Done/g)).toHaveLength(1);
-        expect(text.indexOf('Done')).toBeGreaterThan(text.indexOf('An interim answer'));
-        expect(text.indexOf('Done')).toBeLessThan(text.indexOf('The final answer'));
-        expect(text).toContain('Response'); // The interim answer keeps the plain heading.
-    });
+            // A tool round: the assistant turn exists but normalises to nothing renderable, so the silence continues.
+            session.messages.value = [
+                { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
+                { id: 'a1', role: 'assistant', parts: [], errors: [] }
+            ];
+            await nextTick();
+            expect(wrapper.text()).toContain('Working…');
 
-    // A refused send appends no message, so hanging its error on the latest user message put it against the previous
-    // question — above the conversation rather than at the end of it.
-    it('shows a refused send at the end of the thread rather than against an earlier question', async () => {
-        const session = await getSession();
-        const wrapper = await mountPanel();
+            // First content — the standalone placeholder gives way to the answer, and the heading carries the wait on
+            // while the rest of the text is still arriving.
+            session.messages.value = [
+                { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
+                { id: 'a1', role: 'assistant', parts: [{ type: 'text', content: 'An answer' }], errors: [] }
+            ];
+            session.status.value = 'streaming';
+            await nextTick();
+            expect(wrapper.text()).toContain('An answer');
+            expect(wrapper.text()).toContain('Working…');
 
-        session.messages.value = [
-            { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'The earlier question' }], errors: [] },
-            { id: 'a1', role: 'assistant', parts: [{ type: 'text', content: 'The earlier answer' }], errors: [] }
-        ];
-        session.sendFailure.value = 'The session refused the message.';
-        await nextTick();
+            // Step complete: the heading settles and the wait is over.
+            session.status.value = 'ready';
+            await nextTick();
+            expect(wrapper.text()).not.toContain('Working…');
+            expect(wrapper.text()).toContain('An answer');
+        });
 
-        const text = wrapper.text();
-        expect(text).toContain('The session refused the message.');
-        expect(text.indexOf('The session refused the message.')).toBeGreaterThan(text.indexOf('The earlier answer'));
-    });
+        // 'Done' marks the answer to the question, so it belongs to the last message alone — the earlier turns are
+        // steps on the way to it, and nothing is finished while the run is still going.
+        it('heads only the final answer with Done, and only once the run has ended', async () => {
+            const session = await getSession();
+            const wrapper = await mountPanel();
 
-    // Which runs came back empty is the session's call, made as each one ends; the panel only renders what it is told.
-    // The adapter reports a declined request as an ordinary finish, so an empty turn is all either of them ever sees.
-    it('says so for a question the session recorded as unanswered', async () => {
-        const session = await getSession();
-        session.unansweredQuestionIds.value = [];
-        session.status.value = 'streaming';
-        session.messages.value = [
-            { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
-            { id: 'a1', role: 'assistant', parts: [], errors: [] }
-        ];
-        const wrapper = await mountPanel();
+            session.messages.value = [
+                { id: 'a1', role: 'assistant', parts: [{ type: 'text', content: 'An interim answer' }], errors: [] },
+                { id: 'u2', role: 'user', parts: [{ type: 'text', content: 'A second question' }], errors: [] },
+                { id: 'a2', role: 'assistant', parts: [{ type: 'text', content: 'The final answer' }], errors: [] }
+            ];
+            session.status.value = 'streaming';
+            await nextTick();
+            expect(wrapper.text()).not.toContain('Done'); // Still running: nothing is finished.
+            expect(wrapper.text()).toContain('Working…'); // The live step says so until it completes.
 
-        // Mid-run an empty assistant turn is just a tool round, so the placeholder speaks for it.
-        expect(wrapper.text()).toContain('Working…');
-        expect(wrapper.text()).not.toContain('No answer');
+            session.status.value = 'ready';
+            await nextTick();
 
-        session.status.value = 'ready';
-        session.unansweredQuestionIds.value = ['u1'];
-        await nextTick();
-        expect(wrapper.text()).toContain('No answer');
-    });
+            const text = wrapper.text();
+            expect(text.match(/Done/g)).toHaveLength(1);
+            expect(text.indexOf('Done')).toBeGreaterThan(text.indexOf('An interim answer'));
+            expect(text.indexOf('Done')).toBeLessThan(text.indexOf('The final answer'));
+            expect(text).toContain('Response'); // The interim answer keeps the plain heading.
+        });
 
-    // The empty turn the user stopped themselves never reaches the list, so nothing here has to know about stopping.
-    it('stays quiet about an empty turn the session did not record', async () => {
-        const session = await getSession();
-        session.status.value = 'ready';
-        session.unansweredQuestionIds.value = [];
-        session.messages.value = [
-            { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
-            { id: 'a1', role: 'assistant', parts: [], errors: [] }
-        ];
-        const wrapper = await mountPanel();
+        // A refused send appends no message, so hanging its error on the latest user message put it against the
+        // previous question — above the conversation rather than at the end of it.
+        it('shows a refused send at the end of the thread rather than against an earlier question', async () => {
+            const session = await getSession();
+            const wrapper = await mountPanel();
 
-        expect(wrapper.text()).not.toContain('No answer');
-    });
+            session.messages.value = [
+                { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'The earlier question' }], errors: [] },
+                { id: 'a1', role: 'assistant', parts: [{ type: 'text', content: 'The earlier answer' }], errors: [] }
+            ];
+            session.sendFailure.value = 'The session refused the message.';
+            await nextTick();
 
-    // A refusal may produce no assistant message at all, leaving the question as the last thing in the thread. That is
-    // still an answer that never came, and it has to say so rather than leave the question hanging.
-    it('says so when a run ends without producing any assistant turn', async () => {
-        const session = await getSession();
-        session.status.value = 'ready';
-        session.unansweredQuestionIds.value = ['u1'];
-        session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }];
-        const wrapper = await mountPanel();
+            const text = wrapper.text();
+            expect(text).toContain('The session refused the message.');
+            expect(text.indexOf('The session refused the message.')).toBeGreaterThan(text.indexOf('The earlier answer'));
+        });
 
-        expect(wrapper.text()).toContain('No answer');
-    });
+        // Which runs came back empty is the session's call, made as each one ends; the panel only renders what it is
+        // told. The adapter reports a declined request as an ordinary finish, so an empty turn is all either of them
+        // ever sees.
+        it('says so for a question the session recorded as unanswered', async () => {
+            const session = await getSession();
+            session.status.value = 'streaming';
+            session.messages.value = [
+                { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
+                { id: 'a1', role: 'assistant', parts: [], errors: [] }
+            ];
+            const wrapper = await mountPanel();
 
-    // The notice belongs to the turn that earned it. Derived from the tail of the conversation it described only the
-    // most recent run, so asking again wiped the previous turn's outcome out of the history.
-    it('keeps an unanswered turn marked once the conversation moves past it', async () => {
-        const session = await getSession();
-        session.status.value = 'ready';
-        session.unansweredQuestionIds.value = ['u1'];
-        session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }];
-        const wrapper = await mountPanel();
-        expect(wrapper.text()).toContain('No answer');
+            // Mid-run an empty assistant turn is just a tool round, so the placeholder speaks for it.
+            expect(wrapper.text()).toContain('Working…');
+            expect(wrapper.text()).not.toContain(t(CHAT_PANEL_TEXT, 'noAnswer.title'));
 
-        session.messages.value = [
-            ...session.messages.value,
-            { id: 'u2', role: 'user', parts: [{ type: 'text', content: 'Another question' }], errors: [] },
-            { id: 'a2', role: 'assistant', parts: [{ type: 'text', content: 'An answer' }], errors: [] }
-        ];
-        await nextTick();
-        expect(wrapper.text()).toContain('No answer');
-        expect(wrapper.text()).toContain('An answer');
-    });
+            session.status.value = 'ready';
+            session.unansweredQuestionIds.value = ['u1'];
+            await nextTick();
+            expect(wrapper.text()).toContain(t(CHAT_PANEL_TEXT, 'noAnswer.title'));
+        });
 
-    // The session withholds the question from the list when an error already sits under it, so the two never stack.
-    it('leaves a question that already carries an error alone', async () => {
-        const session = await getSession();
-        session.status.value = 'ready';
-        session.unansweredQuestionIds.value = [];
-        session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: ['The model is overloaded.'] }];
-        const wrapper = await mountPanel();
+        // The empty turn the user stopped themselves never reaches the list, so nothing here has to know about
+        // stopping.
+        it('stays quiet about an empty turn the session did not record', async () => {
+            const session = await getSession();
+            session.messages.value = [
+                { id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] },
+                { id: 'a1', role: 'assistant', parts: [], errors: [] }
+            ];
+            const wrapper = await mountPanel();
 
-        expect(wrapper.text()).toContain('The model is overloaded.');
-        expect(wrapper.text()).not.toContain('No answer');
-    });
+            expect(wrapper.text()).not.toContain(t(CHAT_PANEL_TEXT, 'noAnswer.title'));
+        });
 
-    it('stays available while a run is in flight, even with an empty composer', async () => {
-        const session = await getSession();
-        const wrapper = await mountPanel();
-        session.status.value = 'submitted';
-        await nextTick();
+        // A refusal may produce no assistant message at all, leaving the question as the last thing in the thread. That
+        // is still an answer that never came, and it has to say so rather than leave the question hanging.
+        it('says so when a run ends without producing any assistant turn', async () => {
+            const session = await getSession();
+            session.unansweredQuestionIds.value = ['u1'];
+            session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }];
+            const wrapper = await mountPanel();
 
-        expect(composerButton(wrapper).attributes('disabled')).toBeUndefined();
+            expect(wrapper.text()).toContain(t(CHAT_PANEL_TEXT, 'noAnswer.title'));
+        });
+
+        // The notice belongs to the turn that earned it. Derived from the tail of the conversation it described only
+        // the most recent run, so asking again wiped the previous turn's outcome out of the history.
+        it('keeps an unanswered turn marked once the conversation moves past it', async () => {
+            const session = await getSession();
+            session.unansweredQuestionIds.value = ['u1'];
+            session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: [] }];
+            const wrapper = await mountPanel();
+            expect(wrapper.text()).toContain(t(CHAT_PANEL_TEXT, 'noAnswer.title'));
+
+            session.messages.value = [
+                ...session.messages.value,
+                { id: 'u2', role: 'user', parts: [{ type: 'text', content: 'Another question' }], errors: [] },
+                { id: 'a2', role: 'assistant', parts: [{ type: 'text', content: 'An answer' }], errors: [] }
+            ];
+            await nextTick();
+            expect(wrapper.text()).toContain(t(CHAT_PANEL_TEXT, 'noAnswer.title'));
+            expect(wrapper.text()).toContain('An answer');
+        });
+
+        // The session withholds the question from the list when an error already sits under it, so the two never stack.
+        it('leaves a question that already carries an error alone', async () => {
+            const session = await getSession();
+            session.messages.value = [{ id: 'u1', role: 'user', parts: [{ type: 'text', content: 'A question' }], errors: ['The model is overloaded.'] }];
+            const wrapper = await mountPanel();
+
+            expect(wrapper.text()).toContain('The model is overloaded.');
+            expect(wrapper.text()).not.toContain(t(CHAT_PANEL_TEXT, 'noAnswer.title'));
+        });
     });
 });

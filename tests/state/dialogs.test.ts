@@ -1,8 +1,12 @@
+// ── External Dependencies & Registrations
 import { createApp } from 'vue';
 import { flushPromises } from '@vue/test-utils';
-import { useDialogs } from '@/state/dialogs';
-import { createMemoryHistory, createRouter, type Router } from 'vue-router';
+import type { Router } from 'vue-router';
 import { describe, expect, it } from 'vitest';
+
+// ── Local Framework
+import { buildMemoryRouter } from '~/tests/support/router';
+import { useDialogs } from '@/state/dialogs';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -14,10 +18,7 @@ type Dialogs = ReturnType<typeof useDialogs>;
 // that without a host component, which keeps each test driving the composable directly rather than through whichever
 // button happens to call it.
 async function buildDialogs(query = ''): Promise<{ dialogs: Dialogs; router: Router }> {
-    const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: { template: '<div />' } }] });
-    await router.push(`/${query}`);
-    await router.isReady();
-
+    const router = await buildMemoryRouter(query);
     const app = createApp({ render: () => null });
     app.use(router);
 

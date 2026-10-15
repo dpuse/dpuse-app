@@ -1,5 +1,10 @@
+// ── External Dependencies & Registrations
 import { describe, expect, it } from 'vitest';
+
+// ── Local Framework
 import { getMessageSteps, isConversationMessage } from '@/features/assistant/chat/assistantChat';
+
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The RAG system turn reaches the client's message list intact (the TanStack processor keeps the 'system' role), and
 // the normalisers map every non-user role to 'assistant'. Without this filter the prompt rendered as the thread's

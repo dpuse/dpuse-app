@@ -1,6 +1,11 @@
-import { AppError } from '@dpuse/dpuse-shared';
-import { hasReportedAppError } from '@/observability/errorTracking';
+// ── External Dependencies & Registrations
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+// ── DPUse Framework
+import { AppError } from '@dpuse/dpuse-shared';
+
+// ── Local Framework
+import { hasReportedAppError } from '@/observability/errorTracking';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

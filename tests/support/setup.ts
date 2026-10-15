@@ -1,3 +1,5 @@
+// 'matchMedia' never matches, so every media query reads false and the app always renders its narrow layout in tests.
+// No callback ever fires, because nothing under test changes the viewport.
 Object.defineProperties(globalThis, {
     matchMedia: {
         writable: true,
@@ -6,16 +8,16 @@ Object.defineProperties(globalThis, {
             media: query,
             onchange: null,
             addEventListener: (): void => {
-                // TODO
+                // The viewport never changes, so there is nothing to listen for.
             },
             removeEventListener: (): void => {
-                // TODO
+                // As above.
             },
             addListener: (): void => {
-                // TODO
+                // As above.
             },
             removeListener: (): void => {
-                // TODO
+                // As above.
             },
             dispatchEvent: (): boolean => false
         })
@@ -23,7 +25,7 @@ Object.defineProperties(globalThis, {
     scrollTo: {
         writable: true,
         value: () => {
-            // TODO
+            // jsdom has no layout, so there is nowhere to scroll to.
         }
     }
 });
@@ -80,7 +82,6 @@ Object.defineProperty(document, 'fonts', { configurable: true, value: { ready: P
 
 // jsdom implements '<dialog>' but not 'showModal'/'close', which is what the app uses to promote a dialog to the top
 // layer. Modelled just closely enough for the open state to be observable.
-
 HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement): void {
     this.setAttribute('open', '');
 };

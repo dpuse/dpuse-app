@@ -1,12 +1,45 @@
-import { AppError } from '@dpuse/dpuse-shared';
-import { liveAppVersion } from '@/state/appVersion';
+// ── External Dependencies & Registrations
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { appFailures, clearAppFailures, isStaleDeployError, markStaleDeployError, raiseAppFailure, raiseFailure, reportStaleDeployFailure, retryAppFailures } from '@/state/errors';
+
+// ── DPUse Framework
+import { AppError } from '@dpuse/dpuse-shared';
+
+// ── Local Framework
+import { liveAppVersion } from '@/state/appVersion';
+import {
+    appFailures,
+    clearAppFailures,
+    handleRaisePromiseRejection,
+    handleRaiseScriptError,
+    handleRaiseVueError,
+    handleReportPreloadError,
+    isComponentLoaderErrorInfo,
+    isStaleDeployError,
+    markStaleDeployError,
+    raiseAppFailure,
+    raiseFailure,
+    reportStaleDeployFailure,
+    retryAppFailures
+} from '@/state/errors';
 import { hasReportedAppError, logError } from '@/observability/errorTracking';
+
+vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const NEWER_APP_VERSION = '999.0.0';
 
-vi.mock('@/observability/errorTracking', () => ({ hasReportedAppError: vi.fn(() => Promise.resolve(true)), logError: vi.fn() }));
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Vue notifies the app handler about a lazy component's load failure as well as showing the component's own failure,
+// in either of two wordings. The handler skips both, so the failure is reported once, by the component.
+describe('isComponentLoaderErrorInfo', () => {
+    it('recognises the info Vue sends for a lazy component load failure, in both its wordings', () => {
+        expect(isComponentLoaderErrorInfo('async component loader')).toBe(true); // Development.
+        expect(isComponentLoaderErrorInfo('https://vuejs.org/error-reference/#runtime-13')).toBe(true); // Production.
+        expect(isComponentLoaderErrorInfo('render function')).toBe(false);
+    });
+});
 
 // Recognising a stale deployment is Vite's 'vite:preloadError' saying so, and nothing read from the error itself: its
 // wording is not something browsers promise, and the imports that event does not cover cannot go stale at all.
@@ -245,5 +278,104 @@ describe('a missing chunk once a newer version is deployed', () => {
         appVersion.liveAppVersion.value = undefined;
         errors.reportStaleDeployFailure(new AppError('Failed to load part of the app.', 'test'));
         expect(errorTracking.hasReportedAppError).toHaveBeenCalledOnce();
+    });
+});
+
+// The page-wide listeners 'main.ts' installs, called here with events built the way the browser would build them.
+describe('handleRaiseScriptError', () => {
+    beforeEach(() => {
+        clearAppFailures();
+    });
+
+    it('ignores an error with no file and no error object, which came from outside the app', () => {
+        vi.spyOn(console, 'warn').mockImplementationOnce(() => {
+            // Expected, so kept out of the test output.
+        });
+        const event = new ErrorEvent('error', { cancelable: true, message: 'Script error.' });
+        handleRaiseScriptError(event);
+
+        expect(appFailures.value).toStrictEqual([]);
+        expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('shows an app error with where it happened, and stops the browser logging it again', () => {
+        const error = new Error('Failed in a timer.');
+        const event = new ErrorEvent('error', { cancelable: true, colno: 7, error, filename: 'https://localhost/app.js', lineno: 3, message: error.message });
+        handleRaiseScriptError(event);
+
+        expect(appFailures.value[0]?.error.data).toStrictEqual({ colno: 7, filename: 'https://localhost/app.js', lineno: 3, originalMessage: 'Failed in a timer.', typeId: 'unhandledRuntime' });
+        expect(appFailures.value[0]?.error.cause).toBe(error);
+        expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('builds an Error from the message when a plain value with no error object was thrown', () => {
+        handleRaiseScriptError(new ErrorEvent('error', { filename: 'https://localhost/app.js', message: 'Uncaught a string.' }));
+
+        expect(appFailures.value[0]?.error.cause).toStrictEqual(new Error('Uncaught a string.'));
+    });
+});
+
+describe('handleRaisePromiseRejection', () => {
+    beforeEach(() => {
+        clearAppFailures();
+    });
+
+    it('shows the reason as it is, and stops the browser logging it again', () => {
+        const event = Object.assign(new Event('unhandledrejection', { cancelable: true }), { promise: Promise.resolve(), reason: 'A plain string.' });
+        handleRaisePromiseRejection(event);
+
+        expect(appFailures.value[0]?.error.cause).toBe('A plain string.');
+        expect(appFailures.value[0]?.error.data).toStrictEqual({ typeId: 'unhandledPromiseRejection' });
+        expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('builds an Error when the promise failed with no reason', () => {
+        handleRaisePromiseRejection(Object.assign(new Event('unhandledrejection'), { promise: Promise.resolve(), reason: undefined }));
+
+        expect(appFailures.value[0]?.error.cause).toStrictEqual(new Error('Unknown promise rejection error.'));
+    });
+});
+
+describe('handleReportPreloadError', () => {
+    it('marks the chunk as stale and shows nothing, leaving the error for the screen that needs the chunk', () => {
+        clearAppFailures();
+        const payload = new TypeError('Failed to fetch dynamically imported module.');
+        const event = Object.assign(new Event('vite:preloadError', { cancelable: true }), { payload });
+        handleReportPreloadError(event);
+
+        expect(isStaleDeployError(payload)).toBe(true);
+        expect(appFailures.value).toStrictEqual([]);
+        expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('reports the failure', async () => {
+        // Fresh modules, because the once-per-session guard is likely set by an earlier case and would hide the result.
+        vi.resetModules();
+        const errorTracking = await import('@/observability/errorTracking');
+        const errors = await import('@/state/errors');
+
+        errors.handleReportPreloadError(Object.assign(new Event('vite:preloadError'), { payload: new TypeError('Failed to fetch.') }));
+
+        expect(errorTracking.hasReportedAppError).toHaveBeenCalledOnce();
+    });
+});
+
+describe('handleRaiseVueError', () => {
+    beforeEach(() => {
+        clearAppFailures();
+    });
+
+    it('skips a lazy component load failure, which the component shows and reports itself', () => {
+        handleRaiseVueError(new Error('Failed to load.'), null, 'async component loader');
+
+        expect(appFailures.value).toStrictEqual([]);
+    });
+
+    it('shows any other Vue error', () => {
+        const error = new Error('Failed to render.');
+        handleRaiseVueError(error, null, 'render function');
+
+        expect(appFailures.value[0]?.error.data).toStrictEqual({ componentName: undefined, info: 'render function', typeId: 'unhandledVueRuntime' });
+        expect(appFailures.value[0]?.error.cause).toBe(error);
     });
 });

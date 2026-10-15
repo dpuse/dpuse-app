@@ -33,3 +33,6 @@ export const assistantPaneIsVisible: ComputedRef<boolean> = computed(() => appPa
 
 // The only way a pane is opened or closed. Opening a pane puts it in front, and closing one leaves the other in front.
 export const setPaneOpenState: (paneId: AppPaneId, isOpen: boolean) => void = appPanes.setPaneOpenState;
+
+// For tests only. The panes are held once for the whole app, so without this one test's open panes carry into the next.
+export const resetAppPanes: () => void = appPanes.resetPanes;

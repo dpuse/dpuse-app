@@ -1,4 +1,8 @@
 {
   "extends": "@tsconfig/node24/tsconfig.json",
-  "include": ["./**/*"]
+  "compilerOptions": {
+    "lib": ["es2024", "ESNext.Array", "ESNext.Collection", "ESNext.Error", "ESNext.Iterator", "ESNext.Promise", "DOM"], // Code passed to the page, such as 'page.evaluate', runs in the browser.
+    "types": ["node", "trusted-types"]
+  },
+  "include": ["./**/*", "../env.d.ts"] // 'env.d.ts' declares the page's 'trustedTypes' global.
 }

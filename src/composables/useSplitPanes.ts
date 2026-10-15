@@ -14,6 +14,7 @@ interface SplitPanes<TPaneId extends string> {
     isPaneVisible: (paneId: TPaneId) => boolean;
     splitterIsVisible: ComputedRef<boolean>;
     setPaneOpenState: (paneId: TPaneId, isOpen: boolean) => void;
+    resetPanes: () => void;
 }
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -57,5 +58,13 @@ export function useSplitPanes<TPaneId extends string>(
         currentPaneId.value = isOpen ? paneId : (paneIds.find((candidateId) => candidateId !== paneId) ?? paneId);
     }
 
-    return { currentPaneId, isPaneOpen, isPaneVisible, wasPaneOpened, splitterIsVisible, setPaneOpenState };
+    // Back to how the split started, with no pane open or ever opened. Only tests need this, because a module-level
+    // instance otherwise carries one test's panes into the next.
+    function resetPanes(): void {
+        currentPaneId.value = initialPaneId;
+        openStates.value = new Map();
+        openedStates.value = new Map();
+    }
+
+    return { currentPaneId, isPaneOpen, isPaneVisible, wasPaneOpened, splitterIsVisible, setPaneOpenState, resetPanes };
 }

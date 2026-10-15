@@ -1,6 +1,11 @@
-import { useSplitPanes } from '@/composables/useSplitPanes';
+// ── External Dependencies & Registrations
 import { describe, expect, it } from 'vitest';
 import { type Ref, ref } from 'vue';
+
+// ── Local Framework
+import { useSplitPanes } from '@/composables/useSplitPanes';
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The assistant's inner split runs this model, and a pane that is open but never in front is invisible on a narrow
 // container — so 'open' and 'visible' have to stay distinct, and the front pane has to follow every change.
@@ -9,7 +14,9 @@ function build(): { containerIsWide: Ref<boolean>; panes: ReturnType<typeof useS
     return { containerIsWide, panes: useSplitPanes(['chat', 'library'] as const, { containerIsWide, initialPaneId: 'chat' }) };
 }
 
-describe('split panes', () => {
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+describe('useSplitPanes', () => {
     it('puts the pane just switched on in front, and the other one when a pane is switched off', () => {
         const { panes } = build();
 

@@ -1,11 +1,14 @@
-import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
-import { hasReportedAppError } from '@/observability/errorTracking';
+// ── External Dependencies & Registrations
 import { mount } from '@vue/test-utils';
-import { appFailures, clearAppFailures } from '@/state/errors';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, nextTick } from 'vue';
 
-vi.mock('@/observability/errorTracking', () => ({ hasReportedAppError: vi.fn(() => Promise.resolve(true)) }));
+// ── Local Framework
+import ErrorBoundary from '@/components/ui/error/ErrorBoundary.vue';
+import { hasReportedAppError } from '@/observability/errorTracking';
+import { appFailures, clearAppFailures } from '@/state/errors';
+
+vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

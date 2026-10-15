@@ -12,8 +12,6 @@ import { markStaleDeployError } from '@/state/errors';
 //                 'config-socket'                             Each list that needs the configuration shows it.
 //   App dialog    'route' | 'route-stale' | 'vue'             Nothing owns these, so 'App.vue' shows them.
 //                 'account' | 'auth' | 'config' | 'engine'
-//   Neither       'preload'                                   Reported only — proves nothing appears on screen.
-//   Pre-mount     'bootstrap' | 'browser'                     The plain DOM message, before Vue exists.
 //   Modifier      'report-failure'                            Makes delivery fail, so every body says so.
 //   Not a failure 'new-version' | 'module-update'             Fakes a new app or module version, to show the notice.
 //
@@ -23,8 +21,6 @@ import { markStaleDeployError } from '@/state/errors';
 export type FaultId =
     | 'account'
     | 'auth'
-    | 'bootstrap'
-    | 'browser'
     | 'config'
     | 'config-socket'
     | 'engine'
@@ -32,7 +28,6 @@ export type FaultId =
     | 'new-version'
     | 'panel'
     | 'panel-stale'
-    | 'preload'
     | 'report-failure'
     | 'route'
     | 'route-stale'
