@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import DOMPurify from 'dompurify';
 import { useRoute } from 'vue-router';
 import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
 
@@ -101,7 +102,7 @@ async function loadPresenters(): Promise<void> {
     const failedPresenterIds: string[] = [];
     for (const presenterConfig of presenterConfigs.value) {
         try {
-            const presenter = await loadPresenter(presenterConfig, toolConfigs.value, appearanceIsDark.value ? 'dark' : 'light');
+            const presenter = await loadPresenter(presenterConfig, toolConfigs.value, appearanceIsDark.value ? 'dark' : 'light', (html) => DOMPurify.sanitize(html));
             presenters.push(presenter);
 
             const newPresentationReferences = presenter.list().map((presentationReference) => localiseReference(presentationReference, 'en')); // TODO: Could also use 'presenterConfig.presentations', though it is a map, not an array.

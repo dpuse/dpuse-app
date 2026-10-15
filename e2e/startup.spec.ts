@@ -61,7 +61,9 @@ test.describe('Startup', () => {
         await expect(page.locator('[data-region="ErrorNotice"]')).toHaveCount(0);
     });
 
-    test("allows only blob script URLs through the 'default' Trusted Types policy", async ({ page }) => {
+    // The engine starts its worker through its own 'dpuse-engine' policy, so the 'default' policy refuses every script
+    // URL, blob URLs included.
+    test("refuses every script URL through the 'default' Trusted Types policy", async ({ page }) => {
         await page.goto('/');
         await expect(page.locator('[data-region="StudioPane"]')).toBeVisible();
 
@@ -75,8 +77,36 @@ test.describe('Startup', () => {
                     return false;
                 }
             }
-            return { hasPolicy: policy != null, isBlobUrlAllowed: isScriptUrlAllowed('blob:https://localhost/worker'), isOtherUrlAllowed: isScriptUrlAllowed('https://example.com/script.js') };
+            return {
+                hasPolicy: policy != null,
+                isBlobUrlAllowed: isScriptUrlAllowed('blob:https://localhost/worker'),
+                isOtherUrlAllowed: isScriptUrlAllowed('https://example.com/script.js')
+            };
         });
-        expect(results).toStrictEqual({ hasPolicy: true, isBlobUrlAllowed: true, isOtherUrlAllowed: false });
+        expect(results).toStrictEqual({ hasPolicy: true, isBlobUrlAllowed: false, isOtherUrlAllowed: false });
+    });
+
+    // Plugins such as Highcharts create policies whose names are not in the CSP 'trusted-types' list, and several
+    // plugins may create the same name. Each gets a stand-in whose output still goes through the 'default' policy.
+    test('gives an unlisted or duplicate Trusted Types policy a stand-in that the default policy still checks', async ({ page }) => {
+        await page.goto('/');
+        await expect(page.locator('[data-region="StudioPane"]')).toBeVisible();
+
+        const results = await page.evaluate(() => {
+            const options = { createHTML: (html: string): string => html, createScriptURL: (url: string): string => url };
+            const policy = trustedTypes?.createPolicy('unlisted-plugin', options);
+            trustedTypes?.createPolicy('dompurify', options);
+            const duplicatePolicy = trustedTypes?.createPolicy('dompurify', options); // Listed, but already created.
+            const element = document.createElement('div');
+            element.innerHTML = policy?.createHTML('<b>Shown</b>') as unknown as string;
+            let isWorkerStarted = true;
+            try {
+                new Worker(policy?.createScriptURL('blob:https://localhost/worker') as unknown as string);
+            } catch {
+                isWorkerStarted = false;
+            }
+            return { hasDuplicatePolicy: duplicatePolicy != null, html: element.getHTML(), isWorkerStarted };
+        });
+        expect(results).toStrictEqual({ hasDuplicatePolicy: true, html: '<b>Shown</b>', isWorkerStarted: false });
     });
 });
