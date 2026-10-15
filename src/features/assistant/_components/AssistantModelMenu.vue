@@ -47,7 +47,7 @@ function handleSelect(newModelConfig: AssistantModelConfig): void {
         <ActionWrapper
             aria-haspopup="true"
             :aria-expanded="menuIsOpen"
-            :aria-label="t(TEXT, 'selectModel.aria')"
+            :aria-label="t(TEXT, 'selectModel.aria', { model: modelConfig.modelLabel })"
             class="flex max-w-full min-w-0 items-center gap-x-1 rounded-full px-2.5 py-1 text-xs text-content focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
             :class="UNSELECTED_CLASSES"
             @click="menuIsOpen = !menuIsOpen"
