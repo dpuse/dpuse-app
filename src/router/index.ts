@@ -188,7 +188,7 @@ function clearNavigationPending(): void {
 
 // eslint-disable-next-line unicorn/no-unnecessary-parameters -- Kept for the development-only load simulation, switched on by passing one at a call site.
 function defineLazyLoader(label: string, depth: number, loader: () => Promise<Component>, simulation?: AsyncPanelSimulation): RouteComponentLoader {
-    const developmentLoader = addDevelopmentFaults(loader, label, 'route', simulation);
+    const developmentLoader = addDevelopmentFaults(loader, label, simulation);
     const routeLoader = (): Promise<Component> => {
         // Tells the 'RouterView' at this level to show a spinner while the chunk is fetched. The shallowest level
         // wins, since its spinner covers the levels below. Delayed, so a fast load does not flash one.

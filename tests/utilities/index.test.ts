@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from 'vitest';
 // ── Local Framework
 import { defineLazyComponent } from '@/utilities/index.ts';
 import { hasReportedAppError } from '@/observability/errorTracking';
+import { markStaleDeployError } from '@/state/errors';
 import { settle } from '~/tests/support/settle';
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
@@ -33,6 +34,11 @@ function echo(text: string): string {
     return text;
 }
 
+// A chunk that cannot be fetched, as the browser reports it when the network drops or a deployment has deleted it.
+function failToLoad(): Promise<never> {
+    return Promise.reject(new TypeError('Failed to fetch dynamically imported module.'));
+}
+
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('defineLazyComponent', () => {
@@ -41,10 +47,9 @@ describe('defineLazyComponent', () => {
     // 'defineLazyComponent'. These assert the whole path, not just that something rendered: a silent version of this
     // shipped for a long time.
     describe('load failure', () => {
-        it('fault=panel shows and reports the failure in the panel’s place', async () => {
-            history.replaceState({}, '', '/?fault=panel');
+        it('shows and reports the failure in the panel’s place', async () => {
             vi.mocked(hasReportedAppError).mockClear();
-            const wrapper = await render(defineLazyComponent(() => Promise.resolve(defineComponent({ template: '<div />' })), 'FaultPanel'));
+            const wrapper = await render(defineLazyComponent(failToLoad, 'FaultPanel'));
 
             expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(true);
             expect(wrapper.text()).toContain('Failed to load the FaultPanel component.');
@@ -75,15 +80,6 @@ describe('defineLazyComponent', () => {
             expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(true);
         });
 
-        it('fault=panel:<name> fails only the panel it names, so one nested inside another can be reached', async () => {
-            history.replaceState({}, '', '/?fault=panel:InnerPanel');
-            const outer = await render(defineLazyComponent(() => Promise.resolve(defineComponent({ template: '<div data-region="Outer" />' })), 'OuterPanel'));
-            const inner = await render(defineLazyComponent(() => Promise.resolve(defineComponent({ template: '<div />' })), 'InnerPanel'));
-
-            expect(outer.find('[data-region="Outer"]').exists()).toBe(true); // Loaded, so its children get their turn.
-            expect(inner.find('[data-region="ErrorNotice"]').exists()).toBe(true);
-        });
-
         it('retries the load in place rather than reloading the document', async () => {
             history.replaceState({}, '', '/');
             const state = { attempts: 0 };
@@ -105,8 +101,7 @@ describe('defineLazyComponent', () => {
         });
 
         it('offers both recoveries, so a misjudged classification is not a dead end', async () => {
-            history.replaceState({}, '', '/?fault=panel');
-            const wrapper = await render(defineLazyComponent(() => Promise.resolve(defineComponent({ template: '<div />' })), 'BothPanel'));
+            const wrapper = await render(defineLazyComponent(failToLoad, 'BothPanel'));
 
             expect(wrapper.text()).toContain('Retry');
             expect(wrapper.text()).toContain('Reload');
@@ -114,8 +109,7 @@ describe('defineLazyComponent', () => {
         });
 
         it('covers the space the panel would have occupied, rather than sitting inside it', async () => {
-            history.replaceState({}, '', '/?fault=panel');
-            const wrapper = await render(defineLazyComponent(() => Promise.resolve(defineComponent({ template: '<div />' })), 'CoveringPanel'));
+            const wrapper = await render(defineLazyComponent(failToLoad, 'CoveringPanel'));
 
             // The panel never arrived, so its whole region is what failed — 'is-region' is what covers it in the
             // layout.
@@ -123,8 +117,10 @@ describe('defineLazyComponent', () => {
         });
 
         it('tells the user a stale chunk needs the page reloading, which a retry cannot do', async () => {
-            history.replaceState({}, '', '/?fault=panel-stale');
-            const wrapper = await render(defineLazyComponent(() => Promise.resolve(defineComponent({ template: '<div />' })), 'StalePanel'));
+            // Marked as Vite's 'vite:preloadError' marks a chunk that a new deployment has deleted.
+            const staleError = new TypeError('Failed to fetch dynamically imported module.');
+            markStaleDeployError(staleError);
+            const wrapper = await render(defineLazyComponent(() => Promise.reject(staleError), 'StalePanel'));
             expect(wrapper.text()).toContain('Reload');
             expect(wrapper.text()).toContain('outdated version');
         });

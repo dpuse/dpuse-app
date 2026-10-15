@@ -7,7 +7,6 @@ import type { EngineRuntime, EngineWorker } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { raiseFailure } from '@/state/errors';
-import { throwOnFault } from '@/observability/faultInjection';
 import { assertDefined, shareLoad } from '@/utilities/index.ts';
 import { engineConfig, toolConfigs, useConfigsReady } from '@/state/configs';
 
@@ -31,7 +30,6 @@ async function loadEngineWorker(): Promise<EngineWorker> {
     const engineURL = `${ENGINE_STORAGE_URL_PREFIX}/engine_v${String(engineVersion)}/dpuse-engine.es.js`;
     let engineWorker: EngineWorker;
     try {
-        if (import.meta.env.DEV) throwOnFault('engine');
         assertDefined(engineVersion, 'No engine configuration.');
         const module = await import(/* @vite-ignore */ engineURL);
         const engineRuntime = module.engineRuntime as EngineRuntime;

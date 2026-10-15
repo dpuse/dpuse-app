@@ -44,8 +44,8 @@ const OPTION_CONFIGS: OptionLocalisedConfig[] = [
     { id: 'criticalActions', type: 'label', label: 'Critical Actions' },
     { id: 'deleteAccount', icon: '', label: 'Delete account', isDestructive: true }
 ];
-// Each panel is named for itself, not for this one. The name is what a load failure reports and what '?fault=panel:'
-// targets, so sharing the parent's name left every one of them unreportable and unreachable individually.
+// Each panel is named for itself, not for this one. The name is what a load failure reports, so sharing the parent's
+// name left every one of them unreportable individually.
 const OPTION_COMPONENT_MAP: Record<string, Component> = {
     managePersonalDetails: defineLazyComponent(() => import('./ManagePersonalDetailsPanel.vue'), 'ManagePersonalDetailsPanel'),
     manageSubscription: defineLazyComponent(() => import('./ManageSubscriptionPanel.vue'), 'ManageSubscriptionPanel'),

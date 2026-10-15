@@ -9,7 +9,6 @@ import { defineLazyComponent } from '@/utilities/index.ts';
 import { initialiseServices } from '@/state/session';
 import { t } from '@/state/locale';
 import { TEXT } from './App_.json';
-import { throwOnFault } from '@/observability/faultInjection';
 import { useDialogs } from '@/state/dialogs';
 import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors';
 import {
@@ -91,10 +90,6 @@ const studioViewKey = computed(() => route.matched.find((record) => record.compo
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 onMounted(() => {
-    // '?fault=vue' throws from the root component. No 'ErrorBoundary' wraps the root, so the error reaches
-    // 'app.config.errorHandler'.
-    if (import.meta.env.DEV) throwOnFault('vue');
-
     initialiseServices();
 });
 

@@ -2,7 +2,6 @@
 import { type AppError, type SerialisedError, serialiseError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { hasFault } from '@/observability/faultInjection';
 import { TEXT } from './errorTracking_.json';
 import { trackEventImmediately } from '@/observability/eventTracking';
 import { localeId, t } from '@/state/locale';
@@ -22,7 +21,6 @@ const MAX_STACK_LINES = 10;
 export async function hasReportedAppError(error: AppError): Promise<boolean> {
     const serialisedErrors = serialiseError(error);
     logErrorToConsole(serialisedErrors);
-    if (import.meta.env.DEV && hasFault('report-failure')) return false; // Fakes a failed report; combine with another fault, e.g. '?fault=panel,report-failure'.
     return trackEventImmediately('error', fitReport(serialisedErrors));
 }
 

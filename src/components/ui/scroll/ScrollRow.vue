@@ -139,8 +139,9 @@ function measureItemContent(item: HTMLElement): { left: number; right: number } 
         if (box && (box.width > 0 || box.height > 0)) boxes.push(box);
         node = walker.nextNode();
     }
-    if (boxes.length === 0) return item.getBoundingClientRect(); // An item with no visible text or icons is measured as a whole.
-    return { left: Math.min(...boxes.map((box) => box.left)), right: Math.max(...boxes.map((box) => box.right)) };
+    return boxes.length === 0
+        ? item.getBoundingClientRect() // An item with no visible text or icons is measured as a whole.
+        : { left: Math.min(...boxes.map((box) => box.left)), right: Math.max(...boxes.map((box) => box.right)) };
 }
 
 // Scrolls just far enough for the item to be fully in view. Where an arrow button is showing, the item stops clear of

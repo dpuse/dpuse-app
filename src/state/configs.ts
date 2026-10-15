@@ -19,7 +19,6 @@ import { AppError, localiseConfigs } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { localeId } from '@/state/locale';
-import { throwOnFault } from '@/observability/faultInjection';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Data ─ Stands in for a real endpoint until one exists. See 'initialiseContextConfig'.
@@ -102,7 +101,6 @@ export const metaStoreConnectionConfig = computed(() => {
 
 export async function initialiseConfigMonitor(): Promise<void> {
     try {
-        if (import.meta.env.DEV) throwOnFault('config');
         const configMonitorModule = await import('@/observability/configMonitor');
         configMonitorModule.initialise();
     } catch (error) {

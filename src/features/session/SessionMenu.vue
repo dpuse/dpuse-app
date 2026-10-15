@@ -213,8 +213,8 @@ async function handleToggleWindowExpansion(): Promise<void> {
                         <div class="text-sm font-semibold text-muted">{{ t(TEXT, 'fullScreen.label') }}</div>
                         <Separator class="mt-1 mb-2.25 flex-none" />
                         <IconButton
-                            :accessible-label="screenIsFullscreen ? t(TEXT, 'collapse.label') : t(TEXT, 'expand.label')"
-                            :label="screenIsFullscreen ? t(TEXT, 'collapse.label') : t(TEXT, 'expand.label')"
+                            :accessible-label="t(TEXT, screenIsFullscreen ? 'collapse.label' : 'expand.label')"
+                            :label="t(TEXT, screenIsFullscreen ? 'collapse.label' : 'expand.label')"
                             size="sm"
                             @click="handleToggleWindowExpansion"
                         >

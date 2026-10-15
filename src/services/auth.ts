@@ -1,16 +1,15 @@
 // ── External Dependencies & Registrations
 import type { AnyState, Claims, FlowName, Hanko } from '@teamhanko/hanko-frontend-sdk';
 
-// ── Local Framework
-import { throwOnFault } from '@/observability/faultInjection';
-
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export type AuthSessionChangeId = 'created' | 'deleted' | 'expired' | 'terminated';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const HANKO_API_URL = import.meta.env.PROD ? 'https://auth.dpuse.app' : 'https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io'; // Public addresses, kept here so a build needs no '.env'.
+// Chosen by where the app is served rather than by build, because CI tests the production build on 'localhost' and the
+// production Hanko project accepts only 'my.dpuse.app'. Public addresses, kept here so a build needs no '.env'.
+const HANKO_API_URL = location.hostname === 'localhost' ? 'https://aed89ef7-2e5e-4e63-ae1a-851bbe2d4bb1.hanko.io' : 'https://auth.dpuse.app';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -22,7 +21,6 @@ const state: { hankoInstance: Hanko | undefined; hankoFlowCleanupFunction: (() =
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function loadAuthClient(handleSessionChange: (changeId: AuthSessionChangeId, claims?: Claims) => void): Promise<void> {
-    if (import.meta.env.DEV) throwOnFault('auth');
     const hankoModule = await import('@teamhanko/hanko-frontend-sdk');
     const hankoInstance = new hankoModule.Hanko(HANKO_API_URL);
     hankoInstance.onSessionCreated((sessionDetails) => {

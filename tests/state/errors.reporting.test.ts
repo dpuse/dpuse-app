@@ -16,8 +16,9 @@ vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTrac
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// A panel whose chunk cannot be fetched.
 function buildPanel(name: string): ReturnType<typeof defineLazyComponent> {
-    return defineLazyComponent(() => Promise.resolve(defineComponent({ template: '<div data-region="Panel" />' })), name);
+    return defineLazyComponent(() => Promise.reject(new TypeError('Failed to fetch dynamically imported module.')), name);
 }
 
 function reportedMessages(): string[] {
@@ -37,7 +38,6 @@ describe('error reporting hierarchy', () => {
     });
 
     it('reports a panel load failure once, from the panel that lost something', async () => {
-        history.replaceState({}, '', '/?fault=panel');
         const wrapper = mount(defineComponent({ render: () => h(buildPanel('BarePanel')) }), { global: { config: { errorHandler: handleRaiseVueError } } });
         await settle();
 
@@ -46,7 +46,6 @@ describe('error reporting hierarchy', () => {
     });
 
     it('leaves a panel load failure to the panel rather than replacing the whole region around it', async () => {
-        history.replaceState({}, '', '/?fault=panel');
         const router = await buildMemoryRouter();
 
         const wrapper = mount(ErrorBoundary, {

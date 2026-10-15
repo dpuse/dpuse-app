@@ -7,7 +7,6 @@ import type { ConnectionConfig, ConnectorConfig, CookbookConfig, EngineConfig, M
 
 // ── Local Framework
 import { DPUSE_API_HOST } from '@/observability/eventTracking';
-import { hasFault } from '@/observability/faultInjection';
 import { raiseFailure } from '@/state/errors';
 import { useMonitorSocket } from '@/observability/monitorSocket';
 import { announceAppVersion, announceModuleUpdate } from '@/state/appVersion';
@@ -27,7 +26,6 @@ interface RegistrationState {
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const MAX_RECONNECT_ATTEMPTS = 5;
-const SIMULATED_NEW_APP_VERSION = '999.0.0'; // Newer than any real version, for '?fault=new-version'.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -83,13 +81,6 @@ const socket = useMonitorSocket<ConfigMessage>({
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function initialise(): void {
-    // Skips straight to the give-up path rather than making the tester wait out five real reconnect delays.
-    if (import.meta.env.DEV && hasFault('config-socket')) {
-        state.reconnectAttempts = MAX_RECONNECT_ATTEMPTS;
-        handleRetrievalFailed();
-        return;
-    }
-
     socket.open();
 }
 
@@ -187,7 +178,7 @@ function upsertConfig<Config extends { id: string }>(configs: Config[], config: 
 }
 
 // The first list is what this page loaded with. A list arriving after a reconnect may hold changes made while the
-// socket was down, which no 'deploy' or 'delete' message reported. '?fault=module-update' pretends one has changed.
+// socket was down, which no 'deploy' or 'delete' message reported.
 function compareModuleList(moduleConfigs: ModuleConfig[]): void {
     const signature = moduleConfigs
         .filter((moduleConfig) => moduleConfig.typeId !== 'app')
@@ -196,15 +187,14 @@ function compareModuleList(moduleConfigs: ModuleConfig[]): void {
         .join('|');
     if (state.moduleListSignature == null) {
         state.moduleListSignature = signature;
-        if (import.meta.env.DEV && hasFault('module-update')) announceModuleUpdate();
         return;
     }
     if (signature !== state.moduleListSignature) announceModuleUpdate();
 }
 
-// Tells a running copy that a newer version has been deployed. '?fault=new-version' pretends one has.
+// Tells a running copy that a newer version has been deployed.
 function registerAppVersion(deployedVersion: string): void {
-    announceAppVersion(import.meta.env.DEV && hasFault('new-version') ? SIMULATED_NEW_APP_VERSION : deployedVersion);
+    announceAppVersion(deployedVersion);
 }
 
 function logRegistered(name: string, moduleConfig: ModuleConfig): void {

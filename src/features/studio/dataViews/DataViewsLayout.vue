@@ -151,13 +151,20 @@ watch(
 
 // If the data view's connection disappears from the list (the user signed out, or its connector was removed), go back
 // to the data view list with its card selected, so its panel says the connection has gone. Only from a task, since the
-// list is where it goes. Checked on mount too, because it may have gone while the user was elsewhere.
+// list is where it goes. Checked on mount too, because it may have gone while the user was elsewhere. Nothing happens
+// while the lists are still loading, because a short list proves nothing then.
 watch(
     [connectionLocalisedConfigs, (): string | undefined => dataViewConfig.value?.connectionId],
     ([newConnectionLocalisedConfigs, newConnectionId]) => {
         const areAccountConnectionsKnown = sessionIsAuthenticated.value === false || accountConfigStatus.value.typeId === 'ready'; // Signed out means none.
-        if (!areAccountConnectionsKnown || configStatus.value.typeId !== 'ready') return; // Still loading, so a short list proves nothing.
-        if (newConnectionId == null || currentTaskLocalisedConfig.value == null || newConnectionLocalisedConfigs.some((config) => config.id === newConnectionId)) return;
+        if (
+            !areAccountConnectionsKnown ||
+            newConnectionId == null ||
+            configStatus.value.typeId !== 'ready' ||
+            currentTaskLocalisedConfig.value == null ||
+            newConnectionLocalisedConfigs.some((config) => config.id === newConnectionId)
+        )
+            return;
 
         void ignoreReportedNavigationFailure(router.replace({ name: 'dataViews', params: { dataViewId: currentDataViewId.value }, query: route.query }));
     },

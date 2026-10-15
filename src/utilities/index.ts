@@ -2,9 +2,6 @@
 import { promiseTimeout } from '@vueuse/core';
 import { type AsyncComponentLoader, type Component, type ComponentPublicInstance, defineAsyncComponent, defineComponent, h, ref, type VNode } from 'vue';
 
-// ── Local Framework
-import { throwOnFault, throwOnStaleFault } from '@/observability/faultInjection';
-
 // ── Static Components
 import ComponentLoadingSpinner from '@/components/ui/placeholder/ComponentLoadingSpinner.vue';
 import LoadFailureNotice from '@/components/ui/error/LoadFailureNotice.vue';
@@ -36,20 +33,12 @@ export const VISIBLE_DELAY_MS = 150;
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Adds the development-only faults and simulation to a loader, so a slow or failing load can be tried without editing
-// a call site. Panels use '?fault=panel' and routes '?fault=route'. Outside development the loader is returned as it
-// is.
-//
-// '?fault=panel' fails every panel unless one is named, as in '?fault=panel:ChatPanel'. Naming one is the only way to
-// fail a panel nested inside another, because otherwise the outer panel fails first.
-export function addDevelopmentFaults<T>(loader: () => Promise<T>, name: string, faultId: 'panel' | 'route', simulation?: AsyncPanelSimulation): () => Promise<T> {
-    if (!import.meta.env.DEV) return loader;
+// Adds a call site's development-only simulation to a loader, so a slow or failing load can be tried. Outside
+// development, or with no simulation, the loader is returned as it is.
+export function addDevelopmentFaults<T>(loader: () => Promise<T>, name: string, simulation?: AsyncPanelSimulation): () => Promise<T> {
+    if (!simulation || !import.meta.env.DEV) return loader;
 
     return async () => {
-        throwOnFault(faultId, name, `Simulated ${name} load failure.`);
-        throwOnStaleFault(`${faultId}-stale`, name);
-        if (!simulation) return loader();
-
         const { delayMs = 0, failsToLoad = false } = simulation;
         if (delayMs > 0) await promiseTimeout(delayMs);
         if (failsToLoad) throw new Error(`Simulated ${name} load error.`);
@@ -79,7 +68,7 @@ export function defineLazyComponent(loader: AsyncComponentLoader, name: string, 
     // 'delay' replaces Vue's default of 200ms, so every spinner in the app waits the same time. A failure is shown
     // even when no spinner is, because the user must always be told.
     const loadingComponent = hasPlaceholder ? ComponentLoadingSpinner : undefined;
-    const asyncComponent = defineAsyncComponent({ loader: addDevelopmentFaults(loader, name, 'panel', simulation), loadingComponent, delay: VISIBLE_DELAY_MS, errorComponent });
+    const asyncComponent = defineAsyncComponent({ loader: addDevelopmentFaults(loader, name, simulation), loadingComponent, delay: VISIBLE_DELAY_MS, errorComponent });
 
     // A wrapper, because a component cannot set its own key. Attributes are passed on by hand with fallthrough off,
     // so they reach the panel once rather than twice.

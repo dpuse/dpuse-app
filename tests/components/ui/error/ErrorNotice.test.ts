@@ -8,6 +8,8 @@ import { AppError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
+import { hasReportedAppError } from '@/observability/errorTracking';
+import { settle } from '~/tests/support/settle';
 import { clearAppFailures, raiseAppFailure } from '@/state/errors';
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
@@ -39,5 +41,14 @@ describe('ErrorNotice', () => {
 
         // A modal, not a lock: it is opened by the failure and closed by the user, which the 'dismiss' emit reports.
         expect(wrapper.find('dialog').element.open).toBe(true);
+    });
+
+    it('tells the user when the error could not be reported, so they know to contact support', async () => {
+        vi.mocked(hasReportedAppError).mockResolvedValueOnce(false);
+        const failures = [raiseAppFailure(new AppError('Failed to load the engine.', 'test'), { capability: 'engine' })];
+        const wrapper = mount(ErrorNotice, { attachTo: document.body, props: { canRetry: false, failures, ownsScreen: true } });
+        await settle();
+
+        expect(wrapper.text()).toContain('Unable to confirm this error was logged with DPUse Support.');
     });
 });

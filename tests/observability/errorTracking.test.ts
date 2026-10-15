@@ -73,4 +73,16 @@ describe('hasReportedAppError', () => {
         expect(sentEvent().errors[0]?.message).toBe('Big data.');
         expect(sentBytes()).toBeLessThanOrEqual(MAX_REPORT_BYTES);
     });
+
+    it('says the report failed when the DPUse API refuses it', async () => {
+        fetchMock.mockResolvedValueOnce(new Response(null, { status: 500 }));
+
+        await expect(hasReportedAppError(new AppError('Refused.', 'test'))).resolves.toBe(false);
+    });
+
+    it('says the report failed when the DPUse API cannot be reached', async () => {
+        fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch.'));
+
+        await expect(hasReportedAppError(new AppError('Offline.', 'test'))).resolves.toBe(false);
+    });
 });

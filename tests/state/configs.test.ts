@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Local Framework
 import { buildFailedRetrievalStatus } from '~/tests/support/failures';
-import { configStatus, useConfigsReady } from '@/state/configs';
+import { configStatus, initialiseConfigMonitor, useConfigsReady } from '@/state/configs';
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
 
@@ -35,5 +35,17 @@ describe('useConfigsReady', () => {
         configStatus.value = buildFailedRetrievalStatus();
 
         await expect(ready).resolves.toBeUndefined();
+    });
+});
+
+describe('initialiseConfigMonitor', () => {
+    it('shows the failure on each screen that needs the configuration when its code cannot be fetched', async () => {
+        vi.doMock('@/observability/configMonitor', () => {
+            throw new TypeError('Failed to fetch dynamically imported module.');
+        });
+        await initialiseConfigMonitor();
+        vi.doUnmock('@/observability/configMonitor');
+
+        expect(configStatus.value.typeId === 'failed' ? configStatus.value.failure.error.message : undefined).toBe('Failed to load the configuration service.');
     });
 });

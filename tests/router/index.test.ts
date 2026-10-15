@@ -5,8 +5,6 @@ import { flushPromises, mount } from '@vue/test-utils';
 
 // ── Local Framework
 import { buildMemoryRouter } from '~/tests/support/router';
-import { handleRaiseVueError } from '@/state/errors';
-import { hasReportedAppError } from '@/observability/errorTracking';
 import { liveAppVersion } from '@/state/appVersion';
 import { settle } from '~/tests/support/settle';
 import { createAppRouter, replaceRouteQuery } from '@/router';
@@ -56,11 +54,11 @@ describe('createAppRouter', () => {
     // stands in for the rest of the navigation, recording that it got through and stopping it before any screen has to
     // load. jsdom cannot perform the reload itself and prints "Not implemented: navigation" when one is attempted.
     describe('new app version guard', () => {
-        const continued = vi.fn(() => false);
+        const wasContinued = vi.fn(() => false);
 
         beforeEach(() => {
             sessionStorage.clear();
-            continued.mockClear();
+            wasContinued.mockClear();
             history.replaceState({}, '', '/');
         });
 
@@ -70,7 +68,7 @@ describe('createAppRouter', () => {
 
         async function navigate(path: string): Promise<void> {
             const router = createAppRouter();
-            router.beforeEach(continued);
+            router.beforeEach(wasContinued);
             await router.push(path);
         }
 
@@ -78,7 +76,7 @@ describe('createAppRouter', () => {
             liveAppVersion.value = NEWER_APP_VERSION;
             await navigate('/setup');
 
-            expect(continued).not.toHaveBeenCalled();
+            expect(wasContinued).not.toHaveBeenCalled();
             expect(sessionStorage.getItem(RELOADED_FOR_VERSION_KEY)).toBe(NEWER_APP_VERSION);
         });
 
@@ -86,7 +84,7 @@ describe('createAppRouter', () => {
             liveAppVersion.value = NEWER_APP_VERSION;
             await navigate('/?assistant=1');
 
-            expect(continued).toHaveBeenCalledOnce();
+            expect(wasContinued).toHaveBeenCalledOnce();
         });
 
         it('does not reload a second time for the same version', async () => {
@@ -94,22 +92,30 @@ describe('createAppRouter', () => {
             sessionStorage.setItem(RELOADED_FOR_VERSION_KEY, NEWER_APP_VERSION);
             await navigate('/setup');
 
-            expect(continued).toHaveBeenCalledOnce();
+            expect(wasContinued).toHaveBeenCalledOnce();
         });
 
         it('does nothing while the running version is current', async () => {
             await navigate('/setup');
 
-            expect(continued).toHaveBeenCalledOnce();
+            expect(wasContinued).toHaveBeenCalledOnce();
         });
     });
 
     describe('navigation failure', () => {
         it('reports a failed navigation once', async () => {
-            vi.mocked(hasReportedAppError).mockClear();
-            history.replaceState({}, '', '/?fault=route');
-            const router = createAppRouter();
-            mount(defineComponent({ template: '<RouterView />' }), { global: { plugins: [router], config: { errorHandler: handleRaiseVueError } } });
+            // The home screen's chunk cannot be fetched. Fresh modules, so the router imports the failing chunk.
+            history.replaceState({}, '', '/');
+            vi.resetModules();
+            vi.doMock('@/features/studio/StudioHomePanel.vue', () => {
+                throw new TypeError('Failed to fetch dynamically imported module.');
+            });
+            const errorTracking = await import('@/observability/errorTracking');
+            const errors = await import('@/state/errors');
+            const appRouter = await import('@/router');
+
+            const router = appRouter.createAppRouter();
+            mount(defineComponent({ template: '<RouterView />' }), { global: { plugins: [router], config: { errorHandler: errors.handleRaiseVueError } } });
             // The navigation fails, which is the point; the router still reports it through 'onError'.
             try {
                 await router.isReady();
@@ -117,8 +123,9 @@ describe('createAppRouter', () => {
                 // Asserted through the reports below.
             }
             await settle();
+            vi.doUnmock('@/features/studio/StudioHomePanel.vue');
 
-            expect(vi.mocked(hasReportedAppError).mock.calls.map((call) => call[0].message)).toStrictEqual(['Navigation failed.']);
+            expect(vi.mocked(errorTracking.hasReportedAppError).mock.calls.map((call) => call[0].message)).toStrictEqual(['Navigation failed.']);
         });
     });
 });

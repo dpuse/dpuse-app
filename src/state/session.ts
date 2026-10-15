@@ -9,7 +9,6 @@ import { AppError } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { hasReportedAppError } from '@/observability/errorTracking';
 import { raiseAppFailure } from '@/state/errors';
-import { throwOnFault } from '@/observability/faultInjection';
 import { accountConfigStatus, connectionAccountConfigs, initialiseConfigMonitor, initialiseContextConfig } from '@/state/configs';
 import { type AuthSessionChangeId, loadAuthClient, validateAuthSession } from '@/services/auth';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
@@ -101,7 +100,6 @@ async function initialisePerformanceTracking(): Promise<void> {
 
 async function initialiseAccountMonitor(): Promise<void> {
     try {
-        if (import.meta.env.DEV) throwOnFault('account');
         const accountMonitorModule = await import('@/observability/accountMonitor');
         accountMonitorModule.initialise();
         state.accountMonitorIsStarted = true;

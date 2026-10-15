@@ -58,8 +58,7 @@ function describeValidity(element: HTMLInputElement | null | undefined): string 
     if (!element) return '';
     const { validity } = element;
     if (validity.valueMissing) return t(TEXT, 'required.error');
-    if (type === 'email' && validity.typeMismatch) return t(TEXT, 'email.error');
-    return element.validationMessage; // Remaining cases are rare, so fall back to the browser's wording, in the browser's language.
+    return type === 'email' && validity.typeMismatch ? t(TEXT, 'email.error') : element.validationMessage; // Remaining cases are rare, so fall back to the browser's wording, in the browser's language.
 }
 </script>
 

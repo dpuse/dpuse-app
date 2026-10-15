@@ -9,12 +9,15 @@ import { createAppRouter } from '@/router';
 import { queryClient } from '@/services/queryClient';
 import { resetAppPanes } from '@/state/appPanes';
 import { settle } from '~/tests/support/settle';
+import { clearAppFailures, handleRaiseVueError } from '@/state/errors';
 
 // Unmounts after each test, so a test that fails still leaves an empty page for the next.
 enableAutoUnmount(afterEach);
 
 // 'App' starts the Hanko session check on mount, which calls the real sign-in service. These tests are about the app
 // frame and routing, so the check is left out rather than failing against the network and logging an error.
+vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
+
 vi.mock('@/state/session', async (importOriginal) => ({
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
     ...(await importOriginal<typeof import('@/state/session')>()),
@@ -59,6 +62,18 @@ describe('App', () => {
 
     // The screen a user lands on with no path. The studio pane opens by itself, because the URL does not ask for only
     // the assistant.
+    // No 'ErrorBoundary' wraps the app's root, so a Vue error nothing else caught reaches 'handleRaiseVueError', which
+    // 'main.ts' installs as the app's error handler.
+    it('shows a Vue error that nothing else caught in the app-level failure dialog', async () => {
+        const { wrapper } = await mountApp('/');
+
+        handleRaiseVueError(new Error('Failed to render.'), null, 'render function');
+        await settle();
+
+        expect(wrapper.find('[data-region="ErrorNotice"]').text()).toContain('Unhandled Vue error.');
+        clearAppFailures();
+    });
+
     describe('studio home', () => {
         it('opens the studio pane on the home page, with no errors', async () => {
             const { errors, router, wrapper } = await mountApp('/');
