@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { useRoute } from 'vue-router';
-import { onBeforeUnmount, onMounted, shallowRef, useTemplateRef } from 'vue';
+import { onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
@@ -14,6 +14,7 @@ import { TEXT } from './EventQueriesPanel_.json';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
+import BusyBar from '@/components/ui/BusyBar.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import Separator from '@/components/ui/Separator.vue';
@@ -40,6 +41,7 @@ const data: NetworkDiagramData = {
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const container = useTemplateRef<HTMLDivElement>('container');
+const diagramIsPending = ref(true); // The diagram area is blank while the d3 tool downloads and draws, so the wait is shown.
 const renderFailure = shallowRef<AppFailure | undefined>();
 const route = useRoute();
 const state: { view: D3NetworkView | null } = { view: null };
@@ -69,6 +71,7 @@ function handleRetry(): void {
 
 async function renderDiagram(): Promise<void> {
     renderFailure.value = undefined;
+    diagramIsPending.value = true;
     try {
         const d3Tool = await establishTool<D3Tool>('d3-visualiser');
 
@@ -77,6 +80,8 @@ async function renderDiagram(): Promise<void> {
         if (container.value) state.view = await d3Tool.renderNetworkDiagram(data, container.value);
     } catch (error) {
         renderFailure.value = raiseFailure(new AppError('Failed to render network diagram.', 'dpuse-app.EventQueriesPanel.renderDiagram', { typeId: 'handled' }, { cause: error }));
+    } finally {
+        diagramIsPending.value = false;
     }
 }
 </script>
@@ -93,6 +98,7 @@ async function renderDiagram(): Promise<void> {
             <RectangleButton variant="outline" @click="handleAutoLayout">{{ t(TEXT, 'autoLayout.label') }}</RectangleButton>
         </div>
 
-        <div v-show="!renderFailure" ref="container" class="w-full flex-1" />
+        <BusyBar v-if="diagramIsPending" class="mx-4" />
+        <div v-show="!renderFailure" ref="container" :aria-busy="diagramIsPending" class="w-full flex-1" />
     </StudioLayout>
 </template>

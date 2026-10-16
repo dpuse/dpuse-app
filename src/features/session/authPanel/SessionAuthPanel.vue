@@ -12,6 +12,7 @@ import { type AppFailure, raiseFailure } from '@/state/errors';
 import { constructFlow, destroyFlow } from '@/services/auth';
 
 // ── Static Components
+import BusyBar from '@/components/ui/BusyBar.vue';
 import DPUseLogo from '@/components/branding/DPUseLogo.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import LoginForm from '@/features/session/authPanel/LoginForm.vue';
@@ -111,11 +112,9 @@ async function handleLoginFlowStateChange(state: AnyState): Promise<void> {
             closeDialog(); // Signed in, so the dialog has finished its job and takes itself off the URL.
             return;
         case 'error':
-            console.log('STATE', 'error', state.error, state);
-            return;
+            throw new Error('Sign in flow reached its error state.', { cause: state.error });
         default:
-            console.log('UNEXPECTED STATE', state.name, state);
-            return;
+            throw new Error(`Sign in flow reached unexpected state '${state.name}'.`);
     }
 }
 
@@ -213,7 +212,7 @@ function onAfterEnter(): void {
         <div class="flex flex-col gap-y-3 py-8 pr-4 pl-8">
             <DPUseLogo class="size-12" />
 
-            <div ref="container">
+            <div ref="container" :aria-busy="!flowConstructed">
                 <Transition name="fade" mode="out-in" @before-enter="pinContainerHeight" @before-leave="pinContainerHeight" @enter="onEnter" @after-enter="onAfterEnter">
                     <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" :on-trigger="handleIdEntered" />
 
@@ -224,7 +223,10 @@ function onAfterEnter(): void {
                         @submit="handlePasswordEntered"
                     />
 
-                    <div v-else-if="flowConstructed">{{ t(TEXT, 'serviceUnavailable.error') }}</div>
+                    <!-- Busy Bar ─ Hanko sets up the sign-in flow over the network before any form can show. -->
+                    <BusyBar v-else-if="!flowConstructed" />
+
+                    <div v-else>{{ t(TEXT, 'serviceUnavailable.error') }}</div>
                 </Transition>
             </div>
         </div>

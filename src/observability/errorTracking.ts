@@ -1,5 +1,5 @@
 // ── DPUse Framework
-import { type AppError, type SerialisedError, serialiseError } from '@dpuse/dpuse-shared';
+import { AppError, type SerialisedError, serialiseError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { TEXT } from './errorTracking_.json';
@@ -30,14 +30,14 @@ export function logError(error: unknown): void {
     logErrorToConsole(serialisedErrors);
 }
 
-// Replaces the page with a message when the app fails to start, and logs the error to the console. It is not reported
-// to the DPUse API.
+// Replaces the page with a message when the app fails to start, logs the error to the console and reports it to the
+// DPUse API.
 export function showFatalError(error: unknown): void {
     displayFatalErrorMessage(
         [t(TEXT, 'loadFailed.text', { message: error instanceof Error ? error.message : String(error) }), t(TEXT, 'loadFailed.causes.text'), t(TEXT, 'loadFailed.actions.text')],
         true
     );
-    logErrorToConsole(serialiseError(error));
+    void hasReportedAppError(new AppError('Failed to start the app.', 'dpuse-app.errorTracking.showFatalError', { typeId: 'handled' }, { cause: error }));
 }
 
 // Replaces the page with a message saying the browser is too old and which versions DPUse needs. Nothing is logged to

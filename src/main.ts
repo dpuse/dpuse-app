@@ -30,32 +30,26 @@ if (isBrowserSupported) {
         addEventListener('vite:preloadError', handleReportPreloadError);
 
         // With Trusted Types enforced, the browser blocks any script URL or HTML string not passed through a policy.
-        // The 'default' policy covers any that are not given a policy of their own.
+        // The 'default' policy covers any that are not given a policy of their own. It has no 'createScript' or
+        // 'createScriptURL', so the browser refuses every script string and script URL and reports each as a CSP
+        // violation. The engine starts its worker through its own 'dpuse-engine' policy, and no other code may load a
+        // script by URL.
         if (trustedTypes != null) {
-            const defaultPolicy = trustedTypes.createPolicy('default', {
-                // Refuses every script string, as the browser does for a policy without 'createScript'. Defining it
-                // makes the policy a full 'TrustedTypePolicy', so it can stand in for a plugin's own.
-                createScript: (script: string): string => {
-                    throw new Error(`Blocked TrustedScript: ${script}`);
-                },
-                // Refuses every script URL. The engine starts its worker through its own 'dpuse-engine' policy, and no
-                // other code may load a script by URL.
-                createScriptURL: (url: string): string => {
-                    throw new Error(`Blocked TrustedScriptURL: ${url}`);
-                },
+            const defaultPolicy = trustedTypes.createPolicy<TrustedTypePolicyOptions>('default', { // Typed with every rule, as the browser returns them all and a missing one throws.
                 // Cleans all HTML with DOMPurify, so libraries that write HTML strings (squire-rte, TanStack Charts,
                 // turndown, Unovis) work without being able to add script to the page.
                 createHTML: (html: string): string => DOMPurify.sanitize(html)
             });
 
             // Registers DOMPurify's 'dompurify' policy now, before a plugin can take the name. If a plugin took it
-            // first, DOMPurify could not register the name, as duplicates are not allowed, and the 'default'
-            // policy's 'createHTML' would fail.
+            // first, DOMPurify could not register the name, as duplicates are not allowed. DOMPurify would then parse
+            // plain strings, which pass back through the 'default' policy's 'createHTML' and call DOMPurify again
+            // endlessly.
             DOMPurify.sanitize('');
 
             // Plugins such as Highcharts create their own Trusted Types policy, which the browser refuses unless the
-            // CSP 'trusted-types' list names it. Only 'highcharts' is listed today. Any other plugin is given the
-            // 'default' policy instead.
+            // CSP 'trusted-types' list names it. Of the plugins, only 'highcharts' is listed. A plugin with any other
+            // name, or a name already taken, is given the 'default' policy instead.
             const createListedPolicy = trustedTypes.createPolicy.bind(trustedTypes);
             trustedTypes.createPolicy = (policyName: string, policyOptions?: TrustedTypePolicyOptions): TrustedTypePolicy => {
                 try {

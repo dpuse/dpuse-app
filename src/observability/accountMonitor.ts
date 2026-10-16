@@ -1,6 +1,10 @@
+// ── DPUse Framework
+import { AppError } from '@dpuse/dpuse-shared';
+
 // ── Local Framework
 import { accountId } from '@/state/session';
 import { DPUSE_API_HOST } from '@/observability/eventTracking';
+import { raiseAppFailure } from '@/state/errors';
 import { useMonitorSocket } from '@/observability/monitorSocket';
 import { accountConfigStatus, type ConnectionAccountConfig, connectionAccountConfigs } from '@/state/configs';
 
@@ -26,6 +30,12 @@ const socket = useMonitorSocket<AccountMessage>({
             id: connection.id ?? connection.connectorId
         }));
         accountConfigStatus.value = { typeId: 'ready' };
+    },
+    // Raised at app level because no screen shows the account's connections on their own. The failed status stops
+    // screens treating a list that may be out of date as current.
+    onMessageFailed: (error) => {
+        const appError = new AppError('Failed to read an account update from DPUse.', 'dpuse-app.accountMonitor.onMessageFailed', { typeId: 'handled' }, { cause: error });
+        accountConfigStatus.value = { typeId: 'failed', failure: raiseAppFailure(appError, { capability: 'account' }) };
     },
     retries: -1,
     url: () => `wss://${DPUSE_API_HOST}/accounts/${String(accountId.value)}/websocket`

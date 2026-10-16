@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
 import { useRoute } from 'vue-router';
-import { computed, onMounted, shallowRef, useTemplateRef, watch } from 'vue';
+import { computed, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
 import { AppError, loadPresenter, localiseReference } from '@dpuse/dpuse-shared';
@@ -18,6 +18,7 @@ import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 import { presenterConfigs, toolConfigs, useConfigsReady } from '@/state/configs';
 
 // ── Static Components
+import BusyBar from '@/components/ui/BusyBar.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
@@ -37,6 +38,7 @@ const presenterByPresentationReference = new WeakMap<LocalisedReference<Componen
 
 // A render failure is confined to the detail pane, so it is held separately and presented there.
 const renderFailure = shallowRef<AppFailure | undefined>();
+const renderIsPending = ref(false); // The detail is blank while the presenter draws, so the wait is shown.
 
 const route = useRoute();
 
@@ -84,11 +86,14 @@ async function renderPresentation(element: HTMLDivElement): Promise<void> {
     const presenter = presenterByPresentationReference.get(presentationReference);
     if (!presenter) return;
 
+    renderIsPending.value = true;
     try {
         await presenter.render(presentationReference, element);
     } catch (error) {
         const data = { presentationReferenceId: presentationReference.id };
         renderFailure.value = raiseFailure(new AppError('Failed to render presentation.', 'dpuse-app.PresentationsPanel.renderPresentation', data, { cause: error }));
+    } finally {
+        if (container.value === element) renderIsPending.value = false; // A newer selection has its own container and owns the busy state.
     }
 }
 
@@ -156,9 +161,15 @@ async function loadPresenters(): Promise<void> {
 
             <template #detail>
                 <ErrorNotice v-if="renderFailure" :failures="[renderFailure]" @retry="handleRetryRender" />
+                <BusyBar v-if="renderIsPending" class="mx-4" />
                 <!-- 'relative' keeps the charts' hidden screen-reader announcers inside the scroll area. Without it they are
                      placed against an outer element, escape the clipping and make the whole page scroll. -->
-                <div v-show="!renderFailure" ref="container" class="dpuse-prose relative min-h-0 flex-1 overflow-y-scroll overscroll-y-none px-4 pt-4" />
+                <div
+                    v-show="!renderFailure"
+                    ref="container"
+                    :aria-busy="renderIsPending"
+                    class="dpuse-prose relative min-h-0 flex-1 overflow-y-scroll overscroll-y-none px-4 pt-4"
+                />
             </template>
 
             <template #no-selection>

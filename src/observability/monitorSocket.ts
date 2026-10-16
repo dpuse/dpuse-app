@@ -16,6 +16,7 @@ interface MonitorSocketOptions<TMessage> {
     onDisconnected?: () => void; // Not called for a socket that has already been replaced.
     onFailed?: () => void; // Called once 'retries' says to stop.
     onMessage: (message: TMessage) => void;
+    onMessageFailed: (error: unknown) => void; // Called when a message cannot be parsed or 'onMessage' throws.
     onRestart?: () => void; // Called before the page lifecycle reconnects, to clear any give-up state.
     retries: number | ((retried: number) => boolean); // -1 retries forever.
     url: MaybeRefOrGetter<string>;
@@ -81,7 +82,7 @@ export function useMonitorSocket<TMessage>(options: MonitorSocketOptions<TMessag
             try {
                 options.onMessage(JSON.parse(event.data as string));
             } catch (error) {
-                if (isLogged) console.info(`[dpuse:app] ❌  ${label} WebSocket message error: ${String(error)}`, error);
+                options.onMessageFailed(error);
             }
         }
     });

@@ -39,6 +39,7 @@ import { useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dat
 
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
+import BusyBar from '@/components/ui/BusyBar.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
@@ -94,6 +95,7 @@ const currentFolderPath = ref('');
 const previewRequestId = ref(0);
 const activePreviewConfig = shallowRef<PreviewConfig>(); // Kept so the commit can save it with the item.
 
+const previewIsPending = ref(false); // The preview table is empty until the engine answers, which reads as an empty item unless the wait is shown.
 const previewPercentage = ref(0);
 const previewMessage = ref<string>();
 const previewTableColumnDefinitions = shallowRef<ColumnDef<TableFeatureSet, Record<string, string | null>>[]>([]);
@@ -170,6 +172,7 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
     resetPreviewState();
     if (newActiveItem == null) return;
 
+    previewIsPending.value = true;
     try {
         const { processRequest } = await establishEngineWorker();
         if (!activeConnectionConfig.value) return;
@@ -183,6 +186,8 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
         if (currentRequestId !== previewRequestId.value) return; // A newer selection owns the panel now.
         const data = { typeId: 'handled' };
         engineFailure.value = raiseFailure(new AppError('Failed to preview this item.', 'dpuse-app.SelectItemPanel', data, { cause: error }));
+    } finally {
+        if (currentRequestId === previewRequestId.value) previewIsPending.value = false; // A newer selection owns the busy state now.
     }
 });
 
@@ -303,6 +308,7 @@ function constructStorableNodeConfig(connectionNodeConfig: ConnectionNodeConfig)
 
 function resetPreviewState(): void {
     activePreviewConfig.value = undefined;
+    previewIsPending.value = false;
     previewPercentage.value = 0;
     previewMessage.value = undefined;
     previewTableColumnDefinitions.value = [];
@@ -398,7 +404,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         </template>
 
         <template #detail>
-            <div class="relative flex min-h-0 flex-1 flex-col">
+            <div :aria-busy="previewIsPending" class="relative flex min-h-0 flex-1 flex-col">
+                <BusyBar v-if="previewIsPending" class="mx-4" />
                 <!-- The usual room after the last row, less the status bar's height: the table already ends above it. -->
                 <Table
                     v-show="activeItemAction === 'table'"

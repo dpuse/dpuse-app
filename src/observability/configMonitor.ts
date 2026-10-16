@@ -7,10 +7,10 @@ import type { ConnectionConfig, ConnectorConfig, CookbookConfig, EngineConfig, M
 
 // ── Local Framework
 import { DPUSE_API_HOST } from '@/observability/eventTracking';
-import { raiseFailure } from '@/state/errors';
 import { useMonitorSocket } from '@/observability/monitorSocket';
 import { announceAppVersion, announceModuleUpdate } from '@/state/appVersion';
 import { configStatus, connectorConfigs, cookbookConfigs, engineConfig, presenterConfigs, toolConfigs } from '@/state/configs';
+import { raiseAppFailure, raiseFailure } from '@/state/errors';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -66,6 +66,7 @@ const socket = useMonitorSocket<ConfigMessage>({
                 return;
         }
     },
+    onMessageFailed: handleMessageFailed,
     // Clears the give-up state for the cases where another try is worth it: a page restored from the back/forward
     // cache, a network that has come back, a tab brought back to the foreground.
     onRestart: () => {
@@ -96,6 +97,18 @@ function handleRetrievalFailed(): void {
         capability: 'configuration'
     });
     configStatus.value = { typeId: 'failed', failure };
+}
+
+// A message that cannot be read leaves the lists as they were. Before the first full list arrives, every screen that
+// needs the configuration would wait for ever, so the failed status shows the failure on each of them. After it, the
+// lists still work but may be out of date, and no screen would say so, so the failure goes to the app-level dialog.
+function handleMessageFailed(error: unknown): void {
+    const appError = new AppError('Failed to read a configuration update from DPUse.', 'dpuse-app.configMonitor.handleMessageFailed', { typeId: 'handled' }, { cause: error });
+    if (configStatus.value.typeId === 'ready') {
+        raiseAppFailure(appError, { capability: 'configuration' });
+        return;
+    }
+    configStatus.value = { typeId: 'failed', failure: raiseFailure(appError, { capability: 'configuration' }) };
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -18,6 +18,7 @@ import { useMarkedTool } from '@/services/useMarkedTool';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
+import BusyBar from '@/components/ui/BusyBar.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import IconButton from '@/components/ui/action/IconButton.vue';
 
@@ -33,6 +34,9 @@ const { id, label, labelHidden } = defineProps<Properties>();
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const activeFormats = reactive({ bold: false, italic: false, underline: false, link: false });
+// The saved text is filled in only once the markdown tool has loaded, replacing whatever is in the editor, so typing
+// is blocked until then.
+const contentIsPending = ref(true);
 const attributes = useAttrs();
 const editorElement = useTemplateRef<HTMLElement>('editor');
 const editor = shallowRef<Squire>();
@@ -140,6 +144,7 @@ function findScrollableAncestor(element: HTMLElement | null): HTMLElement | null
 
 async function initialiseEditor(): Promise<void> {
     editorFailure.value = undefined;
+    contentIsPending.value = true;
     try {
         let editorInstance = editor.value;
         if (!editorInstance) {
@@ -179,6 +184,8 @@ async function initialiseEditor(): Promise<void> {
         if (tool) editorInstance.setHTML(tool.render(textValue.value));
     } catch (error) {
         editorFailure.value = raiseFailure(new AppError('Failed to initialise text editor.', 'dpuse-app.TextEditor.initialiseEditor', { typeId: 'handled' }, { cause: error }));
+    } finally {
+        contentIsPending.value = false;
     }
 }
 
@@ -198,8 +205,11 @@ function updateParentCanScroll(): void {
 
         <ErrorNotice v-if="renderFailure" :failures="[renderFailure]" @retry="handleRetry" />
 
+        <!-- 'inert' while the saved text loads, because filling it in replaces anything typed before then. -->
         <div
             v-show="!renderFailure"
+            :aria-busy="contentIsPending"
+            :inert="contentIsPending"
             class="flex flex-1 flex-col overflow-hidden rounded-md bg-surface outline-1 -outline-offset-1 outline-separator focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-accent"
         >
             <!-- Toolbar -->
@@ -217,6 +227,8 @@ function updateParentCanScroll(): void {
                     <LinkIcon class="size-4.5!" />
                 </IconButton>
             </div>
+
+            <BusyBar v-if="contentIsPending" />
 
             <!-- Content -->
             <div

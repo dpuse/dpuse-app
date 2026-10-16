@@ -92,6 +92,9 @@ const FETCH_RETRY_BASE_DELAY_MS = 300;
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// A source's 'getRows' must handle its own failures: raise them where the user can see them and resolve with an empty
+// page, as 'SelectItemPanel' does. A rejection is retried, then only logged to the console. It is not reported or
+// shown, and the rows stay loading for ever.
 export type DataSource<T = unknown> = {
     id?: string;
     rowCount: number | undefined; // Caller's best-known count, or undefined if not yet known — distinct from 0 (genuinely empty). useDataWindow guarantees an initial fetch to discover the real total via getRows' totalCount.
