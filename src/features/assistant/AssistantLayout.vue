@@ -14,6 +14,7 @@ import { TEXT } from './AssistantLayout_.json';
 import { useAssistantLibrary } from '@/features/assistant/_assistantLibrary';
 import { useSplitPanes } from '@/composables/useSplitPanes';
 import { ASSISTANT_MODEL_CONFIGS, type AssistantModelConfig } from './chat/modelConfigs';
+import { loadChatPanel, loadLibraryPanel } from './assistantLoaders';
 
 // ── Static Components
 import AssistantHeader from './_components/AssistantHeader.vue';
@@ -22,8 +23,8 @@ import PaneSplitter from '@/components/ui/PaneSplitter.vue';
 import Separator from '@/components/ui/Separator.vue';
 
 // ── Dynamic Components
-const ChatPanel = defineLazyComponent(() => import('./chat/ChatPanel.vue'), 'ChatPanel');
-const LibraryPanel = defineLazyComponent(() => import('./library/LibraryPanel.vue'), 'LibraryPanel');
+const ChatPanel = defineLazyComponent(loadChatPanel, 'ChatPanel');
+const LibraryPanel = defineLazyComponent(loadLibraryPanel, 'LibraryPanel');
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

@@ -58,7 +58,7 @@ test.describe('Startup', () => {
         });
 
         await expect.poll(() => reportBodies.some((body) => body.includes('vitePreloadError'))).toBe(true);
-        await expect(page.getByText('Failed to load part of the app.')).toHaveCount(0); // Matched by message, because the preview build can show an unrelated session failure.
+        await expect(page.getByText('Failed to load part of the app.')).toHaveCount(0);
     });
 
     // The engine starts its worker through its own 'dpuse-engine' policy, so the 'default' policy refuses every script

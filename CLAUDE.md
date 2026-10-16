@@ -246,7 +246,7 @@ Floating notices sit above the bottom row of controls (the session button and th
 
 ### Errors
 
-Error locators follow `dpuse-app.<fileName>[.<functionName>]`, e.g. `dpuse-app.faultInjection.throwOnFault`. A file
+Error locators follow `dpuse-app.<fileName>[.<functionName>]`, e.g. `dpuse-app.errors.handleRaiseVueError`. A file
 named `index` uses its parent folder's name: `dpuse-app.router`.
 
 ### Pitfalls

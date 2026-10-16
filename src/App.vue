@@ -24,6 +24,7 @@ import {
     studioPaneWasOpened
 } from '@/state/appPanes';
 import { isPWA, isSafariBrowser, viewportIsWide } from '@/state/device';
+import { loadAssistantLayout, prefetchAssistant } from '@/features/assistant/assistantLoaders';
 import { moduleUpdateIsAvailable, newAppVersionIsAvailable } from '@/state/appVersion';
 import { navigationPendingDepth, replaceRouteQuery } from '@/router';
 
@@ -37,7 +38,7 @@ import SessionButton from '@/features/session/SessionButton.vue'; // Static, bec
 import StudioPaneToggle from '@/features/studio/StudioPaneToggle.vue'; // Static, because it is always visible.
 
 // ── Dynamic Components
-const AssistantLayout = defineLazyComponent(() => import('@/features/assistant/AssistantLayout.vue'), 'AssistantLayout');
+const AssistantLayout = defineLazyComponent(loadAssistantLayout, 'AssistantLayout');
 const OptionBar = defineLazyComponent(() => import('@/features/studio/options/OptionBar.vue'), 'OptionBar', { hasPlaceholder: false });
 const PaneSplitter = defineLazyComponent(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
 
@@ -148,6 +149,13 @@ function handleToggleAssistantPane(): void {
     setPaneOpenState('assistant', true);
 }
 
+// Pointing at or focusing the assistant toggle signals an open is likely, so the pane's chunks start loading then.
+// Pressing it does too, because a touch screen has no hover.
+function handlePrefetchAssistantPane(): void {
+    if (assistantPaneWasOpened.value) return; // Already loaded when it first opened.
+    void prefetchAssistant();
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function establishCurrentPaneId(): AppPaneId {
@@ -194,7 +202,13 @@ function syncPaneQuery(): void {
         <StudioPaneToggle :is-open="studioPaneIsVisible" @click="handleToggleStudioPane" />
 
         <!-- Assistant Pane Toggle ─ Fixed in top right corner above panes and always visible. -->
-        <AssistantPaneToggle :is-open="assistantPaneIsVisible" @click="handleToggleAssistantPane" />
+        <AssistantPaneToggle
+            :is-open="assistantPaneIsVisible"
+            @click="handleToggleAssistantPane"
+            @focus="handlePrefetchAssistantPane"
+            @pointerdown="handlePrefetchAssistantPane"
+            @pointerenter="handlePrefetchAssistantPane"
+        />
 
         <!-- Session Button ─ Fixed in bottom left corner and always visible. -->
         <SessionButton :studio-option-bar-is-visible="studioOptionBarIsVisible" />

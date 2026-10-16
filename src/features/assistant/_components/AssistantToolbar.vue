@@ -7,6 +7,7 @@
 import { LibraryIcon, MessageSquareIcon } from '@lucide/vue';
 
 // ── Local Framework
+import { prefetchLibrary } from '../assistantLoaders';
 import { t } from '@/state/locale';
 import { TEXT } from './AssistantToolbar_.json';
 import { PRESS_CLASSES, SEGMENT_SELECTED_CLASSES, UNSELECTED_CLASSES } from '@/components/ui/action/action';
@@ -32,6 +33,15 @@ const { chatIsVisible, isSwitch, libraryIsVisible } = defineProps<{ chatIsVisibl
 
 defineEmits<{ toggle: [paneId: AssistantPaneId] }>();
 
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Pointing at, focusing or pressing a toggle signals an open is likely, so the library's chunk starts loading then.
+// Chat needs nothing, because the assistant always opens on it.
+function handlePrefetchPane(paneId: AssistantPaneId): void {
+    if (paneId !== 'library' || libraryIsVisible) return;
+    void prefetchLibrary();
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function isPaneVisible(paneId: AssistantPaneId): boolean {
@@ -55,6 +65,9 @@ function isPaneVisible(paneId: AssistantPaneId): boolean {
             class="rounded-full px-3 py-1 text-sm"
             :class="[PRESS_CLASSES, isPaneVisible(pane.id) ? SEGMENT_SELECTED_CLASSES : UNSELECTED_CLASSES]"
             @click="$emit('toggle', pane.id)"
+            @focus="handlePrefetchPane(pane.id)"
+            @pointerdown="handlePrefetchPane(pane.id)"
+            @pointerenter="handlePrefetchPane(pane.id)"
         >
             {{ t(TEXT, pane.labelKey) }}
         </ActionWrapper>
@@ -78,6 +91,9 @@ function isPaneVisible(paneId: AssistantPaneId): boolean {
             is-segment
             size="sm"
             @click="$emit('toggle', pane.id)"
+            @focus="handlePrefetchPane(pane.id)"
+            @pointerdown="handlePrefetchPane(pane.id)"
+            @pointerenter="handlePrefetchPane(pane.id)"
         >
             <component :is="pane.icon" :stroke-width="1.5" />
         </ToggleButton>
