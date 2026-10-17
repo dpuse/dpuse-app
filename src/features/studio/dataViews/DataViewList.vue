@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { ArrowRightIcon } from '@lucide/vue';
-import { useConfirmDialog } from '@vueuse/core';
-import { computed, shallowRef } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
+import { useConfirmDialog, useTimeoutFn } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -18,9 +18,9 @@ import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './DataViewList_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useQueryFailure } from '@/services/queryClient';
+import { cancelDataViewRetrieval, useCreateDataView, useDataViews, useDeleteDataView } from '@/features/studio/dataViews/_dataViews';
 import { type DataViewConnection, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
-import { useCreateDataView, useDataViews, useDeleteDataView } from '@/features/studio/dataViews/_dataViews';
 
 // ── Static Components
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
@@ -29,12 +29,17 @@ import DataViewPanel from './DataViewPanel.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
+import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioListLayout from '@/features/studio/_components/StudioListLayout.vue';
 
 // ── Dynamic Components
 const EmptyPlaceholder = defineLazyComponent(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const SLOW_RETRIEVAL_MS = 2000; // Long enough that a normal load never shows the slow-load message.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -43,9 +48,28 @@ const route = useRoute();
 const router = useRouter();
 
 // ── Data Views ─ 'isPending' on each change stops a second click starting a second one while the first is saving.
-const { data: dataViewConfigs, error: dataViewRetrievalError, isError: dataViewRetrievalFailed, isSuccess: dataViewRetrievalSucceeded, refetch: refetchDataViews } = useDataViews();
+const {
+    data: dataViewConfigs,
+    error: dataViewRetrievalError,
+    isError: dataViewRetrievalFailed,
+    isFetching: dataViewIsRetrieving,
+    isSuccess: dataViewRetrievalSucceeded,
+    refetch: refetchDataViews
+} = useDataViews();
 const { isPending: dataViewIsAdding, mutateAsync: createDataView } = useCreateDataView();
 const { isPending: dataViewIsDeleting, mutateAsync: deleteDataView } = useDeleteDataView();
+
+// ── Slow Retrieval ─ A load that takes a while says so and offers Cancel and Retry, so a stuck read never leaves the
+// user watching a busy bar with no way out.
+const dataViewRetrievalIsCancelled = ref(false);
+const dataViewRetrievalIsSlow = ref(false);
+const { start: startSlowRetrievalTimer, stop: stopSlowRetrievalTimer } = useTimeoutFn(
+    () => {
+        dataViewRetrievalIsSlow.value = true;
+    },
+    SLOW_RETRIEVAL_MS,
+    { immediate: false }
+);
 
 // ── Delete Confirmation
 const { cancel: cancelDelete, confirm: confirmDelete, isRevealed: deleteConfirmIsOpen, reveal: revealDeleteConfirm } = useConfirmDialog();
@@ -56,6 +80,11 @@ const deletingDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfi
 // ── Data Views
 const dataViewLocalisedConfigs = computed((): LocalisedConfig<DataViewConfig>[] => localiseConfigs<DataViewConfig>(dataViewConfigs.value ?? [], localeId.value));
 const dataViewRetrievalFailure = useQueryFailure(dataViewRetrievalError);
+
+// ── Retrieval ─ A load under way with nothing to show yet. A cancelled load stays cancelled until another one starts.
+const dataViewRetrievalIsPending = computed(() => dataViewIsRetrieving.value && dataViewConfigs.value == null);
+const dataViewRetrievalShowsSlow = computed(() => dataViewRetrievalIsPending.value && dataViewRetrievalIsSlow.value);
+const dataViewRetrievalShowsCancelled = computed(() => dataViewRetrievalIsCancelled.value && !dataViewIsRetrieving.value && dataViewConfigs.value == null);
 
 // ── Selection ─ The URL is the one source of the selection, so reload, deep links and back/forward all land on the
 // same card. It is matched again whenever the list arrives or is rebuilt, which also drops a selection whose data view
@@ -76,10 +105,33 @@ const cardRowHeight = useCardRowHeight(true, true);
 // chosen.
 const dataViewConnectionsById = computed(() => new Map(dataViewLocalisedConfigs.value.map((config) => [config.id, constructDataViewConnection(config)])));
 
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Each load starts its own wait for the slow-load message, so one that finishes quickly never shows it.
+watch(
+    dataViewRetrievalIsPending,
+    (isPending) => {
+        dataViewRetrievalIsSlow.value = false;
+        if (isPending) startSlowRetrievalTimer();
+        else stopSlowRetrievalTimer();
+    },
+    { immediate: true }
+);
+
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Starts a fresh load, cancelling any still under way. The slow-load wait restarts here too, because a load replaced
+// mid-way may never stop being pending.
 function handleRetryRetrieval(): void {
+    dataViewRetrievalIsCancelled.value = false;
+    dataViewRetrievalIsSlow.value = false;
+    startSlowRetrievalTimer();
     void refetchDataViews();
+}
+
+function handleCancelRetrieval(): void {
+    dataViewRetrievalIsCancelled.value = true;
+    void cancelDataViewRetrieval();
 }
 
 async function handleAddDataView(): Promise<void> {
@@ -155,9 +207,16 @@ function updateDataViewIdParameter(dataViewId?: string): void {
     <StudioListLayout>
         <Separator class="flex-none" />
 
+        <!-- Cancelled Retrieval ─ Replaces the list and detail pane, as a failure does, because a list that never
+             loaded has nothing to show. -->
+        <div v-if="dataViewRetrievalShowsCancelled" class="mx-4 mt-6 flex flex-col items-start gap-3">
+            <p class="text-sm text-muted" role="status">{{ t(TEXT, 'retrieval.cancelled.text') }}</p>
+            <RectangleButton @click="handleRetryRetrieval">{{ t(TEXT, 'retrieval.retry.label') }}</RectangleButton>
+        </div>
+
         <!-- Retrieval Failure ─ Replaces the list and detail pane when the data views could not be retrieved. Otherwise
              the user would see an empty list, and a detail pane asking them to choose from it, with no explanation. -->
-        <ErrorNotice v-if="dataViewRetrievalFailure" :failures="[dataViewRetrievalFailure]" @retry="handleRetryRetrieval" />
+        <ErrorNotice v-else-if="dataViewRetrievalFailure" :failures="[dataViewRetrievalFailure]" @retry="handleRetryRetrieval" />
 
         <!-- List and Detail Panel -->
         <GridDetailPanel
@@ -170,6 +229,17 @@ function updateDataViewIdParameter(dataViewId?: string): void {
             :row-height="cardRowHeight"
             @add="handleAddDataView"
         >
+            <!-- Slow Retrieval ─ Below the list's busy bar. Cancel is the safe choice, so it comes first. -->
+            <template #busy>
+                <div v-if="dataViewRetrievalShowsSlow" class="mx-4 mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+                    <p class="text-sm text-muted" role="status">{{ t(TEXT, 'retrieval.slow.text') }}</p>
+                    <div class="flex gap-2">
+                        <RectangleButton @click="handleCancelRetrieval">{{ t(TEXT, 'retrieval.cancel.label') }}</RectangleButton>
+                        <RectangleButton @click="handleRetryRetrieval">{{ t(TEXT, 'retrieval.retry.label') }}</RectangleButton>
+                    </div>
+                </div>
+            </template>
+
             <template #item="{ item }">
                 <DataViewCard
                     :data-view-connection="dataViewConnectionsById.get(item.id)"

@@ -35,7 +35,7 @@ if (isBrowserSupported) {
         // violation. The engine starts its worker through its own 'dpuse-engine' policy, and no other code may load a
         // script by URL.
         if (trustedTypes != null) {
-            const defaultPolicy = trustedTypes.createPolicy<TrustedTypePolicyOptions>('default', { // Typed with every rule, as the browser returns them all and a missing one throws.
+            const defaultPolicy = trustedTypes.createPolicy<TrustedTypePolicyOptions>('default', {
                 // Cleans all HTML with DOMPurify, so libraries that write HTML strings (squire-rte, TanStack Charts,
                 // turndown, Unovis) work without being able to add script to the page.
                 createHTML: (html: string): string => DOMPurify.sanitize(html)

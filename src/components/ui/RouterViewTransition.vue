@@ -18,11 +18,12 @@ defineSlots<{ default: (slotProperties: { component: VNode }) => unknown }>();
 
 <template>
     <RouterView v-slot="{ Component }">
-        <!-- The spinner stays outside the transition, so a slow load does not fade into and out of it. The old view is
-             hidden at once rather than faded out: the header and task bar change on the click, so a fading old view
-             would sit under the new header, shifted by any bar that came or went. -->
+        <!-- The spinner stays outside the transition, so a slow load does not fade into and out of it. The old view fades
+             out quickly before the new one fades in, so it does not vanish in a flash. The header and task bar change
+             on the click, so for that moment the old view sits under the new header. 'appear' fades in the first view
+             after a page load too, as every later view does. -->
         <ComponentLoadingSpinner v-if="isLoading" v-bind="$attrs" />
-        <Transition v-else name="action-fade-in" mode="out-in">
+        <Transition v-else appear name="action-fade" mode="out-in">
             <slot :component="Component" />
         </Transition>
     </RouterView>

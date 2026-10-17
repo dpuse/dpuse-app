@@ -45,7 +45,7 @@ const {
     targetColumnWidth
 } = defineProps<Properties>();
 
-defineSlots<{ default?(properties: { index: number; item: T }): unknown; 'no-items'?(): unknown }>();
+defineSlots<{ busy?(): unknown; default?(properties: { index: number; item: T }): unknown; 'no-items'?(): unknown }>();
 
 defineEmits<{ add: []; select: [item: T | undefined] }>();
 
@@ -119,9 +119,15 @@ function getRowHeight(item: T | undefined): number {
 
 <template>
     <div class="relative flex min-h-0 flex-col" data-region="Grid">
-        <!-- Body -->
+        <!-- Body ─ The old state fades out quickly before the new one fades in, so the loading bar does not vanish in a
+             flash. -->
         <Transition mode="out-in" name="action-fade">
-            <BusyBar v-if="state === 'busy'" class="mx-4" />
+            <!-- Busy ─ The caller's 'busy' content, such as a slow-load message, sits below the bar so the bar never
+                 moves. -->
+            <div v-if="state === 'busy'">
+                <BusyBar class="mx-4" />
+                <slot name="busy" />
+            </div>
 
             <ScrollArea v-else-if="state === 'empty'" class="flex-1" :scroll-area-padding-bottom="scrollAreaPaddingBottom" :scroll-area-padding-top="contentPaddingTop">
                 <slot name="no-items" />
@@ -168,7 +174,11 @@ function getRowHeight(item: T | undefined): number {
             </ScrollArea>
         </Transition>
 
-        <!-- Floating Add Button (Optional) -->
-        <PillButton v-if="addLabel" :icon="PlusIcon" icon-is-leading :label="addLabel" @click="$emit('add')" />
+        <!-- Floating Add Button (Optional) ─ Hidden while the list loads, because adding goes to the same source the list
+             is waiting on, so it could not finish any sooner. Its fade-in waits for the loading bar's fade-out, so it
+             arrives with the list. -->
+        <Transition name="action-fade-delayed">
+            <PillButton v-if="addLabel && state !== 'busy'" :icon="PlusIcon" icon-is-leading :label="addLabel" @click="$emit('add')" />
+        </Transition>
     </div>
 </template>

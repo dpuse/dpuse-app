@@ -129,34 +129,38 @@ html {
     background-color: var(--card-hover);
 }
 
-/* Shared fade transition for content-swap regions (dialogs, route views, busy/empty/loaded states). */
-.action-fade-enter-active,
+/* Fade through, for content that swaps in place: route views, the detail pane, and 'Grid''s busy, empty and loaded
+   states. With 'mode="out-in"' the old content fades out quickly, then the new content fades in, so the old one never
+   vanishes in a flash. */
+.action-fade-enter-active {
+    transition: opacity 0.25s ease;
+}
 .action-fade-leave-active {
-    transition: opacity 0.15s ease;
+    transition: opacity 0.1s ease;
 }
 .action-fade-enter-from,
 .action-fade-leave-to {
     opacity: 0;
 }
-@media (prefers-reduced-motion: reduce) {
-    .action-fade-enter-active,
-    .action-fade-leave-active {
-        transition: none;
-    }
-}
 
-/* Fade in only: the leaving element is hidden as soon as it starts to leave. */
-.action-fade-in-enter-active {
-    transition: opacity 0.25s ease;
+/* The same fade for an element outside the swap, such as 'Grid''s Add button. Its fade-in waits for the old content's
+   fade-out, so it arrives with the new content. */
+.action-fade-delayed-enter-active {
+    transition: opacity 0.25s ease 0.1s;
 }
-.action-fade-in-enter-from {
+.action-fade-delayed-leave-active {
+    transition: opacity 0.1s ease;
+}
+.action-fade-delayed-enter-from,
+.action-fade-delayed-leave-to {
     opacity: 0;
 }
-.action-fade-in-leave-active {
-    display: none;
-}
+
 @media (prefers-reduced-motion: reduce) {
-    .action-fade-in-enter-active {
+    .action-fade-enter-active,
+    .action-fade-leave-active,
+    .action-fade-delayed-enter-active,
+    .action-fade-delayed-leave-active {
         transition: none;
     }
 }
@@ -259,8 +263,9 @@ html {
     --boundary-hover: var(--color-zinc-300);
     --separator: var(--color-zinc-200);
     --overlay: color-mix(in srgb, var(--color-zinc-200) 75%, transparent);
-    /* Primary text near-black (about 15:1 on white) and emphasis a step darker; muted is the secondary step down. */
-    --content: var(--color-zinc-800); /* NOTE: Also 'index.html'. */
+    /* Primary text dark grey (about 10:1 on white), two steps below emphasis so headings stand out; muted is the
+       secondary step down. */
+    --content: var(--color-zinc-700); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-500);
     --subtle: var(--color-zinc-400);
     --emphasis: var(--color-zinc-900);

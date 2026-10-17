@@ -86,9 +86,10 @@ test.describe('Startup', () => {
         expect(results).toStrictEqual({ hasPolicy: true, isBlobUrlAllowed: false, isOtherUrlAllowed: false });
     });
 
-    // Plugins such as Highcharts create policies whose names are not in the CSP 'trusted-types' list, and several
-    // plugins may create the same name. Each gets a stand-in whose output still goes through the 'default' policy.
-    test('gives an unlisted or duplicate Trusted Types policy a stand-in that the default policy still checks', async ({ page }) => {
+    // Plugins create policies whose names may not be in the CSP 'trusted-types' list, and several plugins may create
+    // the same name. Each is given the 'default' policy, which cleans HTML with DOMPurify and refuses
+    // every script URL, whatever rules the plugin asked for.
+    test("gives an unlisted or duplicate Trusted Types policy the 'default' policy", async ({ page }) => {
         await page.goto('/');
         await expect(page.locator('[data-region="StudioPane"]')).toBeVisible();
 
@@ -98,7 +99,7 @@ test.describe('Startup', () => {
             trustedTypes?.createPolicy('dompurify', options);
             const duplicatePolicy = trustedTypes?.createPolicy('dompurify', options); // Listed, but already created.
             const element = document.createElement('div');
-            element.innerHTML = policy?.createHTML('<b>Shown</b>') as unknown as string;
+            element.innerHTML = policy?.createHTML('<b onclick="alert(1)">Shown</b>') as unknown as string;
             let isWorkerStarted = true;
             try {
                 new Worker(policy?.createScriptURL('blob:https://localhost/worker') as unknown as string);

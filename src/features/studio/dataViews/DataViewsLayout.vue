@@ -9,6 +9,7 @@ import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 import { localiseConfig, localiseConfigs } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { metaStoreId } from '@/services/metaStore';
 import { sessionIsAuthenticated } from '@/state/session';
 import { useDataView } from '@/features/studio/dataViews/_dataViews';
 import { useQueryFailure } from '@/services/queryClient';
@@ -170,6 +171,14 @@ watch(
     },
     { immediate: true }
 );
+
+// Signing in or out moves to another account's store, where the open or selected data view does not exist, so go back
+// to the list with nothing selected. The first store chosen after the session check is not a move.
+watch(metaStoreId, (_newMetaStoreId, oldMetaStoreId) => {
+    if (oldMetaStoreId == null || (route.name === 'dataViews' && route.params.dataViewId === '')) return;
+
+    void ignoreReportedNavigationFailure(router.replace({ name: 'dataViews', params: { dataViewId: undefined }, query: route.query }));
+});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

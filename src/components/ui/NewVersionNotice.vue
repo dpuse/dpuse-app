@@ -75,10 +75,11 @@ function handleDismiss(): void {
 
 <template>
     <!-- Notice ─ 'Later' sits to the left of Reload, as Cancel does in the app's dialogs. On a narrow screen the message
-         takes the full width with the buttons on a line below it. From 'sm' up everything sits in one row. -->
+         takes the full width with the buttons on a line below it. From 'sm' up everything sits in one row. Placed by
+         the notice stack in 'App.vue', which lets clicks through, so the notice takes them back. -->
     <div
         v-if="!isDismissed"
-        class="fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.75rem)] left-[calc(1rem+env(safe-area-inset-left))] z-40 flex flex-col gap-3 rounded-lg border border-separator bg-surface p-4 text-sm text-content shadow-lg sm:left-auto sm:max-w-[calc(100%-2rem)] sm:flex-row sm:items-center sm:py-2 sm:pr-2"
+        class="pointer-events-auto flex flex-col gap-3 rounded-lg border border-separator bg-surface p-4 text-sm text-content shadow-lg sm:flex-row sm:items-center sm:py-2 sm:pr-2"
         data-region="NewVersionNotice"
         role="status"
     >
@@ -92,7 +93,10 @@ function handleDismiss(): void {
         </div>
     </div>
 
+    <!-- Takes clicks back from the notice stack in 'App.vue'. The dialog shows in the browser's top layer, but still
+         inherits 'pointer-events' from the stack. -->
     <ConfirmDialog
+        class="pointer-events-auto"
         :confirm-label="t(TEXT, 'reload.label')"
         :is-open="reloadConfirmIsOpen"
         :message="t(TEXT, 'reloadConfirm.text')"

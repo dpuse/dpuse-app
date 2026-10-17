@@ -10,9 +10,17 @@ import type { DataViewConfig } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { configStatus } from '@/state/configs';
 import { queryClient } from '@/services/queryClient';
+import { sessionIsAuthenticated } from '@/state/session';
 import { settle } from '~/tests/support/settle';
-import { constructMetaStoreListKey, constructMetaStoreRecordKey, getMetaStoreRecord, removeMetaStoreRecord, retrieveMetaStoreRecords, upsertMetaStoreRecord } from '@/services/metaStore';
-import { useCreateDataView, useDataView, useDataViews, useDeleteDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
+import { cancelDataViewRetrieval, useCreateDataView, useDataView, useDataViews, useDeleteDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
+import {
+    constructMetaStoreListKey,
+    constructMetaStoreRecordKey,
+    getMetaStoreRecord,
+    removeMetaStoreRecord,
+    retrieveMetaStoreRecords,
+    upsertMetaStoreRecord
+} from '@/services/metaStore';
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
 
@@ -22,14 +30,16 @@ vi.mock('@/services/metaStore', async (importOriginal) => ({
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
     ...(await importOriginal<typeof import('@/services/metaStore')>()),
     getMetaStoreRecord: vi.fn(),
-    removeMetaStoreRecord: vi.fn(() => Promise.resolve()),
+    removeMetaStoreRecord: vi.fn(() => Promise.resolve(GUEST_META_STORE_ID)),
     retrieveMetaStoreRecords: vi.fn(),
-    upsertMetaStoreRecord: vi.fn(() => Promise.resolve())
+    upsertMetaStoreRecord: vi.fn(() => Promise.resolve(GUEST_META_STORE_ID))
 }));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const GUEST_META_STORE_ID = 'dpuMetaStore'; // The store in use while signed out, which every test is.
 const LIST_KEY = constructMetaStoreListKey('dataViews');
+const PREVIOUS_META_STORE_ID = 'dpuMetaStore-previous'; // Stands for the store of a user who signed out while a change was under way.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -71,12 +81,14 @@ async function runInComponent<T>(useHooks: () => T): Promise<T> {
 describe('data views', () => {
     beforeEach(() => {
         configStatus.value = { typeId: 'ready' };
+        sessionIsAuthenticated.value = false;
         vi.mocked(retrieveMetaStoreRecords).mockResolvedValue([buildDataView('a', 'Sales'), buildDataView('b', 'Stock')]);
     });
 
     afterEach(() => {
         for (const wrapper of wrappers.splice(0)) wrapper.unmount();
         queryClient.clear();
+        sessionIsAuthenticated.value = undefined;
         vi.clearAllMocks();
     });
 
@@ -101,6 +113,26 @@ describe('data views', () => {
             const { error } = await runInComponent(() => useDataViews());
 
             expect(error.value?.message).toBe('Failed to retrieve data views.');
+        });
+
+        it('aborts a read that is cancelled, leaving the list not loaded rather than failed', async () => {
+            const signals: (AbortSignal | undefined)[] = [];
+            // A stuck read, which settles only when aborted, as the meta store's does.
+            vi.mocked(retrieveMetaStoreRecords).mockImplementationOnce(async (_nodeId, signal) => {
+                signals.push(signal);
+                return new Promise<never>((_resolve, reject) => {
+                    signal?.addEventListener('abort', () => {
+                        reject(signal.reason as Error);
+                    });
+                });
+            });
+            const { data, error } = await runInComponent(() => useDataViews());
+
+            await cancelDataViewRetrieval();
+
+            expect(signals[0]?.aborted).toBe(true);
+            expect(data.value).toBeUndefined();
+            expect(error.value).toBeNull();
         });
     });
 
@@ -162,6 +194,26 @@ describe('data views', () => {
             expect(removeMetaStoreRecord).toHaveBeenCalledWith('dataViews', 'a');
             expect(cachedList()?.map((config) => config.id)).toStrictEqual(['b']);
             expect(queryClient.getQueryData(constructMetaStoreRecordKey('dataViews', 'a'))).toBeUndefined();
+        });
+
+        it('keeps a save that finishes after signing in or out out of the next user’s list', async () => {
+            await runInComponent(() => useDataViews());
+            const { mutateAsync } = await runInComponent(() => useUpdateDataView());
+            vi.mocked(upsertMetaStoreRecord).mockResolvedValueOnce(PREVIOUS_META_STORE_ID);
+
+            await mutateAsync(buildDataView('a', 'Sales by region'));
+
+            expect(cachedList()?.map((config) => config.label)).toStrictEqual([{ en: 'Sales' }, { en: 'Stock' }]);
+        });
+
+        it('keeps a delete that finishes after signing in or out out of the next user’s list', async () => {
+            await runInComponent(() => useDataViews());
+            const { mutateAsync } = await runInComponent(() => useDeleteDataView());
+            vi.mocked(removeMetaStoreRecord).mockResolvedValueOnce(PREVIOUS_META_STORE_ID);
+
+            await mutateAsync('a');
+
+            expect(cachedList()?.map((config) => config.id)).toStrictEqual(['a', 'b']);
         });
     });
 });

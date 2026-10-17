@@ -2,13 +2,15 @@
 // ── External Dependencies & Registrations
 import { computed, nextTick, onMounted, onUnmounted, useTemplateRef } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from '@lucide/vue';
-import { useEventListener, useFullscreen } from '@vueuse/core';
+import { useConfirmDialog, useEventListener, useFullscreen } from '@vueuse/core';
 
 // ── DPUse Framework
-import { formatNumberAsDuration, type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared';
+import { AppError, formatNumberAsDuration, type LocaleId, SUPPORTED_LANGUAGES } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { appearance } from '@/state/appearance';
+import { raiseAppFailure } from '@/state/errors';
+import { removeAccountMetaStoreRecords } from '@/services/metaStore';
 import { signOut } from '@/services/auth';
 import { useDialogs } from '@/state/dialogs';
 import { expiresIn, lifetime, sessionIsAuthenticated, setSessionExpiryTimer } from '@/state/session';
@@ -17,6 +19,7 @@ import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import CloseButton from '@/components/ui/action/CloseButton.vue';
+import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import IconButton from '@/components/ui/action/IconButton.vue';
 import ItemButton from '@/components/ui/action/ItemButton.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
@@ -39,6 +42,13 @@ const TEXT = {
     'reload.label': { en: 'Reload', es: 'Recargar' },
     'signInRegister.label': { en: 'Sign in / Register', es: 'Iniciar sesión / Registrarse' },
     'signOut.label': { en: 'Sign out', es: 'Desconectar' },
+    'signOutAndRemove.confirm.label': { en: 'Remove and sign out', es: 'Eliminar y desconectar' },
+    'signOutAndRemove.confirm.text': {
+        en: 'Your data views will be removed from this browser. They cannot be brought back, because they are not saved anywhere else.',
+        es: 'Tus vistas de datos se eliminarán de este navegador. No se pueden recuperar, porque no se guardan en ningún otro lugar.'
+    },
+    'signOutAndRemove.confirm.title': { en: 'Remove Your Data?', es: '¿Eliminar tus datos?' },
+    'signOutAndRemove.label': { en: 'Sign out and remove my data', es: 'Desconectar y eliminar mis datos' },
     'system.label': { en: 'System', es: 'Sistema' }
 };
 
@@ -53,6 +63,9 @@ const isFullScreenSupported = document.fullscreenEnabled; // Stricter than 'useF
 const { openDialog } = useDialogs();
 const { store: currentAppearance } = appearance;
 const { isFullscreen: screenIsFullscreen, toggle: toggleFullscreen } = useFullscreen();
+
+// ── Sign Out and Remove Confirmation
+const { cancel: cancelSignOutAndRemove, confirm: confirmSignOutAndRemove, isRevealed: signOutAndRemoveConfirmIsOpen, reveal: revealSignOutAndRemoveConfirm } = useConfirmDialog();
 
 const elapsed = computed(() => {
     return lifetime.value == null || lifetime.value === 0 ? 0 : ((lifetime.value - (expiresIn.value ?? 0)) / lifetime.value) * 100;
@@ -126,6 +139,21 @@ async function handleSignInRegister(): Promise<void> {
 async function handleSignOut(): Promise<void> {
     await signOut();
     emit('continue');
+}
+
+// For a user leaving a shared computer. The data is removed first, so a failure leaves them signed in and able to try
+// again, rather than signed out with their data still in the browser.
+async function handleSignOutAndRemove(): Promise<void> {
+    const { isCanceled } = await revealSignOutAndRemoveConfirm();
+    if (isCanceled) return;
+
+    try {
+        await removeAccountMetaStoreRecords();
+    } catch (error) {
+        raiseAppFailure(new AppError('Failed to remove data from this browser.', 'dpuse-app.SessionMenu.handleSignOutAndRemove', { typeId: 'handled' }, { cause: error }));
+        return;
+    }
+    await handleSignOut();
 }
 
 async function handleToggleWindowExpansion(): Promise<void> {
@@ -262,9 +290,21 @@ async function handleToggleWindowExpansion(): Promise<void> {
                 <RectangleButton v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleSignOut">{{
                     t(TEXT, 'signOut.label')
                 }}</RectangleButton>
+                <RectangleButton v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleSignOutAndRemove">{{
+                    t(TEXT, 'signOutAndRemove.label')
+                }}</RectangleButton>
                 <RectangleButton v-else class="mt-2 min-w-50 justify-start" variant="primary" @click="handleSignInRegister">{{ t(TEXT, 'signInRegister.label') }}</RectangleButton>
             </div>
         </ScrollAreaFit>
+
+        <ConfirmDialog
+            :confirm-label="t(TEXT, 'signOutAndRemove.confirm.label')"
+            :is-open="signOutAndRemoveConfirmIsOpen"
+            :message="t(TEXT, 'signOutAndRemove.confirm.text')"
+            :title="t(TEXT, 'signOutAndRemove.confirm.title')"
+            @cancel="cancelSignOutAndRemove"
+            @confirm="confirmSignOutAndRemove"
+        />
     </dialog>
 </template>
 

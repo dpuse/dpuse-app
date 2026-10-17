@@ -15,6 +15,7 @@ import {
     constructMetaStoreListKey,
     constructMetaStoreRecordKey,
     getMetaStoreRecord,
+    metaStoreId,
     removeMetaStoreRecord,
     retrieveMetaStoreRecords,
     upsertMetaStoreRecord
@@ -28,10 +29,11 @@ const UNTITLED_DATA_VIEW_LABEL = { en: 'Untitled Data View', es: 'Vista de datos
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Read once and then kept current by the data view mutations, which write every change into the cache as it is saved.
+// The read takes TanStack Query's abort signal, so cancelling it, or leaving the list while it loads, stops the wait.
 export function useDataViews(): UseQueryReturnType<DataViewConfig[], Error> {
     return useQuery({
         queryKey: DATA_VIEW_LIST_KEY,
-        queryFn: retrieveDataViewConfigs,
+        queryFn: ({ signal }) => retrieveDataViewConfigs(signal),
         enabled: () => configStatus.value.typeId === 'ready', // Fails, rather than waits, when the meta store connector is missing.
         staleTime: Infinity
     });
@@ -56,20 +58,15 @@ export function useDataView(dataViewId: MaybeRefOrGetter<string | undefined>): U
 
 // Saved as soon as it is added, so every step's URL holds a real id and a reload always has a record to restore.
 export function useCreateDataView(): UseMutationReturnType<DataViewConfig, Error, void, unknown> {
-    return useMutation({ mutationFn: createDataViewConfig, onSuccess: writeDataViewConfigToCache });
+    return useMutation({ mutationFn: createDataViewConfig });
 }
 
 export function useUpdateDataView(): UseMutationReturnType<DataViewConfig, Error, DataViewConfig, unknown> {
-    return useMutation({ mutationFn: saveDataViewConfig, onSuccess: writeDataViewConfigToCache });
+    return useMutation({ mutationFn: saveDataViewConfig });
 }
 
 export function useDeleteDataView(): UseMutationReturnType<void, Error, string, unknown> {
-    return useMutation({
-        mutationFn: removeDataViewConfig,
-        onSuccess: (_result, id) => {
-            removeDataViewConfigFromCache(id);
-        }
-    });
+    return useMutation({ mutationFn: removeDataViewConfig });
 }
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -80,13 +77,22 @@ const dataViewIcon = assertDefined(
     "Expected a 'dataViews' entry from useStudioOptions()."
 ).icon;
 
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Stops a list read that is taking too long. The list goes back to not loaded, rather than failed, until it is read
+// again.
+export async function cancelDataViewRetrieval(): Promise<void> {
+    await queryClient.cancelQueries({ queryKey: DATA_VIEW_LIST_KEY });
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function retrieveDataViewConfigs(): Promise<DataViewConfig[]> {
+async function retrieveDataViewConfigs(signal: AbortSignal): Promise<DataViewConfig[]> {
     try {
-        const dataViewConfigs = await retrieveMetaStoreRecords<DataViewConfig>('dataViews');
+        const dataViewConfigs = await retrieveMetaStoreRecords<DataViewConfig>('dataViews', signal);
         return dataViewConfigs.map((config) => ({ ...config, icon: dataViewIcon }));
     } catch (error) {
+        if (signal.aborted) throw error; // A cancelled read is not a failure, so it keeps its abort reason.
         throw new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error });
     }
 }
@@ -120,10 +126,13 @@ function createDataViewConfig(): Promise<DataViewConfig> {
     });
 }
 
+// The cache is written here rather than in 'onSuccess', because only here is the store the change went to known.
 async function saveDataViewConfig(dataViewConfig: DataViewConfig): Promise<DataViewConfig> {
     try {
-        await upsertMetaStoreRecord('dataViews', { ...dataViewConfig, icon: null, iconDark: null }); // The icon is added on reading, so it is not stored.
-        return { ...dataViewConfig, icon: dataViewIcon };
+        const storeId = await upsertMetaStoreRecord('dataViews', { ...dataViewConfig, icon: null, iconDark: null }); // The icon is added on reading, so it is not stored.
+        const savedDataViewConfig = { ...dataViewConfig, icon: dataViewIcon };
+        if (storeId === metaStoreId.value) writeDataViewConfigToCache(savedDataViewConfig); // A save that finishes after signing in or out stays out of the next user's lists.
+        return savedDataViewConfig;
     } catch (error) {
         throw new AppError('Failed to save data view.', 'dpuse-app.dataViews.saveDataViewConfig', { typeId: 'handled' }, { cause: error });
     }
@@ -131,7 +140,8 @@ async function saveDataViewConfig(dataViewConfig: DataViewConfig): Promise<DataV
 
 async function removeDataViewConfig(id: string): Promise<void> {
     try {
-        await removeMetaStoreRecord('dataViews', id);
+        const storeId = await removeMetaStoreRecord('dataViews', id);
+        if (storeId === metaStoreId.value) removeDataViewConfigFromCache(id); // As for a save.
     } catch (error) {
         throw new AppError('Failed to remove data view.', 'dpuse-app.dataViews.removeDataViewConfig', { typeId: 'handled' }, { cause: error });
     }

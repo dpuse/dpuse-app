@@ -6,7 +6,6 @@ import { useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 import { defineLazyComponent } from '@/utilities/index.ts';
-import { initialiseServices } from '@/state/session';
 import { t } from '@/state/locale';
 import { TEXT } from './App_.json';
 import { useDialogs } from '@/state/dialogs';
@@ -23,6 +22,7 @@ import {
     studioPaneIsVisible,
     studioPaneWasOpened
 } from '@/state/appPanes';
+import { initialiseServices, signInFollowsGuestUse } from '@/state/session';
 import { isPWA, isSafariBrowser, viewportIsWide } from '@/state/device';
 import { loadAssistantLayout, prefetchAssistant } from '@/features/assistant/assistantLoaders';
 import { moduleUpdateIsAvailable, newAppVersionIsAvailable } from '@/state/appVersion';
@@ -39,6 +39,7 @@ import StudioPaneToggle from '@/features/studio/StudioPaneToggle.vue'; // Static
 
 // ── Dynamic Components
 const AssistantLayout = defineLazyComponent(loadAssistantLayout, 'AssistantLayout');
+const GuestWorkNotice = defineLazyComponent(() => import('@/features/session/GuestWorkNotice.vue'), 'GuestWorkNotice', { hasPlaceholder: false });
 const OptionBar = defineLazyComponent(() => import('@/features/studio/options/OptionBar.vue'), 'OptionBar', { hasPlaceholder: false });
 const PaneSplitter = defineLazyComponent(() => import('@/components/ui/PaneSplitter.vue'), 'PaneSplitter', { hasPlaceholder: false });
 
@@ -189,8 +190,18 @@ function syncPaneQuery(): void {
             @retry="retryAppFailures"
         />
 
-        <!-- New Version Notice ─ For users who stay on one screen, since moving to another loads the new version. -->
-        <NewVersionNotice v-if="newAppVersionIsAvailable || moduleUpdateIsAvailable" />
+        <!-- Notices ─ Stacked above the bottom row of controls, so two at once never overlap. The stack spans the width
+             but lets clicks through, so the page beside a notice still works. -->
+        <div
+            class="pointer-events-none fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.75rem)] left-[calc(1rem+env(safe-area-inset-left))] z-40 flex flex-col gap-2 sm:items-end"
+        >
+            <!-- New Version Notice ─ For users who stay on one screen, since moving to another loads the new version. -->
+            <NewVersionNotice v-if="newAppVersionIsAvailable || moduleUpdateIsAvailable" />
+
+            <!-- Guest Work Notice ─ Only after signing in from a page used signed out, not on a page that loads signed
+                 in. -->
+            <GuestWorkNotice v-if="signInFollowsGuestUse" />
+        </div>
 
         <!-- Top Edge Line ─ Full width on wide viewports, lying exactly over the option bar's own line. -->
         <div v-if="viewportIsWide && viewportRequiresTopEdgeLine" class="pointer-events-none fixed inset-x-0 top-[env(safe-area-inset-top)] z-50 h-px bg-separator" />

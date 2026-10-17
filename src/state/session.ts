@@ -30,6 +30,7 @@ const expiryIntervalMs = ref(EXPIRE_INTERVAL_SLOW_MS);
 export const sessionIsAuthenticated = ref<boolean | undefined>(); // Undefined while Hanko checks the session, then true when signed in and false when signed out.
 export const lifetime = ref<number | undefined>();
 const sessionId = ref<string | undefined>();
+export const signInFollowsGuestUse = ref(false); // True once a user signs in after using this page signed out, so their guest work can be offered to the account.
 const state = { accountMonitorIsStarted: false }; // A visitor who never signed in has no account monitor, so signing out skips loading its code.
 
 const { pause: pauseExpiryTimer, resume: resumeExpiryTimer } = useIntervalFn(updateExpiresIn, expiryIntervalMs, { immediate: false });
@@ -140,6 +141,7 @@ function establishSession(actionId: AuthSessionChangeId | 'validated' | 'validat
             emailIsPrimary.value = undefined;
             emailIsVerified.value = undefined;
         }
+        signInFollowsGuestUse.value ||= sessionIsAuthenticated.value === false; // Not on a page load already signed in, which starts undefined.
         accountId.value = claims.subject;
         const establishedAt = claims.issued_at == null ? 0 : Date.parse(claims.issued_at);
         expiresAt.value = claims.expiration ? Date.parse(claims.expiration) : 0;
@@ -171,6 +173,7 @@ function establishSession(actionId: AuthSessionChangeId | 'validated' | 'validat
         lifetime.value = undefined;
         accountId.value = undefined;
         sessionId.value = undefined;
+        signInFollowsGuestUse.value = false;
 
         const icon = actionId === 'validationFailure' ? '⚠️ ' : 'ℹ️ ';
         if (import.meta.env.DEV) console.info(`[dpuse:app] ${icon} Unauthenticated session established (${actionId}).`);

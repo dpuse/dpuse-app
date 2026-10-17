@@ -25,6 +25,7 @@ interface Properties {
 const { selectedItem, addLabel, dataSource, isCompact, maxDetailWidth, maxGridWidth, rowHeight, scrollAreaPaddingTop } = defineProps<Properties>();
 
 defineSlots<{
+    busy?(): unknown;
     header(properties: { isSplit: boolean }): unknown;
     item(properties: { item: T }): unknown;
     'no-items'(): unknown;
@@ -89,6 +90,10 @@ watch(
                     <slot name="item" :item="item" />
                 </template>
 
+                <template #busy>
+                    <slot name="busy" />
+                </template>
+
                 <template #no-items>
                     <slot name="no-items" />
                 </template>
@@ -100,10 +105,10 @@ watch(
                 :class="[detailPaneIsVisible ? 'block' : 'hidden', { 'border-l': isSplit }]"
                 :style="{ maxWidth: isSplit ? maxDetailWidth : undefined }"
             >
-                <!-- Active Item, or No Selection - Keyed on the item, so each new selection fades in. Fade in only, like the
-                     route views: the card's highlight changes on the click, so the old detail must not linger beside it.
-                     The comments stay out here because a comment between the branches would sit inside the transition. -->
-                <Transition name="action-fade-in" mode="out-in">
+                <!-- Active Item, or No Selection - Keyed on the item, so each new selection fades in. The old detail fades
+                     out quickly first, as route views do, so it does not vanish in a flash. The comments stay out here
+                     because a comment between the branches would sit inside the transition. -->
+                <Transition name="action-fade" mode="out-in">
                     <div v-if="selectedItem" :key="selectedItem.id" class="relative flex h-full min-h-0 flex-col">
                         <slot name="detail" :item="selectedItem" :close="() => (detailIsOpen = false)" />
                     </div>
