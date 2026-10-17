@@ -96,7 +96,7 @@ const needsReload = computed(() => moduleUpdateIsAvailable.value || failures.som
         <div v-for="(entry, entryIndex) in entries" :key="entryIndex" :class="entryIndex > 0 ? 'mt-4 border-t border-warning-ring/20 pt-4' : undefined">
             <p class="mt-2 text-sm font-semibold wrap-anywhere text-warning-text">{{ entry.main.message }}</p>
 
-            <p v-if="entry.cause" class="mt-2 text-sm wrap-anywhere text-warning-text/80">
+            <p v-if="entry.cause" class="mt-2 text-sm wrap-anywhere text-warning-text/85">
                 <span class="text-sm font-semibold">{{ t(TEXT, 'cause.label') }}</span
                 >: {{ entry.cause.message }}
             </p>
@@ -106,7 +106,7 @@ const needsReload = computed(() => moduleUpdateIsAvailable.value || failures.som
             <details v-if="entry.trace.length > 0" class="group my-3 text-left">
                 <!-- Focus ring for keyboard users only. The dialog takes focus itself on open, so this shows only after Tab. -->
                 <summary
-                    class="flex w-fit cursor-pointer list-none items-center gap-1 rounded-md text-sm font-semibold text-warning-text/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring [&::-webkit-details-marker]:hidden"
+                    class="flex w-fit cursor-pointer list-none items-center gap-1 rounded-md text-sm font-semibold text-warning-text/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring [&::-webkit-details-marker]:hidden"
                 >
                     {{ t(TEXT, 'trace.label') }}:
                     <ChevronDownIcon class="size-4 transition-transform group-open:rotate-180" />
@@ -116,21 +116,21 @@ const needsReload = computed(() => moduleUpdateIsAvailable.value || failures.som
                      were already 'li' elements but sat unmarked, reading as wrapped prose rather than as a chain of
                      causes. -->
                 <ul class="list-disc pl-4! marker:text-warning-text/50">
-                    <li v-for="(serialisedError, index) in entry.trace" :key="index" class="text-sm leading-snug! wrap-anywhere text-warning-text/85">
+                    <li v-for="(serialisedError, index) in entry.trace" :key="index" class="text-sm leading-snug! wrap-anywhere text-warning-text/90">
                         {{ serialisedError.message }}
-                        <span class="text-warning-text/65">({{ serialisedError.name }}){{ serialisedError.locator ? ` [${serialisedError.locator}]` : '' }}</span>
+                        <span class="text-warning-text/85">({{ serialisedError.name }}){{ serialisedError.locator ? ` [${serialisedError.locator}]` : '' }}</span>
                     </li>
                 </ul>
             </details>
 
-            <p v-if="entry.failure.isReportable" class="mt-2 mb-0! text-xs leading-snug! text-warning-text/80">
+            <p v-if="entry.failure.isReportable" class="mt-2 mb-0! text-xs leading-snug! text-warning-text/85">
                 <span v-if="entry.failure.wasReported.value == null">{{ t(TEXT, 'reporting.pending.text') }}</span>
                 <span v-else-if="entry.failure.wasReported.value">{{ t(TEXT, 'reporting.succeeded.text') }}</span>
                 <span v-else class="font-semibold">{{ t(TEXT, 'reporting.failed.text') }}</span>
             </p>
         </div>
 
-        <p v-if="needsReload" class="mt-4 text-sm text-warning-text/80">{{ t(TEXT, 'staleDeploy.text') }}</p>
+        <p v-if="needsReload" class="mt-4 text-sm text-warning-text/85">{{ t(TEXT, 'staleDeploy.text') }}</p>
 
         <!-- Reload stands apart on the left and in the danger colour: it is the heaviest thing offered here, costing
              the whole page and anything unsaved on it, so it is kept away from the buttons the user reaches for first

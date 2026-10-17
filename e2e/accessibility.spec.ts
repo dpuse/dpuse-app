@@ -19,6 +19,10 @@ const SCREENS = [
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 test.describe('Accessibility', () => {
+    // Without motion, so each screen is checked as it ends up. Mid-fade, its text is partly transparent and fails the
+    // contrast check. The app's fades switch off for reduced motion.
+    test.use({ contextOptions: { reducedMotion: 'reduce' } });
+
     for (const screen of SCREENS) {
         test(`${screen.id} has no axe violations`, async ({ page }) => {
             await page.goto(screen.url);
