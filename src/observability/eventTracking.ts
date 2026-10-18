@@ -87,6 +87,7 @@ function buildEvent(typeId: EventTypeId, data: Record<string, unknown>): Record<
         typeId,
         asAt: Date.now(),
         appVersion: version,
+        environment: import.meta.env.MODE, // Dev and prod share one Axiom dataset, so this keeps local runs out of real-user figures.
         sessionId: state.currentSessionId,
         userId: state.currentUserId,
         spanId: undefined,
