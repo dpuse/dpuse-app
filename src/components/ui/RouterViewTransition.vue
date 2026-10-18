@@ -24,7 +24,7 @@ defineSlots<{ default: (slotProperties: { component: VNode }) => unknown }>();
              does not fade in ('appear'), because Chrome does not count it towards Largest Contentful Paint until it is
              visible, which delays LCP by the length of the fade. -->
         <ComponentLoadingSpinner v-if="isLoading" v-bind="$attrs" />
-        <Transition v-else name="action-fade" mode="out-in">
+        <Transition v-else name="dpuse-action-fade" mode="out-in">
             <slot :component="Component" />
         </Transition>
     </RouterView>

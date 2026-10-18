@@ -108,7 +108,7 @@ watch(
                 <!-- Active Item, or No Selection - Keyed on the item, so each new selection fades in. The old detail fades
                      out quickly first, as route views do, so it does not vanish in a flash. The comments stay out here
                      because a comment between the branches would sit inside the transition. -->
-                <Transition name="action-fade" mode="out-in">
+                <Transition name="dpuse-action-fade" mode="out-in">
                     <div v-if="selectedItem" :key="selectedItem.id" class="relative flex h-full min-h-0 flex-col">
                         <slot name="detail" :item="selectedItem" :close="() => (detailIsOpen = false)" />
                     </div>

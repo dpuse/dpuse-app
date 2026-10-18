@@ -27,7 +27,7 @@ defineEmits<{ edit: []; toggle: [] }>();
     <div class="mt-2 max-w-prose rounded-md border" :class="isExpanded ? 'border-separator' : 'border-backdrop'">
         <!-- Header -->
         <div class="flex items-center gap-x-2 bg-backdrop pr-4" :class="isExpanded ? 'rounded-t-md' : 'rounded-md'">
-            <h3 class="min-w-0 flex-1 text-base! font-normal! tracking-normal!">
+            <h3 class="min-w-0 flex-1 text-base font-normal tracking-normal">
                 <ActionWrapper
                     :aria-expanded="isExpanded"
                     class="flex w-full items-center gap-x-2 py-2 pl-2 text-left"

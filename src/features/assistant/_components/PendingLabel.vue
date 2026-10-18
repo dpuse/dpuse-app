@@ -8,7 +8,7 @@ const { label = 'Working…' } = defineProps<{ label?: string }>();
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Must match the duration of '--animate-pending-letter' in 'main.css'. The letters' delays are spread across exactly one
+// Must match the duration of '--animate-pending-letter' in 'theme.css'. The letters' delays are spread across exactly one
 // full cycle, which is what makes the wave wrap: the first letter starts brightening as the last one fades, so the
 // word never dips all at once. A fixed per-letter delay shorter than the cycle leaves every letter in the trough
 // together, which is the flat spot that reads as a blink.

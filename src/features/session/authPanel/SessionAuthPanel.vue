@@ -213,7 +213,7 @@ function onAfterEnter(): void {
             <DPUseLogo class="size-12" />
 
             <div ref="container" :aria-busy="!flowConstructed">
-                <Transition name="action-fade" mode="out-in" @before-enter="pinContainerHeight" @before-leave="pinContainerHeight" @enter="onEnter" @after-enter="onAfterEnter">
+                <Transition name="dpuse-action-fade" mode="out-in" @before-enter="pinContainerHeight" @before-leave="pinContainerHeight" @enter="onEnter" @after-enter="onAfterEnter">
                     <LoginForm v-if="uiStateId === 'enterId' && handleIdEntered" :on-trigger="handleIdEntered" />
 
                     <PasswordForm

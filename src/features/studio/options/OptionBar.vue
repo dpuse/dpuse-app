@@ -16,7 +16,7 @@ defineEmits<{ continue: [] }>();
     <div class="h-full" data-region="OptionBar">
         <OptionPanel v-if="viewportIsWide" class="flex" @continue="$emit('continue')" />
 
-        <Transition appear name="horizontal-slide-ltr">
+        <Transition appear name="dpuse-horizontal-slide-ltr">
             <div v-if="!viewportIsWide && isVisible" class="fixed inset-0">
                 <!-- TODO: Could the following be converted to a common mask? -->
                 <div class="absolute inset-0 mt-[env(safe-area-inset-top)] bg-overlay" role="button" tabIndex="-1" @click="$emit('continue')" @keydown="$emit('continue')" />

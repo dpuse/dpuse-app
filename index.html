@@ -19,9 +19,9 @@
 
         <!-- No-media theme-color fallback. -->
         <meta name="theme-color" content="#ffffff" />
-        <!-- NOTE: white, same as light 'surface' in main.css. -->
+        <!-- NOTE: white, same as light 'surface' in 'theme.css'. -->
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-        <!-- NOTE: zinc-950, same as dark 'surface' in main.css. Uncertain as to support for 'oklch' as of May, 2026. -->
+        <!-- NOTE: zinc-950, same as dark 'surface' in 'theme.css'. Uncertain as to support for 'oklch' as of May, 2026. -->
         <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
 
         <!-- Fetched before the app mounts, so Inter is usually ready by first paint. Must stay the same file 'opsz.css'
@@ -38,14 +38,14 @@
         <!-- CSP requires style-src hash in production for following style block. See console error message for required hash. -->
         <style>
             html {
-                background-color: #ffffff; /* NOTE: white, same as light 'surface' in main.css. */
-                color: oklch(37% 0.013 285.805); /* NOTE: zinc-700, same as light 'content' in main.css. */
+                background-color: #ffffff; /* NOTE: white, same as light 'surface' in 'theme.css'. */
+                color: oklch(37% 0.013 285.805); /* NOTE: zinc-700, same as light 'content' in 'theme.css'. */
             }
 
             @media (prefers-color-scheme: dark) {
                 html {
-                    background-color: oklch(14.1% 0.005 285.823); /* NOTE: zinc-950, same as dark 'surface' in main.css. */
-                    color: oklch(87.1% 0.006 286.286); /* NOTE: zinc-300, same as dark 'content' in main.css. */
+                    background-color: oklch(14.1% 0.005 285.823); /* NOTE: zinc-950, same as dark 'surface' in 'theme.css'. */
+                    color: oklch(87.1% 0.006 286.286); /* NOTE: zinc-300, same as dark 'content' in 'theme.css'. */
                 }
             }
         </style>

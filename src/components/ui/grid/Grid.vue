@@ -121,7 +121,7 @@ function getRowHeight(item: T | undefined): number {
     <div class="relative flex min-h-0 flex-col" data-region="Grid">
         <!-- Body ─ The old state fades out quickly before the new one fades in, so the loading bar does not vanish in a
              flash. -->
-        <Transition mode="out-in" name="action-fade">
+        <Transition mode="out-in" name="dpuse-action-fade">
             <!-- Busy ─ The caller's 'busy' content, such as a slow-load message, sits below the bar so the bar never
                  moves. -->
             <div v-if="state === 'busy'">
@@ -177,7 +177,7 @@ function getRowHeight(item: T | undefined): number {
         <!-- Floating Add Button (Optional) ─ Hidden while the list loads, because adding goes to the same source the list
              is waiting on, so it could not finish any sooner. Its fade-in waits for the loading bar's fade-out, so it
              arrives with the list. -->
-        <Transition name="action-fade-delayed">
+        <Transition name="dpuse-action-fade-delayed">
             <PillButton v-if="addLabel && state !== 'busy'" :icon="PlusIcon" icon-is-leading :label="addLabel" @click="$emit('add')" />
         </Transition>
     </div>

@@ -119,15 +119,15 @@ const needsReload = computed(() => moduleUpdateIsAvailable.value || failures.som
                 <!-- 'list-disc' restored explicitly: the preflight reset strips markers from every list, so the items
                      were already 'li' elements but sat unmarked, reading as wrapped prose rather than as a chain of
                      causes. -->
-                <ul class="list-disc pl-4! marker:text-warning-text/50">
-                    <li v-for="(serialisedError, index) in entry.trace" :key="index" class="text-sm leading-snug! wrap-anywhere text-warning-text/90">
+                <ul class="list-disc pl-4 marker:text-warning-text/50">
+                    <li v-for="(serialisedError, index) in entry.trace" :key="index" class="text-sm leading-snug wrap-anywhere text-warning-text/90">
                         {{ serialisedError.message }}
                         <span class="text-warning-text/85">({{ serialisedError.name }}){{ serialisedError.locator ? ` [${serialisedError.locator}]` : '' }}</span>
                     </li>
                 </ul>
             </details>
 
-            <p v-if="entry.failure.isReportable" class="mt-2 mb-0! text-xs leading-snug! text-warning-text/85">
+            <p v-if="entry.failure.isReportable" class="mt-2 mb-0 text-xs leading-snug text-warning-text/85">
                 <span v-if="entry.failure.wasReported.value == null">{{ t(TEXT, 'reporting.pending.text') }}</span>
                 <span v-else-if="entry.failure.wasReported.value">{{ t(TEXT, 'reporting.succeeded.text') }}</span>
                 <span v-else class="font-semibold">{{ t(TEXT, 'reporting.failed.text') }}</span>
@@ -164,6 +164,6 @@ const needsReload = computed(() => moduleUpdateIsAvailable.value || failures.som
             </div>
         </div>
 
-        <p class="mt-2 mb-0! border-t border-warning-ring/30 pt-2 text-xs leading-snug! text-warning-text">{{ t(TEXT, 'console.text') }}</p>
+        <p class="mt-2 mb-0 border-t border-warning-ring/30 pt-2 text-xs leading-snug text-warning-text">{{ t(TEXT, 'console.text') }}</p>
     </div>
 </template>

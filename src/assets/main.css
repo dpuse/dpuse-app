@@ -1,320 +1,227 @@
 @import 'tailwindcss';
 /* @import 'tw-animate-css'; TODO: May look to use some of these (replace existing slides?). Wait for version 2. See: https://github.com/Wombosvideo/tw-animate-css. */
+@import './theme.css';
 
-html {
-    overscroll-behavior: none;
-    font-size: 1rem; /* 16px is default */
+/* Layout variables. */
+:root {
+    --safe-bottom-offset: calc(
+        max(env(safe-area-inset-bottom), 24px) + 24px
+    ); /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '24px' for optional status bar; '24px' for horizontal scroll bar. */
+    --safe-top-offset: calc(env(safe-area-inset-top) + 7px); /* Floating button screen top offset: 'safe-area-inset-top'; '7px' for gutter. */
+    --safe-left-offset: calc(env(safe-area-inset-left) + 12px); /* Floating button screen left offset: 'safe-area-inset-left'; '12px' for gutter. */
+    --safe-right-offset: calc(env(safe-area-inset-right) + 12px); /* Floating button screen right offset: 'safe-area-inset-right'; '12px' for gutter. */
+
+    --pane-splitter-width: 6px; /* Width of 'PaneSplitter'. Declared here because 'App.vue' subtracts half of it from the studio pane. */
+
+    --status-bar-height: max(env(safe-area-inset-bottom), 24px); /* Status bar height: 'safe-area-inset-bottom' or '24px'. */
+
+    --vertical-scroll-bottom-embedded-inset: 88px; /* Scroll area bottom inset: '24px' for horizontal scroll bar; '40px' for floating buttons; '16px' for padding above floating buttons. */
+    --vertical-scroll-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 24px) + 88px);
+    --vertical-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 24px) + 72px);
 }
 
-/* Sized for a document shown inside a workspace pane, not a full reading page: tighter headings and line height, and
-   rem throughout so the text follows the user's browser font size. */
-.dpuse-prose h1,
-.dpuse-prose h2,
-.dpuse-prose h3,
-.dpuse-prose h4,
-.dpuse-prose h5,
-.dpuse-prose h6,
-.dpuse-prose li,
-.dpuse-prose p {
-    overflow-wrap: break-word;
-}
-.dpuse-prose h1,
-.dpuse-prose h2,
-.dpuse-prose h3,
-.dpuse-prose h4,
-.dpuse-prose h5,
-.dpuse-prose h6 {
-    font-weight: 600;
-}
-.dpuse-prose h1 {
-    font-size: 1.375rem;
-    letter-spacing: -0.02em;
-    line-height: 1.875rem;
-}
-.dpuse-prose h2 {
-    border-top: 1px solid var(--separator);
-    font-size: 1.125rem;
-    letter-spacing: -0.01em;
-    line-height: 1.625rem;
-    margin-bottom: 1rem; /* Matched by the heading row in 'StudioDocumentSection.vue'. */
-    margin-top: 1.5rem;
-    padding-top: 0.5rem;
-}
-.dpuse-prose h3 {
-    font-size: 1.0625rem;
-    line-height: 1.5rem;
-}
-/* Below h3 the size stops changing, so weight alone marks the heading (Tailwind's reset would leave them as body text). */
-.dpuse-prose h4,
-.dpuse-prose h5,
-.dpuse-prose h6 {
-    font-size: 1rem;
-    line-height: 1.5rem;
-}
-.dpuse-prose > :is(h1, h2, h3, h4, h5, h6):first-child {
-    border-top: none;
-    margin-top: 0;
-    padding-top: 0;
-}
-.dpuse-prose blockquote,
-.dpuse-prose li,
-.dpuse-prose p {
-    line-height: 1.5rem;
-    max-width: 65ch; /* Keeps lines readable when the pane is wide. */
-}
-.dpuse-prose li {
-    margin-bottom: 0.25rem;
-    margin-top: 0.25rem;
-}
-.dpuse-prose p {
-    margin-bottom: 0.75rem;
-    margin-top: 0.75rem;
-}
-.dpuse-prose ol,
-.dpuse-prose ul {
-    margin: 0;
-    padding-left: 1.5rem;
-}
-.dpuse-prose ol {
-    list-style: decimal;
-}
-.dpuse-prose ol ul {
-    list-style: circle;
-}
-.dpuse-prose ul {
-    list-style: disc;
-}
-.dpuse-prose ul ul {
-    list-style: circle;
-}
-.dpuse-prose a {
-    color: var(--color-accent);
-    &:hover {
-        color: var(--color-accent-hover);
-        text-decoration-line: underline;
+@layer base {
+    html {
+        overscroll-behavior: none;
     }
-}
-.dpuse-prose blockquote {
-    color: var(--color-muted);
-    border-left: 3px solid var(--separator);
-    padding-left: 0.75rem;
-    margin: 0;
-}
-.dpuse-prose .dpuse-prose-overline {
-    color: var(--color-muted);
-    font-size: 0.875rem;
-    line-height: 1.25;
-    margin-bottom: 2px;
-}
-.dpuse-prose table {
-    border-collapse: collapse;
-    width: 100%;
-}
-.dpuse-prose th,
-.dpuse-prose td {
-    border: 1px solid var(--separator);
-    padding: 6px 12px;
-    text-align: left;
-    line-height: 24px;
-}
-.dpuse-prose th {
-    background-color: var(--card);
-    color: var(--emphasis);
-    font-weight: 600;
-}
-.dpuse-prose td {
-    color: var(--content);
-}
-.dpuse-prose tr:hover td {
-    background-color: var(--card-hover);
-}
 
-/* Markdown in an assistant's answer, set tighter than '.dpuse-prose' for the narrow chat pane. */
-.dpuse-chat-prose h2 {
-    font-weight: 500;
-    margin-top: 12px;
-}
-.dpuse-chat-prose ol,
-.dpuse-chat-prose ul {
-    margin-bottom: 4px;
-    margin-top: 4px;
-    padding-left: 20px;
-}
-.dpuse-chat-prose ol {
-    list-style-type: decimal;
-}
-.dpuse-chat-prose ul {
-    list-style-type: disc;
-}
-.dpuse-chat-prose li {
-    margin-bottom: 2px;
-    margin-top: 2px;
-}
-.dpuse-chat-prose p {
-    margin-top: 12px;
-}
-.dpuse-chat-prose strong {
-    font-weight: 500;
-}
-.dpuse-chat-prose table {
-    border-collapse: collapse;
-    font-size: 0.8125rem;
-    margin-bottom: 12px;
-    margin-top: 12px;
-    width: 100%;
-}
-.dpuse-chat-prose th,
-.dpuse-chat-prose td {
-    border-bottom: 1px solid var(--color-separator);
-    padding: 6px 10px;
-}
-.dpuse-chat-prose th {
-    font-weight: 500;
-    text-align: left;
-    white-space: nowrap;
-}
-.dpuse-chat-prose td {
-    vertical-align: top;
-}
-.dpuse-chat-prose tr:last-child td {
-    border-bottom: none;
-}
-
-/* Fade through, for content that swaps in place: route views, the detail pane, and 'Grid''s busy, empty and loaded
-   states. With 'mode="out-in"' the old content fades out quickly, then the new content fades in, so the old one never
-   vanishes in a flash. */
-.action-fade-enter-active {
-    transition: opacity 0.25s ease;
-}
-.action-fade-leave-active {
-    transition: opacity 0.1s ease;
-}
-.action-fade-enter-from,
-.action-fade-leave-to {
-    opacity: 0;
-}
-
-/* The same fade for an element outside the swap, such as 'Grid''s Add button. Its fade-in waits for the old content's
-   fade-out, so it arrives with the new content. */
-.action-fade-delayed-enter-active {
-    transition: opacity 0.25s ease 0.1s;
-}
-.action-fade-delayed-leave-active {
-    transition: opacity 0.1s ease;
-}
-.action-fade-delayed-enter-from,
-.action-fade-delayed-leave-to {
-    opacity: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .action-fade-enter-active,
-    .action-fade-leave-active,
-    .action-fade-delayed-enter-active,
-    .action-fade-delayed-leave-active {
-        transition: none;
+    /* Tailwind omits pointer cursor on buttons by default; restore expected behavior. */
+    button:not(:disabled),
+    [role='button']:not(:disabled) {
+        cursor: pointer;
     }
 }
 
-/* Slides a menu up from its button on a wide screen, or up from the bottom edge as a sheet on a narrow one. Used as
-   'Transition' names, so the element is removed once it has left. A modal's backdrop goes with the element, so it is
-   cleared as the element leaves rather than vanishing at the end. */
-.dpuse-slide-up-enter-active,
-.dpuse-slide-up-leave-active {
-    transform-origin: bottom;
-    transition:
-        transform 0.2s ease,
-        opacity 0.2s ease;
-    will-change: transform, opacity;
-}
-.dpuse-slide-up-enter-from,
-.dpuse-slide-up-leave-to {
-    opacity: 0;
-    transform: scaleY(0.75) translateY(6px);
-}
-.dpuse-sheet-enter-active,
-.dpuse-sheet-leave-active {
-    transition:
-        transform 0.3s var(--ease-sheet),
-        opacity 0.2s ease;
-    will-change: transform, opacity;
-}
-.dpuse-sheet-enter-from,
-.dpuse-sheet-leave-to {
-    opacity: 0;
-    transform: translateY(100%);
-}
-.dpuse-sheet-leave-active::backdrop,
-.dpuse-slide-up-leave-active::backdrop {
-    background-color: transparent;
+/* Component classes sit in the 'components' layer, so a Tailwind utility on an element inside them wins. */
+@layer components {
+    /* Sized for a document shown inside a workspace pane, not a full reading page: tighter headings and line height,
+       and font sizes in rem so the text follows the user's browser font size. */
+    .dpuse-prose h1,
+    .dpuse-prose h2,
+    .dpuse-prose h3,
+    .dpuse-prose h4,
+    .dpuse-prose h5,
+    .dpuse-prose h6,
+    .dpuse-prose li,
+    .dpuse-prose p {
+        overflow-wrap: break-word;
+    }
+    .dpuse-prose h1,
+    .dpuse-prose h2,
+    .dpuse-prose h3,
+    .dpuse-prose h4,
+    .dpuse-prose h5,
+    .dpuse-prose h6 {
+        font-weight: 600;
+    }
+    .dpuse-prose h1 {
+        font-size: 1.375rem;
+        letter-spacing: -0.02em;
+        line-height: 1.875rem;
+    }
+    .dpuse-prose h2 {
+        border-top: 1px solid var(--color-separator);
+        font-size: 1.125rem;
+        letter-spacing: -0.01em;
+        line-height: 1.625rem;
+        margin-bottom: 1rem; /* Matched by the heading row in 'StudioDocumentSection.vue'. */
+        margin-top: 1.5rem;
+        padding-top: 0.5rem;
+    }
+    .dpuse-prose h3 {
+        font-size: 1.0625rem;
+        line-height: 1.5rem;
+    }
+    /* Below h3 the size stops changing, so weight alone marks the heading (Tailwind's reset would leave them as body text). */
+    .dpuse-prose h4,
+    .dpuse-prose h5,
+    .dpuse-prose h6 {
+        font-size: 1rem;
+        line-height: 1.5rem;
+    }
+    .dpuse-prose > :is(h1, h2, h3, h4, h5, h6):first-child {
+        border-top: none;
+        margin-top: 0;
+        padding-top: 0;
+    }
+    .dpuse-prose blockquote,
+    .dpuse-prose li,
+    .dpuse-prose p {
+        line-height: 1.5rem;
+        max-width: 65ch; /* Keeps lines readable when the pane is wide. */
+    }
+    .dpuse-prose li {
+        margin-bottom: 0.25rem;
+        margin-top: 0.25rem;
+    }
+    .dpuse-prose p {
+        margin-bottom: 0.75rem;
+        margin-top: 0.75rem;
+    }
+    .dpuse-prose ol,
+    .dpuse-prose ul {
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+    .dpuse-prose ol {
+        list-style: decimal;
+    }
+    .dpuse-prose ol ul {
+        list-style: circle;
+    }
+    .dpuse-prose ul {
+        list-style: disc;
+    }
+    .dpuse-prose ul ul {
+        list-style: circle;
+    }
+    .dpuse-prose a {
+        color: var(--color-accent);
+        &:hover {
+            color: var(--color-accent-hover);
+            text-decoration-line: underline;
+        }
+    }
+    .dpuse-prose blockquote {
+        color: var(--color-muted);
+        border-left: 3px solid var(--color-separator);
+        padding-left: 0.75rem;
+        margin: 0;
+    }
+    .dpuse-prose .dpuse-prose-overline {
+        color: var(--color-muted);
+        font-size: 0.875rem;
+        line-height: 1.25;
+        margin-bottom: 2px;
+    }
+    .dpuse-prose table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    .dpuse-prose th,
+    .dpuse-prose td {
+        border: 1px solid var(--color-separator);
+        padding: 6px 12px;
+        text-align: left;
+        line-height: 24px;
+    }
+    .dpuse-prose th {
+        background-color: var(--color-card);
+        color: var(--color-emphasis);
+        font-weight: 600;
+    }
+    .dpuse-prose td {
+        color: var(--color-content);
+    }
+    .dpuse-prose tr:hover td {
+        background-color: var(--color-card-hover);
+    }
+
+    /* Markdown in an assistant's answer, set tighter than '.dpuse-prose' for the narrow chat pane. */
+    .dpuse-chat-prose h2 {
+        font-weight: 500;
+        margin-top: 12px;
+    }
+    .dpuse-chat-prose ol,
+    .dpuse-chat-prose ul {
+        margin-bottom: 4px;
+        margin-top: 4px;
+        padding-left: 20px;
+    }
+    .dpuse-chat-prose ol {
+        list-style-type: decimal;
+    }
+    .dpuse-chat-prose ul {
+        list-style-type: disc;
+    }
+    .dpuse-chat-prose li {
+        margin-bottom: 2px;
+        margin-top: 2px;
+    }
+    .dpuse-chat-prose p {
+        margin-top: 12px;
+    }
+    .dpuse-chat-prose strong {
+        font-weight: 500;
+    }
+    .dpuse-chat-prose table {
+        border-collapse: collapse;
+        font-size: 0.8125rem;
+        margin-bottom: 12px;
+        margin-top: 12px;
+        width: 100%;
+    }
+    .dpuse-chat-prose th,
+    .dpuse-chat-prose td {
+        border-bottom: 1px solid var(--color-separator);
+        padding: 6px 10px;
+    }
+    .dpuse-chat-prose th {
+        font-weight: 500;
+        text-align: left;
+        white-space: nowrap;
+    }
+    .dpuse-chat-prose td {
+        vertical-align: top;
+    }
+    .dpuse-chat-prose tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Set by 'dpuse-presenter-default' on the tab bar it builds, so the name must stay in step with that package. */
+    .dp-tab-bar {
+        column-gap: 8px;
+        display: flex;
+        overflow-x: auto;
+        overscroll-behavior-x: none;
+        padding-bottom: 8px;
+    }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .dpuse-slide-up-enter-active,
-    .dpuse-slide-up-leave-active,
-    .dpuse-sheet-enter-active,
-    .dpuse-sheet-leave-active {
-        transition: none;
-    }
+/* Content column: left margin scales with viewport width (clamped 0–5rem), max-width 56rem, right margin absorbs remaining space. */
+@utility dpuse-studio-prose {
+    @apply mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] max-w-4xl;
 }
-
-/* Slides a panel in from the left edge, for 'OptionBar' on a narrow screen. Used as a 'Transition' name. The wrapper
-   fades while the 'dpuse-horizontal-slide-ltr-element' inside it slides, so the two can be timed separately. */
-.horizontal-slide-ltr-enter-active,
-.horizontal-slide-ltr-leave-active {
-    transition: opacity 220ms ease-in-out;
-}
-.horizontal-slide-ltr-enter-from,
-.horizontal-slide-ltr-leave-to {
-    opacity: 0;
-}
-.horizontal-slide-ltr-enter-active .dpuse-horizontal-slide-ltr-element,
-.horizontal-slide-ltr-leave-active .dpuse-horizontal-slide-ltr-element {
-    transition: transform 260ms ease-in-out;
-}
-.horizontal-slide-ltr-enter-from .dpuse-horizontal-slide-ltr-element,
-.horizontal-slide-ltr-leave-to .dpuse-horizontal-slide-ltr-element {
-    transform: translateX(-100%);
-}
-@media (prefers-reduced-motion: reduce) {
-    .horizontal-slide-ltr-enter-active,
-    .horizontal-slide-ltr-leave-active,
-    .horizontal-slide-ltr-enter-active .dpuse-horizontal-slide-ltr-element,
-    .horizontal-slide-ltr-leave-active .dpuse-horizontal-slide-ltr-element {
-        transition: none;
-    }
-}
-
-/*
- * Vue Transition - Horizontal slide right to left.
- * Same two-class pattern as horizontal-slide-ltr above.
- */
-/* .horizontal-slide-rtl-enter-active,
-.horizontal-slide-rtl-leave-active {
-    transition: opacity 220ms ease-in-out;
-}
-.horizontal-slide-rtl-enter-from,
-.horizontal-slide-rtl-leave-to {
-    opacity: 0;
-}
-.horizontal-slide-rtl-enter-active .dpuse-horizontal-slide-rtl-element,
-.horizontal-slide-rtl-leave-active .dpuse-horizontal-slide-rtl-element {
-    transition: transform 260ms ease-in-out;
-}
-.horizontal-slide-rtl-enter-from .dpuse-horizontal-slide-rtl-element,
-.horizontal-slide-rtl-leave-to .dpuse-horizontal-slide-rtl-element {
-    transform: translateX(100%);
-}
-@media (prefers-reduced-motion: reduce) {
-    .horizontal-slide-rtl-enter-active,
-    .horizontal-slide-rtl-leave-active {
-        transition: none;
-    }
-    .horizontal-slide-rtl-enter-active .dpuse-horizontal-slide-rtl-element,
-    .horizontal-slide-rtl-leave-active .dpuse-horizontal-slide-rtl-element {
-        transition: none;
-    }
-} */
 
 /* Modal dialogs animate in and out of the top layer with these. The closed state is stated as well as the open one, so
    closing plays the opening in reverse. Without it the dialog and its backdrop stay fully visible for the length of
@@ -370,7 +277,7 @@ html {
 /* Dims the page behind a dialog, fading in and out with it. */
 @utility dialog-backdrop {
     &::backdrop {
-        background: var(--overlay);
+        background: var(--color-overlay);
         opacity: 0;
         transition:
             opacity 0.15s ease-out,
@@ -396,338 +303,147 @@ html {
     scrollbar-width: none;
 }
 
-.dp-tab-bar {
-    column-gap: 8px;
-    display: flex;
-    overflow-x: auto;
-    overscroll-behavior-x: none;
-    padding-bottom: 8px;
+/* Vue 'Transition' classes sit outside any layer so they beat the utilities on the element they animate. An 'opacity-*'
+   or 'transition-*' class on that element would otherwise cancel the animation. */
+
+/* Fade through, for content that swaps in place: route views, the detail pane, and 'Grid''s busy, empty and loaded
+   states. With 'mode="out-in"' the old content fades out quickly, then the new content fades in, so the old one never
+   vanishes in a flash. */
+.dpuse-action-fade-enter-active {
+    transition: opacity 0.25s ease;
+}
+.dpuse-action-fade-leave-active {
+    transition: opacity 0.1s ease;
+}
+.dpuse-action-fade-enter-from,
+.dpuse-action-fade-leave-to {
+    opacity: 0;
 }
 
-/* Animations and easing. The pending letter dims rather than vanishes: at full transparency the trough between waves
-   reads as a flicker, and the word stops being readable while it waits. Its duration must match 'CYCLE_MS' in
-   'PendingLabel.vue'. */
-@theme {
-    --animate-pending-letter: pending-letter 1600ms ease-in-out infinite;
-    --animate-shimmer: shimmer 1.2s ease-in-out infinite;
-
-    --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1); /* A sheet sliding from the bottom edge. */
+/* The same fade for an element outside the swap, such as 'Grid''s Add button. Its fade-in waits for the old content's
+   fade-out, so it arrives with the new content. */
+.dpuse-action-fade-delayed-enter-active {
+    transition: opacity 0.25s ease 0.1s;
+}
+.dpuse-action-fade-delayed-leave-active {
+    transition: opacity 0.1s ease;
+}
+.dpuse-action-fade-delayed-enter-from,
+.dpuse-action-fade-delayed-leave-to {
+    opacity: 0;
 }
 
-@keyframes pending-letter {
-    0%,
-    100% {
-        opacity: 0.25;
-    }
-    40% {
-        opacity: 1;
-    }
-}
-
-@keyframes shimmer {
-    0% {
-        transform: translateX(-100%);
-    }
-    100% {
-        transform: translateX(400%);
-    }
-}
-
-/* Use class-based dark mode (parent has .dark) instead of prefers-color-scheme. */
-@custom-variant dark (&:is(.dark *));
-
-/* Theme variables. */
-@theme inline {
-    /* TODO: Turn on tabular figures ('tabular-nums') wherever numbers sit in columns or change in place: tables,
-       counts, version numbers, progress percentages. Inter supports them, but they are off by default. See:
-       https://madegooddesigns.com/best-fonts-for-dashboards/. */
-    --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-
-    /* Tailwind spacing tokens for scroll area bottom insets. */
-    --spacing-vertical-scroll-bottom-embedded-inset: var(--vertical-scroll-bottom-embedded-inset);
-    --spacing-vertical-scroll-bottom-screen-inset: var(--vertical-scroll-bottom-screen-inset);
-
-    --shadow-dialog: 0 20px 50px rgb(0 0 0 / 0.25), 0 2px 6px rgb(0 0 0 / 0.08); /* Floating dialog */
-
-    --color-backdrop: var(--backdrop); /* Sidebar (secondary) background */
-    --color-surface: var(--surface); /* Content (primary) background */
-    --color-card: var(--card); /* ConfigCard background */
-    --color-card-hover: var(--card-hover); /* ConfigCard background (hover) */
-    --color-boundary: var(--boundary); /* Border/outline */
-    --color-boundary-hover: var(--boundary-hover); /* Border/outline (hover) */
-    --color-separator: var(--separator); /* Divider/separator */
-    --color-overlay: var(--overlay); /* Modal/drawer scrim */
-    --color-content: var(--content); /* Text/icons (default/primary) */
-    --color-muted: var(--muted); /* Text/icons (secondary) */
-    --color-subtle: var(--subtle); /* Text/icons (tertiary — decorative, structural) */
-    --color-emphasis: var(--emphasis); /* Text/icons (strong — headings, prominent labels) */
-    --color-accent: var(--accent); /* Text/icons (interactive — links, active states) */
-    --color-accent-hover: var(--accent-hover); /* Text/icons (interactive — hover) */
-    --color-accent-ring: var(--accent-ring); /* Focus ring (interactive) */
-    --color-focus-ring: var(--focus-ring); /* Focus indicator — one colour for every focusable thing */
-
-    /* Status colors (success/warning/danger/info) — used for tags, badges, status pills, buttons, and alerts. */
-    --color-success: var(--success);
-    --color-success-hover: var(--success-hover);
-    --color-success-active: var(--success-active);
-    --color-success-text: var(--success-text);
-    --color-success-ring: var(--success-ring);
-
-    --color-warning: var(--warning);
-    --color-warning-hover: var(--warning-hover);
-    --color-warning-active: var(--warning-active);
-    --color-warning-text: var(--warning-text);
-    --color-warning-ring: var(--warning-ring);
-
-    --color-danger: var(--danger);
-    --color-danger-hover: var(--danger-hover);
-    --color-danger-active: var(--danger-active);
-    --color-danger-text: var(--danger-text);
-    --color-danger-ring: var(--danger-ring);
-
-    --color-info: var(--info);
-    --color-info-hover: var(--info-hover);
-    --color-info-active: var(--info-active);
-    --color-info-text: var(--info-text);
-    --color-info-ring: var(--info-ring);
-
-    /* Selected state — used for the selected ConfigCard and its action buttons (a third palette, distinct from accent and status). */
-    --color-selected: var(--selected);
-    --color-selected-hover: var(--selected-hover);
-    --color-selected-text: var(--selected-text);
-    --color-selected-border: var(--selected-border);
-    --color-selected-ring: var(--selected-ring);
-}
-
-/* Variables and light mode colors. */
-:root {
-    --safe-bottom-offset: calc(
-        max(env(safe-area-inset-bottom), 24px) + 24px
-    ); /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '24px' for optional status bar; '24px' for horizontal scroll bar. */
-    --safe-top-offset: calc(env(safe-area-inset-top) + 7px); /* Floating button screen top offset: 'safe-area-inset-top'; '7px' for gutter. */
-    --safe-left-offset: calc(env(safe-area-inset-left) + 12px); /* Floating button screen left offset: 'safe-area-inset-left'; '12px' for gutter. */
-    --safe-right-offset: calc(env(safe-area-inset-right) + 12px); /* Floating button screen right offset: 'safe-area-inset-right'; '12px' for gutter. */
-
-    --pane-splitter-width: 6px; /* Width of 'PaneSplitter'. Declared here because 'App.vue' subtracts half of it from the studio pane. */
-
-    --status-bar-height: calc(max(env(safe-area-inset-bottom), 24px)); /* Status bar height: 'safe-area-inset-bottom' or '24px'. */
-
-    --vertical-scroll-bottom-embedded-inset: 88px; /* Scroll area bottom inset: '24px' for horizontal scroll bar; '40px' for floating buttons; '16px' for padding above floating buttons. */
-    --vertical-scroll-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 24px) + 88px);
-    --vertical-bottom-screen-inset: calc(max(env(safe-area-inset-bottom), 24px) + 72px);
-
-    /* Light mode colors. */
-    --backdrop: var(--color-zinc-50);
-    --surface: var(--color-white); /* NOTE: Also 'index.html' and 'public/manifest.webmanifest'. */
-    --card: var(--surface); /* Plain white: the border defines a card on the white surface. */
-    --card-hover: var(--color-zinc-100);
-    --boundary: var(--color-zinc-100);
-    --boundary-hover: var(--color-zinc-300);
-    --separator: var(--color-zinc-200);
-    --overlay: color-mix(in srgb, var(--color-zinc-200) 75%, transparent);
-    /* Primary text dark grey (about 10:1 on white), two steps below emphasis so headings stand out; muted is the
-       secondary step down. */
-    --content: var(--color-zinc-700); /* NOTE: Also 'index.html'. */
-    --muted: var(--color-zinc-500);
-    --subtle: var(--color-zinc-400);
-    --emphasis: var(--color-zinc-900);
-    --accent: var(--color-blue-600);
-    --accent-hover: var(--color-blue-700);
-    --accent-ring: var(--color-blue-300);
-    /* Focus follows the accent because focus is an interactive state, but it is its own token so it can be
-       retuned without touching links. blue-600 is about 5.2:1 on the white surface and 4.9:1 on the zinc-50 backdrop,
-       clearing the 3:1 that WCAG 2.2's focus-appearance criterion asks for. The zinc-300 this replaces was
-       1.5:1 — visible in theory and not in practice. */
-    --focus-ring: var(--accent);
-
-    /* Light mode status colors — Tailwind UI's documented badge/alert palette (bg-50/text-700/ring-600, amber bumped to text-800 for contrast). */
-    --success: var(--color-green-50);
-    --success-hover: var(--color-green-100);
-    --success-active: var(--color-green-200);
-    --success-text: var(--color-green-700);
-    --success-ring: var(--color-green-600);
-
-    --warning: var(--color-amber-50);
-    --warning-hover: var(--color-amber-100);
-    --warning-active: var(--color-amber-200);
-    --warning-text: var(--color-amber-800);
-    --warning-ring: var(--color-amber-600);
-
-    --danger: var(--color-red-50);
-    --danger-hover: var(--color-red-100);
-    --danger-active: var(--color-red-200);
-    --danger-text: var(--color-red-700);
-    --danger-ring: var(--color-red-600);
-
-    --info: var(--color-blue-50);
-    --info-hover: var(--color-blue-100);
-    --info-active: var(--color-blue-200);
-    --info-text: var(--color-blue-700);
-    --info-ring: var(--color-blue-700);
-
-    /* Light mode selected state. */
-    --selected: var(--color-blue-50);
-    --selected-hover: var(--color-blue-100);
-    --selected-text: var(--color-blue-700);
-    --selected-border: var(--color-blue-200);
-    --selected-ring: var(--color-blue-300);
-}
-
-.dark {
-    /* Dark mode colors. */
-    --backdrop: var(--color-zinc-900);
-    --surface: var(--color-zinc-950); /* NOTE: Also 'index.html'. */
-    --card: var(--color-zinc-900);
-    --card-hover: var(--color-zinc-700);
-    --boundary: var(--color-zinc-800);
-    --boundary-hover: var(--color-zinc-600);
-    --separator: var(--color-zinc-700);
-    --overlay: color-mix(in srgb, black 60%, transparent); /* Dims the near-black page; a grey scrim lightened it. */
-    --content: var(--color-zinc-300); /* NOTE: Also 'index.html'. */
-    --muted: var(--color-zinc-400);
-    --subtle: var(--color-zinc-500);
-    --emphasis: var(--color-zinc-100);
-    --accent: var(--color-blue-400);
-    --accent-hover: var(--color-blue-200);
-    --accent-ring: var(--color-blue-500);
-    --focus-ring: var(--accent); /* blue-400: 7.8:1 on the zinc-950 surface, 7:1 on the zinc-900 backdrop. */
-
-    /* Dark mode status colors — Tailwind UI's documented dark badge/alert palette (bg-400/10, text-400, ring-400/20; green uses 500 for bg/text). */
-    --success: color-mix(in srgb, var(--color-green-500) 10%, transparent);
-    --success-hover: color-mix(in srgb, var(--color-green-500) 20%, transparent);
-    --success-active: color-mix(in srgb, var(--color-green-500) 30%, transparent);
-    --success-text: var(--color-green-400);
-    --success-ring: color-mix(in srgb, var(--color-green-500) 20%, transparent);
-
-    --warning: color-mix(in srgb, var(--color-amber-400) 10%, transparent);
-    --warning-hover: color-mix(in srgb, var(--color-amber-400) 20%, transparent);
-    --warning-active: color-mix(in srgb, var(--color-amber-400) 30%, transparent);
-    --warning-text: var(--color-amber-400);
-    --warning-ring: color-mix(in srgb, var(--color-amber-400) 20%, transparent);
-
-    --danger: color-mix(in srgb, var(--color-red-400) 10%, transparent);
-    --danger-hover: color-mix(in srgb, var(--color-red-400) 20%, transparent);
-    --danger-active: color-mix(in srgb, var(--color-red-400) 30%, transparent);
-    --danger-text: var(--color-red-400);
-    --danger-ring: color-mix(in srgb, var(--color-red-400) 20%, transparent);
-
-    --info: color-mix(in srgb, var(--color-blue-400) 10%, transparent);
-    --info-hover: color-mix(in srgb, var(--color-blue-400) 20%, transparent);
-    --info-active: color-mix(in srgb, var(--color-blue-400) 30%, transparent);
-    --info-text: var(--color-blue-400);
-    --info-ring: color-mix(in srgb, var(--color-blue-400) 30%, transparent);
-
-    /* Dark mode selected state. */
-    --selected: var(--color-blue-900);
-    --selected-hover: var(--color-blue-800);
-    --selected-text: var(--color-blue-200);
-    --selected-border: var(--color-blue-700);
-    --selected-ring: var(--color-blue-500);
-}
-
-/* Dark mode softens Tailwind's colours: the same steps with their chroma halved, lightness and hue kept, so contrast is
-   unchanged. At full chroma the mid and dark steps glow against the near-black surface. Redefined here rather than in
-   the tokens above because components also use these steps directly ('dark:text-violet-300', 'text-blue-500'). Values
-   are Tailwind v4's, so they need re-deriving if Tailwind changes its palette. 50–200 are pale enough already. */
-.dark {
-    --color-red-300: oklch(80.8% 0.057 19.571);
-    --color-red-400: oklch(70.4% 0.096 22.216);
-    --color-red-500: oklch(63.7% 0.118 25.331);
-    --color-red-600: oklch(57.7% 0.122 27.325);
-    --color-red-700: oklch(50.5% 0.106 27.518);
-    --color-red-800: oklch(44.4% 0.088 26.899);
-    --color-red-900: oklch(39.6% 0.07 25.723);
-    --color-red-950: oklch(25.8% 0.046 26.042);
-
-    --color-orange-300: oklch(83.7% 0.064 66.29);
-    --color-orange-400: oklch(75% 0.091 55.934);
-    --color-orange-500: oklch(70.5% 0.106 47.604);
-    --color-orange-600: oklch(64.6% 0.111 41.116);
-    --color-orange-700: oklch(55.3% 0.098 38.402);
-    --color-orange-800: oklch(47% 0.079 37.304);
-    --color-orange-900: oklch(40.8% 0.061 38.172);
-    --color-orange-950: oklch(26.6% 0.04 36.259);
-
-    --color-amber-300: oklch(87.9% 0.085 91.605);
-    --color-amber-400: oklch(82.8% 0.095 84.429);
-    --color-amber-500: oklch(76.9% 0.094 70.08);
-    --color-amber-600: oklch(66.6% 0.089 58.318);
-    --color-amber-700: oklch(55.5% 0.082 48.998);
-    --color-amber-800: oklch(47.3% 0.069 46.201);
-    --color-amber-900: oklch(41.4% 0.056 45.904);
-    --color-amber-950: oklch(27.9% 0.038 45.635);
-
-    --color-green-300: oklch(87.1% 0.075 154.449);
-    --color-green-400: oklch(79.2% 0.104 151.711);
-    --color-green-500: oklch(72.3% 0.11 149.579);
-    --color-green-600: oklch(62.7% 0.097 149.214);
-    --color-green-700: oklch(52.7% 0.077 150.069);
-    --color-green-800: oklch(44.8% 0.059 151.328);
-    --color-green-900: oklch(39.3% 0.048 152.535);
-    --color-green-950: oklch(26.6% 0.033 152.934);
-
-    --color-emerald-300: oklch(84.5% 0.071 164.978);
-    --color-emerald-400: oklch(76.5% 0.088 163.223);
-    --color-emerald-500: oklch(69.6% 0.085 162.48);
-    --color-emerald-600: oklch(59.6% 0.072 163.225);
-    --color-emerald-700: oklch(50.8% 0.059 165.612);
-    --color-emerald-800: oklch(43.2% 0.048 166.913);
-    --color-emerald-900: oklch(37.8% 0.038 168.94);
-    --color-emerald-950: oklch(26.2% 0.025 172.552);
-
-    --color-sky-300: oklch(82.8% 0.056 230.318);
-    --color-sky-400: oklch(74.6% 0.08 232.661);
-    --color-sky-500: oklch(68.5% 0.085 237.323);
-    --color-sky-600: oklch(58.8% 0.079 241.966);
-    --color-sky-700: oklch(50% 0.067 242.749);
-    --color-sky-800: oklch(44.3% 0.055 240.79);
-    --color-sky-900: oklch(39.1% 0.045 240.876);
-    --color-sky-950: oklch(29.3% 0.033 243.157);
-
-    --color-blue-300: oklch(80.9% 0.052 251.813);
-    --color-blue-400: oklch(70.7% 0.083 254.624);
-    --color-blue-500: oklch(62.3% 0.107 259.815);
-    --color-blue-600: oklch(54.6% 0.122 262.881);
-    --color-blue-700: oklch(48.8% 0.121 264.376);
-    --color-blue-800: oklch(42.4% 0.1 265.638);
-    --color-blue-900: oklch(37.9% 0.073 265.522);
-    --color-blue-950: oklch(28.2% 0.045 267.935);
-
-    --color-violet-300: oklch(81.1% 0.056 293.571);
-    --color-violet-400: oklch(70.2% 0.091 293.541);
-    --color-violet-500: oklch(60.6% 0.125 292.717);
-    --color-violet-600: oklch(54.1% 0.141 293.009);
-    --color-violet-700: oklch(49.1% 0.135 292.581);
-    --color-violet-800: oklch(43.2% 0.116 292.759);
-    --color-violet-900: oklch(38% 0.095 293.745);
-    --color-violet-950: oklch(28.3% 0.07 291.089);
-
-    --color-rose-300: oklch(81% 0.059 11.638);
-    --color-rose-400: oklch(71.2% 0.097 13.428);
-    --color-rose-500: oklch(64.5% 0.123 16.439);
-    --color-rose-600: oklch(58.6% 0.127 17.585);
-    --color-rose-700: oklch(51.4% 0.111 16.935);
-    --color-rose-800: oklch(45.5% 0.094 13.697);
-    --color-rose-900: oklch(41% 0.08 10.272);
-    --color-rose-950: oklch(27.1% 0.052 12.094);
-}
-
-/* Content column: left margin scales with viewport width (clamped 0–5rem), max-width 56rem, right margin absorbs remaining space. */
-@layer utilities {
-    .dpuse-studio-prose {
-        @apply mr-auto ml-[clamp(0px,calc((100%-56rem)/2),5rem)] max-w-4xl;
+@media (prefers-reduced-motion: reduce) {
+    .dpuse-action-fade-enter-active,
+    .dpuse-action-fade-leave-active,
+    .dpuse-action-fade-delayed-enter-active,
+    .dpuse-action-fade-delayed-leave-active {
+        transition: none;
     }
 }
 
-/* Tailwind omits pointer cursor on buttons by default; restore expected behavior. */
-@layer base {
-    button:not(:disabled),
-    [role='button']:not(:disabled) {
-        cursor: pointer;
+/* Slides a menu up from its button on a wide screen, or up from the bottom edge as a sheet on a narrow one. Used as
+   'Transition' names, so the element is removed once it has left. A modal's backdrop goes with the element, so it is
+   cleared as the element leaves rather than vanishing at the end. */
+.dpuse-slide-up-enter-active,
+.dpuse-slide-up-leave-active {
+    transform-origin: bottom;
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+    will-change: transform, opacity;
+}
+.dpuse-slide-up-enter-from,
+.dpuse-slide-up-leave-to {
+    opacity: 0;
+    transform: scaleY(0.75) translateY(6px);
+}
+.dpuse-sheet-enter-active,
+.dpuse-sheet-leave-active {
+    transition:
+        transform 0.3s var(--ease-sheet),
+        opacity 0.2s ease;
+    will-change: transform, opacity;
+}
+.dpuse-sheet-enter-from,
+.dpuse-sheet-leave-to {
+    opacity: 0;
+    transform: translateY(100%);
+}
+.dpuse-sheet-leave-active::backdrop,
+.dpuse-slide-up-leave-active::backdrop {
+    background-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dpuse-slide-up-enter-active,
+    .dpuse-slide-up-leave-active,
+    .dpuse-sheet-enter-active,
+    .dpuse-sheet-leave-active {
+        transition: none;
     }
 }
 
-/* Prevent iOS Safari from auto-zooming into form fields on focus. */
+/* Slides a panel in from the left edge, for 'OptionBar' on a narrow screen. Used as a 'Transition' name. The wrapper
+   fades while the 'dpuse-horizontal-slide-ltr-element' inside it slides, so the two can be timed separately. */
+.dpuse-horizontal-slide-ltr-enter-active,
+.dpuse-horizontal-slide-ltr-leave-active {
+    transition: opacity 220ms ease-in-out;
+}
+.dpuse-horizontal-slide-ltr-enter-from,
+.dpuse-horizontal-slide-ltr-leave-to {
+    opacity: 0;
+}
+.dpuse-horizontal-slide-ltr-enter-active .dpuse-horizontal-slide-ltr-element,
+.dpuse-horizontal-slide-ltr-leave-active .dpuse-horizontal-slide-ltr-element {
+    transition: transform 260ms ease-in-out;
+}
+.dpuse-horizontal-slide-ltr-enter-from .dpuse-horizontal-slide-ltr-element,
+.dpuse-horizontal-slide-ltr-leave-to .dpuse-horizontal-slide-ltr-element {
+    transform: translateX(-100%);
+}
+@media (prefers-reduced-motion: reduce) {
+    .dpuse-horizontal-slide-ltr-enter-active,
+    .dpuse-horizontal-slide-ltr-leave-active,
+    .dpuse-horizontal-slide-ltr-enter-active .dpuse-horizontal-slide-ltr-element,
+    .dpuse-horizontal-slide-ltr-leave-active .dpuse-horizontal-slide-ltr-element {
+        transition: none;
+    }
+}
+
+/*
+ * Vue Transition - Horizontal slide right to left.
+ * Same two-class pattern as horizontal-slide-ltr above.
+ */
+/* .horizontal-slide-rtl-enter-active,
+.horizontal-slide-rtl-leave-active {
+    transition: opacity 220ms ease-in-out;
+}
+.horizontal-slide-rtl-enter-from,
+.horizontal-slide-rtl-leave-to {
+    opacity: 0;
+}
+.horizontal-slide-rtl-enter-active .dpuse-horizontal-slide-rtl-element,
+.horizontal-slide-rtl-leave-active .dpuse-horizontal-slide-rtl-element {
+    transition: transform 260ms ease-in-out;
+}
+.horizontal-slide-rtl-enter-from .dpuse-horizontal-slide-rtl-element,
+.horizontal-slide-rtl-leave-to .dpuse-horizontal-slide-rtl-element {
+    transform: translateX(100%);
+}
+@media (prefers-reduced-motion: reduce) {
+    .horizontal-slide-rtl-enter-active,
+    .horizontal-slide-rtl-leave-active {
+        transition: none;
+    }
+    .horizontal-slide-rtl-enter-active .dpuse-horizontal-slide-rtl-element,
+    .horizontal-slide-rtl-leave-active .dpuse-horizontal-slide-rtl-element {
+        transition: none;
+    }
+} */
+
+/* Prevent iOS Safari from auto-zooming into form fields on focus. Outside any layer on purpose, so it beats a smaller
+   'text-*' utility on the field. */
 @supports (-webkit-touch-callout: none) {
     @media (hover: none) and (pointer: coarse) {
         input,

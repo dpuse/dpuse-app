@@ -251,8 +251,9 @@ named `index` uses its parent folder's name: `dpuse-app.router`.
 
 ### Pitfalls
 
-- `.dpuse-prose` rules sit outside any `@layer`, so they beat Tailwind utilities. Use the `!` form (`m-0!`) or style a
-  wrapper element.
+- `.dpuse-prose` rules sit in `@layer components`, so a Tailwind utility on an element inside a prose block wins. Vue
+  `Transition` classes and the iOS form-field font size in `main.css` sit outside any layer on purpose, so they beat
+  utilities.
 - An absolutely positioned element, including `sr-only` text, inside a horizontal scroller needs a positioned ancestor
   inside the scroller. Otherwise iOS Safari scrolls the whole page sideways, and no emulator shows it.
 
