@@ -10,12 +10,14 @@ import { raiseAppFailure } from '@/state/errors';
 import { addDevelopmentFaults, type AsyncPanelSimulation, VISIBLE_DELAY_MS } from '@/utilities/index.ts';
 import { canReloadForNewAppVersion, reloadForNewAppVersion } from '@/state/appVersion';
 
+// ── Static Components
+import StudioHomePanel from '@/features/studio/StudioHomePanel.vue'; // Static, so it downloads with the entry chunk. vue-router fetches the first screen on every start, even when only the assistant shows.
+
 // ── Dynamic Components
 // Every loader is wrapped so that a failed chunk can be reported by name, and so that loading one raises the spinner.
 // The number is the nesting level of the 'RouterView' that renders the component. The one in 'App.vue' is 0, and the
 // one inside a layout such as 'DataViewsLayout' is 1. 'assertViewDepths' checks these against the route table at
 // startup in Dev environment.
-const StudioHomePanel = defineLazyLoader('StudioHomePanel', 0, () => import('@/features/studio/StudioHomePanel.vue'));
 const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/features/studio/dataViews/DataViewsLayout.vue'));
 const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/features/studio/dataViews/DataViewList.vue'));
 const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/features/studio/dataViews/selectConnection/SelectConnectionList.vue'));

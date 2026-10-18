@@ -104,10 +104,10 @@ describe('createAppRouter', () => {
 
     describe('navigation failure', () => {
         it('reports a failed navigation once', async () => {
-            // The home screen's chunk cannot be fetched. Fresh modules, so the router imports the failing chunk.
-            history.replaceState({}, '', '/');
+            // The setup screen's chunk cannot be fetched. Fresh modules, so the router imports the failing chunk.
+            history.replaceState({}, '', '/setup');
             vi.resetModules();
-            vi.doMock('@/features/studio/StudioHomePanel.vue', () => {
+            vi.doMock('@/features/studio/setup/SetupLayout.vue', () => {
                 throw new TypeError('Failed to fetch dynamically imported module.');
             });
             const errorTracking = await import('@/observability/errorTracking');
@@ -123,7 +123,7 @@ describe('createAppRouter', () => {
                 // Asserted through the reports below.
             }
             await settle();
-            vi.doUnmock('@/features/studio/StudioHomePanel.vue');
+            vi.doUnmock('@/features/studio/setup/SetupLayout.vue');
 
             expect(vi.mocked(errorTracking.hasReportedAppError).mock.calls.map((call) => call[0].message)).toStrictEqual(['Navigation failed.']);
         });
