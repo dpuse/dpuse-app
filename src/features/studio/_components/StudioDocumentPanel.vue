@@ -35,7 +35,7 @@ const headerMarginRight = computed(() => `${String(Math.max(36, actionsWidth.val
 </script>
 
 <template>
-    <div class="dpuse-prose relative pt-4" data-region="StudioDocumentPanel">
+    <div class="dpuse-prose relative pt-4 [&_ul]:list-none! [&_ul]:pl-0!" data-region="StudioDocumentPanel">
         <!-- Header -->
         <div class="relative">
             <ActionWrapper class="group block w-full min-w-0 cursor-pointer text-left" :class="{ 'pointer-events-none': panesAreSplit }" @click="$emit('close')">
@@ -73,10 +73,3 @@ const headerMarginRight = computed(() => `${String(Math.max(36, actionsWidth.val
         <slot />
     </div>
 </template>
-
-<style scoped>
-:deep(ul) {
-    list-style: none;
-    padding-left: 0;
-}
-</style>

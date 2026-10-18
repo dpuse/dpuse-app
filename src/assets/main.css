@@ -129,6 +129,57 @@ html {
     background-color: var(--card-hover);
 }
 
+/* Markdown in an assistant's answer, set tighter than '.dpuse-prose' for the narrow chat pane. */
+.dpuse-chat-prose h2 {
+    font-weight: 500;
+    margin-top: 12px;
+}
+.dpuse-chat-prose ol,
+.dpuse-chat-prose ul {
+    margin-bottom: 4px;
+    margin-top: 4px;
+    padding-left: 20px;
+}
+.dpuse-chat-prose ol {
+    list-style-type: decimal;
+}
+.dpuse-chat-prose ul {
+    list-style-type: disc;
+}
+.dpuse-chat-prose li {
+    margin-bottom: 2px;
+    margin-top: 2px;
+}
+.dpuse-chat-prose p {
+    margin-top: 12px;
+}
+.dpuse-chat-prose strong {
+    font-weight: 500;
+}
+.dpuse-chat-prose table {
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    margin-bottom: 12px;
+    margin-top: 12px;
+    width: 100%;
+}
+.dpuse-chat-prose th,
+.dpuse-chat-prose td {
+    border-bottom: 1px solid var(--color-separator);
+    padding: 6px 10px;
+}
+.dpuse-chat-prose th {
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+}
+.dpuse-chat-prose td {
+    vertical-align: top;
+}
+.dpuse-chat-prose tr:last-child td {
+    border-bottom: none;
+}
+
 /* Fade through, for content that swaps in place: route views, the detail pane, and 'Grid''s busy, empty and loaded
    states. With 'mode="out-in"' the old content fades out quickly, then the new content fades in, so the old one never
    vanishes in a flash. */
@@ -165,12 +216,221 @@ html {
     }
 }
 
+/* Slides a menu up from its button on a wide screen, or up from the bottom edge as a sheet on a narrow one. Used as
+   'Transition' names, so the element is removed once it has left. A modal's backdrop goes with the element, so it is
+   cleared as the element leaves rather than vanishing at the end. */
+.dpuse-slide-up-enter-active,
+.dpuse-slide-up-leave-active {
+    transform-origin: bottom;
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+    will-change: transform, opacity;
+}
+.dpuse-slide-up-enter-from,
+.dpuse-slide-up-leave-to {
+    opacity: 0;
+    transform: scaleY(0.75) translateY(6px);
+}
+.dpuse-sheet-enter-active,
+.dpuse-sheet-leave-active {
+    transition:
+        transform 0.3s var(--ease-sheet),
+        opacity 0.2s ease;
+    will-change: transform, opacity;
+}
+.dpuse-sheet-enter-from,
+.dpuse-sheet-leave-to {
+    opacity: 0;
+    transform: translateY(100%);
+}
+.dpuse-sheet-leave-active::backdrop,
+.dpuse-slide-up-leave-active::backdrop {
+    background-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dpuse-slide-up-enter-active,
+    .dpuse-slide-up-leave-active,
+    .dpuse-sheet-enter-active,
+    .dpuse-sheet-leave-active {
+        transition: none;
+    }
+}
+
+/* Slides a panel in from the left edge, for 'OptionBar' on a narrow screen. Used as a 'Transition' name. The wrapper
+   fades while the 'dpuse-horizontal-slide-ltr-element' inside it slides, so the two can be timed separately. */
+.horizontal-slide-ltr-enter-active,
+.horizontal-slide-ltr-leave-active {
+    transition: opacity 220ms ease-in-out;
+}
+.horizontal-slide-ltr-enter-from,
+.horizontal-slide-ltr-leave-to {
+    opacity: 0;
+}
+.horizontal-slide-ltr-enter-active .dpuse-horizontal-slide-ltr-element,
+.horizontal-slide-ltr-leave-active .dpuse-horizontal-slide-ltr-element {
+    transition: transform 260ms ease-in-out;
+}
+.horizontal-slide-ltr-enter-from .dpuse-horizontal-slide-ltr-element,
+.horizontal-slide-ltr-leave-to .dpuse-horizontal-slide-ltr-element {
+    transform: translateX(-100%);
+}
+@media (prefers-reduced-motion: reduce) {
+    .horizontal-slide-ltr-enter-active,
+    .horizontal-slide-ltr-leave-active,
+    .horizontal-slide-ltr-enter-active .dpuse-horizontal-slide-ltr-element,
+    .horizontal-slide-ltr-leave-active .dpuse-horizontal-slide-ltr-element {
+        transition: none;
+    }
+}
+
+/*
+ * Vue Transition - Horizontal slide right to left.
+ * Same two-class pattern as horizontal-slide-ltr above.
+ */
+/* .horizontal-slide-rtl-enter-active,
+.horizontal-slide-rtl-leave-active {
+    transition: opacity 220ms ease-in-out;
+}
+.horizontal-slide-rtl-enter-from,
+.horizontal-slide-rtl-leave-to {
+    opacity: 0;
+}
+.horizontal-slide-rtl-enter-active .dpuse-horizontal-slide-rtl-element,
+.horizontal-slide-rtl-leave-active .dpuse-horizontal-slide-rtl-element {
+    transition: transform 260ms ease-in-out;
+}
+.horizontal-slide-rtl-enter-from .dpuse-horizontal-slide-rtl-element,
+.horizontal-slide-rtl-leave-to .dpuse-horizontal-slide-rtl-element {
+    transform: translateX(100%);
+}
+@media (prefers-reduced-motion: reduce) {
+    .horizontal-slide-rtl-enter-active,
+    .horizontal-slide-rtl-leave-active {
+        transition: none;
+    }
+    .horizontal-slide-rtl-enter-active .dpuse-horizontal-slide-rtl-element,
+    .horizontal-slide-rtl-leave-active .dpuse-horizontal-slide-rtl-element {
+        transition: none;
+    }
+} */
+
+/* Modal dialogs animate in and out of the top layer with these. The closed state is stated as well as the open one, so
+   closing plays the opening in reverse. Without it the dialog and its backdrop stay fully visible for the length of
+   the transition and then vanish together, which reads as a flash. 'overlay' and 'display' keep the element in the top
+   layer while it animates out. */
+
+/* Fades and scales, for a dialog floating in the middle of the screen. */
+@utility dialog-fade {
+    opacity: 0;
+    transform: scale(0.96);
+    transition:
+        opacity 0.15s ease-out,
+        transform 0.15s ease-out,
+        overlay 0.15s ease-out allow-discrete,
+        display 0.15s ease-out allow-discrete;
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+
+    &[open] {
+        opacity: 1;
+        transform: scale(1);
+
+        @starting-style {
+            opacity: 0;
+            transform: scale(0.96);
+        }
+    }
+}
+
+/* Slides up from the bottom edge and back down, for a dialog shown as a sheet. */
+@utility dialog-sheet {
+    transform: translateY(100%);
+    transition:
+        transform 0.3s var(--ease-sheet),
+        overlay 0.3s allow-discrete,
+        display 0.3s allow-discrete;
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+
+    &[open] {
+        transform: translateY(0);
+
+        @starting-style {
+            transform: translateY(100%);
+        }
+    }
+}
+
+/* Dims the page behind a dialog, fading in and out with it. */
+@utility dialog-backdrop {
+    &::backdrop {
+        background: var(--overlay);
+        opacity: 0;
+        transition:
+            opacity 0.15s ease-out,
+            overlay 0.15s ease-out allow-discrete,
+            display 0.15s ease-out allow-discrete;
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    &[open]::backdrop {
+        opacity: 1;
+
+        @starting-style {
+            opacity: 0;
+        }
+    }
+}
+
+/* Hides the native scrollbar of an element that draws its own with 'ScrollThumb'. */
+@utility scrollbar-none {
+    scrollbar-width: none;
+}
+
 .dp-tab-bar {
     column-gap: 8px;
     display: flex;
     overflow-x: auto;
     overscroll-behavior-x: none;
     padding-bottom: 8px;
+}
+
+/* Animations and easing. The pending letter dims rather than vanishes: at full transparency the trough between waves
+   reads as a flicker, and the word stops being readable while it waits. Its duration must match 'CYCLE_MS' in
+   'PendingLabel.vue'. */
+@theme {
+    --animate-pending-letter: pending-letter 1600ms ease-in-out infinite;
+    --animate-shimmer: shimmer 1.2s ease-in-out infinite;
+
+    --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1); /* A sheet sliding from the bottom edge. */
+}
+
+@keyframes pending-letter {
+    0%,
+    100% {
+        opacity: 0.25;
+    }
+    40% {
+        opacity: 1;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(400%);
+    }
 }
 
 /* Use class-based dark mode (parent has .dark) instead of prefers-color-scheme. */
@@ -186,6 +446,8 @@ html {
     /* Tailwind spacing tokens for scroll area bottom insets. */
     --spacing-vertical-scroll-bottom-embedded-inset: var(--vertical-scroll-bottom-embedded-inset);
     --spacing-vertical-scroll-bottom-screen-inset: var(--vertical-scroll-bottom-screen-inset);
+
+    --shadow-dialog: 0 20px 50px rgb(0 0 0 / 0.25), 0 2px 6px rgb(0 0 0 / 0.08); /* Floating dialog */
 
     --color-backdrop: var(--backdrop); /* Sidebar (secondary) background */
     --color-surface: var(--surface); /* Content (primary) background */

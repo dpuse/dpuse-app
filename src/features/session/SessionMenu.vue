@@ -164,11 +164,11 @@ async function handleToggleWindowExpansion(): Promise<void> {
 <template>
     <dialog
         ref="dialogReference"
-        class="session-menu hidden size-auto max-w-sm min-w-xs flex-col overflow-hidden border-separator bg-surface p-0 text-content shadow-md open:flex"
+        class="hidden size-auto max-w-sm min-w-xs flex-col overflow-hidden border-separator bg-surface p-0 text-content shadow-md backdrop:transition-colors backdrop:duration-200 backdrop:ease-[ease] open:flex motion-reduce:backdrop:transition-none starting:open:backdrop:bg-transparent"
         :class="
             viewportIsWide
-                ? 'fixed top-auto right-auto bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 m-0 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] rounded-md border border-boundary'
-                : 'session-menu-dimmed fixed inset-x-0 top-auto bottom-0 mx-auto my-0 max-h-[80dvh] rounded-t-2xl border-x border-t border-b-0'
+                ? 'fixed top-auto right-auto backdrop:bg-transparent bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.5rem)] left-3 m-0 max-h-[calc(100vh-var(--safe-bottom-offset)-2.5rem-0.5rem-1rem)] rounded-md border border-boundary'
+                : 'fixed inset-x-0 backdrop:bg-overlay top-auto bottom-0 mx-auto my-0 max-h-[80dvh] rounded-t-2xl border-x border-t border-b-0'
         "
         @cancel="handleCancel"
     >
@@ -183,6 +183,9 @@ async function handleToggleWindowExpansion(): Promise<void> {
              for the same reason in reverse: the sheet spans 'inset-x-0' and is meant to fill that up to 'max-w-sm',
              which 'fit-content' would shrink to the content instead.
              'border-b-0' because the UA's 'border: solid' leaves a medium bottom border the old div never had.
+             The scrim: wide, the menu is a small popover anchored to the avatar button and the backdrop only has to
+             swallow the click that dismisses it, so it stays clear. Narrow, the menu is a sheet over most of the
+             screen, so it dims. 'starting:' fades it in, because the backdrop has no state before the dialog is shown.
              The comments stay inside the root: above it they would be sibling root nodes, making this multi-root and
              costing the transition classes the parent applies here. -->
         <div class="flex items-center justify-between border-b border-b-boundary bg-card px-4 pt-3 pb-2">
@@ -307,35 +310,3 @@ async function handleToggleWindowExpansion(): Promise<void> {
         />
     </dialog>
 </template>
-
-<style scoped>
-/* The scrim. Wide, the menu is a small popover anchored to the avatar button and the backdrop only has to swallow the
-   click that dismisses it, so it stays clear; narrow, the menu is a sheet over most of the screen, so it dims.
-   The enter fade needs '@starting-style' because the backdrop has no state before the dialog is shown, and the leave
-   fade is keyed off the transition classes the parent puts on this element, since the backdrop goes with the node. */
-.session-menu::backdrop {
-    background-color: transparent;
-    transition: background-color 0.2s ease;
-}
-
-.session-menu.session-menu-dimmed::backdrop {
-    background-color: var(--overlay);
-}
-
-@starting-style {
-    .session-menu[open]::backdrop {
-        background-color: transparent;
-    }
-}
-
-.session-menu.dpuse-sheet-leave-active::backdrop,
-.session-menu.dpuse-slide-up-leave-active::backdrop {
-    background-color: transparent;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .session-menu::backdrop {
-        transition: none;
-    }
-}
-</style>

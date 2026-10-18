@@ -68,10 +68,10 @@ function toLength(value: number | string | undefined): string | undefined {
 </script>
 
 <template>
-    <div class="dpuse-scroll-area-wrapper" data-region="ScrollArea">
-        <div :id="scrollElementId" ref="scrollElement" class="dpuse-scroll-area-v" :style="{ paddingBottom, paddingRight, paddingTop }">
+    <div class="relative flex min-h-0 min-w-0 flex-col overflow-hidden" data-region="ScrollArea">
+        <div :id="scrollElementId" ref="scrollElement" class="min-h-0 w-full flex-1 scrollbar-none overflow-x-hidden overflow-y-scroll overscroll-none pr-4" :style="{ paddingBottom, paddingRight, paddingTop }">
             <slot name="header" />
-            <div :id="innerScrollElementId" ref="innerScrollElement" class="dpuse-scroll-area-h">
+            <div :id="innerScrollElementId" ref="innerScrollElement" class="w-full scrollbar-none overflow-x-scroll overflow-y-hidden overscroll-none">
                 <slot />
             </div>
         </div>
@@ -92,41 +92,3 @@ function toLength(value: number | string | undefined): string | undefined {
         />
     </div>
 </template>
-
-<style scoped>
-.dpuse-scroll-area-wrapper {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    min-width: 0;
-    overflow: hidden;
-}
-
-.dpuse-scroll-area-v {
-    width: 100%;
-    flex: 1;
-    min-height: 0;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    overscroll-behavior: none;
-    scrollbar-width: none;
-    padding-right: 16px;
-}
-
-.dpuse-scroll-area-v::-webkit-scrollbar {
-    display: none;
-}
-
-.dpuse-scroll-area-h {
-    width: 100%;
-    overflow-x: scroll;
-    overflow-y: hidden;
-    overscroll-behavior: none;
-    scrollbar-width: none;
-}
-
-.dpuse-scroll-area-h::-webkit-scrollbar {
-    display: none;
-}
-</style>

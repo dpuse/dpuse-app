@@ -18,7 +18,7 @@ interface UseSelectColumnSortResult {
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const SELECT_DRAG_HANDLE_SELECTOR = '[data-select-handle]';
-const SELECT_DRAG_PLACEHOLDER_CLASS = 'select-drag-placeholder';
+const SELECT_DRAG_PLACEHOLDER_CLASS = 'opacity-35';
 const SELECTED_TILE_ATTRIBUTE = 'data-selected';
 const SELECTED_TILE_VALUE = 'true';
 

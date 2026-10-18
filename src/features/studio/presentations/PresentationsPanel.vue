@@ -163,12 +163,13 @@ async function loadPresenters(): Promise<void> {
                 <ErrorNotice v-if="renderFailure" :failures="[renderFailure]" @retry="handleRetryRender" />
                 <BusyBar v-if="renderIsPending" class="mx-4" />
                 <!-- 'relative' keeps the charts' hidden screen-reader announcers inside the scroll area. Without it they are
-                     placed against an outer element, escape the clipping and make the whole page scroll. -->
+                     placed against an outer element, escape the clipping and make the whole page scroll. The 'math'
+                     variant stops maths fractions using a smaller font. -->
                 <div
                     v-show="!renderFailure"
                     ref="container"
                     :aria-busy="renderIsPending"
-                    class="dpuse-prose relative min-h-0 flex-1 overflow-y-scroll overscroll-y-none px-4 pt-4"
+                    class="dpuse-prose relative min-h-0 flex-1 overflow-y-scroll overscroll-y-none px-4 pt-4 [&_math_*]:[font-size:inherit]"
                 />
             </template>
 
@@ -178,9 +179,3 @@ async function loadPresenters(): Promise<void> {
         </GridDetailPanel>
     </StudioLayout>
 </template>
-
-<style scoped>
-:deep(math) * {
-    font-size: inherit; /* Stop maths fractions using a smaller font. */
-}
-</style>

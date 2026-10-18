@@ -45,11 +45,12 @@ function handleConfirm(): void {
 
 <template>
     <!-- 'alertdialog' tells assistive technology that this interrupts to ask for a decision, and reads the message with
-         the title. -->
+         the title. Below 'md' it is a sheet that slides up from the bottom edge; from 'md' up it fades and scales as
+         'Dialog' does. -->
     <DialogBase
         :aria-describedby="`${idPrefix}-message`"
         :aria-labelledby="`${idPrefix}-title`"
-        class="confirm-dialog fixed inset-x-0 top-auto bottom-0 m-0 hidden max-h-[80dvh] w-full max-w-none flex-col rounded-t-2xl border-x-0 border-t border-b-0 border-separator bg-surface p-0 text-content open:flex md:inset-0 md:m-auto md:h-fit md:w-md md:max-w-[calc(100vw-2rem)] md:rounded-lg md:border"
+        class="fixed inset-x-0 top-auto bottom-0 m-0 hidden max-h-[80dvh] w-full max-w-none flex-col rounded-t-2xl border-x-0 border-t border-b-0 border-separator bg-surface p-0 text-content dialog-backdrop open:flex max-md:dialog-sheet md:inset-0 md:m-auto md:h-fit md:w-md md:max-w-[calc(100vw-2rem)] md:dialog-fade md:rounded-lg md:border md:shadow-dialog"
         data-region="ConfirmDialog"
         :is-open="isOpen"
         role="alertdialog"
@@ -66,82 +67,3 @@ function handleConfirm(): void {
         </div>
     </DialogBase>
 </template>
-
-<style scoped>
-/* The closed state is stated as well as the open one, so closing plays the opening in reverse. Without it the dialog and
-   its backdrop stay fully visible for the length of the transition and then vanish together, which reads as a flash.
-   'overlay' and 'display' keep the element in the top layer while it animates out.
-
-   Below 'md' the sheet slides up from the bottom edge and back down. */
-.confirm-dialog {
-    transform: translateY(100%);
-    transition:
-        transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
-        overlay 0.3s allow-discrete,
-        display 0.3s allow-discrete;
-}
-
-.confirm-dialog[open] {
-    transform: translateY(0);
-}
-
-@starting-style {
-    .confirm-dialog[open] {
-        transform: translateY(100%);
-    }
-}
-
-/* From 'md' up it is a floating box, so it fades and scales in and out as 'Dialog' does. */
-@media (min-width: 48rem) {
-    .confirm-dialog {
-        box-shadow:
-            0 20px 50px rgb(0 0 0 / 0.25),
-            0 2px 6px rgb(0 0 0 / 0.08);
-        opacity: 0;
-        transform: scale(0.96);
-        transition:
-            opacity 0.15s ease-out,
-            transform 0.15s ease-out,
-            overlay 0.15s ease-out allow-discrete,
-            display 0.15s ease-out allow-discrete;
-    }
-
-    .confirm-dialog[open] {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    @starting-style {
-        .confirm-dialog[open] {
-            opacity: 0;
-            transform: scale(0.96);
-        }
-    }
-}
-
-.confirm-dialog::backdrop {
-    background: var(--overlay);
-    opacity: 0;
-    transition:
-        opacity 0.2s ease-out,
-        overlay 0.2s ease-out allow-discrete,
-        display 0.2s ease-out allow-discrete;
-}
-
-.confirm-dialog[open]::backdrop {
-    opacity: 1;
-}
-
-@starting-style {
-    .confirm-dialog[open]::backdrop {
-        opacity: 0;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .confirm-dialog,
-    .confirm-dialog::backdrop {
-        transition: none;
-    }
-}
-</style>

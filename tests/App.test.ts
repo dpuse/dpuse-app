@@ -87,7 +87,7 @@ describe('App', () => {
         handleRaiseVueError(new Error('Failed to render.'), null, 'render function');
         await settle();
 
-        expect(wrapper.find('[data-region="ErrorNotice"]').text()).toContain('Unhandled Vue error.');
+        expect(wrapper.find('[data-region="ErrorDialog"]').text()).toContain('Unhandled Vue error.');
         clearAppFailures();
     });
 
@@ -98,7 +98,7 @@ describe('App', () => {
             expect(wrapper.find('[data-region="StudioPane"]').attributes('hidden')).toBeUndefined();
             expect(wrapper.find('[data-region="AssistantPane"]').exists()).toBe(false);
             expect(wrapper.find('h1').text()).toBe('Studio');
-            expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(false);
+            expect(wrapper.find('[data-region="ErrorNotice"], [data-region="ErrorDialog"]').exists()).toBe(false);
             expect(errors).toStrictEqual([]);
             expect(router.currentRoute.value.query).toStrictEqual({ studio: '1' }); // Written back, so a reload or shared link keeps the pane open.
         });

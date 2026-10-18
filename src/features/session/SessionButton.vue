@@ -96,7 +96,12 @@ function onMenuAfterLeave(): void {
             ]"
             @click="sessionMenuIsOpen = !sessionMenuIsOpen"
         >
-            <Transition name="fade">
+            <Transition
+                enter-active-class="transition-opacity delay-250 duration-1000 ease-in-out will-change-[opacity] motion-reduce:transition-none"
+                enter-from-class="opacity-0"
+                leave-active-class="transition-opacity duration-500 ease-in will-change-[opacity] motion-reduce:transition-none"
+                leave-to-class="opacity-0"
+            >
                 <!-- Session is authenticated. Show photo or initials. -->
                 <div v-if="sessionIsAuthenticated === true" class="absolute inset-0 flex items-center justify-center">
                     <img v-if="!error" alt="" class="size-9.5 rounded-full" :src="avatarUrl" @error="error = true" />
@@ -143,75 +148,3 @@ function onMenuAfterLeave(): void {
         </ActionWrapper>
     </div>
 </template>
-
-<style scoped>
-.fade-enter-active {
-    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1) 0.25s;
-    will-change: opacity;
-}
-.fade-leave-active {
-    transition: opacity 0.5s cubic-bezier(0.4, 0, 1, 1);
-    will-change: opacity;
-}
-@media (prefers-reduced-motion: reduce) {
-    .fade-enter-active,
-    .fade-leave-active {
-        transition: none;
-    }
-}
-.fade-enter-from,
-.fade-leave-to {
-    opacity: 0;
-}
-
-/* Desktop popover */
-.dpuse-slide-up-enter-active,
-.dpuse-slide-up-leave-active {
-    transform-origin: bottom;
-    will-change: transform, opacity;
-    transition:
-        transform 0.2s ease,
-        opacity 0.2s ease;
-}
-@media (prefers-reduced-motion: reduce) {
-    .dpuse-slide-up-enter-active,
-    .dpuse-slide-up-leave-active {
-        transition: none;
-    }
-}
-.dpuse-slide-up-enter-from,
-.dpuse-slide-up-leave-to {
-    transform: scaleY(0.75) translateY(6px);
-    opacity: 0;
-}
-.dpuse-slide-up-enter-to,
-.dpuse-slide-up-leave-from {
-    transform: scaleY(1);
-    opacity: 1;
-}
-
-/* Mobile bottom sheet */
-.dpuse-sheet-enter-active,
-.dpuse-sheet-leave-active {
-    will-change: transform, opacity;
-    transition:
-        transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
-        opacity 0.2s ease;
-}
-@media (prefers-reduced-motion: reduce) {
-    .dpuse-sheet-enter-active,
-    .dpuse-sheet-leave-active {
-        transition: none;
-    }
-}
-.dpuse-sheet-enter-from,
-.dpuse-sheet-leave-to {
-    transform: translateY(100%);
-    opacity: 0;
-}
-.dpuse-sheet-enter-to,
-.dpuse-sheet-leave-from {
-    transform: translateY(0);
-    opacity: 1;
-}
-</style>

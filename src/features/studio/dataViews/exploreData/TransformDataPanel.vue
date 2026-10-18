@@ -267,7 +267,7 @@ function typeIcon(name: string): Component {
                 <div class="relative">
                     <input
                         v-model="columnSearch"
-                        class="dpuse-search-input w-full rounded-sm bg-card-hover px-2 py-1.5 pr-7 text-xs text-content placeholder:text-subtle focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring"
+                        class="w-full rounded-sm bg-card-hover px-2 py-1.5 pr-7 text-xs text-content placeholder:text-subtle focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring [&::-webkit-search-cancel-button]:appearance-none"
                         :placeholder="t(TEXT, 'searchColumns.placeholder')"
                         type="search"
                         :aria-label="t(TEXT, 'searchColumns.aria')"
@@ -291,7 +291,11 @@ function typeIcon(name: string): Component {
             <div class="p-3" :class="clauseOpen.select ? 'max-h-56 overflow-y-auto' : ''">
                 <TransitionGroup
                     :ref="bindSelectGridElement"
-                    name="col-item"
+                    enter-active-class="transition-[opacity,scale] duration-180 ease-[ease]"
+                    enter-from-class="scale-85 opacity-0"
+                    leave-active-class="absolute transition-[opacity,scale] duration-180 ease-[ease]"
+                    leave-to-class="scale-85 opacity-0"
+                    move-class="transition-transform duration-220 ease-[ease]"
                     tag="div"
                     class="relative grid grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] gap-1"
                     @leave="onColItemLeave"
@@ -652,36 +656,3 @@ function typeIcon(name: string): Component {
         </div> -->
     <!-- </div> -->
 </template>
-
-<style scoped>
-/* Column grid items — TransitionGroup */
-.col-item-enter-active {
-    transition:
-        opacity 0.18s ease,
-        transform 0.18s ease;
-}
-.col-item-leave-active {
-    position: absolute;
-    transition:
-        opacity 0.18s ease,
-        transform 0.18s ease;
-}
-.col-item-enter-from,
-.col-item-leave-to {
-    opacity: 0;
-    transform: scale(0.85);
-}
-/* FLIP: tiles smoothly slide to their new positions during drag */
-.col-item-move {
-    transition: transform 0.22s ease;
-}
-
-.select-drag-placeholder {
-    opacity: 0.35;
-}
-
-.dpuse-search-input::-webkit-search-cancel-button {
-    display: none;
-    -webkit-appearance: none;
-}
-</style>

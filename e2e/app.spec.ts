@@ -17,7 +17,7 @@ test.describe('App', () => {
 
         await expect(page.locator('[data-region="StudioPane"]')).toBeVisible();
         await expect(page.getByRole('heading', { level: 1, name: 'Studio' })).toBeVisible();
-        await expect(page.locator('[data-region="ErrorNotice"]')).toHaveCount(0);
+        await expect(page.locator('[data-region="ErrorNotice"], [data-region="ErrorDialog"]')).toHaveCount(0);
         expect(errorMessages).toEqual([]);
     });
 

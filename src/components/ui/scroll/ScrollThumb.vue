@@ -246,8 +246,8 @@ function clampFromZero(value: number, max: number): number {
         :aria-valuenow="Math.round(scrollPercent)"
         aria-valuemin="0"
         aria-valuemax="100"
-        class="dpuse-scrollbar-track"
-        :class="[isVertical ? 'dpuse-scrollbar-track-v' : 'dpuse-scrollbar-track-h', { 'dpuse-scrollbar-visible': thumbsShown }]"
+        class="group pointer-events-auto absolute cursor-pointer transition-opacity duration-200 ease-[ease]"
+        :class="[isVertical ? 'inset-y-0 right-0 w-6' : 'inset-x-0 bottom-0 h-6', thumbsShown ? 'opacity-100' : 'opacity-0']"
         :style="!isVertical ? { right: crossInsetEnd + 'px' } : undefined"
         @pointerdown="handlePointerDown"
         @touchstart.passive="handleTouchStart"
@@ -256,84 +256,11 @@ function clampFromZero(value: number, max: number): number {
         @wheel.passive="handleWheel"
     >
         <div
-            class="dpuse-scrollbar-thumb"
+            class="absolute cursor-pointer rounded-full bg-subtle transition-[background-color,width,height,right,bottom] duration-150 ease-[ease] hover:bg-muted active:bg-muted"
+            :class="isVertical ? 'top-0 right-0.5 w-1.5 group-hover:right-px group-hover:w-2.5' : 'bottom-0.5 left-0 h-1.5 group-hover:bottom-px group-hover:h-2.5'"
             :style="
                 isVertical ? { height: thumbLength + 'px', transform: `translateY(${thumbOffset}px)` } : { width: thumbLength + 'px', transform: `translateX(${thumbOffset}px)` }
             "
         />
     </div>
 </template>
-
-<style scoped>
-.dpuse-scrollbar-track {
-    position: absolute;
-    border-radius: 0;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    pointer-events: auto;
-}
-
-.dpuse-scrollbar-track.dpuse-scrollbar-visible {
-    opacity: 1;
-}
-
-.dpuse-scrollbar-track-v {
-    top: 0;
-    right: 0;
-    width: 24px;
-    bottom: 0;
-    cursor: pointer;
-}
-
-.dpuse-scrollbar-track-h {
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 24px;
-    cursor: pointer;
-}
-
-.dpuse-scrollbar-thumb {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    border-radius: 9999px;
-    background-color: var(--subtle, rgba(0, 0, 0, 0.35));
-    cursor: pointer;
-    transition:
-        background-color 0.15s ease,
-        width 0.15s ease,
-        height 0.15s ease,
-        right 0.15s ease,
-        bottom 0.15s ease;
-}
-
-.dpuse-scrollbar-track-v .dpuse-scrollbar-thumb {
-    width: 6px;
-    left: auto;
-    right: 2px;
-}
-
-.dpuse-scrollbar-track-h .dpuse-scrollbar-thumb {
-    width: auto;
-    height: 6px;
-    top: auto;
-    bottom: 2px;
-}
-
-.dpuse-scrollbar-track-v:hover .dpuse-scrollbar-thumb {
-    width: 10px;
-    right: 1px;
-}
-
-.dpuse-scrollbar-track-h:hover .dpuse-scrollbar-thumb {
-    height: 10px;
-    bottom: 1px;
-}
-
-.dpuse-scrollbar-thumb:hover,
-.dpuse-scrollbar-thumb:active {
-    background-color: var(--muted, rgba(0, 0, 0, 0.5));
-}
-</style>

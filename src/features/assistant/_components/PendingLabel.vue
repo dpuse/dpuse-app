@@ -8,7 +8,7 @@ const { label = 'Working…' } = defineProps<{ label?: string }>();
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Must match the animation's duration in the style block below. The letters' delays are spread across exactly one
+// Must match the duration of '--animate-pending-letter' in 'main.css'. The letters' delays are spread across exactly one
 // full cycle, which is what makes the wave wrap: the first letter starts brightening as the last one fades, so the
 // word never dips all at once. A fixed per-letter delay shorter than the cycle leaves every letter in the trough
 // together, which is the flat spot that reads as a blink.
@@ -34,31 +34,9 @@ const letterDelayMs = computed(() => CYCLE_MS / characters.value.length);
             v-for="(character, index) in characters"
             :key="index"
             aria-hidden="true"
-            class="dpuse-pending-letter"
+            class="animate-pending-letter motion-reduce:animate-none"
             :style="{ animationDelay: `${String(Math.round(index * letterDelayMs))}ms` }"
             >{{ character }}</span
         >
     </div>
 </template>
-
-<style scoped>
-.dpuse-pending-letter {
-    animation: dpuse-pending-letter 1600ms ease-in-out infinite;
-}
-/* Dims rather than vanishes: at full transparency the trough between waves reads as a flicker, and the word stops
-   being readable while it waits. */
-@keyframes dpuse-pending-letter {
-    0%,
-    100% {
-        opacity: 0.25;
-    }
-    40% {
-        opacity: 1;
-    }
-}
-@media (prefers-reduced-motion: reduce) {
-    .dpuse-pending-letter {
-        animation: none;
-    }
-}
-</style>

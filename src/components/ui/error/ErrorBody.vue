@@ -29,6 +29,9 @@ import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 // 'canRetry' is false where nothing local could be retried — a failure with no region of its own, where a fresh
 // document is the only recovery there is.
 //
+// 'isEmbedded' is true where the body stands on a region's warning ground, which already says the region is in error.
+// Its own card padding, border and background would only draw a box inside it and double the inset.
+//
 // 'canCancel' is true only in the dialog, where cancelling means closing it. Rendered in place there is nothing to
 // cancel: the failure has already happened, and a button that only made the account of it disappear would leave a
 // region that is broken and no longer says so.
@@ -41,8 +44,9 @@ interface Properties {
     canCancel?: boolean;
     canRetry: boolean;
     failures: AppFailure[];
+    isEmbedded?: boolean;
 }
-const { canCancel, canRetry, failures } = defineProps<Properties>();
+const { canCancel, canRetry, failures, isEmbedded } = defineProps<Properties>();
 
 defineEmits<{ cancel: []; reload: []; retry: [] }>();
 
@@ -88,7 +92,7 @@ const needsReload = computed(() => moduleUpdateIsAvailable.value || failures.som
 </script>
 
 <template>
-    <div class="rounded-lg border border-warning-ring/20 bg-warning px-4 py-5" data-region="ErrorBody">
+    <div :class="isEmbedded ? undefined : 'rounded-lg border border-warning-ring/20 bg-warning px-4 py-5'" data-region="ErrorBody">
         <TriangleAlertIcon class="size-8 text-warning-text" stroke-width="1.5" />
 
         <!-- One block per failure, ruled off from the next so four losses read as a list rather than as run-on prose.

@@ -66,8 +66,8 @@ describe('defineLazyComponent', () => {
             const wrapper = mount(defineComponent({ render: () => h(panel) }), { attachTo: document.body });
             await settle();
 
-            expect(wrapper.find('.owns-screen').exists()).toBe(true);
-            expect(wrapper.find('.notice-badge').exists()).toBe(false);
+            expect(wrapper.find('[data-region="ErrorDialog"]').exists()).toBe(true);
+            expect(wrapper.find('[data-region="ErrorNotice"]').exists()).toBe(false);
             (wrapper.find('dialog').element as HTMLDialogElement).close(); // As Escape and the close button both do.
             await settle(); // The dismissal waits for the fade-out, so it lands a tick later.
             expect(onDismiss).toHaveBeenCalledOnce();
@@ -111,9 +111,9 @@ describe('defineLazyComponent', () => {
         it('covers the space the panel would have occupied, rather than sitting inside it', async () => {
             const wrapper = await render(defineLazyComponent(failToLoad, 'CoveringPanel'));
 
-            // The panel never arrived, so its whole region is what failed — 'is-region' is what covers it in the
+            // The panel never arrived, so its whole region is what failed — 'flex-auto' is what covers it in the
             // layout.
-            expect(wrapper.find('[data-region="ErrorNotice"]').classes()).toContain('is-region');
+            expect(wrapper.find('[data-region="ErrorNotice"]').classes()).toContain('flex-auto');
         });
 
         it('tells the user a stale chunk needs the page reloading, which a retry cannot do', async () => {

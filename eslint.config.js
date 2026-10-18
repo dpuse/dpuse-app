@@ -89,45 +89,14 @@ const config = defineConfigWithVueTs(
                 'warn',
                 {
                     whitelist: [
-                        'busy-bar-shimmer',
-                        'confirm-dialog',
-                        'ddp--detail',
-                        'ddp-back',
-                        'ddp-detail',
-                        'ddp-list',
-                        'dialog-modal',
-                        'dialog-modal-content-height',
+                        'dpuse-chat-prose',
                         'dpuse-collaborative-editor',
                         'dpuse-horizontal-slide-ltr-element',
-                        'dpuse-nav-progress-bar-shimmer',
                         'dpuse-outside-click-ignore',
-                        'dpuse-pending-letter',
-                        'dpuse-scroll-area',
-                        'dpuse-scroll-area-h',
-                        'dpuse-scroll-area-wrapper',
-                        'dpuse-scroll-area-v',
-                        'dpuse-search-input',
-                        'dpuse-scrollbar-thumb',
-                        'dpuse-scrollbar-track',
-                        'dpuse-scrollbar-track-h',
-                        'dpuse-scrollbar-track-v',
-                        'dpuse-scrollbar-visible',
-                        'dpuse-table-scroll-h',
-                        'dpuse-table-scroll-v',
                         'dpuse-prose',
                         'dpuse-prose-overline',
                         'dpuse-studio-prose',
                         'pell-editor',
-                        'session-menu',
-                        'error-notice',
-                        'owns-screen',
-                        'is-region',
-                        'covers-region',
-                        'notice-badge',
-                        'notice-badge-body',
-                        'notice-card',
-                        'detail-dialog',
-                        'screen-dialog',
                         String.raw`.*stroke-1\.25` // Valid decimal stroke-width utility; the plugin's static class list doesn't recognise it.
                     ]
                 }
@@ -159,7 +128,7 @@ const config = defineConfigWithVueTs(
         rules: {
             ...pluginCSS.configs.recommended.rules,
             'css/no-invalid-properties': ['error', { allowUnknownVariables: true }], // Variables come from Tailwind's import or are declared further down the file.
-            'css/use-baseline': ['error', { allowProperties: ['overscroll-behavior', 'overscroll-behavior-x'] }] // Not Baseline because of older Safari; the Safari 26 floor in 'browserslist' supports them.
+            'css/use-baseline': ['error', { allowAtRules: ['starting-style'], allowProperties: ['overscroll-behavior', 'overscroll-behavior-x'] }] // Not Baseline because of older Safari; the Safari 26 floor in 'browserslist' supports them.
         }
     },
 

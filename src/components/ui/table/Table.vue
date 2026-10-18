@@ -243,10 +243,10 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
             <div
                 :id="scrollElementId"
                 ref="scroller"
-                class="dpuse-table-scroll-v flex-1 overflow-x-hidden overflow-y-auto overscroll-none"
+                class="flex-1 scrollbar-none overflow-x-hidden overflow-y-auto overscroll-none"
                 :style="{ paddingBottom: scrollAreaPaddingBottom }"
             >
-                <div :id="innerScrollElementId" ref="innerScroller" class="dpuse-table-scroll-h overflow-x-auto overflow-y-hidden overscroll-none" @scroll="syncHeaderScroll">
+                <div :id="innerScrollElementId" ref="innerScroller" class="scrollbar-none overflow-x-auto overflow-y-hidden overscroll-none" @scroll="syncHeaderScroll">
                     <div :style="{ minWidth: totalWidth + 'px' }">
                         <!-- Virtual rows spacer -->
                         <div class="relative" :style="{ height: totalSize + 'px' }">
@@ -318,15 +318,3 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
         </div>
     </div>
 </template>
-
-<style scoped>
-.dpuse-table-scroll-v,
-.dpuse-table-scroll-h {
-    scrollbar-width: none;
-}
-
-.dpuse-table-scroll-v::-webkit-scrollbar,
-.dpuse-table-scroll-h::-webkit-scrollbar {
-    display: none;
-}
-</style>

@@ -178,7 +178,7 @@ function handleRetryMarkedTool(): void {
                                 <template v-else>
                                     <PendingLabel v-if="isResponseStreaming(message)" class="mb-1 text-xs font-medium tracking-wide text-subtle" />
                                     <div v-else class="mb-3 text-xs font-medium tracking-wide text-subtle">{{ responseHeading(message) }}</div>
-                                    <div v-for="part in step.parts" :key="part.content" class="text-sm" v-html="renderMarkdown(part.content)" />
+                                    <div v-for="part in step.parts" :key="part.content" class="dpuse-chat-prose text-sm" v-html="renderMarkdown(part.content)" />
                                 </template>
                             </div>
                         </div>
@@ -211,54 +211,3 @@ function handleRetryMarkedTool(): void {
         </template>
     </div>
 </template>
-
-<style scoped>
-:deep(h2) {
-    font-weight: 500;
-    margin-top: 12px;
-}
-:deep(ul) {
-    list-style-type: disc;
-    margin-top: 4px;
-    margin-bottom: 4px;
-    padding-left: 20px;
-}
-:deep(ol) {
-    list-style-type: decimal;
-    margin-top: 4px;
-    margin-bottom: 4px;
-    padding-left: 20px;
-}
-:deep(li) {
-    margin-top: 2px;
-    margin-bottom: 2px;
-}
-:deep(p) {
-    margin-top: 12px;
-}
-:deep(strong) {
-    font-weight: 500;
-}
-:deep(table) {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 12px;
-    margin-bottom: 12px;
-    font-size: 0.8125rem;
-}
-:deep(th) {
-    text-align: left;
-    font-weight: 500;
-    padding: 6px 10px;
-    border-bottom: 1px solid var(--color-separator);
-    white-space: nowrap;
-}
-:deep(td) {
-    padding: 6px 10px;
-    border-bottom: 1px solid var(--color-separator);
-    vertical-align: top;
-}
-:deep(tr:last-child td) {
-    border-bottom: none;
-}
-</style>

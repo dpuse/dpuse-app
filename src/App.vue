@@ -31,7 +31,7 @@ import { navigationPendingDepth, replaceRouteQuery } from '@/router';
 // ── Static Components
 import AssistantPaneToggle from '@/features/assistant/AssistantPaneToggle.vue'; // Static, because it is always visible.
 import Dialog from '@/components/ui/dialog/Dialog.vue'; // Static, so the frame opens while the dialog's own chunk loads.
-import ErrorNotice from '@/components/ui/error/ErrorNotice.vue'; // Static, so it can show even when a chunk fails to load.
+import ErrorDialog from '@/components/ui/error/ErrorDialog.vue'; // Static, so it can show even when a chunk fails to load.
 import NewVersionNotice from '@/components/ui/NewVersionNotice.vue'; // Static, because once a new version is deployed this version's chunks are gone.
 import RouterViewTransition from '@/components/ui/RouterViewTransition.vue'; // Static, so its spinner can show while other chunks load.
 import SessionButton from '@/features/session/SessionButton.vue'; // Static, because it is always visible.
@@ -180,15 +180,7 @@ function syncPaneQuery(): void {
 <template>
     <div class="flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" :class="isPWA ? 'h-screen w-screen' : 'h-dvh w-dvw'" data-region="App">
         <!-- App Failures ─ Failures that no pane or panel shows itself, in the app-level failure dialog. -->
-        <ErrorNotice
-            v-if="appFailures.length > 0"
-            :can-retry="appFailuresCanRetry"
-            :failures="appFailures"
-            is-dismissible
-            owns-screen
-            @dismiss="clearAppFailures"
-            @retry="retryAppFailures"
-        />
+        <ErrorDialog v-if="appFailures.length > 0" :can-retry="appFailuresCanRetry" :failures="appFailures" is-dismissible @dismiss="clearAppFailures" @retry="retryAppFailures" />
 
         <!-- Notices ─ Stacked above the bottom row of controls, so two at once never overlap. The stack spans the width
              but lets clicks through, so the page beside a notice still works. -->
