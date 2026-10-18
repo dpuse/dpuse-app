@@ -20,10 +20,11 @@ defineSlots<{ default: (slotProperties: { component: VNode }) => unknown }>();
     <RouterView v-slot="{ Component }">
         <!-- The spinner stays outside the transition, so a slow load does not fade into and out of it. The old view fades
              out quickly before the new one fades in, so it does not vanish in a flash. The header and task bar change
-             on the click, so for that moment the old view sits under the new header. 'appear' fades in the first view
-             after a page load too, as every later view does. -->
+             on the click, so for that moment the old view sits under the new header. The first view after a page load
+             does not fade in ('appear'), because Chrome does not count it towards Largest Contentful Paint until it is
+             visible, which delays LCP by the length of the fade. -->
         <ComponentLoadingSpinner v-if="isLoading" v-bind="$attrs" />
-        <Transition v-else appear name="action-fade" mode="out-in">
+        <Transition v-else name="action-fade" mode="out-in">
             <slot :component="Component" />
         </Transition>
     </RouterView>
