@@ -23,6 +23,7 @@ export interface DataViewConnection {
     connectorLabel: string;
     icon?: null | string;
     iconDark?: null | string;
+    itemTypeLabel: string | undefined; // The connector's kind of item, e.g. 'File'. Undefined for a connector released before it said which.
     label: string;
     status: ReturnType<typeof getComponentStatus> | undefined; // The connector's; undefined for general availability, which has no label.
     version: string; // The connector's.

@@ -13,7 +13,7 @@ import { constructDataViewSteps, type DataViewConnection } from './dataViewSumma
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
-import StepDots from '@/components/ui/StepDots.vue';
+import DataViewSource from './DataViewSource.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -25,8 +25,8 @@ const emit = defineEmits<{ open: [] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// ── Progress ─ The description is read after the open action's name, standing in for the step dots, which screen
-// readers do not see.
+// ── Progress ─ The description is read after the open action's name, so screen readers hear how far the data view
+// has got.
 const steps = computed(() => constructDataViewSteps(dataViewLocalisedConfig));
 const progressDescription = computed(() => {
     const done = steps.value.filter((step) => step.state === 'done').length;
@@ -53,12 +53,13 @@ const actions = computed((): Action<DataViewConfig>[] => [
         :actions="actions"
         :category-label="dataViewConnection?.categoryLabel"
         :config="dataViewLocalisedConfig"
-        :icon="dataViewConnection?.icon"
-        :icon-dark="dataViewConnection?.iconDark"
-        :overline="dataViewConnection?.label ?? t(TEXT, 'noConnection.label')"
+        hides-icon
     >
-        <template #status>
-            <StepDots :steps="steps" />
+        <template #details>
+            <DataViewSource :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig" :data-view-connection="dataViewConnection" />
         </template>
+
+        <!-- Audit ─ The connection and item lines show the first two steps, so only the audit is left to show. -->
+        <template v-if="dataViewLocalisedConfig.contentAuditConfig == null" #note>{{ t(TEXT, 'audit.pending.text') }}</template>
     </ConfigCard>
 </template>

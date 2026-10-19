@@ -21,8 +21,9 @@ interface Properties {
     maxGridWidth?: string;
     rowHeight?: number; // Row height in px. Default: 'Grid''s own.
     scrollAreaPaddingTop?: number | string;
+    targetColumnWidth?: number; // Column width in px the grid aims for, before it stretches the columns to fill the row. Default: 250.
 }
-const { selectedItem, addLabel, dataSource, isCompact, maxDetailWidth, maxGridWidth, rowHeight, scrollAreaPaddingTop } = defineProps<Properties>();
+const { selectedItem, addLabel, dataSource, isCompact, maxDetailWidth, maxGridWidth, rowHeight, scrollAreaPaddingTop, targetColumnWidth = 250 } = defineProps<Properties>();
 
 defineSlots<{
     busy?(): unknown;
@@ -83,7 +84,7 @@ watch(
                 :row-height="rowHeight"
                 :scroll-area-padding-top="scrollAreaPaddingTop"
                 :style="{ maxWidth: isSplit ? maxGridWidth : undefined }"
-                :target-column-width="250"
+                :target-column-width="targetColumnWidth"
                 @add="$emit('add')"
             >
                 <template #default="{ item }">

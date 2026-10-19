@@ -30,8 +30,9 @@ const panesAreSplit = inject(gridDetailIsSplitKey, ref(false));
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const iconIsPresent = computed(() => [icon, iconDark].some((svg) => svg != null && svg !== ''));
 const { width: actionsWidth } = useElementSize(actionsElement);
-const headerMarginRight = computed(() => `${String(Math.max(36, actionsWidth.value + 8))}px`); // Keeps the title clear of however many actions there are; 36px is the space one action has always had.
+const headerMarginRight = computed(() => `${String(Math.max(42, actionsWidth.value + 14))}px`); // Keeps the title clear of however many actions there are, and of the 6px the actions sit in from the edge.
 </script>
 
 <template>
@@ -48,18 +49,21 @@ const headerMarginRight = computed(() => `${String(Math.max(36, actionsWidth.val
                 <!-- Icon/Title -->
                 <div class="flex min-w-0 items-start gap-x-2" :style="{ marginRight: headerMarginRight }">
                     <!-- One title line tall, so the icon centres on the first line however the title wraps. -->
-                    <div class="flex h-10 flex-none items-center">
+                    <div v-if="iconIsPresent" class="flex h-10 flex-none items-center">
                         <ConfigIcon class="h-7" :icon="icon" :icon-dark="iconDark" />
                     </div>
-                    <h1 class="min-w-0 py-1 text-left leading-8 wrap-break-word whitespace-normal">
+                    <!-- Without an icon, the title moves up by the space above the icon, so it sits as close to the overline
+                         as the icon would. Only the top changes, so the actions stay level with the title. -->
+                    <h1 class="min-w-0 pb-1 text-left leading-8 wrap-break-word whitespace-normal" :class="iconIsPresent ? 'pt-1' : '-mt-0.5'">
                         {{ title }}
                     </h1>
                 </div>
             </ActionWrapper>
 
             <!-- Actions ─ Beside the header button rather than inside it, because a button may not contain buttons. They sit in
-                 the right margin the header keeps clear, and are centred on the title row whatever the overline's height. -->
-            <div v-if="$slots.actions" ref="actionsElement" class="absolute right-0 bottom-0 flex h-10 items-center gap-x-2">
+                 the right margin the header keeps clear, and are centred on the title row whatever the overline's height.
+                 'right-1.5' puts the last action's centre under the assistant toggle's in the top right corner. -->
+            <div v-if="$slots.actions" ref="actionsElement" class="absolute right-1.5 bottom-0 flex h-10 items-center gap-x-2">
                 <slot name="actions" />
             </div>
         </div>

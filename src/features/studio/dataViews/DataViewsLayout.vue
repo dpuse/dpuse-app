@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { FileIcon } from '@lucide/vue';
 import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -21,7 +20,7 @@ import { localeId, t } from '@/state/locale';
 import { TASK_CONFIGS, TEXT } from './DataViewsLayout_.json';
 
 // ── Static Components
-import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
+import DataViewSource from './DataViewSource.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import RetrievalGate from '@/components/ui/RetrievalGate.vue';
 import RouterViewTransition from '@/components/ui/RouterViewTransition.vue';
@@ -106,16 +105,6 @@ const summaryConnectionIsDraft = computed(() => summaryDataViewConfig.value?.con
 const summaryItemConfig = computed(() => summaryDataViewConfig.value?.connectionNodeConfig);
 const summaryItemPath = computed(() => (summaryItemConfig.value ? constructItemPath(summaryItemConfig.value) : undefined));
 const summaryItemIsDraft = computed(() => summaryItemPath.value !== taskDetails.value.item);
-const summaryItemIconIsPresent = computed(() => [summaryItemConfig.value?.icon, summaryItemConfig.value?.iconDark].some((svg) => svg != null && svg !== ''));
-
-// Split before the file name, so a long path is cut in the middle: the start of its folder path and the whole file name
-// stay in view.
-const summaryItemPathParts = computed(() => {
-    const itemPath = summaryItemPath.value;
-    if (itemPath == null) return;
-    const nameStart = itemPath.lastIndexOf('/') + 1;
-    return { folderPath: itemPath.slice(0, nameStart), name: itemPath.slice(nameStart) };
-});
 
 // ── List and Task Panel ─ The layout's own 'RouterView' sits one level in, so the layout shows the spinner while the
 // list or a task panel loads. 'App.vue' shows the spinner for the layout itself, which keeps the header and task bar in
@@ -200,27 +189,23 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
         <!-- Header -->
         <StudioHeader class="flex-none px-4" :overline="headerOverline" :title="headerTitle" :to="headerBackRoute" />
 
+        <!-- Summary ─ What the data view is built from so far, under its name as on its card. The row is always there,
+             even when empty, so the first choice does not push the panel down. Screen readers skip it, because they hear
+             each saved choice with its task. '-my-1' pulls it up into the empty space at the bottom of the header, and the
+             task bar up by the same amount into its own bottom padding. -->
+        <DataViewSource
+            v-if="currentTaskLocalisedConfig"
+            aria-hidden="true"
+            class="-my-1 h-7 flex-none px-4 pb-2 text-sm"
+            is-single-line
+            :connection-is-draft="summaryConnectionIsDraft"
+            :connection-node-config="summaryItemConfig"
+            :data-view-connection="summaryConnectionLocalisedConfig"
+            :item-is-draft="summaryItemIsDraft"
+        />
+
         <!-- Task Bar -->
-        <TaskBar v-if="currentTaskLocalisedConfig" :current-id="currentTaskLocalisedConfig.id" :items="taskBarLocalisedItems">
-            <!-- Summary ─ What the data view is built from so far, each part with the icon it has in its own list. The
-                 row is always there, even when empty, so the first choice does not push the panel down. Screen readers
-                 skip it, because they hear each saved choice with its task. The connection takes at most half the row.
-                 A long item path is cut in its folder path, so the file name stays in view. -->
-            <p aria-hidden="true" class="m-0 flex h-7 min-w-0 items-center gap-x-4 px-4 pb-2 text-sm whitespace-nowrap text-muted">
-                <span v-if="summaryConnectionLocalisedConfig" class="flex max-w-1/2 flex-none items-center gap-x-1.5" :class="{ 'opacity-60': summaryConnectionIsDraft }">
-                    <ConfigIcon class="size-4" :icon="summaryConnectionLocalisedConfig.icon" :icon-dark="summaryConnectionLocalisedConfig.iconDark" />
-                    <span class="truncate">{{ summaryConnectionLocalisedConfig.label }}</span>
-                </span>
-                <span v-if="summaryItemConfig && summaryItemPathParts" class="flex min-w-0 items-center gap-x-1.5" :class="{ 'opacity-60': summaryItemIsDraft }">
-                    <ConfigIcon v-if="summaryItemIconIsPresent" class="size-4" :icon="summaryItemConfig.icon" :icon-dark="summaryItemConfig.iconDark" />
-                    <FileIcon v-else class="size-4 flex-none" :stroke-width="1.5" />
-                    <span class="flex min-w-0">
-                        <span class="min-w-0 shrink-100 truncate">{{ summaryItemPathParts.folderPath }}</span>
-                        <span class="min-w-0 truncate">{{ summaryItemPathParts.name }}</span>
-                    </span>
-                </span>
-            </p>
-        </TaskBar>
+        <TaskBar v-if="currentTaskLocalisedConfig" :current-id="currentTaskLocalisedConfig.id" :items="taskBarLocalisedItems" />
 
         <!-- Body ─ Waits for the configuration, because no data view can be read without it. -->
         <RetrievalGate class="min-h-0 flex-1" :status="configStatus">

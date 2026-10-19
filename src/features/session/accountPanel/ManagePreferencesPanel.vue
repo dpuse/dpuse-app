@@ -7,7 +7,7 @@ import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 </script>
 
 <template>
-    <div class="flex h-full items-center justify-center overflow-y-auto">
+    <div class="flex h-full items-center justify-center overflow-y-auto overscroll-y-none">
         <RectangleButton @click="localeId = 'en'">English</RectangleButton>
         <RectangleButton @click="localeId = 'es'">Español</RectangleButton>
     </div>

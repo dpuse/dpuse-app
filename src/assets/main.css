@@ -52,7 +52,8 @@
     .dpuse-prose h4,
     .dpuse-prose h5,
     .dpuse-prose h6 {
-        font-weight: 600;
+        color: var(--color-emphasis);
+        font-weight: 500; /* Medium rather than semibold, so a document does not outweigh the dashboard around it. */
     }
     .dpuse-prose h1 {
         font-size: 1.375rem;
@@ -72,7 +73,7 @@
         font-size: 1.0625rem;
         line-height: 1.5rem;
     }
-    /* Below h3 the size stops changing, so weight alone marks the heading (Tailwind's reset would leave them as body text). */
+    /* Below h3 the size stops changing, so weight and colour alone mark the heading (Tailwind's reset would leave them as body text). */
     .dpuse-prose h4,
     .dpuse-prose h5,
     .dpuse-prose h6 {

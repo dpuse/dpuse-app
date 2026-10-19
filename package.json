@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "1.0.179",
+    "version": "1.0.180",
     "private": false,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -42,7 +42,8 @@
         "unrs-resolver@1.12.2": true,
         "esbuild@0.28.2": true,
         "vue-demi": false,
-        "workerd@1.20261012.1": true
+        "workerd@1.20261012.1": true,
+        "workerd@1.20261019.1": true
     },
     "scripts": {
         "audit": "node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
@@ -67,7 +68,7 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject(['unit', 'e2e']))\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.125",
+        "@dpuse/dpuse-shared": "^1.0.126",
         "@fontsource-variable/inter": "^5.3.0",
         "@formkit/drag-and-drop": "^0.6.1",
         "@lucide/vue": "^1.59.0",
@@ -87,8 +88,8 @@
     "devDependencies": {
         "@axe-core/playwright": "^4.14.0",
         "@cloudflare/vite-plugin": "1.64.0",
-        "@cloudflare/workers-types": "^5.20261018.1",
-        "@dpuse/dpuse-development": "^1.0.125",
+        "@cloudflare/workers-types": "^5.20261019.1",
+        "@dpuse/dpuse-development": "^1.0.127",
         "@dpuse/dpuse-tool-d3-visualiser": "^1.0.112",
         "@dpuse/dpuse-tool-marked-markdown-parser": "^1.0.106",
         "@dpuse/eslint-config-dpuse": "^1.0.141",
@@ -130,6 +131,6 @@
         "vite": "^8.3.4",
         "vitest": "^5.0.5",
         "vue-tsc": "^3.3.13",
-        "wrangler": "4.151.1"
+        "wrangler": "4.151.2"
     }
 }

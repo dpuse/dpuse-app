@@ -1,5 +1,5 @@
 {
-  "version": "1.0.178",
+  "version": "1.0.179",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -185,7 +185,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261018.1"
+              "version": "5.20261019.1"
             },
             "blake3-wasm": {
               "version": "2.1.5"
@@ -222,17 +222,17 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261018.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261018.1.tgz",
+      "version": "5.20261019.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261019.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
-      "version": "1.0.125",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.125.tgz",
+      "version": "1.0.127",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.127.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.125"
+          "version": "1.0.126"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1380,8 +1380,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.125",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.125.tgz",
+      "version": "1.0.126",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.126.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1464,7 +1464,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.125"
+          "version": "1.0.126"
         },
         "@tanstack/charts": {
           "version": "1.0.0",
@@ -8177,8 +8177,8 @@
       "overridden": false
     },
     "wrangler": {
-      "version": "4.151.1",
-      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.151.1.tgz",
+      "version": "4.151.2",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.151.2.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/kv-asset-handler": {
@@ -8190,7 +8190,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261018.1"
+          "version": "5.20261019.1"
         },
         "blake3-wasm": {
           "version": "2.1.5",
@@ -8204,8 +8204,8 @@
           "version": "2.3.3"
         },
         "miniflare": {
-          "version": "5.20261012.1-beta",
-          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261012.1-beta.tgz",
+          "version": "5.20261019.0-beta",
+          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261019.0-beta.tgz",
           "overridden": false,
           "dependencies": {
             "@cspotcode/source-map-support": {
@@ -8220,7 +8220,7 @@
               "overridden": false
             },
             "workerd": {
-              "version": "1.20261012.1"
+              "version": "1.20261019.1"
             },
             "ws": {
               "version": "8.21.0"
@@ -8239,7 +8239,20 @@
           "version": "2.0.0-rc.24"
         },
         "workerd": {
-          "version": "1.20261012.1"
+          "version": "1.20261019.1",
+          "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261019.1.tgz",
+          "overridden": false,
+          "dependencies": {
+            "@cloudflare/workerd-darwin-64": {},
+            "@cloudflare/workerd-darwin-arm64": {
+              "version": "1.20261019.1",
+              "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261019.1.tgz",
+              "overridden": false
+            },
+            "@cloudflare/workerd-linux-64": {},
+            "@cloudflare/workerd-linux-arm64": {},
+            "@cloudflare/workerd-windows-64": {}
+          }
         }
       }
     }

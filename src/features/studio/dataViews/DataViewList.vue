@@ -6,8 +6,8 @@ import { useConfirmDialog, useTimeoutFn } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError, constructConnectorCategoryConfig, getComponentStatus, localiseConfig, localiseConfigs } from '@dpuse/dpuse-shared';
-import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
+import { AppError, constructConnectorCategoryConfig, constructConnectorItemTypeConfig, getComponentStatus, localiseConfig, localiseConfigs } from '@dpuse/dpuse-shared';
+import type { ConnectorItemTypeId, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -98,7 +98,7 @@ const dataViewDataSource = computed((): DataSource<LocalisedConfig<DataViewConfi
     getRows: (start, end): Promise<{ rows: LocalisedConfig<DataViewConfig>[] }> => Promise.resolve({ rows: dataViewLocalisedConfigs.value.slice(start, end) })
 }));
 
-// Cards here carry actions, which take a second row, and an overline naming the connector.
+// Cards here carry actions, which take a second row, and details naming the connection and item.
 const cardRowHeight = useCardRowHeight(true, true);
 
 // ── Data View Summary ─ The connector behind each data view, keyed by data view id; undefined until a connection is
@@ -184,12 +184,14 @@ function constructDataViewConnection(dataViewLocalisedConfig: LocalisedConfig<Da
     const connectionLocalisedConfig = findConnectionLocalisedConfig(dataViewLocalisedConfig.connectionId);
     if (!connectionLocalisedConfig) return undefined;
     const { connectorConfig } = connectionLocalisedConfig;
+    const itemTypeId = connectorConfig.itemTypeId as ConnectorItemTypeId | undefined; // Missing from a connector released before the field existed.
     return {
         categoryLabel: constructConnectorCategoryConfig(connectorConfig.categoryId, localeId.value).label,
         connectorId: connectorConfig.id,
         connectorLabel: localiseConfig(connectorConfig, localeId.value).label,
         icon: connectionLocalisedConfig.icon,
         iconDark: connectionLocalisedConfig.iconDark,
+        itemTypeLabel: itemTypeId ? constructConnectorItemTypeConfig(itemTypeId, localeId.value).label : undefined,
         label: connectionLocalisedConfig.label,
         status: connectorConfig.statusId ? getComponentStatus(connectorConfig.statusId, localeId.value) : undefined,
         version: connectorConfig.version
@@ -227,6 +229,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
             :data-source="dataViewDataSource"
             max-detail-width="65ch"
             :row-height="cardRowHeight"
+            :target-column-width="340"
             @add="handleAddDataView"
         >
             <!-- Slow Retrieval ─ Below the list's busy bar. Cancel is the safe choice, so it comes first. -->

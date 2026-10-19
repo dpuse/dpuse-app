@@ -74,8 +74,8 @@ const { currentDialogConfig, currentDialogId, closeDialog } = useDialogs();
 const appFailuresCanRetry = computed(() => appFailures.value.some((failure) => failure.retry != null));
 
 // ── Viewport ─ Safari colours its toolbars to match the page, so without these lines nothing marks where the page
-// starts or ends. Chrome and Edge draw their own toolbar edges. The installed app (PWA) has no bottom toolbar, so it
-// gets no bottom line.
+// starts or ends. Chrome, Edge and Firefox draw their own toolbar edges. The installed app (PWA) has no bottom toolbar,
+// so it gets no bottom line.
 const viewportRequiresTopEdgeLine = isSafariBrowser();
 const viewportRequiresBottomEdgeLine = !isPWA && isSafariBrowser();
 

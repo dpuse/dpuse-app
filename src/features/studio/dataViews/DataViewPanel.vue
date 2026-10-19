@@ -12,7 +12,7 @@ import type { DataTypeId, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-s
 import { defineLazyComponent } from '@/utilities/index.ts';
 import { raiseAppFailure } from '@/state/errors';
 import { renderMarkdown } from '@/services/useMarkedTool';
-import { TEXT } from './DataViewPanel_.json'; // TODO: 'item.title' names every kind of item until each connector says which one it provides.
+import { TEXT } from './DataViewPanel_.json';
 import { useUnsavedWork } from '@/state/unsavedWork';
 import { constructItemPath, type DataViewConnection } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
@@ -20,6 +20,7 @@ import { useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dat
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
+import DataViewSource from './DataViewSource.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
@@ -125,10 +126,9 @@ function formatDateTime(timestamp: number): string {
 <template>
     <StudioDetailLayout data-region="DataViewPanel">
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
+            <!-- No icon beside the title, because the connection's icon is on its line below, as on the card. -->
             <StudioDocumentPanel
-                :icon="dataViewConnection?.icon ?? dataViewLocalisedConfig.icon"
-                :icon-dark="dataViewConnection?.iconDark ?? dataViewLocalisedConfig.iconDark"
-                :overline="dataViewConnection?.label ?? t(TEXT, 'noConnection.label')"
+                :overline="t(TEXT, 'dataViews.label')"
                 :title="dataViewLocalisedConfig.label"
                 @close="$emit('close')"
             >
@@ -137,6 +137,13 @@ function formatDateTime(timestamp: number): string {
                         <SquarePenIcon aria-hidden="true" class="size-5" stroke-width="1.5" />
                     </ActionWrapper>
                 </template>
+
+                <!-- Source -->
+                <DataViewSource
+                    class="mt-1 mb-4 text-sm"
+                    :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig"
+                    :data-view-connection="dataViewConnection"
+                />
 
                 <!-- Description -->
                 <div v-if="dataViewLocalisedConfig.description" v-html="renderMarkdown(dataViewLocalisedConfig.description)" />
@@ -166,7 +173,7 @@ function formatDateTime(timestamp: number): string {
                     <p v-else class="text-muted">{{ t(TEXT, 'connection.pending.text') }}</p>
                 </StudioDocumentSection>
 
-                <StudioDocumentSection :title="t(TEXT, 'item.title')">
+                <StudioDocumentSection :title="dataViewConnection?.itemTypeLabel ?? t(TEXT, 'item.title')">
                     <dl v-if="dataViewLocalisedConfig.connectionNodeConfig" class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
                         <dt class="text-muted">{{ t(TEXT, 'item.name.label') }}</dt>
                         <dd class="m-0 min-w-0 wrap-break-word">{{ dataViewLocalisedConfig.connectionNodeConfig.label }}</dd>
@@ -189,7 +196,7 @@ function formatDateTime(timestamp: number): string {
                 </StudioDocumentSection>
 
                 <StudioDocumentSection :title="t(TEXT, 'schema.title')">
-                    <div v-if="dataViewLocalisedConfig.previewConfig" class="overflow-x-auto">
+                    <div v-if="dataViewLocalisedConfig.previewConfig" class="overflow-x-auto overscroll-x-none">
                         <table class="w-full text-sm">
                             <thead>
                                 <tr class="border-b border-separator text-left text-muted">
@@ -212,7 +219,7 @@ function formatDateTime(timestamp: number): string {
                     <template v-if="dataViewLocalisedConfig.previewConfig">
                         <p class="text-sm text-muted">{{ t(TEXT, 'data.sample.text', { count: previewRows.length }) }}</p>
                         <!-- Scrolls sideways on its own, so a wide item does not widen the document. -->
-                        <div class="overflow-x-auto">
+                        <div class="overflow-x-auto overscroll-x-none">
                             <table class="text-sm whitespace-nowrap">
                                 <thead>
                                     <tr class="border-b border-separator text-left text-muted">

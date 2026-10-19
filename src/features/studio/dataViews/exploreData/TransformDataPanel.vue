@@ -288,7 +288,7 @@ function typeIcon(name: string): Component {
                  Open: scrollable fixed-height list of all columns, click to toggle.
                  Closed: auto-height, drag-to-reorder selected columns only.
                  Same key (col.name, no prefix) in both states so Vue can FLIP tiles when toggling. -->
-            <div class="p-3" :class="clauseOpen.select ? 'max-h-56 overflow-y-auto' : ''">
+            <div class="p-3" :class="clauseOpen.select ? 'max-h-56 overflow-y-auto overscroll-y-none' : ''">
                 <TransitionGroup
                     :ref="bindSelectGridElement"
                     enter-active-class="transition-[opacity,scale] duration-180 ease-[ease]"
@@ -652,7 +652,7 @@ function typeIcon(name: string): Component {
                 <ChevronRightIcon v-else class="size-4 flex-none text-subtle" />
                 <span class="text-muted text-[11px] font-semibold tracking-wider uppercase">SQL Preview</span>
             </button>
-            <pre v-if="sqlOpen" class="overflow-x-auto px-4 py-3 text-xs text-subtle">{{ sql }}</pre>
+            <pre v-if="sqlOpen" class="overflow-x-auto overscroll-x-none px-4 py-3 text-xs text-subtle">{{ sql }}</pre>
         </div> -->
     <!-- </div> -->
 </template>

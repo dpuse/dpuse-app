@@ -108,7 +108,7 @@ function handleShowDetail(): void {
         <!-- Card ─ Room for the whole body. The region scrolls, not the body, so a scrollbar does not read as part of
              the error text. 'safe' centring falls back to the top edge for a body that does not fit, where plain
              centring would push its top out of reach. -->
-        <div class="hidden min-h-40 flex-auto items-center-safe justify-center overflow-y-auto bg-warning p-4 @min-[11rem]:flex">
+        <div class="hidden min-h-40 flex-auto items-center-safe justify-center overflow-y-auto overscroll-y-none bg-warning p-4 @min-[11rem]:flex">
             <ErrorBody class="w-full max-w-prose" :can-retry="canRetry" :failures="failures" is-embedded @reload="handleReload" @retry="handleRetry" />
         </div>
 

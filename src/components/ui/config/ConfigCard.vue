@@ -32,6 +32,7 @@ interface Properties<T extends BaseConfig> {
     categoryLabel?: string; // Bottom left, as muted text: what kind of thing the card is, for scanning and filtering.
     config: LocalisedConfig<T>;
     fallbackIcon?: Component; // Shown, in the muted text colour, when there is no icon to show, e.g. a folder.
+    hidesIcon?: boolean; // No icon beside the label, e.g. where the details carry their own small icons.
     icon?: null | string; // Replaces the config's own icon, e.g. with that of the connector behind it.
     iconDark?: null | string;
     isCompact?: boolean;
@@ -41,9 +42,12 @@ interface Properties<T extends BaseConfig> {
     selected?: boolean;
     to?: RouteLocationRaw;
 }
-const { actions = [], categoryLabel, config, fallbackIcon, icon, iconDark, isCompact, onCategoryClick, overline, prereleaseLabel, selected, to } = defineProps<Properties<T>>();
+const { actions = [], categoryLabel, config, fallbackIcon, hidesIcon, icon, iconDark, isCompact, onCategoryClick, overline, prereleaseLabel, selected, to } = defineProps<Properties<T>>();
 
-defineSlots<{ status?: () => unknown }>(); // Small and quiet, at the end of the overline, e.g. progress dots.
+defineSlots<{
+    details?: () => unknown; // Two small, muted lines below the label, e.g. what a data view is built from. Makes the title row taller.
+    note?: () => unknown; // Small and muted, in the footer after the category, e.g. a step still to do.
+}>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -51,7 +55,7 @@ const cardId = useId(); // Prefixes the ids of the actions' descriptions, which 
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const iconIsPresent = computed(() => [icon ?? config.icon, iconDark ?? config.iconDark].some((svg) => svg != null && svg !== ''));
+const iconIsPresent = computed(() => !hidesIcon && [icon ?? config.icon, iconDark ?? config.iconDark].some((svg) => svg != null && svg !== ''));
 
 // Listeners like '@click' from the host land on the card-activation button below rather than on the root, which
 // carries no interactive semantics of its own.
@@ -61,7 +65,8 @@ defineOptions({ inheritAttrs: false });
 <template>
     <!-- A full-size card is a fixed height, so every card in a virtualised grid row matches: a title row, then a footer
          row of category and actions, each 'h-7' in 'p-3' with a 'gap-y-3' between; an overline grows the title row to 'h-9' to fit its
-         second line. 'useCardRowHeight' in './configCard' states the same numbers. Compact is a single plain list row. -->
+         second line, and details grow it to 'h-14.5' to fit two lines below the label. 'useCardRowHeight' in './configCard'
+         states the same numbers, except the overline's, which no virtualised grid uses. Compact is a single plain list row. -->
     <div
         class="relative flex size-full border"
         :class="[
@@ -87,20 +92,24 @@ defineOptions({ inheritAttrs: false });
         <ActionWrapper :aria-label="overline ? `${overline}: ${config.label}` : config.label" class="absolute inset-0 z-10" :title="config.label" :to="to" v-bind="$attrs" />
 
         <!-- Header ─ One line only: the label truncates rather than wraps, because the card cannot grow. -->
-        <div class="flex min-w-0 items-center gap-x-2" :class="isCompact ? 'flex-1' : overline ? 'h-9 flex-none' : 'h-7 flex-none'">
+        <div class="flex min-w-0 items-center gap-x-2" :class="isCompact ? 'flex-1' : $slots.details ? 'h-14.5 flex-none' : overline ? 'h-9 flex-none' : 'h-7 flex-none'">
             <!-- Icon -->
             <ConfigIcon v-if="iconIsPresent" :class="isCompact ? 'size-5' : 'size-7'" :icon="icon ?? config.icon" :icon-dark="iconDark ?? config.iconDark" />
-            <component :is="fallbackIcon" v-else-if="fallbackIcon" aria-hidden="true" class="flex-none text-muted" :class="isCompact ? 'size-5' : 'size-7'" :stroke-width="1.5" />
+            <component :is="fallbackIcon" v-else-if="fallbackIcon && !hidesIcon" aria-hidden="true" class="flex-none text-muted" :class="isCompact ? 'size-5' : 'size-7'" :stroke-width="1.5" />
 
             <div class="flex min-w-0 flex-col">
-                <!-- Overline, with the status after it on the same line so it adds no height. -->
+                <!-- Overline -->
                 <div v-if="!isCompact && overline" class="flex min-w-0 items-center gap-x-1.5 text-xs leading-tight text-muted">
                     <span class="min-w-0 truncate">{{ overline }}</span>
-                    <slot name="status" />
                 </div>
 
                 <!-- Label -->
                 <div class="min-w-0 truncate leading-tight text-content">{{ config.label }}</div>
+
+                <!-- Details -->
+                <div v-if="!isCompact && $slots.details" class="mt-1 min-w-0 text-xs leading-tight text-muted">
+                    <slot name="details" />
+                </div>
             </div>
 
             <!-- Pre-release tag - Square-cornered and small, so it reads as a label rather than a button. Short, so it
@@ -116,7 +125,7 @@ defineOptions({ inheritAttrs: false });
         <!-- Footer ─ The category on the left and the actions on the right. A compact row has no footer: the wrapper steps
              aside ('contents') and the actions join the end of the single row. -->
         <div
-            v-if="isCompact ? actions.length > 0 : categoryLabel || actions.length > 0"
+            v-if="isCompact ? actions.length > 0 : categoryLabel || $slots.note || actions.length > 0"
             :class="isCompact ? 'contents' : 'flex h-7 flex-none items-center gap-x-3 pointer-coarse:h-8.5'"
         >
             <!-- Category ─ Muted text, so it stays below the title in weight. When the host can filter by it, a pill: the
@@ -136,6 +145,9 @@ defineOptions({ inheritAttrs: false });
                 </ActionWrapper>
                 <span v-else class="min-w-0 truncate text-xs text-muted">{{ categoryLabel }}</span>
             </template>
+
+            <!-- Note -->
+            <span v-if="!isCompact && $slots.note" class="min-w-0 truncate text-xs text-muted"><slot name="note" /></span>
 
             <!-- Actions, raised above the card-activation button by stacking order rather than nested inside it, so each
                  keeps its own click instead of the card's. -->

@@ -36,10 +36,6 @@ const { currentId, items = [] } = defineProps<{
     items?: (LocalisedConfig<TaskConfig> & { detail?: string; disabled: boolean; to?: RouteLocationRaw })[];
 }>();
 
-defineSlots<{
-    default?(): unknown; // Rendered below the steps, above the bar's bottom line, e.g. a summary of what has been chosen.
-}>();
-
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function describeStep(item: LocalisedConfig<TaskConfig> & { detail?: string; disabled: boolean }): string {
@@ -54,8 +50,7 @@ function localiseLine(line: LocaleLabel): string {
 </script>
 
 <template>
-    <!-- '-mt-1.5' pulls the bar up into the empty space at the bottom of the header above it. -->
-    <nav :aria-label="t(TEXT, 'steps.aria')" class="@container -mt-1.5 flex-none border-b border-separator" data-region="TaskBar">
+    <nav :aria-label="t(TEXT, 'steps.aria')" class="@container flex-none border-b border-separator" data-region="TaskBar">
         <!-- The arrows sit level with the number and label line. -->
         <ScrollRow arrow-align-class="items-start pt-1" is-borderless keep-active-item-in-view row-tag="ol">
             <!-- 'relative' keeps each step's screen-reader text inside the scrolling row. Without it that text, which is
@@ -104,7 +99,5 @@ function localiseLine(line: LocaleLabel): string {
                 </component>
             </li>
         </ScrollRow>
-
-        <slot />
     </nav>
 </template>
