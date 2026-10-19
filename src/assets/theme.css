@@ -145,8 +145,8 @@
     /* Light mode states. Translucent, so one value reads the same over white panes, the grey rail and tinted cards. */
     --hover: color-mix(in srgb, black 5%, transparent);
     --press: color-mix(in srgb, black 10%, transparent);
-    --selected: color-mix(in srgb, var(--color-blue-500) 12%, transparent);
-    --selected-hover: color-mix(in srgb, var(--color-blue-500) 18%, transparent);
+    --selected: color-mix(in srgb, var(--color-blue-500) 8%, transparent);
+    --selected-hover: color-mix(in srgb, var(--color-blue-500) 12%, transparent);
     --selected-text: var(--color-blue-700);
     --selected-border: var(--color-blue-200);
     --pill: var(--color-blue-50);
