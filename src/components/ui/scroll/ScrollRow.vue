@@ -208,7 +208,7 @@ function updateScrollState(): void {
             type="button"
             @click="handleScrollRow('left')"
         >
-            <ChevronLeftIcon class="size-5 rounded-full text-content hover:bg-zinc-100 dark:hover:bg-zinc-300/25" />
+            <ChevronLeftIcon class="size-5 rounded-full text-content hover:state-hover" />
         </button>
 
         <button
@@ -219,7 +219,7 @@ function updateScrollState(): void {
             type="button"
             @click="handleScrollRow('right')"
         >
-            <ChevronRightIcon class="size-5 rounded-full text-content hover:bg-zinc-100 dark:hover:bg-zinc-300/25" />
+            <ChevronRightIcon class="size-5 rounded-full text-content hover:state-hover" />
         </button>
     </div>
 </template>

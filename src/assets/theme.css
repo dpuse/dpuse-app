@@ -81,11 +81,15 @@
     --color-info-active: var(--info-active);
     --color-info-text: var(--info-text);
 
-    /* Selected state — used for the selected ConfigCard and its action buttons (a third palette, distinct from accent and status). */
-    --color-selected: var(--selected);
-    --color-selected-hover: var(--selected-hover);
+    /* Selected state ─ what the user chose from a set or where they are: list cards and rows, the rail, account
+       navigation, menu choices. The fills are drawn as layers by the 'state-*' utilities in 'main.css'. */
     --color-selected-text: var(--selected-text);
     --color-selected-border: var(--selected-border);
+
+    /* Floating pill ─ the page's primary action. Solid, because it floats over content that would show through a
+       translucent fill. */
+    --color-pill: var(--pill);
+    --color-pill-hover: var(--pill-hover);
 }
 
 /* Light mode colors. 'color-scheme' follows the app's appearance rather than the OS, so native scrollbars and form
@@ -138,11 +142,15 @@
     --info-active: var(--color-blue-200);
     --info-text: var(--color-blue-700);
 
-    /* Light mode selected state. */
-    --selected: var(--color-blue-50);
-    --selected-hover: var(--color-blue-100);
+    /* Light mode states. Translucent, so one value reads the same over white panes, the grey rail and tinted cards. */
+    --hover: color-mix(in srgb, black 5%, transparent);
+    --press: color-mix(in srgb, black 10%, transparent);
+    --selected: color-mix(in srgb, var(--color-blue-500) 12%, transparent);
+    --selected-hover: color-mix(in srgb, var(--color-blue-500) 18%, transparent);
     --selected-text: var(--color-blue-700);
     --selected-border: var(--color-blue-200);
+    --pill: var(--color-blue-50);
+    --pill-hover: var(--color-blue-100);
 }
 
 /* Dark mode colors. */
@@ -188,11 +196,15 @@
     --info-active: color-mix(in srgb, var(--color-blue-400) 30%, transparent);
     --info-text: var(--color-blue-400);
 
-    /* Dark mode selected state. */
-    --selected: var(--color-blue-900);
-    --selected-hover: var(--color-blue-800);
+    /* Dark mode states. */
+    --hover: color-mix(in srgb, white 8%, transparent);
+    --press: color-mix(in srgb, white 14%, transparent);
+    --selected: color-mix(in srgb, var(--color-blue-400) 20%, transparent);
+    --selected-hover: color-mix(in srgb, var(--color-blue-400) 28%, transparent);
     --selected-text: var(--color-blue-200);
     --selected-border: var(--color-blue-700);
+    --pill: var(--color-blue-900);
+    --pill-hover: var(--color-blue-800);
 }
 
 /* Dark mode softens Tailwind's colours: the same steps with their chroma halved, lightness and hue kept, so contrast is

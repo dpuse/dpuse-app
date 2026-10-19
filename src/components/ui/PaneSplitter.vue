@@ -22,7 +22,7 @@ const ARROW_BUTTON_CLASS = [
     'bg-surface/70 text-content opacity-0 transition-opacity pointer-coarse:size-11',
     'group-focus-within/splitter:pointer-events-auto group-focus-within/splitter:opacity-100',
     'group-hover/splitter:pointer-events-auto group-hover/splitter:opacity-100',
-    'hover:bg-zinc-100 dark:hover:bg-zinc-300/25 disabled:text-content/40 disabled:hover:bg-surface/70'
+    'hover:state-hover disabled:text-content/40 disabled:hover:bg-none'
 ].join(' ');
 const BALANCED_PERCENT = 50; // Even split — the default, and one half of the double-click toggle.
 const EXPANDED_PERCENT = 75; // Left pane favoured — the other half of the double-click toggle.

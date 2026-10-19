@@ -21,8 +21,7 @@ import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 // A card's actions are neutral and flat: a grey border, their own white fill so they hold up on a hovered or selected
 // card, and a darker fill on hover. No shadow and no blue fill, both kept for the page's floating primary action, so
 // an action on one item never competes with it. 28px with a mouse, 34px on touch.
-const ACTION_CLASSES =
-    'flex h-7 items-center justify-center rounded-full border border-zinc-300 bg-surface hover:bg-zinc-100 pointer-coarse:h-8.5 dark:border-zinc-600 dark:hover:bg-zinc-800';
+const ACTION_CLASSES = 'flex h-7 items-center justify-center rounded-full border border-zinc-300 bg-surface hover:state-hover pointer-coarse:h-8.5 dark:border-zinc-600';
 const ROUND_ACTION_CLASSES = `${ACTION_CLASSES} w-7 pointer-coarse:w-8.5`;
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -42,7 +41,21 @@ interface Properties<T extends BaseConfig> {
     selected?: boolean;
     to?: RouteLocationRaw;
 }
-const { actions = [], categoryLabel, config, fallbackIcon, hidesIcon, icon, iconDark, isCompact, onCategoryClick, overline, prereleaseLabel, selected, to } = defineProps<Properties<T>>();
+const {
+    actions = [],
+    categoryLabel,
+    config,
+    fallbackIcon,
+    hidesIcon,
+    icon,
+    iconDark,
+    isCompact,
+    onCategoryClick,
+    overline,
+    prereleaseLabel,
+    selected,
+    to
+} = defineProps<Properties<T>>();
 
 defineSlots<{
     details?: () => unknown; // Two small, muted lines below the label, e.g. what a data view is built from. Makes the title row taller.
@@ -72,16 +85,15 @@ defineOptions({ inheritAttrs: false });
         :class="[
             isCompact ? 'items-center gap-x-2 rounded-md pr-2 pl-1.75' : 'flex-col gap-y-3 rounded-lg p-3', // 'pl-1.75' with the 1px border puts the icon on the 8px the row is inset by.
             // Compact is a plain list row rather than a boxed card: no border or fill until hovered or selected. The border
-            // stays, transparent, so a row is the same size in every state. Selected is a step darker than a selected card,
-            // which has its border to help it stand out; a row has only the fill, next to rows showing a grey hover. A selected
-            // card's fill is lighter than the lightest blue step, so it tints the card without weighing it down.
+            // stays, transparent, so a row is the same size in every state. Hover, press and selected are layers over the
+            // card's own fill, the same as everywhere else in the app.
             isCompact
                 ? selected
-                    ? 'border-transparent bg-selected-hover hover:bg-blue-200/70 dark:hover:bg-blue-700/70'
-                    : 'border-transparent hover:bg-card-hover active:bg-card-hover'
+                    ? 'border-transparent state-selected hover:state-selected-hover'
+                    : 'border-transparent hover:state-hover active:state-press'
                 : selected
-                  ? 'border-selected-border bg-selected/60 hover:bg-selected'
-                  : 'border-separator bg-card hover:border-boundary-hover hover:bg-card-hover active:bg-card-hover dark:border-zinc-600 dark:hover:border-zinc-500'
+                  ? 'border-selected-border bg-card state-selected hover:state-selected-hover'
+                  : 'border-separator bg-card hover:border-boundary-hover hover:state-hover active:state-press dark:border-zinc-600 dark:hover:border-zinc-500'
         ]"
         data-region="ConfigCard"
     >
@@ -95,7 +107,14 @@ defineOptions({ inheritAttrs: false });
         <div class="flex min-w-0 items-center gap-x-2" :class="isCompact ? 'flex-1' : $slots.details ? 'h-14.5 flex-none' : overline ? 'h-9 flex-none' : 'h-7 flex-none'">
             <!-- Icon -->
             <ConfigIcon v-if="iconIsPresent" :class="isCompact ? 'size-5' : 'size-7'" :icon="icon ?? config.icon" :icon-dark="iconDark ?? config.iconDark" />
-            <component :is="fallbackIcon" v-else-if="fallbackIcon && !hidesIcon" aria-hidden="true" class="flex-none text-muted" :class="isCompact ? 'size-5' : 'size-7'" :stroke-width="1.5" />
+            <component
+                :is="fallbackIcon"
+                v-else-if="fallbackIcon && !hidesIcon"
+                aria-hidden="true"
+                class="flex-none text-muted"
+                :class="isCompact ? 'size-5' : 'size-7'"
+                :stroke-width="1.5"
+            />
 
             <div class="flex min-w-0 flex-col">
                 <!-- Overline -->
@@ -136,7 +155,7 @@ defineOptions({ inheritAttrs: false });
                 <ActionWrapper
                     v-if="onCategoryClick"
                     :aria-label="t(TEXT, 'filterByCategory.label', { category: categoryLabel })"
-                    class="group relative z-20 flex h-6 min-w-0 items-center gap-x-1 rounded-full border border-zinc-200 px-2 text-xs text-muted hover:border-zinc-300 hover:bg-zinc-100 hover:text-content dark:border-zinc-700 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
+                    class="group relative z-20 flex h-6 min-w-0 items-center gap-x-1 rounded-full border border-zinc-200 px-2 text-xs text-muted hover:border-zinc-300 hover:state-hover hover:text-content dark:border-zinc-700 dark:hover:border-zinc-600"
                     :title="t(TEXT, 'filterByCategory.label', { category: categoryLabel })"
                     @click="onCategoryClick(config)"
                 >

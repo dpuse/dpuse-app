@@ -62,7 +62,7 @@ function handleClear(): void {
             <RectangleButton
                 v-if="textValue.length > 0"
                 :aria-label="t(TEXT, 'clear.aria')"
-                class="absolute top-1.5 right-1.5 rounded-full p-1 hover:bg-zinc-100 dark:hover:bg-zinc-300/20"
+                class="absolute top-1.5 right-1.5 rounded-full p-1 hover:state-hover"
                 @click="handleClear"
             >
                 <XIcon class="size-3.5" :stroke-width="1.5" />

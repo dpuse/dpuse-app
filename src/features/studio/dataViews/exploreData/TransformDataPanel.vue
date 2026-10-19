@@ -83,13 +83,13 @@ const TYPE_TEXT: Record<string, string> = {
     dateTime: 'text-orange-700 dark:text-orange-400'
 };
 const TYPE_OUTLINE: Record<string, string> = {
-    id: 'text-violet-700 dark:text-violet-400 inset-ring inset-ring-violet-300/60 dark:inset-ring-violet-500/30 hover:bg-violet-50 dark:hover:bg-violet-400/10',
-    number: 'text-blue-700 dark:text-blue-400 inset-ring inset-ring-blue-300/60 dark:inset-ring-blue-500/30 hover:bg-blue-50 dark:hover:bg-blue-400/10',
-    text: 'text-emerald-700 dark:text-emerald-400 inset-ring inset-ring-emerald-300/60 dark:inset-ring-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-400/10',
-    date: 'text-amber-700 dark:text-amber-400 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30 hover:bg-amber-50 dark:hover:bg-amber-400/10',
-    time: 'text-sky-700 dark:text-sky-300 inset-ring inset-ring-sky-300/60 dark:inset-ring-sky-500/30 hover:bg-sky-50 dark:hover:bg-sky-400/10',
-    boolean: 'text-rose-700 dark:text-rose-400 inset-ring inset-ring-rose-300/60 dark:inset-ring-rose-500/30 hover:bg-rose-50 dark:hover:bg-rose-400/10',
-    dateTime: 'text-orange-700 dark:text-orange-400 inset-ring inset-ring-orange-300/60 dark:inset-ring-orange-500/30 hover:bg-orange-50 dark:hover:bg-orange-400/10'
+    id: 'text-violet-700 dark:text-violet-400 inset-ring inset-ring-violet-300/60 dark:inset-ring-violet-500/30 hover:state-hover',
+    number: 'text-blue-700 dark:text-blue-400 inset-ring inset-ring-blue-300/60 dark:inset-ring-blue-500/30 hover:state-hover',
+    text: 'text-emerald-700 dark:text-emerald-400 inset-ring inset-ring-emerald-300/60 dark:inset-ring-emerald-500/30 hover:state-hover',
+    date: 'text-amber-700 dark:text-amber-400 inset-ring inset-ring-amber-300/60 dark:inset-ring-amber-500/30 hover:state-hover',
+    time: 'text-sky-700 dark:text-sky-300 inset-ring inset-ring-sky-300/60 dark:inset-ring-sky-500/30 hover:state-hover',
+    boolean: 'text-rose-700 dark:text-rose-400 inset-ring inset-ring-rose-300/60 dark:inset-ring-rose-500/30 hover:state-hover',
+    dateTime: 'text-orange-700 dark:text-orange-400 inset-ring inset-ring-orange-300/60 dark:inset-ring-orange-500/30 hover:state-hover'
 };
 const TYPE_ICON: Record<string, Component> = {
     id: KeyRoundIcon,
@@ -248,14 +248,14 @@ function typeIcon(name: string): Component {
                 <div class="flex items-center gap-1">
                     <button
                         v-if="clauseOpen.select"
-                        class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600"
+                        class="rounded p-1 hover:state-hover"
                         type="button"
                         :title="selectSearchOpen ? 'Hide search' : 'Show search'"
                         @click="toggleSelectSearch"
                     >
                         <SearchIcon class="size-4" :class="selectSearchOpen ? 'text-emphasis' : 'text-subtle'" />
                     </button>
-                    <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.select = !clauseOpen.select">
+                    <button class="rounded p-0.5 hover:state-hover" type="button" @click="clauseOpen.select = !clauseOpen.select">
                         <ChevronUpIcon v-if="clauseOpen.select" class="size-5 text-subtle" />
                         <ChevronDownIcon v-else class="size-5 text-subtle" />
                     </button>
@@ -330,10 +330,10 @@ function typeIcon(name: string): Component {
                     <span v-if="query.where.length === 0" class="text-xs text-subtle">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
-                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" :title="t(TEXT, 'addCondition.label')" @click="openPicker('where')">
+                    <button class="rounded p-1 hover:state-hover" type="button" :title="t(TEXT, 'addCondition.label')" @click="openPicker('where')">
                         <PlusIcon class="size-4 text-muted" />
                     </button>
-                    <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.where = !clauseOpen.where">
+                    <button class="rounded p-0.5 hover:state-hover" type="button" @click="clauseOpen.where = !clauseOpen.where">
                         <ChevronDownIcon v-if="clauseOpen.where" class="size-4 text-subtle" />
                         <ChevronRightIcon v-else class="size-4 text-subtle" />
                     </button>
@@ -349,7 +349,7 @@ function typeIcon(name: string): Component {
                             <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
                             <span class="text-subtle">{{ cond.op }}</span>
                             <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-content">'{{ cond.value }}'</span>
-                            <button class="ml-auto rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="removeCondition('where', cond.id)">
+                            <button class="ml-auto rounded-full p-0.5 hover:state-hover" type="button" @click="removeCondition('where', cond.id)">
                                 <XIcon class="size-3 text-subtle" />
                             </button>
                         </div>
@@ -383,9 +383,7 @@ function typeIcon(name: string): Component {
                         />
                     </div>
                     <div class="mt-3 flex justify-end gap-2">
-                        <button class="rounded-md px-3 py-1.5 text-sm text-muted hover:bg-zinc-100 dark:hover:bg-zinc-700" type="button" @click="pickerOpen.where = false">
-                            Cancel
-                        </button>
+                        <button class="rounded-md px-3 py-1.5 text-sm text-muted hover:state-hover" type="button" @click="pickerOpen.where = false">Cancel</button>
                         <button class="rounded-md bg-info px-3 py-1.5 text-sm text-info-text hover:bg-info-hover" type="button" @click="addCondition('where')">
                             Add condition
                         </button>
@@ -414,10 +412,10 @@ function typeIcon(name: string): Component {
                     <span v-if="query.groupBy.length === 0" class="text-xs text-subtle">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
-                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" :title="t(TEXT, 'addGrouping.label')" @click="openPicker('groupBy')">
+                    <button class="rounded p-1 hover:state-hover" type="button" :title="t(TEXT, 'addGrouping.label')" @click="openPicker('groupBy')">
                         <PlusIcon class="size-4 text-muted" />
                     </button>
-                    <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.groupBy = !clauseOpen.groupBy">
+                    <button class="rounded p-0.5 hover:state-hover" type="button" @click="clauseOpen.groupBy = !clauseOpen.groupBy">
                         <ChevronDownIcon v-if="clauseOpen.groupBy" class="size-4 text-subtle" />
                         <ChevronRightIcon v-else class="size-4 text-subtle" />
                     </button>
@@ -431,7 +429,7 @@ function typeIcon(name: string): Component {
                     <div v-for="name in query.groupBy" :key="name" class="flex items-center gap-1 rounded-full py-1.5 pr-1 pl-2.5 text-xs select-none" :class="chipClass(name)">
                         <component :is="typeIcon(name)" class="size-3 flex-none opacity-60" />
                         <span class="font-mono">{{ name }}</span>
-                        <button class="ml-0.5 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="toggleGroupBy(name)">
+                        <button class="ml-0.5 rounded-full p-0.5 hover:state-hover" type="button" @click="toggleGroupBy(name)">
                             <XIcon class="size-3" />
                         </button>
                     </div>
@@ -443,7 +441,7 @@ function typeIcon(name: string): Component {
                         <label
                             v-for="col in COLUMNS"
                             :key="col.name"
-                            class="flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                            class="flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:state-hover"
                             :class="query.groupBy.includes(col.name) ? chipClass(col.name) : ''"
                         >
                             <input
@@ -458,11 +456,7 @@ function typeIcon(name: string): Component {
                         </label>
                     </div>
                     <div class="mt-3 flex justify-end">
-                        <button
-                            class="rounded-md bg-zinc-100 px-3 py-1.5 text-sm hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
-                            type="button"
-                            @click="pickerOpen.groupBy = false"
-                        >
+                        <button class="rounded-md bg-zinc-100 px-3 py-1.5 text-sm hover:state-hover dark:bg-zinc-700" type="button" @click="pickerOpen.groupBy = false">
                             Done
                         </button>
                     </div>
@@ -484,10 +478,10 @@ function typeIcon(name: string): Component {
                     <span v-if="query.having.length === 0" class="text-xs text-subtle">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
-                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" :title="t(TEXT, 'addHavingCondition.label')" @click="openPicker('having')">
+                    <button class="rounded p-1 hover:state-hover" type="button" :title="t(TEXT, 'addHavingCondition.label')" @click="openPicker('having')">
                         <PlusIcon class="size-4 text-muted" />
                     </button>
-                    <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.having = !clauseOpen.having">
+                    <button class="rounded p-0.5 hover:state-hover" type="button" @click="clauseOpen.having = !clauseOpen.having">
                         <ChevronDownIcon v-if="clauseOpen.having" class="size-4 text-subtle" />
                         <ChevronRightIcon v-else class="size-4 text-subtle" />
                     </button>
@@ -503,7 +497,7 @@ function typeIcon(name: string): Component {
                             <span class="font-medium" :class="textClass(cond.column)">{{ cond.column }}</span>
                             <span class="text-subtle">{{ cond.op }}</span>
                             <span v-if="!['IS NULL', 'IS NOT NULL'].includes(cond.op)" class="text-content">'{{ cond.value }}'</span>
-                            <button class="ml-auto rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="removeCondition('having', cond.id)">
+                            <button class="ml-auto rounded-full p-0.5 hover:state-hover" type="button" @click="removeCondition('having', cond.id)">
                                 <XIcon class="size-3 text-subtle" />
                             </button>
                         </div>
@@ -537,9 +531,7 @@ function typeIcon(name: string): Component {
                         />
                     </div>
                     <div class="mt-3 flex justify-end gap-2">
-                        <button class="rounded-md px-3 py-1.5 text-sm text-muted hover:bg-zinc-100 dark:hover:bg-zinc-700" type="button" @click="pickerOpen.having = false">
-                            Cancel
-                        </button>
+                        <button class="rounded-md px-3 py-1.5 text-sm text-muted hover:state-hover" type="button" @click="pickerOpen.having = false">Cancel</button>
                         <button class="rounded-md bg-info px-3 py-1.5 text-sm text-info-text hover:bg-info-hover" type="button" @click="addCondition('having')">
                             Add condition
                         </button>
@@ -568,10 +560,10 @@ function typeIcon(name: string): Component {
                     <span v-if="query.orderBy.length === 0" class="text-xs text-subtle">optional</span>
                 </div>
                 <div class="flex items-center gap-1">
-                    <button class="rounded p-1 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" :title="t(TEXT, 'addSortColumn.label')" @click="openPicker('orderBy')">
+                    <button class="rounded p-1 hover:state-hover" type="button" :title="t(TEXT, 'addSortColumn.label')" @click="openPicker('orderBy')">
                         <PlusIcon class="size-4 text-muted" />
                     </button>
-                    <button class="rounded p-0.5 hover:bg-zinc-200 dark:hover:bg-zinc-600" type="button" @click="clauseOpen.orderBy = !clauseOpen.orderBy">
+                    <button class="rounded p-0.5 hover:state-hover" type="button" @click="clauseOpen.orderBy = !clauseOpen.orderBy">
                         <ChevronDownIcon v-if="clauseOpen.orderBy" class="size-4 text-subtle" />
                         <ChevronRightIcon v-else class="size-4 text-subtle" />
                     </button>
@@ -587,14 +579,14 @@ function typeIcon(name: string): Component {
                             <span class="font-mono">{{ item.column }}</span>
                         </div>
                         <button
-                            class="border-l py-1.5 pr-2 pl-1.5 text-[10px] font-semibold tracking-wide hover:bg-black/10 dark:hover:bg-white/15"
+                            class="border-l py-1.5 pr-2 pl-1.5 text-[10px] font-semibold tracking-wide hover:state-hover"
                             style="border-color: color-mix(in oklab, currentColor 20%, transparent)"
                             type="button"
                             @click="toggleOrderDirection(item.column)"
                         >
                             {{ item.dir }}
                         </button>
-                        <button class="py-1.5 pr-1.5 hover:bg-black/10 dark:hover:bg-white/15" type="button" @click="toggleOrderBy(item.column)">
+                        <button class="py-1.5 pr-1.5 hover:state-hover" type="button" @click="toggleOrderBy(item.column)">
                             <XIcon class="size-3" />
                         </button>
                     </div>
@@ -607,7 +599,7 @@ function typeIcon(name: string): Component {
                             v-for="col in COLUMNS"
                             :key="col.name"
                             class="flex min-h-9 items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm"
-                            :class="query.orderBy.some((o) => o.column === col.name) ? chipClass(col.name) : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'"
+                            :class="query.orderBy.some((o) => o.column === col.name) ? chipClass(col.name) : 'hover:state-hover'"
                             type="button"
                             @click="toggleOrderBy(col.name)"
                         >
@@ -619,11 +611,7 @@ function typeIcon(name: string): Component {
                         </button>
                     </div>
                     <div class="mt-3 flex justify-end">
-                        <button
-                            class="rounded-md bg-zinc-100 px-3 py-1.5 text-sm hover:bg-zinc-200 dark:bg-zinc-700 dark:hover:bg-zinc-600"
-                            type="button"
-                            @click="pickerOpen.orderBy = false"
-                        >
+                        <button class="rounded-md bg-zinc-100 px-3 py-1.5 text-sm hover:state-hover dark:bg-zinc-700" type="button" @click="pickerOpen.orderBy = false">
                             Done
                         </button>
                     </div>
@@ -644,7 +632,7 @@ function typeIcon(name: string): Component {
     <!-- SQL Preview -->
     <!-- <div class="border-separator flex-none border-t">
             <button
-                class="border-separator flex w-full items-center gap-2 border-b px-4 py-2 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                class="border-separator flex w-full items-center gap-2 border-b px-4 py-2 text-left hover:state-hover"
                 type="button"
                 @click="sqlOpen = !sqlOpen"
             >

@@ -233,6 +233,20 @@ Floating notices sit above the bottom row of controls (the session button and th
 - **Screens report unsaved work** with `useUnsavedWork(() => …)`. A reload or leaving the page then warns, and the
   notice's Reload asks first in the app's own `ConfirmDialog`.
 
+### Hover, press and selected
+
+Each state looks the same everywhere, by meaning. The states are layers over an element's own fill, from the
+`state-*` utilities in `main.css` and the tokens in `theme.css`. Never a raw colour such as `hover:bg-zinc-100`.
+
+- **Hover and press** ─ `hover:state-hover active:state-press`, a translucent grey, on every interactive element.
+- **Selected and current** ─ `state-selected hover:state-selected-hover`, a translucent blue, for what the user chose
+  from a set or where they are: list cards and rows, the rail, account navigation, menu choices (`IconButton`
+  `is-active`).
+- **On/off toggles** ─ a darker grey (`IconButton` `is-pressed`, which sets `aria-pressed`), e.g. bold, because they
+  are not a choice from a set.
+- **Floating pill** ─ solid `bg-pill`, because a translucent fill would show the content it floats over.
+- **Segmented controls and tabs** keep their own look: a raised white segment, an accent underline.
+
 ### Accessibility
 
 - An icon-only button has an `:aria-label` from `TEXT` (role `aria`). A button repeated on every row includes the

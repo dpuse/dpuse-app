@@ -30,7 +30,7 @@ onClickOutside(pickerElement, () => {
 <template>
     <div class="flex items-center border-b border-separator px-3 py-1.5" data-region="TableColumnPicker">
         <div ref="picker" class="relative">
-            <button class="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-muted hover:bg-card-hover" @click.stop="open = !open">
+            <button class="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-muted hover:state-hover" @click.stop="open = !open">
                 <Settings2Icon class="size-3.5" />
                 {{ t(TEXT, 'columns.label') }}
             </button>
@@ -39,7 +39,7 @@ onClickOutside(pickerElement, () => {
                 <label
                     v-for="col in table.getAllColumns().filter((c) => c.getCanHide())"
                     :key="col.id"
-                    class="flex cursor-pointer items-center gap-2 px-3 py-1.5 hover:bg-card-hover"
+                    class="flex cursor-pointer items-center gap-2 px-3 py-1.5 hover:state-hover"
                 >
                     <input
                         type="checkbox"

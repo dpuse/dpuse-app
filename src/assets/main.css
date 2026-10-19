@@ -454,3 +454,20 @@
         }
     }
 }
+
+/* State layers ─ hover, press and selected are drawn as a translucent layer over the element's own fill rather than
+   replacing it, so a white card stays white underneath and one value works on every surface. A plain background colour
+   would swap the fill for the translucent one and let the page behind show through. Use these for every hover, press
+   and selected state: 'hover:state-hover active:state-press', and 'state-selected hover:state-selected-hover'. */
+@utility state-hover {
+    background-image: linear-gradient(var(--hover), var(--hover));
+}
+@utility state-press {
+    background-image: linear-gradient(var(--press), var(--press));
+}
+@utility state-selected {
+    background-image: linear-gradient(var(--selected), var(--selected));
+}
+@utility state-selected-hover {
+    background-image: linear-gradient(var(--selected-hover), var(--selected-hover));
+}

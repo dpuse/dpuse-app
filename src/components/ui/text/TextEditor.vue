@@ -214,16 +214,16 @@ function updateParentCanScroll(): void {
         >
             <!-- Toolbar -->
             <div class="flex flex-none gap-0.5 border-b border-boundary bg-backdrop">
-                <IconButton :accessible-label="t(TEXT, 'bold.aria')" :is-active="activeFormats.bold" size="sm" @mousedown.prevent @click="handleToggleBold">
+                <IconButton :accessible-label="t(TEXT, 'bold.aria')" :is-pressed="activeFormats.bold" size="sm" @mousedown.prevent @click="handleToggleBold">
                     <BoldIcon class="size-4.5!" />
                 </IconButton>
-                <IconButton :accessible-label="t(TEXT, 'italic.aria')" :is-active="activeFormats.italic" size="sm" @mousedown.prevent @click="handleToggleItalic">
+                <IconButton :accessible-label="t(TEXT, 'italic.aria')" :is-pressed="activeFormats.italic" size="sm" @mousedown.prevent @click="handleToggleItalic">
                     <ItalicIcon class="size-4.5!" />
                 </IconButton>
-                <IconButton :accessible-label="t(TEXT, 'underline.aria')" :is-active="activeFormats.underline" size="sm" @mousedown.prevent @click="handleToggleUnderline">
+                <IconButton :accessible-label="t(TEXT, 'underline.aria')" :is-pressed="activeFormats.underline" size="sm" @mousedown.prevent @click="handleToggleUnderline">
                     <UnderlineIcon class="size-4.5!" />
                 </IconButton>
-                <IconButton :accessible-label="t(TEXT, 'link.aria')" :is-active="activeFormats.link" size="sm" @mousedown.prevent @click="handleToggleLink">
+                <IconButton :accessible-label="t(TEXT, 'link.aria')" :is-pressed="activeFormats.link" size="sm" @mousedown.prevent @click="handleToggleLink">
                     <LinkIcon class="size-4.5!" />
                 </IconButton>
             </div>
