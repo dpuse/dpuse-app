@@ -21,14 +21,15 @@ interface Properties {
     size?: ButtonSize;
     to?: RouteLocationRaw;
 }
-const { accessibleLabel, disabled, isActive, isPressed, label, shape = 'square', size = 'lg', to } = defineProps<Properties>();
+// eslint-disable-next-line @typescript-eslint/no-useless-default-assignment, unicorn/no-useless-undefined -- Vue turns an omitted boolean prop into false, which would put 'aria-pressed' on every button and link.
+const { accessibleLabel, disabled, isActive, isPressed = undefined, label, shape = 'square', size = 'lg', to } = defineProps<Properties>();
 defineSlots<{ default: () => unknown }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const stateClasses = computed(() => {
     if (isActive) return SELECTED_CLASSES;
-    return isPressed ? TOGGLED_CLASSES : UNSELECTED_CLASSES;
+    return isPressed === true ? TOGGLED_CLASSES : UNSELECTED_CLASSES;
 });
 const classes = computed(() => [shape === 'square' ? 'rounded-lg' : 'rounded-full', ICON_SIZE_CLASSES[size], PRESS_CLASSES, 'dark:text-content', stateClasses.value]);
 </script>
