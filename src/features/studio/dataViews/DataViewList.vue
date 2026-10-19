@@ -191,6 +191,7 @@ function constructDataViewConnection(dataViewLocalisedConfig: LocalisedConfig<Da
         connectorLabel: localiseConfig(connectorConfig, localeId.value).label,
         icon: connectionLocalisedConfig.icon,
         iconDark: connectionLocalisedConfig.iconDark,
+        itemTypeId,
         itemTypeLabel: itemTypeId ? constructConnectorItemTypeConfig(itemTypeId, localeId.value).label : undefined,
         label: connectionLocalisedConfig.label,
         status: connectorConfig.statusId ? getComponentStatus(connectorConfig.statusId, localeId.value) : undefined,

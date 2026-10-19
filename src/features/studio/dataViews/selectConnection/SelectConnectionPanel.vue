@@ -56,7 +56,7 @@ async function testAuth(): Promise<void> {
 
 <template>
     <StudioDetailLayout data-region="SelectConnectionPanel">
-        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
+        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)" scroll-area-padding-left="1rem">
             <StudioDocumentPanel
                 :icon="connectionLocalisedConfig.icon"
                 :icon-dark="connectionLocalisedConfig.iconDark"

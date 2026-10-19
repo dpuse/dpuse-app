@@ -2,7 +2,7 @@
 // Held in one place so the card, the panel and the open action always agree.
 
 // ── DPUse Framework
-import type { ConnectionNodeConfig, DataViewConfig, getComponentStatus } from '@dpuse/dpuse-shared';
+import type { ConnectionNodeConfig, ConnectorItemTypeId, DataViewConfig, getComponentStatus } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -23,7 +23,8 @@ export interface DataViewConnection {
     connectorLabel: string;
     icon?: null | string;
     iconDark?: null | string;
-    itemTypeLabel: string | undefined; // The connector's kind of item, e.g. 'File'. Undefined for a connector released before it said which.
+    itemTypeId: ConnectorItemTypeId | undefined; // The connector's kind of item. Undefined for a connector released before it said which.
+    itemTypeLabel: string | undefined;
     label: string;
     status: ReturnType<typeof getComponentStatus> | undefined; // The connector's; undefined for general availability, which has no label.
     version: string; // The connector's.

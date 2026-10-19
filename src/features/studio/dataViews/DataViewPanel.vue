@@ -1,12 +1,12 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { SquarePenIcon } from '@lucide/vue';
-import { useRoute } from 'vue-router';
 import { computed, ref } from 'vue';
+import { type RouteLocationRaw, useRoute } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError, formatNumberAsStorageSize } from '@dpuse/dpuse-shared';
-import type { DataTypeId, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
+import type { DataFormatId, DataSubtypeId, DataTypeId, DataViewConfig, LocalisedConfig, RecordDelimiterId, ValueDelimiterId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { defineLazyComponent } from '@/utilities/index.ts';
@@ -14,7 +14,7 @@ import { raiseAppFailure } from '@/state/errors';
 import { renderMarkdown } from '@/services/useMarkedTool';
 import { TEXT } from './DataViewPanel_.json';
 import { useUnsavedWork } from '@/state/unsavedWork';
-import { constructItemPath, type DataViewConnection } from './dataViewSummary';
+import type { DataViewConnection, DataViewStepId } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
 import { useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
 
@@ -34,12 +34,60 @@ const StudioDescriptorsPanel = defineLazyComponent(() => import('@/features/stud
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const COLLAPSED_TABLE_ROW_COUNT = 10; // Rows a long table shows until the user asks for the rest.
+
+const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
+    dpe: 'dataFormat.dpe.label',
+    dtv: 'dataFormat.dtv.label',
+    json: 'dataFormat.json.label',
+    spss: 'dataFormat.spss.label',
+    unknown: 'dataFormat.unknown.label',
+    xlsx: 'dataFormat.xlsx.label',
+    xml: 'dataFormat.xml.label'
+};
+
+const RECORD_DELIMITER_LABEL_KEYS: Record<RecordDelimiterId, keyof typeof TEXT> = {
+    '\n': 'recordDelimiter.newline.label',
+    '\r': 'recordDelimiter.carriageReturn.label',
+    '\r\n': 'recordDelimiter.carriageReturnNewline.label'
+};
+
+const VALUE_DELIMITER_LABEL_KEYS: Record<ValueDelimiterId, keyof typeof TEXT> = {
+    '': 'valueDelimiter.other.label',
+    ':': 'valueDelimiter.colon.label',
+    ',': 'valueDelimiter.comma.label',
+    '!': 'valueDelimiter.exclamationMark.label',
+    '0x1E': 'valueDelimiter.recordSeparator.label',
+    ';': 'valueDelimiter.semicolon.label',
+    ' ': 'valueDelimiter.space.label',
+    '\t': 'valueDelimiter.tab.label',
+    _: 'valueDelimiter.underscore.label',
+    '0x1F': 'valueDelimiter.unitSeparator.label',
+    '|': 'valueDelimiter.verticalBar.label'
+};
+
 const DATA_TYPE_LABEL_KEYS: Record<DataTypeId, keyof typeof TEXT> = {
     boolean: 'dataType.boolean.label',
     numeric: 'dataType.numeric.label',
     string: 'dataType.string.label',
     temporal: 'dataType.temporal.label',
     unknown: 'dataType.unknown.label'
+};
+
+const DATA_SUBTYPE_LABEL_KEYS: Record<DataSubtypeId, keyof typeof TEXT> = {
+    bigint: 'dataSubtype.bigint.label',
+    date: 'dataSubtype.date.label',
+    dateTime: 'dataSubtype.dateTime.label',
+    decimal: 'dataSubtype.decimal.label',
+    email: 'dataSubtype.email.label',
+    integer: 'dataSubtype.integer.label',
+    ipv4: 'dataSubtype.ipv4.label',
+    ipv6: 'dataSubtype.ipv6.label',
+    plain: 'dataSubtype.plain.label',
+    time: 'dataSubtype.time.label',
+    ulid: 'dataSubtype.ulid.label',
+    url: 'dataSubtype.url.label',
+    uuid: 'dataSubtype.uuid.label'
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -65,21 +113,81 @@ const editedDescription = ref('');
 const editedLabel = ref('');
 const editedSubjectLabel = ref(''); // Taken when the dialog opens, so its title holds steady while the label is edited.
 
+// ── Tables ─ Each long table starts with its first rows only, so the document stays short until the user asks for more.
+const columnTableIsExpanded = ref(false);
+const dataTableIsExpanded = ref(false);
+
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// ── Connection ─ The sentence is split where the connector's name goes, so the name can be a link while the sentence
-// stays one translation, with the name wherever each language puts it.
-const connectionTextParts = computed(() => t(TEXT, 'connection.text').split('{connector}'));
-
 // ── Item
-const itemPath = computed(() => (dataViewLocalisedConfig.connectionNodeConfig ? constructItemPath(dataViewLocalisedConfig.connectionNodeConfig) : undefined));
+// An item at the top of its connection has an empty folder path, shown as the top folder.
+const itemFolderPath = computed(() => {
+    const folderPath = dataViewLocalisedConfig.connectionNodeConfig?.folderPath;
+    return folderPath == null || folderPath === '' ? '/' : folderPath;
+});
 
-// ── Schema and Data ─ Both read from the preview saved with the item. Its first record is the header row, as
-// SelectItemPanel treats it.
+// The encoding the preview detected, with how sure the detection was. Without a confidence level nothing was detected and
+// the preview fell back to UTF-8, so the encoding is marked as assumed.
+const itemEncodingText = computed(() => {
+    const previewConfig = dataViewLocalisedConfig.previewConfig;
+    if (previewConfig?.encodingId == null) return;
+    const encoding = previewConfig.encodingId.toUpperCase();
+    if (previewConfig.encodingConfidenceLevel == null) return t(TEXT, 'item.encoding.assumed.text', { encoding });
+    const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(previewConfig.encodingConfidenceLevel);
+    return t(TEXT, 'item.encoding.text', { confidence, encoding });
+});
+
+// The file's type and its encoding on one line, and its data type, delimiters and header row on another. Either line
+// shows whichever of its parts there are.
+const itemTypeText = computed(() => formatListOfParts([dataViewLocalisedConfig.connectionNodeConfig?.mimeType, itemEncodingText.value]));
+const itemDataFormatText = computed(() => {
+    const previewConfig = dataViewLocalisedConfig.previewConfig;
+    if (!previewConfig) return;
+    let headerRowText: string | undefined;
+    if (previewConfig.hasHeaders != null) headerRowText = t(TEXT, previewConfig.hasHeaders ? 'item.headerRow.text' : 'item.noHeaderRow.text');
+    return formatListOfParts([
+        t(TEXT, DATA_FORMAT_LABEL_KEYS[previewConfig.dataFormatId]),
+        previewConfig.valueDelimiterId == null ? undefined : t(TEXT, VALUE_DELIMITER_LABEL_KEYS[previewConfig.valueDelimiterId]),
+        previewConfig.recordDelimiterId == null ? undefined : t(TEXT, RECORD_DELIMITER_LABEL_KEYS[previewConfig.recordDelimiterId]),
+        headerRowText
+    ]);
+});
+
+const itemIsFile = computed(() => dataViewConnection?.itemTypeId === 'file');
+
+// ── Columns ─ The columns of the preview saved with the item, with the type the preview inferred for each. The match
+// is the share of sampled values, the header excluded, that fitted that type, as the engine counts it when it chooses.
 const previewColumnLabels = computed(
     () => dataViewLocalisedConfig.previewConfig?.columnConfigs.map((config, index) => config.label[localeId.value] ?? config.label.en ?? String(index + 1)) ?? []
 );
+const previewColumnRows = computed(() => {
+    const previewConfig = dataViewLocalisedConfig.previewConfig;
+    if (!previewConfig) return [];
+    const percentFormat = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 });
+    return previewConfig.columnConfigs.map((columnConfig, index) => {
+        const sampleCounts = Object.entries(columnConfig.inferenceCounts).map(([inferenceTypeId, count]) => ({
+            inferenceTypeId,
+            count: previewConfig.hasHeaders === true ? count - (columnConfig.leadingInferenceCounts[inferenceTypeId] ?? 0) : count
+        }));
+        const total = sampleCounts.reduce((sum, sampleCount) => sum + sampleCount.count, 0);
+        const chosenInferenceTypeId = columnConfig.dataSubtypeId === undefined ? columnConfig.dataTypeId : `${columnConfig.dataTypeId}.${columnConfig.dataSubtypeId}`;
+        const count = sampleCounts.find((sampleCount) => sampleCount.inferenceTypeId === chosenInferenceTypeId)?.count ?? 0;
+        return {
+            label: previewColumnLabels.value[index],
+            dataTypeLabel: t(TEXT, DATA_TYPE_LABEL_KEYS[columnConfig.dataTypeId]),
+            dataSubtypeLabel:
+                columnConfig.dataSubtypeId === undefined || columnConfig.dataSubtypeId === 'plain' ? '' : t(TEXT, DATA_SUBTYPE_LABEL_KEYS[columnConfig.dataSubtypeId]), // Plain text has no special format, so its subtype is left blank and real subtypes stand out.
+            matchText: formatMatchText(count, total, percentFormat)
+        };
+    });
+});
+
+// ── Data ─ The rows of the preview saved with the item. Its first record is the header row, as SelectItemPanel treats it.
 const previewRows = computed(() => dataViewLocalisedConfig.previewConfig?.parsedRecords.slice(1) ?? []);
+
+// ── Tables
+const shownPreviewColumnRows = computed(() => (columnTableIsExpanded.value ? previewColumnRows.value : previewColumnRows.value.slice(0, COLLAPSED_TABLE_ROW_COUNT)));
+const shownPreviewRows = computed(() => (dataTableIsExpanded.value ? previewRows.value : previewRows.value.slice(0, COLLAPSED_TABLE_ROW_COUNT)));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -118,6 +226,24 @@ async function handleCloseEditDialog(): Promise<void> {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// The route of one of the data view's steps, which each section links to so the user can go and change what it shows.
+function constructStepRoute(stepId: DataViewStepId): RouteLocationRaw {
+    return { name: stepId, params: { dataViewId: dataViewLocalisedConfig.id }, query: route.query };
+}
+
+// A full match is just '100%'. The counts are only added below that, so a weak guess stands out.
+function formatMatchText(count: number, total: number, percentFormat: Intl.NumberFormat): string {
+    if (total === 0) return '';
+    const percent = percentFormat.format(count / total);
+    return count === total ? percent : t(TEXT, 'column.match.text', { percent, count, total });
+}
+
+// Joins the parts that are present as a list in the user's language, e.g. 'text/csv, UTF-8'. Undefined when none are.
+function formatListOfParts(parts: (string | null | undefined)[]): string | undefined {
+    const presentParts = parts.filter((part): part is string => part != null && part !== '');
+    return presentParts.length === 0 ? undefined : new Intl.ListFormat(localeId.value, { style: 'short', type: 'unit' }).format(presentParts);
+}
+
 function formatDateTime(timestamp: number): string {
     return new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(timestamp);
 }
@@ -125,13 +251,9 @@ function formatDateTime(timestamp: number): string {
 
 <template>
     <StudioDetailLayout data-region="DataViewPanel">
-        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
+        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)" scroll-area-padding-left="1rem">
             <!-- No icon beside the title, because the connection's icon is on its line below, as on the card. -->
-            <StudioDocumentPanel
-                :overline="t(TEXT, 'dataViews.label')"
-                :title="dataViewLocalisedConfig.label"
-                @close="$emit('close')"
-            >
+            <StudioDocumentPanel :overline="t(TEXT, 'dataViews.label')" :title="dataViewLocalisedConfig.label" @close="$emit('close')">
                 <template #actions>
                     <ActionWrapper :aria-label="t(TEXT, 'edit.aria', { name: dataViewLocalisedConfig.label })" @click="handleEditDataView">
                         <SquarePenIcon aria-hidden="true" class="size-5" stroke-width="1.5" />
@@ -139,11 +261,7 @@ function formatDateTime(timestamp: number): string {
                 </template>
 
                 <!-- Source -->
-                <DataViewSource
-                    class="mt-1 mb-4 text-sm"
-                    :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig"
-                    :data-view-connection="dataViewConnection"
-                />
+                <DataViewSource class="mt-1 mb-4 text-sm" :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig" :data-view-connection="dataViewConnection" />
 
                 <!-- Description -->
                 <div v-if="dataViewLocalisedConfig.description" v-html="renderMarkdown(dataViewLocalisedConfig.description)" />
@@ -151,83 +269,114 @@ function formatDateTime(timestamp: number): string {
                 <!-- One section per part of the task, in the order it is done, each documenting what that part produced. A
                      section not reached yet keeps its heading and says so in one line, so the document's shape never
                      changes. -->
-                <!-- Titled with the connection's own name, because one connector can have several connections; the tags
-                     and the line below describe its connector. -->
-                <StudioDocumentSection :title="dataViewConnection ? t(TEXT, 'connection.named.title', { name: dataViewConnection.label }) : t(TEXT, 'connection.title')">
-                    <template v-if="dataViewConnection">
-                        <div class="mb-3 flex flex-wrap gap-1.5">
-                            <Tag :text="dataViewConnection.categoryLabel" />
-                            <Tag :text="`v${dataViewConnection.version}`" />
-                            <!-- General availability has no label, so shows no tag. -->
-                            <Tag v-if="dataViewConnection.status?.label" :color="dataViewConnection.status.color" :text="dataViewConnection.status.label" />
-                        </div>
-                        <p>
-                            {{ connectionTextParts[0]
-                            }}<RouterLink :to="{ name: 'connectors', params: { id: dataViewConnection.connectorId }, query: route.query }">{{
+                <!-- Laid out as the item section is. The name and the connector are both shown, because one connector can
+                     have several connections ('Dropbox', 'Dropbox (2)'). Status keeps its tag, because it is a caution. -->
+                <StudioDocumentSection :title="t(TEXT, 'connection.title')">
+                    <dl v-if="dataViewConnection" class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+                        <dt class="text-muted">{{ t(TEXT, 'connection.name.label') }}</dt>
+                        <dd class="m-0 min-w-0 wrap-break-word">{{ dataViewConnection.label }}</dd>
+                        <dt class="text-muted">{{ t(TEXT, 'connection.connector.label') }}</dt>
+                        <!-- The connector with its version and, unless it is generally available, its status. General availability
+                             has no label, so shows no tag. -->
+                        <dd class="m-0 flex min-w-0 flex-wrap items-center gap-x-2">
+                            <RouterLink class="wrap-break-word" :to="{ name: 'connectors', params: { id: dataViewConnection.connectorId }, query: route.query }">{{
                                 dataViewConnection.connectorLabel
-                            }}</RouterLink
-                            >{{ connectionTextParts[1] }}
-                        </p>
-                    </template>
+                            }}</RouterLink>
+                            <span>{{ t(TEXT, 'connection.version.text', { version: dataViewConnection.version }) }}</span>
+                            <Tag v-if="dataViewConnection.status?.label" :color="dataViewConnection.status.color" :text="dataViewConnection.status.label" />
+                        </dd>
+                        <dt class="text-muted">{{ t(TEXT, 'connection.category.label') }}</dt>
+                        <dd class="m-0">{{ dataViewConnection.categoryLabel }}</dd>
+                    </dl>
                     <p v-else-if="dataViewLocalisedConfig.connectionId" class="text-muted">{{ t(TEXT, 'connection.unavailable.text') }}</p>
                     <p v-else class="text-muted">{{ t(TEXT, 'connection.pending.text') }}</p>
+                    <!-- On the right, as every step link in the panel is. -->
+                    <div class="mt-2 flex px-2 text-sm">
+                        <RouterLink class="ml-auto" :to="constructStepRoute('connection')">{{ t(TEXT, 'connection.change.label') }}</RouterLink>
+                    </div>
                 </StudioDocumentSection>
 
                 <StudioDocumentSection :title="dataViewConnection?.itemTypeLabel ?? t(TEXT, 'item.title')">
                     <dl v-if="dataViewLocalisedConfig.connectionNodeConfig" class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+                        <dt class="text-muted">{{ t(TEXT, 'item.folder.label') }}</dt>
+                        <dd class="m-0 min-w-0 wrap-break-word">{{ itemFolderPath }}</dd>
                         <dt class="text-muted">{{ t(TEXT, 'item.name.label') }}</dt>
                         <dd class="m-0 min-w-0 wrap-break-word">{{ dataViewLocalisedConfig.connectionNodeConfig.label }}</dd>
-                        <dt class="text-muted">{{ t(TEXT, 'item.path.label') }}</dt>
-                        <dd class="m-0 min-w-0 wrap-break-word">{{ itemPath }}</dd>
-                        <template v-if="dataViewLocalisedConfig.connectionNodeConfig.mimeType">
-                            <dt class="text-muted">{{ t(TEXT, 'item.type.label') }}</dt>
-                            <dd class="m-0">{{ dataViewLocalisedConfig.connectionNodeConfig.mimeType }}</dd>
-                        </template>
-                        <template v-if="dataViewLocalisedConfig.connectionNodeConfig.size != null">
-                            <dt class="text-muted">{{ t(TEXT, 'item.size.label') }}</dt>
-                            <dd class="m-0">{{ formatNumberAsStorageSize(dataViewLocalisedConfig.connectionNodeConfig.size) }}</dd>
-                        </template>
-                        <template v-if="dataViewLocalisedConfig.connectionNodeConfig.lastModifiedAt != null">
-                            <dt class="text-muted">{{ t(TEXT, 'item.lastModified.label') }}</dt>
-                            <dd class="m-0">{{ formatDateTime(dataViewLocalisedConfig.connectionNodeConfig.lastModifiedAt) }}</dd>
+                        <!-- File Details ─ Only a file has a type, an encoding, a text layout, a size and a modified date. A table
+                             or an API endpoint has none of them. -->
+                        <template v-if="itemIsFile">
+                            <template v-if="itemTypeText">
+                                <dt class="text-muted">{{ t(TEXT, 'item.type.label') }}</dt>
+                                <dd class="m-0">{{ itemTypeText }}</dd>
+                            </template>
+                            <template v-if="itemDataFormatText">
+                                <dt class="text-muted">{{ t(TEXT, 'item.dataFormat.label') }}</dt>
+                                <dd class="m-0">{{ itemDataFormatText }}</dd>
+                            </template>
+                            <template v-if="dataViewLocalisedConfig.connectionNodeConfig.size != null">
+                                <dt class="text-muted">{{ t(TEXT, 'item.size.label') }}</dt>
+                                <dd class="m-0">{{ formatNumberAsStorageSize(dataViewLocalisedConfig.connectionNodeConfig.size) }}</dd>
+                            </template>
+                            <template v-if="dataViewLocalisedConfig.connectionNodeConfig.lastModifiedAt != null">
+                                <dt class="text-muted">{{ t(TEXT, 'item.lastModified.label') }}</dt>
+                                <dd class="m-0">{{ formatDateTime(dataViewLocalisedConfig.connectionNodeConfig.lastModifiedAt) }}</dd>
+                            </template>
                         </template>
                     </dl>
                     <p v-else class="text-muted">{{ t(TEXT, 'item.pending.text') }}</p>
-                </StudioDocumentSection>
-
-                <StudioDocumentSection :title="t(TEXT, 'schema.title')">
-                    <div v-if="dataViewLocalisedConfig.previewConfig" class="overflow-x-auto overscroll-x-none">
-                        <table class="w-full text-sm">
+                    <!-- Columns ─ Scrolls sideways on its own, so a wide item does not widen the document. The side borders are on
+                         the scrolling box, which is only as wide as its table, so both edges show while it scrolls. The first and
+                         last columns drop the outer border that '.dpuse-prose' gives every cell, so the borders do not double. -->
+                    <div v-if="previewColumnRows.length > 0" class="mt-4 w-fit max-w-full overflow-x-auto overscroll-x-none border-x border-separator">
+                        <table class="text-sm whitespace-nowrap [&_tr>*:first-child]:border-l-0 [&_tr>*:last-child]:border-r-0">
                             <thead>
                                 <tr class="border-b border-separator text-left text-muted">
-                                    <th class="py-1 pr-4 font-normal">{{ t(TEXT, 'schema.column.label') }}</th>
-                                    <th class="py-1 font-normal">{{ t(TEXT, 'schema.dataType.label') }}</th>
+                                    <th class="py-1 pr-4 font-normal">{{ t(TEXT, 'column.label') }}</th>
+                                    <th class="py-1 pr-4 font-normal">{{ t(TEXT, 'column.dataType.label') }}</th>
+                                    <th class="py-1 pr-4 font-normal">{{ t(TEXT, 'column.dataSubtype.label') }}</th>
+                                    <th class="py-1 font-normal">{{ t(TEXT, 'column.match.label') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(columnConfig, index) in dataViewLocalisedConfig.previewConfig.columnConfigs" :key="index" class="border-b border-separator">
-                                    <td class="py-1 pr-4">{{ previewColumnLabels[index] }}</td>
-                                    <td class="py-1">{{ t(TEXT, DATA_TYPE_LABEL_KEYS[columnConfig.dataTypeId]) }}</td>
+                                <tr v-for="(columnRow, index) in shownPreviewColumnRows" :key="index" class="border-b border-separator">
+                                    <td class="py-1 pr-4">{{ columnRow.label }}</td>
+                                    <td class="py-1 pr-4">{{ columnRow.dataTypeLabel }}</td>
+                                    <td class="py-1 pr-4">{{ columnRow.dataSubtypeLabel }}</td>
+                                    <td class="py-1">{{ columnRow.matchText }}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <p v-else class="text-muted">{{ t(TEXT, 'schema.pending.text') }}</p>
+                    <!-- Show All and Change Item ─ One row: showing the rest of the table on the left, under the table it
+                         expands, and going to the item step on the right. An item is chosen from a connection, so there is
+                         nothing to go to until one is chosen. -->
+                    <div class="mt-2 flex flex-wrap items-center gap-x-4 px-2 text-sm">
+                        <ActionWrapper
+                            v-if="previewColumnRows.length > COLLAPSED_TABLE_ROW_COUNT"
+                            :aria-expanded="columnTableIsExpanded"
+                            class="text-accent hover:underline"
+                            @click="columnTableIsExpanded = !columnTableIsExpanded"
+                        >
+                            {{ columnTableIsExpanded ? t(TEXT, 'column.showFewer.label') : t(TEXT, 'column.showAll.label', { count: previewColumnRows.length }) }}
+                        </ActionWrapper>
+                        <RouterLink v-if="dataViewLocalisedConfig.connectionId" class="ml-auto" :to="constructStepRoute('item')">{{
+                            t(TEXT, dataViewLocalisedConfig.connectionNodeConfig ? 'item.change.label' : 'item.select.label')
+                        }}</RouterLink>
+                    </div>
                 </StudioDocumentSection>
 
                 <StudioDocumentSection :title="t(TEXT, 'data.title')">
-                    <template v-if="dataViewLocalisedConfig.previewConfig">
-                        <p class="text-sm text-muted">{{ t(TEXT, 'data.sample.text', { count: previewRows.length }) }}</p>
-                        <!-- Scrolls sideways on its own, so a wide item does not widen the document. -->
-                        <div class="overflow-x-auto overscroll-x-none">
-                            <table class="text-sm whitespace-nowrap">
+                    <template v-if="previewRows.length > 0">
+                        <!-- Scrolls sideways on its own, with both edges shown, as the columns table does. -->
+                        <div class="w-fit max-w-full overflow-x-auto overscroll-x-none border-x border-separator">
+                            <table class="text-sm whitespace-nowrap [&_tr>*:first-child]:border-l-0 [&_tr>*:last-child]:border-r-0">
                                 <thead>
                                     <tr class="border-b border-separator text-left text-muted">
                                         <th v-for="(columnLabel, index) in previewColumnLabels" :key="index" class="py-1 pr-4 font-normal">{{ columnLabel }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(record, recordIndex) in previewRows" :key="recordIndex" class="border-b border-separator">
+                                    <tr v-for="(record, recordIndex) in shownPreviewRows" :key="recordIndex" class="border-b border-separator">
                                         <td v-for="(field, fieldIndex) in record" :key="fieldIndex" class="py-1 pr-4">{{ field.value }}</td>
                                     </tr>
                                 </tbody>
@@ -235,6 +384,25 @@ function formatDateTime(timestamp: number): string {
                         </div>
                     </template>
                     <p v-else class="text-muted">{{ t(TEXT, 'data.pending.text') }}</p>
+                    <!-- Show All and Next Step ─ As in the item section: showing the rest of the table on the left, and the next
+                         step on the right. The next step follows the data view's progress: Audit Content until the audit is
+                         done, then Explore Data, which needs an audited item. -->
+                    <div class="mt-2 flex flex-wrap items-center gap-x-4 px-2 text-sm">
+                        <ActionWrapper
+                            v-if="previewRows.length > COLLAPSED_TABLE_ROW_COUNT"
+                            :aria-expanded="dataTableIsExpanded"
+                            class="text-accent hover:underline"
+                            @click="dataTableIsExpanded = !dataTableIsExpanded"
+                        >
+                            {{ dataTableIsExpanded ? t(TEXT, 'data.showFewer.label') : t(TEXT, 'data.showAll.label', { count: previewRows.length }) }}
+                        </ActionWrapper>
+                        <template v-if="dataViewLocalisedConfig.connectionNodeConfig">
+                            <RouterLink v-if="dataViewLocalisedConfig.contentAuditConfig" class="ml-auto" :to="constructStepRoute('data')">{{
+                                t(TEXT, 'data.open.label')
+                            }}</RouterLink>
+                            <RouterLink v-else class="ml-auto" :to="constructStepRoute('content')">{{ t(TEXT, 'audit.open.label') }}</RouterLink>
+                        </template>
+                    </div>
                 </StudioDocumentSection>
 
                 <!-- Last, and apart from Edit, so a destructive action is never one slip away from an everyday one. Its own

@@ -10,11 +10,12 @@ import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from './ScrollThumb.vue';
 
 interface Properties {
     scrollAreaPaddingBottom?: number | string;
+    scrollAreaPaddingLeft?: number | string; // Inside the scrolling element, so the wheel scrolls over the padding too.
     scrollAreaPaddingRight?: number | string; // Overrides the default gutter — pass 0 where the content is narrower than the reserved 16px.
     scrollAreaPaddingTop?: number | string; // Clears a control floating above the content, the way the bottom padding clears one below it.
     scrollbarAlwaysVisible?: boolean;
 }
-const { scrollAreaPaddingBottom, scrollAreaPaddingRight, scrollAreaPaddingTop, scrollbarAlwaysVisible } = defineProps<Properties>();
+const { scrollAreaPaddingBottom, scrollAreaPaddingLeft, scrollAreaPaddingRight, scrollAreaPaddingTop, scrollbarAlwaysVisible } = defineProps<Properties>();
 
 defineSlots<{
     default(): unknown;
@@ -39,6 +40,7 @@ const verticalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('vertical
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const paddingBottom = computed(() => toLength(scrollAreaPaddingBottom));
+const paddingLeft = computed(() => toLength(scrollAreaPaddingLeft));
 const paddingRight = computed(() => toLength(scrollAreaPaddingRight));
 const paddingTop = computed(() => toLength(scrollAreaPaddingTop));
 
@@ -69,7 +71,12 @@ function toLength(value: number | string | undefined): string | undefined {
 
 <template>
     <div class="relative flex min-h-0 min-w-0 flex-col overflow-hidden" data-region="ScrollArea">
-        <div :id="scrollElementId" ref="scrollElement" class="min-h-0 w-full flex-1 scrollbar-none overflow-x-hidden overflow-y-scroll overscroll-none pr-4" :style="{ paddingBottom, paddingRight, paddingTop }">
+        <div
+            :id="scrollElementId"
+            ref="scrollElement"
+            class="min-h-0 w-full flex-1 scrollbar-none overflow-x-hidden overflow-y-scroll overscroll-none pr-4"
+            :style="{ paddingBottom, paddingLeft, paddingRight, paddingTop }"
+        >
             <slot name="header" />
             <div :id="innerScrollElementId" ref="innerScrollElement" class="w-full scrollbar-none overflow-x-scroll overflow-y-hidden overscroll-none">
                 <slot />

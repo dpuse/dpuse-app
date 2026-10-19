@@ -66,7 +66,7 @@ const vendorLinks = computed(() =>
 
 <template>
     <StudioDetailLayout data-region="PluginPanel">
-        <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
+        <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)" scroll-area-padding-left="1rem">
             <StudioDocumentPanel
                 :icon="pluginLocalisedConfig.icon"
                 :icon-dark="pluginLocalisedConfig.iconDark"

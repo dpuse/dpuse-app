@@ -64,10 +64,6 @@ const ITEM_ACTIONS = [
 // needs a generous timeout as a last-resort bail-out for the case where neither ever happens.
 const ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS = 20_000;
 
-// The header record and ten data records: enough for the data view document to show the item's data, without storing
-// the whole preview in every data view record.
-const SAVED_PREVIEW_RECORD_COUNT = 11;
-
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
@@ -238,12 +234,7 @@ async function handleCommitDetail(): Promise<void> {
         const savedDataViewConfig = await updateDataView({
             ...dataViewConfig.value,
             connectionNodeConfig: constructStorableNodeConfig(connectionNodeConfig),
-            previewConfig: {
-                ...previewConfig,
-                inferenceRecords: previewConfig.inferenceRecords.slice(0, SAVED_PREVIEW_RECORD_COUNT),
-                parsedRecords: previewConfig.parsedRecords.slice(0, SAVED_PREVIEW_RECORD_COUNT),
-                text: undefined // The raw text is the whole preview again, so it is not kept.
-            },
+            previewConfig: { ...previewConfig, text: undefined }, // All the parsed records are kept, so the data view panel shows the whole preview block, a few kilobytes at most. The raw text is the same block again, so it is not kept.
             contentAuditConfig: undefined,
             relationshipsAuditConfig: undefined
         });
