@@ -257,6 +257,10 @@ Each state looks the same everywhere, by meaning. The states are layers over an 
   uses a stretched overlay with its actions above it, and no heading around the overlay.
 - A custom widget implements the whole WAI-ARIA Authoring Practices pattern: roles, states, relationships and
   keyboard support. `ContextEntityList.vue` is the worked example for tabs.
+- Content that scrolls sideways inside a document, such as a table, goes in `ScrollRegion`. A fade on each side that
+  has more to scroll to shows there is more. Fixed side borders do not: when the content fills the width, a cut-off
+  column looks like the last one. The region takes keyboard focus and is named for screen readers. A table's title is
+  its `<caption>`, not a heading before it.
 
 ### Errors
 

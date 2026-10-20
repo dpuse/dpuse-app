@@ -24,6 +24,7 @@ import DataViewSource from './DataViewSource.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
+import ScrollRegion from '@/components/ui/scroll/ScrollRegion.vue';
 import StudioDetailLayout from '@/features/studio/_components/StudioDetailLayout.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
@@ -35,6 +36,7 @@ const StudioDescriptorsPanel = defineLazyComponent(() => import('@/features/stud
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const COLLAPSED_TABLE_ROW_COUNT = 10; // Rows a long table shows until the user asks for the rest.
+const NON_BREAKING_SPACE = '\u{A0}'; // Gives a cell with no value a line of text, so its row keeps its height.
 
 const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
     dpe: 'dataFormat.dpe.label',
@@ -270,9 +272,10 @@ function formatDateTime(timestamp: number): string {
                      section not reached yet keeps its heading and says so in one line, so the document's shape never
                      changes. -->
                 <!-- Laid out as the item section is. The name and the connector are both shown, because one connector can
-                     have several connections ('Dropbox', 'Dropbox (2)'). Status keeps its tag, because it is a caution. -->
+                     have several connections ('Dropbox', 'Dropbox (2)'). Status keeps its tag, because it is a caution. A line
+                     under every row, the last one included, shows where a value that wraps ends. -->
                 <StudioDocumentSection :title="t(TEXT, 'connection.title')">
-                    <dl v-if="dataViewConnection" class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+                    <dl v-if="dataViewConnection" class="grid grid-cols-[auto_1fr] text-sm *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
                         <dt class="text-muted">{{ t(TEXT, 'connection.name.label') }}</dt>
                         <dd class="m-0 min-w-0 wrap-break-word">{{ dataViewConnection.label }}</dd>
                         <dt class="text-muted">{{ t(TEXT, 'connection.connector.label') }}</dt>
@@ -297,7 +300,7 @@ function formatDateTime(timestamp: number): string {
                 </StudioDocumentSection>
 
                 <StudioDocumentSection :title="dataViewConnection?.itemTypeLabel ?? t(TEXT, 'item.title')">
-                    <dl v-if="dataViewLocalisedConfig.connectionNodeConfig" class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+                    <dl v-if="dataViewLocalisedConfig.connectionNodeConfig" class="grid grid-cols-[auto_1fr] text-sm *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
                         <dt class="text-muted">{{ t(TEXT, 'item.folder.label') }}</dt>
                         <dd class="m-0 min-w-0 wrap-break-word">{{ itemFolderPath }}</dd>
                         <dt class="text-muted">{{ t(TEXT, 'item.name.label') }}</dt>
@@ -324,11 +327,16 @@ function formatDateTime(timestamp: number): string {
                         </template>
                     </dl>
                     <p v-else class="text-muted">{{ t(TEXT, 'item.pending.text') }}</p>
-                    <!-- Columns ─ Scrolls sideways on its own, so a wide item does not widen the document. The side borders are on
-                         the scrolling box, which is only as wide as its table, so both edges show while it scrolls. The first and
-                         last columns drop the outer border that '.dpuse-prose' gives every cell, so the borders do not double. -->
-                    <div v-if="previewColumnRows.length > 0" class="mt-4 w-fit max-w-full overflow-x-auto overscroll-x-none border-x border-separator">
-                        <table class="text-sm whitespace-nowrap [&_tr>*:first-child]:border-l-0 [&_tr>*:last-child]:border-r-0">
+                    <!-- Columns ─ Scrolls sideways on its own, so a wide item does not widen the document. The caption is styled
+                         as a subheading, so it separates the table from the list above it. The table's side borders frame the
+                         rows but not the caption. -->
+                    <ScrollRegion v-if="previewColumnRows.length > 0" class="mt-4" :label="t(TEXT, 'columnTable.title')">
+                        <table class="border-x border-separator text-sm whitespace-nowrap">
+                            <caption class="mb-2 text-left text-sm font-medium text-emphasis">
+                                {{
+                                    t(TEXT, 'columnTable.title')
+                                }}
+                            </caption>
                             <thead>
                                 <tr class="border-b border-separator text-left text-muted">
                                     <th class="py-1 pr-4 font-normal">{{ t(TEXT, 'column.label') }}</th>
@@ -346,7 +354,7 @@ function formatDateTime(timestamp: number): string {
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
+                    </ScrollRegion>
                     <!-- Show All and Change Item ─ One row: showing the rest of the table on the left, under the table it
                          expands, and going to the item step on the right. An item is chosen from a connection, so there is
                          nothing to go to until one is chosen. -->
@@ -367,9 +375,17 @@ function formatDateTime(timestamp: number): string {
 
                 <StudioDocumentSection :title="t(TEXT, 'data.title')">
                     <template v-if="previewRows.length > 0">
-                        <!-- Scrolls sideways on its own, with both edges shown, as the columns table does. -->
-                        <div class="w-fit max-w-full overflow-x-auto overscroll-x-none border-x border-separator">
-                            <table class="text-sm whitespace-nowrap [&_tr>*:first-child]:border-l-0 [&_tr>*:last-child]:border-r-0">
+                        <!-- Scrolls sideways on its own and is framed, as the columns table is. Every row has a cell for every
+                             column, because a record can have fewer values than the item has columns. A cell with no value
+                             holds a non-breaking space, so a record with no values is as tall as the others. The caption is
+                             for screen readers only, because the section heading already names the table on screen. -->
+                        <ScrollRegion :label="t(TEXT, 'dataTable.title')">
+                            <table class="border-x border-separator text-sm whitespace-nowrap">
+                                <caption class="sr-only">
+                                    {{
+                                        t(TEXT, 'dataTable.title')
+                                    }}
+                                </caption>
                                 <thead>
                                     <tr class="border-b border-separator text-left text-muted">
                                         <th v-for="(columnLabel, index) in previewColumnLabels" :key="index" class="py-1 pr-4 font-normal">{{ columnLabel }}</th>
@@ -377,11 +393,13 @@ function formatDateTime(timestamp: number): string {
                                 </thead>
                                 <tbody>
                                     <tr v-for="(record, recordIndex) in shownPreviewRows" :key="recordIndex" class="border-b border-separator">
-                                        <td v-for="(field, fieldIndex) in record" :key="fieldIndex" class="py-1 pr-4">{{ field.value }}</td>
+                                        <td v-for="(_columnLabel, columnIndex) in previewColumnLabels" :key="columnIndex" class="py-1 pr-4">
+                                            {{ record[columnIndex]?.value || NON_BREAKING_SPACE }}
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
-                        </div>
+                        </ScrollRegion>
                     </template>
                     <p v-else class="text-muted">{{ t(TEXT, 'data.pending.text') }}</p>
                     <!-- Show All and Next Step ─ As in the item section: showing the rest of the table on the left, and the next

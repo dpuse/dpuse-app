@@ -30,15 +30,23 @@ if (isBrowserSupported) {
         addEventListener('vite:preloadError', handleReportPreloadError);
 
         // With Trusted Types enforced, the browser blocks any script URL or HTML string not passed through a policy.
-        // The 'default' policy covers any that are not given a policy of their own. It has no 'createScript' or
-        // 'createScriptURL', so the browser refuses every script string and script URL and reports each as a CSP
-        // violation. The engine starts its worker through its own 'dpuse-engine' policy, and no other code may load a
-        // script by URL.
+        // The 'default' policy covers any that are not given a policy of their own. It has no 'createScript', and in
+        // production no 'createScriptURL', so the browser refuses every script string and script URL and reports each
+        // as a CSP violation. The engine starts its worker through its own 'dpuse-engine' policy, and no other code may
+        // load a script by URL.
         if (trustedTypes != null) {
             const defaultPolicy = trustedTypes.createPolicy<TrustedTypePolicyOptions>('default', {
                 // Cleans all HTML with DOMPurify, so libraries that write HTML strings (squire-rte, TanStack Charts,
                 // turndown, Unovis) work without being able to add script to the page.
-                createHTML: (html: string): string => DOMPurify.sanitize(html)
+                createHTML: (html: string): string => DOMPurify.sanitize(html),
+                // Vite's dev client starts a 'SharedWorker' from a 'blob:' URL to find the dev server again after the
+                // connection drops, for example after the computer sleeps. Allowed in development only.
+                ...(import.meta.env.DEV && {
+                    createScriptURL: (url: string): string => {
+                        if (url.startsWith(`blob:${location.origin}/`)) return url;
+                        throw new TypeError(`Blocked TrustedScriptURL: ${url}`);
+                    }
+                })
             });
 
             // Registers DOMPurify's 'dompurify' policy now, before a plugin can take the name. If a plugin took it
