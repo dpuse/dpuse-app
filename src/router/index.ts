@@ -31,6 +31,7 @@ const SetupLayout = defineLazyLoader('SetupLayout', 0, () => import('@/features/
 const SetupHomePanel = defineLazyLoader('SetupHomePanel', 1, () => import('@/features/studio/setup/SetupHomePanel.vue'));
 const ContextModelList = defineLazyLoader('ContextModelList', 1, () => import('@/features/studio/setup/context/ContextModelList.vue'));
 const PluginList = defineLazyLoader('PluginList', 1, () => import('@/features/studio/setup/plugins/PluginList.vue'));
+const ThemePanel = import.meta.env.DEV ? defineLazyLoader('ThemePanel', 0, () => import('@/features/studio/theme/ThemePanel.vue')) : undefined; // Development only. Production builds drop the branch, so the page is never built.
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -86,7 +87,8 @@ export const APP_ROUTES = [
                     { name: 'cookbooks', path: 'cookbooks/:id?', component: PluginList },
                     { name: 'tools', path: 'tools/:id?', component: PluginList }
                 ]
-            }
+            },
+            ...(ThemePanel ? [{ name: 'theme', path: 'theme', component: ThemePanel }] : [])
         ]
     },
     { path: '/:catchAll(.*)', redirect: '/' }
