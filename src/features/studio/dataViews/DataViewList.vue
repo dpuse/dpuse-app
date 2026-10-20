@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { ArrowRightIcon } from '@lucide/vue';
-import { computed, ref, shallowRef, watch } from 'vue';
+import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import { useConfirmDialog, useTimeoutFn } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -18,7 +18,7 @@ import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './DataViewList_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useQueryFailure } from '@/services/queryClient';
-import { cancelDataViewRetrieval, useCreateDataView, useDataViews, useDeleteDataView } from '@/features/studio/dataViews/_dataViews';
+import { cancelDataViewRetrieval, NEW_DATA_VIEW_ID, useDataViews, useDeleteDataView } from '@/features/studio/dataViews/_dataViews';
 import { type DataViewConnection, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
 
@@ -56,7 +56,6 @@ const {
     isSuccess: dataViewRetrievalSucceeded,
     refetch: refetchDataViews
 } = useDataViews();
-const { isPending: dataViewIsAdding, mutateAsync: createDataView } = useCreateDataView();
 const { isPending: dataViewIsDeleting, mutateAsync: deleteDataView } = useDeleteDataView();
 
 // ── Slow Retrieval ─ A load that takes a while says so and offers Cancel and Retry, so a stuck read never leaves the
@@ -74,12 +73,17 @@ const { start: startSlowRetrievalTimer, stop: stopSlowRetrievalTimer } = useTime
 // ── Delete Confirmation
 const { cancel: cancelDelete, confirm: confirmDelete, isRevealed: deleteConfirmIsOpen, reveal: revealDeleteConfirm } = useConfirmDialog();
 const deletingDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig>>(); // Kept after the dialog closes, so its text does not blank while it fades out.
+const deletedDataViewLabel = ref<string>(); // Named in the message read out once a delete finishes.
+const deleteStatusElement = useTemplateRef<HTMLParagraphElement>('deleteStatus');
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // ── Data Views
 const dataViewLocalisedConfigs = computed((): LocalisedConfig<DataViewConfig>[] => localiseConfigs<DataViewConfig>(dataViewConfigs.value ?? [], localeId.value));
 const dataViewRetrievalFailure = useQueryFailure(dataViewRetrievalError);
+
+// ── Delete Status
+const deleteStatusText = computed(() => (deletedDataViewLabel.value == null ? '' : t(TEXT, 'delete.done.text', { name: deletedDataViewLabel.value })));
 
 // ── Retrieval ─ A load under way with nothing to show yet. A cancelled load stays cancelled until another one starts.
 const dataViewRetrievalIsPending = computed(() => dataViewIsRetrieving.value && dataViewConfigs.value == null);
@@ -134,17 +138,9 @@ function handleCancelRetrieval(): void {
     void cancelDataViewRetrieval();
 }
 
-async function handleAddDataView(): Promise<void> {
-    if (dataViewIsAdding.value) return;
-
-    try {
-        const dataViewConfig = await createDataView();
-        void ignoreReportedNavigationFailure(router.push({ name: 'connection', params: { dataViewId: dataViewConfig.id }, query: route.query }));
-    } catch (error) {
-        // The failure goes to the app-level failure dialog, not the list. Nothing was added, so the list is unchanged
-        // and still works.
-        raiseAppFailure(new AppError('Failed to add data view.', 'dpuse-app.DataViewList.handleAddDataView', { typeId: 'handled' }, { cause: error }));
-    }
+// Starts at the connection step with nothing saved, because a data view is only saved once its connection is chosen.
+function handleAddDataView(): void {
+    void ignoreReportedNavigationFailure(router.push({ name: 'connection', params: { dataViewId: NEW_DATA_VIEW_ID }, query: route.query }));
 }
 
 function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
@@ -166,7 +162,13 @@ async function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<Dat
 
     try {
         await deleteDataView(dataViewLocalisedConfig.id);
-        if (selectedDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id) updateDataViewIdParameter();
+        if (route.params.dataViewId === dataViewLocalisedConfig.id) updateDataViewIdParameter(); // The URL, not the list, which the delete has already changed.
+
+        // The panel holding the Delete button closes with its data view, which would leave focus nowhere. Focus moves
+        // to a message that screen readers read out, and the next Tab carries on into the list.
+        deletedDataViewLabel.value = dataViewLocalisedConfig.label;
+        await nextTick();
+        deleteStatusElement.value?.focus();
     } catch (error) {
         // The failure goes to the app-level failure dialog, not the list. The delete did not happen, so the row is
         // still there and still works, and the list has nothing to explain.
@@ -209,6 +211,10 @@ function updateDataViewIdParameter(dataViewId?: string): void {
 <template>
     <StudioListLayout>
         <Separator class="flex-none" />
+
+        <!-- Delete Status ─ Hidden from view. It takes focus once a delete finishes, so screen readers say what was
+             deleted. -->
+        <p ref="deleteStatus" class="sr-only" tabindex="-1">{{ deleteStatusText }}</p>
 
         <!-- Cancelled Retrieval ─ Replaces the list and detail pane, as a failure does, because a list that never
              loaded has nothing to show. -->
@@ -259,6 +265,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                 <DataViewPanel
                     :data-view-connection="dataViewConnectionsById.get(item.id)"
                     :data-view-localised-config="item"
+                    :is-deleting="dataViewIsDeleting"
                     @close="close"
                     @delete="handleDeleteDataView(item)"
                 />

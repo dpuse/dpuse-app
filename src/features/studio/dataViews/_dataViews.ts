@@ -24,6 +24,7 @@ import {
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DATA_VIEW_LIST_KEY = constructMetaStoreListKey('dataViews');
+export const NEW_DATA_VIEW_ID = 'new'; // Stands in the URL for the id of a data view being added, which has none until it is saved.
 const UNTITLED_DATA_VIEW_LABEL = { en: 'Untitled Data View', es: 'Vista de datos sin título' }; // Stored with the record, so it carries every language rather than reading the current one.
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -56,8 +57,9 @@ export function useDataView(dataViewId: MaybeRefOrGetter<string | undefined>): U
     });
 }
 
-// Saved as soon as it is added, so every step's URL holds a real id and a reload always has a record to restore.
-export function useCreateDataView(): UseMutationReturnType<DataViewConfig, Error, void, unknown> {
+// Saved once its connection is chosen, because a data view can do nothing without one, and an add the user backs out
+// of leaves no empty record behind. From then on every step's URL holds a real id and a reload has a record to restore.
+export function useCreateDataView(): UseMutationReturnType<DataViewConfig, Error, string, unknown> {
     return useMutation({ mutationFn: createDataViewConfig });
 }
 
@@ -85,6 +87,33 @@ export async function cancelDataViewRetrieval(): Promise<void> {
     await queryClient.cancelQueries({ queryKey: DATA_VIEW_LIST_KEY });
 }
 
+// A data view with its connection chosen but not saved yet. The connection step shows it as the user's pick while a data
+// view is added, and saving it creates the data view.
+export function constructNewDataViewConfig(connectionId: string): DataViewConfig {
+    return {
+        id: crypto.randomUUID(),
+        label: UNTITLED_DATA_VIEW_LABEL,
+        description: {},
+        icon: null,
+        iconDark: null,
+        typeId: 'dataView',
+        connectionId,
+        connectionNodeConfig: undefined,
+        previewConfig: undefined,
+        contentAuditConfig: undefined,
+        relationshipsAuditConfig: undefined,
+        status: null,
+        statusId: null,
+        firstCreatedAt: null,
+        lastUpdatedAt: null
+    };
+}
+
+// The data view id in the URL, or undefined while a data view is added and has no id yet.
+export function resolveDataViewIdParameter(dataViewIdParameter: unknown): string | undefined {
+    return typeof dataViewIdParameter === 'string' && dataViewIdParameter !== NEW_DATA_VIEW_ID ? dataViewIdParameter : undefined;
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function retrieveDataViewConfigs(signal: AbortSignal): Promise<DataViewConfig[]> {
@@ -106,24 +135,8 @@ async function getDataViewConfig(id: string): Promise<DataViewConfig> {
     }
 }
 
-function createDataViewConfig(): Promise<DataViewConfig> {
-    return saveDataViewConfig({
-        id: crypto.randomUUID(),
-        label: UNTITLED_DATA_VIEW_LABEL,
-        description: {},
-        icon: null,
-        iconDark: null,
-        typeId: 'dataView',
-        connectionId: undefined,
-        connectionNodeConfig: undefined,
-        previewConfig: undefined,
-        contentAuditConfig: undefined,
-        relationshipsAuditConfig: undefined,
-        status: null,
-        statusId: null,
-        firstCreatedAt: null,
-        lastUpdatedAt: null
-    });
+function createDataViewConfig(connectionId: string): Promise<DataViewConfig> {
+    return saveDataViewConfig(constructNewDataViewConfig(connectionId));
 }
 
 // The cache is written here rather than in 'onSuccess', because only here is the store the change went to known.

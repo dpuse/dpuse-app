@@ -58,7 +58,7 @@ const {
 } = defineProps<Properties<T>>();
 
 defineSlots<{
-    details?: () => unknown; // Two small, muted lines below the label, e.g. what a data view is built from. Makes the title row taller.
+    details?: () => unknown; // Two muted lines below the label, e.g. what a data view is built from. Makes the title row taller.
     note?: () => unknown; // Small and muted, in the footer after the category, e.g. a step still to do.
 }>();
 
@@ -78,7 +78,7 @@ defineOptions({ inheritAttrs: false });
 <template>
     <!-- A full-size card is a fixed height, so every card in a virtualised grid row matches: a title row, then a footer
          row of category and actions, each 'h-7' in 'p-3' with a 'gap-y-3' between; an overline grows the title row to 'h-9' to fit its
-         second line, and details grow it to 'h-14.5' to fit two lines below the label. 'useCardRowHeight' in './configCard'
+         second line, and details grow it to 'h-16' to fit two lines below the label. 'useCardRowHeight' in './configCard'
          states the same numbers, except the overline's, which no virtualised grid uses. Compact is a single plain list row. -->
     <div
         class="relative flex size-full border"
@@ -104,7 +104,7 @@ defineOptions({ inheritAttrs: false });
         <ActionWrapper :aria-label="overline ? `${overline}: ${config.label}` : config.label" class="absolute inset-0 z-10" :title="config.label" :to="to" v-bind="$attrs" />
 
         <!-- Header ─ One line only: the label truncates rather than wraps, because the card cannot grow. -->
-        <div class="flex min-w-0 items-center gap-x-2" :class="isCompact ? 'flex-1' : $slots.details ? 'h-14.5 flex-none' : overline ? 'h-9 flex-none' : 'h-7 flex-none'">
+        <div class="flex min-w-0 items-center gap-x-2" :class="isCompact ? 'flex-1' : $slots.details ? 'h-16 flex-none' : overline ? 'h-9 flex-none' : 'h-7 flex-none'">
             <!-- Icon -->
             <ConfigIcon v-if="iconIsPresent" :class="isCompact ? 'size-5' : 'size-7'" :icon="icon ?? config.icon" :icon-dark="iconDark ?? config.iconDark" />
             <component
@@ -126,7 +126,7 @@ defineOptions({ inheritAttrs: false });
                 <div class="min-w-0 truncate leading-tight text-content">{{ config.label }}</div>
 
                 <!-- Details -->
-                <div v-if="!isCompact && $slots.details" class="mt-1 min-w-0 text-xs leading-tight text-muted">
+                <div v-if="!isCompact && $slots.details" class="mt-1 min-w-0 text-sm leading-4.5 text-muted">
                     <slot name="details" />
                 </div>
             </div>

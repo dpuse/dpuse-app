@@ -6,7 +6,7 @@ import type { ConnectionNodeConfig, ConnectorItemTypeId, DataViewConfig, getComp
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-type DataViewProgress = Pick<DataViewConfig, 'connectionId' | 'connectionNodeConfig' | 'contentAuditConfig'>;
+type DataViewProgress = Pick<DataViewConfig, 'connectionNodeConfig' | 'contentAuditConfig'>;
 
 export interface DataViewStep {
     id: DataViewStepId;
@@ -38,10 +38,11 @@ export function constructItemPath(connectionNodeConfig: ConnectionNodeConfig): s
     return `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}${extension}`;
 }
 
-// Exploring is left out: it never has to be finished, so it is never outstanding.
+// Exploring is left out: it never has to be finished, so it is never outstanding. The connection is always done, because
+// a data view is only saved once its connection is chosen.
 export function constructDataViewSteps(dataViewConfig: DataViewProgress): DataViewStep[] {
     return [
-        { id: 'connection', state: dataViewConfig.connectionId == null ? 'pending' : 'done' },
+        { id: 'connection', state: 'done' },
         { id: 'item', state: dataViewConfig.connectionNodeConfig == null ? 'pending' : 'done' },
         { id: 'content', state: dataViewConfig.contentAuditConfig == null ? 'pending' : 'done' }
     ];

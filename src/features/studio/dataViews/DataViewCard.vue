@@ -49,14 +49,14 @@ const actions = computed((): Action<DataViewConfig>[] => [
 <template>
     <!-- '@click', '@category-click' and 'selected' reach 'ConfigCard' by attribute fallthrough, so this must stay
          single-root. -->
-    <ConfigCard
-        :actions="actions"
-        :category-label="dataViewConnection?.categoryLabel"
-        :config="dataViewLocalisedConfig"
-        hides-icon
-    >
+    <ConfigCard :actions="actions" :category-label="dataViewConnection?.categoryLabel" :config="dataViewLocalisedConfig" hides-icon>
         <template #details>
-            <DataViewSource :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig" :data-view-connection="dataViewConnection" />
+            <DataViewSource
+                :connection-id="dataViewLocalisedConfig.connectionId"
+                :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig"
+                :data-view-connection="dataViewConnection"
+                :item-type-id="dataViewConnection?.itemTypeId"
+            />
         </template>
 
         <!-- Audit ─ The connection and item lines show the first two steps, so only the audit is left to show. -->

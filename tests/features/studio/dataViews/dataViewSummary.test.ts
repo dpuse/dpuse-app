@@ -27,7 +27,7 @@ describe('constructItemPath', () => {
 
 describe('constructDataViewSteps', () => {
     it('marks each step done once its part of the data view is set', () => {
-        const steps = constructDataViewSteps({ connectionId: 'c1', connectionNodeConfig: buildNode('csv'), contentAuditConfig: undefined });
+        const steps = constructDataViewSteps({ connectionNodeConfig: buildNode('csv'), contentAuditConfig: undefined });
 
         expect(steps).toStrictEqual([
             { id: 'connection', state: 'done' },
@@ -38,16 +38,12 @@ describe('constructDataViewSteps', () => {
 });
 
 describe('resolveCurrentDataViewStepId', () => {
-    it('opens a new data view on its first step', () => {
-        expect(resolveCurrentDataViewStepId({ connectionId: undefined, connectionNodeConfig: undefined, contentAuditConfig: undefined })).toBe('connection');
-    });
-
-    it('opens on the first step still pending', () => {
-        expect(resolveCurrentDataViewStepId({ connectionId: 'c1', connectionNodeConfig: undefined, contentAuditConfig: undefined })).toBe('item');
+    it('opens on the first step still pending, which is never the connection', () => {
+        expect(resolveCurrentDataViewStepId({ connectionNodeConfig: undefined, contentAuditConfig: undefined })).toBe('item');
     });
 
     it('opens on exploring once every step is done, since exploring is never finished', () => {
-        const dataView = { connectionId: 'c1', connectionNodeConfig: buildNode('csv'), contentAuditConfig: {} as ContentAuditConfig };
+        const dataView = { connectionNodeConfig: buildNode('csv'), contentAuditConfig: {} as ContentAuditConfig };
 
         expect(resolveCurrentDataViewStepId(dataView)).toBe('data');
     });

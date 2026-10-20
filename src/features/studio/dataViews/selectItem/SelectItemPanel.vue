@@ -35,7 +35,7 @@ import { ignoreReportedNavigationFailure } from '@/router';
 import { t } from '@/state/locale';
 import { TEXT } from './SelectItemPanel_.json';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
-import { useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
+import { resolveDataViewIdParameter, useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
 
 // ── Static Components
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
@@ -104,7 +104,7 @@ const route = useRoute();
 const router = useRouter();
 
 // ── Data View ─ 'isPending' stops a second commit while the first is still saving.
-const { data: dataViewConfig } = useDataView(() => (typeof route.params.dataViewId === 'string' ? route.params.dataViewId : undefined));
+const { data: dataViewConfig } = useDataView(() => resolveDataViewIdParameter(route.params.dataViewId));
 const { isPending: dataViewIsSaving, mutateAsync: updateDataView } = useUpdateDataView();
 
 const text = ref<string | undefined>();

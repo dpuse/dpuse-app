@@ -94,9 +94,10 @@ const DATA_SUBTYPE_LABEL_KEYS: Record<DataSubtypeId, keyof typeof TEXT> = {
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { dataViewConnection, dataViewLocalisedConfig } = defineProps<{
+const { dataViewConnection, dataViewLocalisedConfig, isDeleting } = defineProps<{
     dataViewConnection: DataViewConnection | undefined; // Undefined until a connection is chosen.
     dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>;
+    isDeleting?: boolean; // A delete is under way, so the Delete button shows it and takes no second click.
 }>();
 defineEmits<{ close: []; delete: [] }>();
 
@@ -263,7 +264,13 @@ function formatDateTime(timestamp: number): string {
                 </template>
 
                 <!-- Source -->
-                <DataViewSource class="mt-1 mb-4 text-sm" :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig" :data-view-connection="dataViewConnection" />
+                <DataViewSource
+                    class="mt-1 mb-4 text-sm"
+                    :connection-id="dataViewLocalisedConfig.connectionId"
+                    :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig"
+                    :data-view-connection="dataViewConnection"
+                    :item-type-id="dataViewConnection?.itemTypeId"
+                />
 
                 <!-- Description -->
                 <div v-if="dataViewLocalisedConfig.description" v-html="renderMarkdown(dataViewLocalisedConfig.description)" />
@@ -271,11 +278,12 @@ function formatDateTime(timestamp: number): string {
                 <!-- One section per part of the task, in the order it is done, each documenting what that part produced. A
                      section not reached yet keeps its heading and says so in one line, so the document's shape never
                      changes. -->
-                <!-- Laid out as the item section is. The name and the connector are both shown, because one connector can
-                     have several connections ('Dropbox', 'Dropbox (2)'). Status keeps its tag, because it is a caution. A line
-                     under every row, the last one included, shows where a value that wraps ends. -->
+                <!-- Laid out as the item section is. The name and the connector are both shown, because one connector
+                     can have several connections ('Dropbox', 'Dropbox (2)'). Status keeps its tag, because it is a
+                     caution. A line under every row, the last one included, shows where a value that wraps ends. The
+                     label column has a fixed width, so the values line up across both lists. A longer label wraps. -->
                 <StudioDocumentSection :title="t(TEXT, 'connection.title')">
-                    <dl v-if="dataViewConnection" class="grid grid-cols-[auto_1fr] text-sm *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
+                    <dl v-if="dataViewConnection" class="grid grid-cols-[7.5rem_1fr] text-sm *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
                         <dt class="text-muted">{{ t(TEXT, 'connection.name.label') }}</dt>
                         <dd class="m-0 min-w-0 wrap-break-word">{{ dataViewConnection.label }}</dd>
                         <dt class="text-muted">{{ t(TEXT, 'connection.connector.label') }}</dt>
@@ -291,16 +299,15 @@ function formatDateTime(timestamp: number): string {
                         <dt class="text-muted">{{ t(TEXT, 'connection.category.label') }}</dt>
                         <dd class="m-0">{{ dataViewConnection.categoryLabel }}</dd>
                     </dl>
-                    <p v-else-if="dataViewLocalisedConfig.connectionId" class="text-muted">{{ t(TEXT, 'connection.unavailable.text') }}</p>
-                    <p v-else class="text-muted">{{ t(TEXT, 'connection.pending.text') }}</p>
+                    <p v-else class="text-muted">{{ t(TEXT, 'connection.unavailable.text') }}</p>
                     <!-- On the right, as every step link in the panel is. -->
-                    <div class="mt-2 flex px-2 text-sm">
+                    <div class="mt-2 flex px-3 text-sm">
                         <RouterLink class="ml-auto" :to="constructStepRoute('connection')">{{ t(TEXT, 'connection.change.label') }}</RouterLink>
                     </div>
                 </StudioDocumentSection>
 
                 <StudioDocumentSection :title="dataViewConnection?.itemTypeLabel ?? t(TEXT, 'item.title')">
-                    <dl v-if="dataViewLocalisedConfig.connectionNodeConfig" class="grid grid-cols-[auto_1fr] text-sm *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
+                    <dl v-if="dataViewLocalisedConfig.connectionNodeConfig" class="grid grid-cols-[7.5rem_1fr] text-sm *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
                         <dt class="text-muted">{{ t(TEXT, 'item.folder.label') }}</dt>
                         <dd class="m-0 min-w-0 wrap-break-word">{{ itemFolderPath }}</dd>
                         <dt class="text-muted">{{ t(TEXT, 'item.name.label') }}</dt>
@@ -332,15 +339,15 @@ function formatDateTime(timestamp: number): string {
                     <ScrollRegion v-if="previewColumnRows.length > 0" v-slot="{ labelId }" class="mt-4" is-label-shown :label="t(TEXT, 'columnTable.title')">
                         <table :aria-labelledby="labelId" class="text-sm whitespace-nowrap">
                             <thead>
-                                <tr class="border-b border-separator text-left text-muted">
-                                    <th class="py-1 pr-4 font-normal">{{ t(TEXT, 'column.label') }}</th>
-                                    <th class="py-1 pr-4 font-normal">{{ t(TEXT, 'column.dataType.label') }}</th>
-                                    <th class="py-1 pr-4 font-normal">{{ t(TEXT, 'column.dataSubtype.label') }}</th>
-                                    <th class="py-1 font-normal">{{ t(TEXT, 'column.match.label') }}</th>
+                                <tr class="text-left">
+                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.label') }}</th>
+                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.dataType.label') }}</th>
+                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.dataSubtype.label') }}</th>
+                                    <th class="py-1 font-normal text-muted">{{ t(TEXT, 'column.match.label') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(columnRow, index) in shownPreviewColumnRows" :key="index" class="border-b border-separator">
+                                <tr v-for="(columnRow, index) in shownPreviewColumnRows" :key="index">
                                     <td class="py-1 pr-4">{{ columnRow.label }}</td>
                                     <td class="py-1 pr-4">{{ columnRow.dataTypeLabel }}</td>
                                     <td class="py-1 pr-4">{{ columnRow.dataSubtypeLabel }}</td>
@@ -349,19 +356,20 @@ function formatDateTime(timestamp: number): string {
                             </tbody>
                         </table>
                     </ScrollRegion>
-                    <!-- Show All and Change Item ─ One row: showing the rest of the table on the left, under the table it
-                         expands, and going to the item step on the right. An item is chosen from a connection, so there is
-                         nothing to go to until one is chosen. -->
-                    <div class="mt-2 flex flex-wrap items-center gap-x-4 px-2 text-sm">
+                    <!-- Show All and Change Item ─ Two columns: showing the rest of the table on the left, under the table it
+                         expands, and going to the item step on the right. The left one wraps when it is too long, so the
+                         step stays on the first line. An item is chosen from a connection, so there is nothing to go to
+                         until one is chosen. -->
+                    <div class="mt-2 grid grid-cols-[1fr_auto] items-start gap-x-4 px-3 text-sm">
                         <ActionWrapper
                             v-if="previewColumnRows.length > COLLAPSED_TABLE_ROW_COUNT"
                             :aria-expanded="columnTableIsExpanded"
-                            class="text-accent hover:underline"
+                            class="justify-self-start text-left text-accent hover:underline"
                             @click="columnTableIsExpanded = !columnTableIsExpanded"
                         >
                             {{ columnTableIsExpanded ? t(TEXT, 'column.showFewer.label') : t(TEXT, 'column.showAll.label', { count: previewColumnRows.length }) }}
                         </ActionWrapper>
-                        <RouterLink v-if="dataViewLocalisedConfig.connectionId" class="ml-auto" :to="constructStepRoute('item')">{{
+                        <RouterLink v-if="dataViewLocalisedConfig.connectionId" class="col-start-2 justify-self-end text-right" :to="constructStepRoute('item')">{{
                             t(TEXT, dataViewLocalisedConfig.connectionNodeConfig ? 'item.change.label' : 'item.select.label')
                         }}</RouterLink>
                     </div>
@@ -376,12 +384,12 @@ function formatDateTime(timestamp: number): string {
                         <ScrollRegion v-slot="{ labelId }" :label="t(TEXT, 'dataTable.title')">
                             <table :aria-labelledby="labelId" class="text-sm whitespace-nowrap">
                                 <thead>
-                                    <tr class="border-b border-separator text-left text-muted">
-                                        <th v-for="(columnLabel, index) in previewColumnLabels" :key="index" class="py-1 pr-4 font-normal">{{ columnLabel }}</th>
+                                    <tr class="text-left">
+                                        <th v-for="(columnLabel, index) in previewColumnLabels" :key="index" class="py-1 pr-4 font-normal text-muted">{{ columnLabel }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(record, recordIndex) in shownPreviewRows" :key="recordIndex" class="border-b border-separator">
+                                    <tr v-for="(record, recordIndex) in shownPreviewRows" :key="recordIndex">
                                         <td v-for="(_columnLabel, columnIndex) in previewColumnLabels" :key="columnIndex" class="py-1 pr-4">
                                             {{ record[columnIndex]?.value || NON_BREAKING_SPACE }}
                                         </td>
@@ -394,20 +402,20 @@ function formatDateTime(timestamp: number): string {
                     <!-- Show All and Next Step ─ As in the item section: showing the rest of the table on the left, and the next
                          step on the right. The next step follows the data view's progress: Audit Content until the audit is
                          done, then Explore Data, which needs an audited item. -->
-                    <div class="mt-2 flex flex-wrap items-center gap-x-4 px-2 text-sm">
+                    <div class="mt-2 grid grid-cols-[1fr_auto] items-start gap-x-4 px-3 text-sm">
                         <ActionWrapper
                             v-if="previewRows.length > COLLAPSED_TABLE_ROW_COUNT"
                             :aria-expanded="dataTableIsExpanded"
-                            class="text-accent hover:underline"
+                            class="justify-self-start text-left text-accent hover:underline"
                             @click="dataTableIsExpanded = !dataTableIsExpanded"
                         >
                             {{ dataTableIsExpanded ? t(TEXT, 'data.showFewer.label') : t(TEXT, 'data.showAll.label', { count: previewRows.length }) }}
                         </ActionWrapper>
                         <template v-if="dataViewLocalisedConfig.connectionNodeConfig">
-                            <RouterLink v-if="dataViewLocalisedConfig.contentAuditConfig" class="ml-auto" :to="constructStepRoute('data')">{{
+                            <RouterLink v-if="dataViewLocalisedConfig.contentAuditConfig" class="col-start-2 justify-self-end text-right" :to="constructStepRoute('data')">{{
                                 t(TEXT, 'data.open.label')
                             }}</RouterLink>
-                            <RouterLink v-else class="ml-auto" :to="constructStepRoute('content')">{{ t(TEXT, 'audit.open.label') }}</RouterLink>
+                            <RouterLink v-else class="col-start-2 justify-self-end text-right" :to="constructStepRoute('content')">{{ t(TEXT, 'audit.open.label') }}</RouterLink>
                         </template>
                     </div>
                 </StudioDocumentSection>
@@ -416,7 +424,9 @@ function formatDateTime(timestamp: number): string {
                      section so it can grow to say what deleting would affect, once other things are built on data views. -->
                 <StudioDocumentSection :title="t(TEXT, 'delete.title')">
                     <p>{{ t(TEXT, 'delete.text') }}</p>
-                    <RectangleButton variant="destructive" @click="$emit('delete')">{{ t(TEXT, 'delete.label') }}</RectangleButton>
+                    <RectangleButton :disabled="isDeleting" variant="destructive" @click="$emit('delete')">{{
+                        t(TEXT, isDeleting ? 'delete.pending.label' : 'delete.label')
+                    }}</RectangleButton>
                 </StudioDocumentSection>
             </StudioDocumentPanel>
         </ScrollArea>

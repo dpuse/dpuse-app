@@ -10,13 +10,13 @@ import { localiseConfig, localiseConfigs } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { metaStoreId } from '@/services/metaStore';
 import { sessionIsAuthenticated } from '@/state/session';
-import { useDataView } from '@/features/studio/dataViews/_dataViews';
 import { useQueryFailure } from '@/services/queryClient';
 import { useUnsavedWork } from '@/state/unsavedWork';
 import { accountConfigStatus, configStatus, connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
 import { constructItemPath, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
 import { localeId, t } from '@/state/locale';
+import { NEW_DATA_VIEW_ID, resolveDataViewIdParameter, useDataView } from '@/features/studio/dataViews/_dataViews';
 import { TASK_CONFIGS, TEXT } from './DataViewsLayout_.json';
 
 // ── Static Components
@@ -44,9 +44,9 @@ const draftDataViewConfig = shallowRef<DataViewConfig>();
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // ── Data View ─ Loads the data view the user is building, for the header, task bar and task panel.
-const currentDataViewId = computed(() =>
-    TASK_CONFIGS.some((config) => config.id === route.name) && typeof route.params.dataViewId === 'string' ? route.params.dataViewId : undefined
-); // On the list, the same id in the URL just highlights that data view's card.
+const routeIsTask = computed(() => TASK_CONFIGS.some((config) => config.id === route.name));
+const currentDataViewId = computed(() => (routeIsTask.value ? resolveDataViewIdParameter(route.params.dataViewId) : undefined)); // On the list, the same id in the URL just highlights that data view's card.
+const dataViewIsNew = computed(() => routeIsTask.value && route.params.dataViewId === NEW_DATA_VIEW_ID); // Being added, so not saved yet.
 const { data: dataViewConfig, error: dataViewError, refetch: refetchDataView } = useDataView(currentDataViewId);
 const dataViewFailure = useQueryFailure(dataViewError); // Shown in place of the task, which has nothing to work on without its data view.
 
@@ -73,6 +73,7 @@ const currentTaskLocalisedConfig = computed(() => taskLocalisedConfigs.value.fin
 const headerOverline = computed(() => t(TEXT, currentTaskLocalisedConfig.value ? 'establishDataViews.title' : 'studio.label'));
 const headerTitle = computed(() => {
     if (!currentTaskLocalisedConfig.value) return t(TEXT, 'establishDataViews.title');
+    if (dataViewIsNew.value) return t(TEXT, 'dataView.new.title');
     if (dataViewConfig.value) return localiseConfig(dataViewConfig.value, localeId.value).label;
     return t(TEXT, dataViewFailure.value || configStatus.value.typeId === 'failed' ? 'dataView.failed.title' : 'dataView.pending.title');
 });
@@ -105,6 +106,7 @@ const summaryConnectionIsDraft = computed(() => summaryDataViewConfig.value?.con
 const summaryItemConfig = computed(() => summaryDataViewConfig.value?.connectionNodeConfig);
 const summaryItemPath = computed(() => (summaryItemConfig.value ? constructItemPath(summaryItemConfig.value) : undefined));
 const summaryItemIsDraft = computed(() => summaryItemPath.value !== taskDetails.value.item);
+const summaryItemTypeId = computed(() => summaryConnectionLocalisedConfig.value?.connectorConfig.itemTypeId);
 
 // ── List and Task Panel ─ The layout's own 'RouterView' sits one level in, so the layout shows the spinner while the
 // list or a task panel loads. 'App.vue' shows the spinner for the layout itself, which keeps the header and task bar in
@@ -128,11 +130,12 @@ watch(
     { immediate: true }
 );
 
-// A data view with no connection yet can only be worked on from the connection task, so any later task sends it there.
+// A data view still being added has no connection yet, so it can only be worked on from the connection task, and any
+// later task sends it there. A saved data view always has a connection, because it is only saved once one is chosen.
 watch(
-    [dataViewConfig, (): unknown => route.name],
-    ([newDataViewConfig, newRouteName]) => {
-        if (newRouteName === 'connection' || newDataViewConfig == null || newDataViewConfig.connectionId != null) return;
+    [dataViewIsNew, (): unknown => route.name],
+    ([newDataViewIsNew, newRouteName]) => {
+        if (newRouteName === 'connection' || !newDataViewIsNew) return;
 
         void ignoreReportedNavigationFailure(router.replace({ name: 'connection', query: route.query }));
     },
@@ -198,10 +201,12 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
             aria-hidden="true"
             class="-my-1 h-7 flex-none px-4 pb-2 text-sm"
             is-single-line
+            :connection-id="summaryDataViewConfig?.connectionId"
             :connection-is-draft="summaryConnectionIsDraft"
             :connection-node-config="summaryItemConfig"
             :data-view-connection="summaryConnectionLocalisedConfig"
             :item-is-draft="summaryItemIsDraft"
+            :item-type-id="summaryItemTypeId"
         />
 
         <!-- Task Bar -->

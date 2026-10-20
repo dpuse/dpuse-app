@@ -54,11 +54,13 @@ useResizeObserver([scrollElement, contentElement], measure); // A narrower space
                 role="region"
                 :tabindex="scrollElementCanScroll ? 0 : undefined"
             >
-                <!-- A table drops the outer borders that '.dpuse-prose' gives its edge cells, because the frame draws
-                     them. Otherwise they would double the frame, and the fades would cover them. -->
+                <!-- A table keeps separate borders, and each cell draws only its right and bottom lines. Collapsed borders
+                     are split between the two cells that share them, and WebKit rounds each half up, so on a high-density
+                     screen such as an iPhone the inner lines come out thicker than the frame. The last column and last row
+                     draw no outer line, because the frame draws it and the fades would cover it. -->
                 <div
                     ref="content"
-                    class="w-fit [&_tbody>tr:last-child]:border-b-0 [&_tbody>tr:last-child>*]:border-b-0 [&_thead>tr:first-child>*]:border-t-0 [&_tr>*:first-child]:border-l-0 [&_tr>*:last-child]:border-r-0"
+                    class="w-fit [&_table]:border-separate [&_table]:border-spacing-0 [&_tbody>tr:last-child>*]:border-b-0 [&_tr>*]:border-t-0 [&_tr>*]:border-l-0 [&_tr>*:last-child]:border-r-0"
                 >
                     <slot :label-id="labelId" />
                 </div>
@@ -66,8 +68,8 @@ useResizeObserver([scrollElement, contentElement], measure); // A narrower space
 
             <!-- Fades ─ Inside the frame's borders, so the borders always show. Outside the scroller, so they stay at its
                  edges while the content moves under them. -->
-            <div v-if="!arrivedState.left" aria-hidden="true" class="pointer-events-none absolute inset-y-0 left-0 w-10 bg-linear-to-r from-surface to-transparent" />
-            <div v-if="!arrivedState.right" aria-hidden="true" class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-linear-to-l from-surface to-transparent" />
+            <div v-if="!arrivedState.left" aria-hidden="true" class="pointer-events-none absolute inset-y-0 left-0 w-6 bg-linear-to-r from-surface to-transparent" />
+            <div v-if="!arrivedState.right" aria-hidden="true" class="pointer-events-none absolute inset-y-0 right-0 w-6 bg-linear-to-l from-surface to-transparent" />
         </div>
     </div>
 </template>

@@ -12,7 +12,16 @@ import { configStatus } from '@/state/configs';
 import { queryClient } from '@/services/queryClient';
 import { sessionIsAuthenticated } from '@/state/session';
 import { settle } from '~/tests/support/settle';
-import { cancelDataViewRetrieval, useCreateDataView, useDataView, useDataViews, useDeleteDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
+import {
+    cancelDataViewRetrieval,
+    NEW_DATA_VIEW_ID,
+    resolveDataViewIdParameter,
+    useCreateDataView,
+    useDataView,
+    useDataViews,
+    useDeleteDataView,
+    useUpdateDataView
+} from '@/features/studio/dataViews/_dataViews';
 import {
     constructMetaStoreListKey,
     constructMetaStoreRecordKey,
@@ -147,13 +156,14 @@ describe('data views', () => {
     });
 
     describe('mutations', () => {
-        it('saves a new data view at once and adds it to a loaded list', async () => {
+        it('saves a new data view with its connection and adds it to a loaded list', async () => {
             await runInComponent(() => useDataViews());
             const { mutateAsync } = await runInComponent(() => useCreateDataView());
 
-            const created = await mutateAsync();
+            const created = await mutateAsync('connection-1');
 
             expect(upsertMetaStoreRecord).toHaveBeenCalledOnce();
+            expect(created.connectionId).toBe('connection-1');
             expect(created.label).toStrictEqual({ en: 'Untitled Data View', es: 'Vista de datos sin título' });
             expect(cachedList()?.map((config) => config.id)).toStrictEqual(['a', 'b', created.id]);
         });
@@ -169,7 +179,7 @@ describe('data views', () => {
         it('leaves a list that has not loaded alone, so loading it later picks the change up', async () => {
             const { mutateAsync } = await runInComponent(() => useCreateDataView());
 
-            const created = await mutateAsync();
+            const created = await mutateAsync('connection-1');
 
             expect(cachedList()).toBeUndefined();
             expect(queryClient.getQueryData(constructMetaStoreRecordKey('dataViews', created.id))).toStrictEqual(created);
@@ -214,6 +224,17 @@ describe('data views', () => {
             await mutateAsync('a');
 
             expect(cachedList()?.map((config) => config.id)).toStrictEqual(['a', 'b']);
+        });
+    });
+
+    describe('resolveDataViewIdParameter', () => {
+        it('reads a data view id from the URL', () => {
+            expect(resolveDataViewIdParameter('a')).toBe('a');
+        });
+
+        it('has no id for a data view being added, or for a missing parameter', () => {
+            expect(resolveDataViewIdParameter(NEW_DATA_VIEW_ID)).toBeUndefined();
+            expect(resolveDataViewIdParameter(undefined)).toBeUndefined();
         });
     });
 });
