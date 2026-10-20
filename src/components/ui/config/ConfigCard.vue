@@ -122,8 +122,8 @@ defineOptions({ inheritAttrs: false });
                     <span class="min-w-0 truncate">{{ overline }}</span>
                 </div>
 
-                <!-- Label -->
-                <div class="min-w-0 truncate leading-tight text-content">{{ config.label }}</div>
+                <!-- Label ─ Medium weight above details, so it still leads the details text just below it. -->
+                <div class="min-w-0 truncate leading-tight text-content" :class="{ 'font-medium': $slots.details }">{{ config.label }}</div>
 
                 <!-- Details -->
                 <div v-if="!isCompact && $slots.details" class="mt-1 min-w-0 text-sm leading-4.5 text-muted">

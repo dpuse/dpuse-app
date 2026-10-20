@@ -129,6 +129,18 @@ const itemFolderPath = computed(() => {
     return folderPath == null || folderPath === '' ? '/' : folderPath;
 });
 
+// The item's name is the one the engine uses, with any extension, such as a DBnomics series code. Its title is shown as
+// a description only when it says more, as a series title does. A file's title is its name, so a file shows none.
+const itemName = computed(() => {
+    const itemConfig = dataViewLocalisedConfig.connectionNodeConfig;
+    if (!itemConfig) return;
+    return itemConfig.extension == null ? itemConfig.name : `${itemConfig.name}.${itemConfig.extension}`;
+});
+const itemDescription = computed(() => {
+    const itemLabel = dataViewLocalisedConfig.connectionNodeConfig?.label;
+    return itemLabel === itemName.value ? undefined : itemLabel;
+});
+
 // The encoding the preview detected, with how sure the detection was. Without a confidence level nothing was detected and
 // the preview fell back to UTF-8, so the encoding is marked as assumed.
 const itemEncodingText = computed(() => {
@@ -179,7 +191,7 @@ const previewColumnRows = computed(() => {
             label: previewColumnLabels.value[index],
             dataTypeLabel: t(TEXT, DATA_TYPE_LABEL_KEYS[columnConfig.dataTypeId]),
             dataSubtypeLabel:
-                columnConfig.dataSubtypeId === undefined || columnConfig.dataSubtypeId === 'plain' ? '' : t(TEXT, DATA_SUBTYPE_LABEL_KEYS[columnConfig.dataSubtypeId]), // Plain text has no special format, so its subtype is left blank and real subtypes stand out.
+                columnConfig.dataSubtypeId === undefined || columnConfig.dataSubtypeId === 'plain' ? '' : t(TEXT, DATA_SUBTYPE_LABEL_KEYS[columnConfig.dataSubtypeId]), // Plain text has no special format, so it gets no subtype label and real subtypes stand out.
             matchText: formatMatchText(count, total, percentFormat)
         };
     });
@@ -311,7 +323,11 @@ function formatDateTime(timestamp: number): string {
                         <dt class="text-muted">{{ t(TEXT, 'item.folder.label') }}</dt>
                         <dd class="m-0 min-w-0 wrap-break-word">{{ itemFolderPath }}</dd>
                         <dt class="text-muted">{{ t(TEXT, 'item.name.label') }}</dt>
-                        <dd class="m-0 min-w-0 wrap-break-word">{{ dataViewLocalisedConfig.connectionNodeConfig.label }}</dd>
+                        <dd class="m-0 min-w-0 wrap-break-word">{{ itemName }}</dd>
+                        <template v-if="itemDescription">
+                            <dt class="text-muted">{{ t(TEXT, 'item.description.label') }}</dt>
+                            <dd class="m-0 min-w-0 wrap-break-word">{{ itemDescription }}</dd>
+                        </template>
                         <!-- File Details ─ Only a file has a type, an encoding, a text layout, a size and a modified date. A table
                              or an API endpoint has none of them. -->
                         <template v-if="itemIsFile">
@@ -350,7 +366,13 @@ function formatDateTime(timestamp: number): string {
                                 <tr v-for="(columnRow, index) in shownPreviewColumnRows" :key="index">
                                     <td class="py-1 pr-4">{{ columnRow.label }}</td>
                                     <td class="py-1 pr-4">{{ columnRow.dataTypeLabel }}</td>
-                                    <td class="py-1 pr-4">{{ columnRow.dataSubtypeLabel }}</td>
+                                    <!-- A column with no subtype is left blank on screen, and screen readers hear 'None',
+                                         because a blank cell alone does not say why it is empty. 'relative' keeps the hidden
+                                         text inside the scroller, or iOS Safari scrolls the whole page sideways. -->
+                                    <td v-if="columnRow.dataSubtypeLabel" class="py-1 pr-4">{{ columnRow.dataSubtypeLabel }}</td>
+                                    <td v-else class="relative py-1 pr-4">
+                                        <span class="sr-only">{{ t(TEXT, 'column.dataSubtype.none.text') }}</span>
+                                    </td>
                                     <td class="py-1">{{ columnRow.matchText }}</td>
                                 </tr>
                             </tbody>

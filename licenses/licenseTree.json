@@ -1,5 +1,5 @@
 {
-  "version": "1.0.186",
+  "version": "1.0.188",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -232,7 +232,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.126"
+          "version": "1.0.128"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1380,8 +1380,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.126",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.126.tgz",
+      "version": "1.0.128",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.128.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1464,7 +1464,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.126"
+          "version": "1.0.128"
         },
         "@tanstack/charts": {
           "version": "1.0.0",
@@ -4867,8 +4867,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.59.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.59.0.tgz",
+      "version": "1.60.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.60.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -4987,8 +4987,8 @@
       }
     },
     "@tanstack/ai-client": {
-      "version": "0.39.3",
-      "resolved": "https://registry.npmjs.org/@tanstack/ai-client/-/ai-client-0.39.3.tgz",
+      "version": "0.40.0",
+      "resolved": "https://registry.npmjs.org/@tanstack/ai-client/-/ai-client-0.40.0.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/ai-event-client": {
@@ -5004,18 +5004,23 @@
           }
         },
         "@tanstack/ai-utils": {
-          "version": "0.4.2",
-          "resolved": "https://registry.npmjs.org/@tanstack/ai-utils/-/ai-utils-0.4.2.tgz",
+          "version": "0.5.0",
+          "resolved": "https://registry.npmjs.org/@tanstack/ai-utils/-/ai-utils-0.5.0.tgz",
           "overridden": false
         },
         "@tanstack/ai": {
-          "version": "0.69.0"
+          "version": "0.70.0"
+        },
+        "@tanstack/store": {
+          "version": "0.11.2",
+          "resolved": "https://registry.npmjs.org/@tanstack/store/-/store-0.11.2.tgz",
+          "overridden": false
         }
       }
     },
     "@tanstack/ai": {
-      "version": "0.69.0",
-      "resolved": "https://registry.npmjs.org/@tanstack/ai/-/ai-0.69.0.tgz",
+      "version": "0.70.0",
+      "resolved": "https://registry.npmjs.org/@tanstack/ai/-/ai-0.70.0.tgz",
       "overridden": false,
       "dependencies": {
         "@ag-ui/core": {
@@ -5025,6 +5030,11 @@
           "dependencies": {
             "zod": {}
           }
+        },
+        "@cfworker/json-schema": {
+          "version": "4.1.1",
+          "resolved": "https://registry.npmjs.org/@cfworker/json-schema/-/json-schema-4.1.1.tgz",
+          "overridden": false
         },
         "@opentelemetry/api": {},
         "@standard-schema/spec": {
@@ -5036,7 +5046,7 @@
           "version": "0.13.1"
         },
         "@tanstack/ai-utils": {
-          "version": "0.4.2"
+          "version": "0.5.0"
         },
         "fast-json-patch": {
           "version": "3.1.1",
@@ -5051,8 +5061,8 @@
       }
     },
     "@tanstack/vue-query": {
-      "version": "5.104.4",
-      "resolved": "https://registry.npmjs.org/@tanstack/vue-query/-/vue-query-5.104.4.tgz",
+      "version": "5.104.5",
+      "resolved": "https://registry.npmjs.org/@tanstack/vue-query/-/vue-query-5.104.5.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/match-sorter-utils": {
@@ -5068,8 +5078,8 @@
           }
         },
         "@tanstack/query-core": {
-          "version": "5.104.4",
-          "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.104.4.tgz",
+          "version": "5.104.5",
+          "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.104.5.tgz",
           "overridden": false
         },
         "@vue/composition-api": {},
@@ -5100,9 +5110,7 @@
       "overridden": false,
       "dependencies": {
         "@tanstack/store": {
-          "version": "0.11.2",
-          "resolved": "https://registry.npmjs.org/@tanstack/store/-/store-0.11.2.tgz",
-          "overridden": false
+          "version": "0.11.2"
         },
         "@tanstack/table-core": {
           "version": "9.3.1",

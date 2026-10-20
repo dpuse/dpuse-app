@@ -65,7 +65,7 @@ const itemPathParts = computed(() => {
         >
             <ConfigIcon v-if="dataViewConnection" class="size-4.5" :icon="dataViewConnection.icon" :icon-dark="dataViewConnection.iconDark" />
             <CableIcon v-else aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
-            <span class="min-w-0 truncate">{{ connectionLabel }}</span>
+            <span class="min-w-0 truncate" :title="dataViewConnection?.label">{{ connectionLabel }}</span>
         </div>
 
         <!-- Separator ─ On one line the item's icon alone does not show where the connection ends. A chevron does, and

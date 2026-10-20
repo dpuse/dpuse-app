@@ -15,14 +15,17 @@ export type ButtonVariant = 'destructive' | 'ghost' | 'guarded' | 'neutral' | 'o
 // and in dark mode a stronger fill, so they stand out. The near-black page hides the 10% tint that the status colours
 // give tags and alerts.
 export const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-    destructive: 'bg-danger hover:bg-danger-hover active:bg-danger-active text-danger-text inset-ring inset-ring-danger-border dark:bg-danger-hover dark:hover:bg-danger-active',
+    destructive:
+        'bg-danger hover:bg-danger-hover active:bg-danger-active text-danger-text inset-ring inset-ring-danger-border dark:bg-danger-hover dark:hover:bg-danger-active dark:active:bg-danger-press',
     // 'active:scale' only here: a ghost button has no fill to darken on press, so the shrink is the whole of its
     // feedback. The filled variants say the same thing with 'active:bg-*' and would read as jittery with both.
     ghost: 'bg-transparent hover:state-hover active:scale-[92%] active:state-press dark:text-content',
-    guarded: 'bg-warning hover:bg-warning-hover active:bg-warning-active text-warning-text inset-ring inset-ring-warning-border dark:bg-warning-hover dark:hover:bg-warning-active',
+    guarded:
+        'bg-warning hover:bg-warning-hover active:bg-warning-active text-warning-text inset-ring inset-ring-warning-border dark:bg-warning-hover dark:hover:bg-warning-active dark:active:bg-warning-press',
     neutral: 'bg-zinc-100 hover:state-hover active:state-press text-emphasis dark:bg-zinc-300/20 dark:text-content',
     outline: 'bg-transparent inset-ring inset-ring-separator hover:state-hover active:state-press dark:text-content',
-    primary: 'bg-info hover:bg-info-hover active:bg-info-active text-info-text inset-ring inset-ring-info-border dark:bg-info-hover dark:hover:bg-info-active'
+    primary:
+        'bg-info hover:bg-info-hover active:bg-info-active text-info-text inset-ring inset-ring-info-border dark:bg-info-hover dark:hover:bg-info-active dark:active:bg-info-press'
 };
 
 // Press feedback for icon buttons, selected or not. The press shows at once and fades on release, so even a quick tap,

@@ -1,7 +1,7 @@
 // ── External Dependencies & Registrations
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryHistory, createRouter, type Router } from 'vue-router';
-import { h, type PropType, type SetupContext } from 'vue';
+import { defineComponent, h, type PropType, type SetupContext } from 'vue';
 import { mount, type VueWrapper } from '@vue/test-utils';
 
 // ── DPUse Framework
@@ -62,7 +62,7 @@ const GridDetailPanelStub = {
 };
 
 // The detail panel stands in as its Delete button, which is all the list reads from it.
-const DataViewPanelStub = {
+const DataViewPanelStub = defineComponent({
     props: { isDeleting: { type: Boolean, default: false } },
     emits: ['delete'],
     setup(properties: { isDeleting: boolean }, { emit }: SetupContext<['delete']>) {
@@ -79,7 +79,7 @@ const DataViewPanelStub = {
                 'Delete Data View'
             );
     }
-};
+});
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
