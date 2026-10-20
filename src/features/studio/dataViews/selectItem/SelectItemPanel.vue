@@ -7,15 +7,16 @@
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
 import { until } from '@vueuse/core';
-import { ArrowRightIcon, FileIcon, FolderIcon, HomeIcon } from '@lucide/vue';
-import { computed, markRaw, ref, shallowRef, watch } from 'vue';
+import { ArrowRightIcon, BookOpenTextIcon, FileIcon, FolderIcon, HomeIcon, InfoIcon, TableIcon, TextIcon } from '@lucide/vue';
+import { type Component, computed, markRaw, ref, shallowRef, useId, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError, formatNumberAsDecimalNumber, formatNumberAsStorageSize } from '@dpuse/dpuse-shared';
+import { AppError, formatNumberAsDecimalNumber, formatNumberAsStorageSize, isUnsupportedFileExtension } from '@dpuse/dpuse-shared';
 import type {
     ConnectionConfig,
     ConnectionNodeConfig,
+    DataFormatId,
     DataViewConfig,
     GetInfoOptions,
     GetInfoResult,
@@ -27,34 +28,69 @@ import type {
 } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { assertDefined } from '@/utilities/index.ts';
 import { constructItemPath } from '../dataViewSummary';
 import type { DataSource } from '@/composables/useDataWindow';
 import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import { ignoreReportedNavigationFailure } from '@/router';
-import { t } from '@/state/locale';
+import { renderMarkdown } from '@/services/useMarkedTool';
 import { TEXT } from './SelectItemPanel_.json';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
+import { localeId, t } from '@/state/locale';
 import { resolveDataViewIdParameter, useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
 
 // ── Static Components
+import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
+import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 import TextViewer from '@/components/ui/text/TextViewer.vue';
 
-const ITEM_ACTIONS = [
-    { id: 'table', label: 'Table' },
-    { id: 'text', label: 'Text' },
-    { id: 'details', label: 'Details' }
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+interface PreviewTab {
+    icon: Component;
+    id: PreviewTabId;
+    labelKey: keyof typeof TEXT;
+}
+
+type PreviewTabId = 'table' | 'text' | 'document' | 'details';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// ── Preview Tabs ─ Ways to show the item, which also choose how to open it: a markdown or plain text file opened as a
+// table can be selected as data, as can a file whose extension says nothing about its content.
+const PREVIEW_TABS: PreviewTab[] = [
+    { icon: markRaw(TableIcon), id: 'table', labelKey: 'tab.table.aria' },
+    { icon: markRaw(TextIcon), id: 'text', labelKey: 'tab.text.aria' },
+    { icon: markRaw(BookOpenTextIcon), id: 'document', labelKey: 'tab.document.aria' },
+    { icon: markRaw(InfoIcon), id: 'details', labelKey: 'tab.details.aria' }
 ];
+
+// ── Data Formats ─ The preview decodes all four text formats and parses them as delimited text. Only delimited text
+// and JSON are data as they stand.
+const TEXT_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv', 'json', 'markdown', 'text']);
+const TABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv', 'json']);
+const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
+    dpe: 'dataFormat.dpe.label',
+    dtv: 'dataFormat.dtv.label',
+    json: 'dataFormat.json.label',
+    markdown: 'dataFormat.markdown.label',
+    spss: 'dataFormat.spss.label',
+    text: 'dataFormat.text.label',
+    unknown: 'dataFormat.unknown.label',
+    xlsx: 'dataFormat.xlsx.label',
+    xml: 'dataFormat.xml.label'
+};
 
 // useDataWindow's retry-with-backoff (~900ms total) is tuned for transient blips, not a cold app boot — on a fresh
 // deploy in particular, downloading new bundles, waking configMonitor/accountMonitor's Durable Objects, and then
@@ -75,8 +111,6 @@ const emit = defineEmits<{
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const activeItemAction = ref('table');
-
 const activeConnectionObjectConfig = shallowRef<ConnectionNodeConfig | undefined>();
 
 // Whatever the engine could not do for this panel — list a folder, preview an item, read its info. One ref for all
@@ -90,6 +124,10 @@ const currentFolderPath = ref('');
 
 const previewRequestId = ref(0);
 const activePreviewConfig = shallowRef<PreviewConfig>(); // Kept so the commit can save it with the item.
+
+// ── Preview Tabs ─ Tabs and their panel reference each other by id, which must be unique on the page.
+const elementIdPrefix = useId();
+const currentPreviewTabId = ref<PreviewTabId>('table');
 
 const previewIsPending = ref(false); // The preview table is empty until the engine answers, which reads as an empty item unless the wait is shown.
 const previewPercentage = ref(0);
@@ -119,6 +157,46 @@ const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as
 const activeConnectionConfig = computed(() => findConnectionLocalisedConfig(dataViewConfig.value?.connectionId));
 
 const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...currentFolderNodes.value]);
+
+// ── Preview ─ A file the preview could not read as text has only its details to show.
+const previewIsUnsupported = computed(() => activePreviewConfig.value != null && !TEXT_DATA_FORMAT_IDS.has(activePreviewConfig.value.dataFormatId));
+const availablePreviewTabs = computed(() => {
+    if (activePreviewConfig.value == null) return [];
+    return previewIsUnsupported.value ? PREVIEW_TABS.filter((previewTab) => previewTab.id === 'details') : PREVIEW_TABS;
+});
+
+// Delimited text and JSON can be selected from any tab. Markdown and plain text only from the table tab, because
+// opening them as a table is the user saying their content is data.
+const previewIsSelectable = computed(() => {
+    const previewConfig = activePreviewConfig.value;
+    if (previewConfig == null || previewConfig.parsedRecords.length === 0) return false;
+    const isOpenedAsTable = TEXT_DATA_FORMAT_IDS.has(previewConfig.dataFormatId) && currentPreviewTabId.value === 'table';
+    return TABLE_DATA_FORMAT_IDS.has(previewConfig.dataFormatId) || isOpenedAsTable;
+});
+
+const previewUnsupportedText = computed(() => t(TEXT, activePreviewConfig.value?.size === 0 ? 'item.empty.text' : 'item.unsupported.text'));
+
+// The details tab lists only the facts there are: a listing or a preview can leave any of them out.
+const itemDetails = computed(() => {
+    const connectionNodeConfig = activeConnectionObjectConfig.value;
+    const previewConfig = activePreviewConfig.value;
+    if (connectionNodeConfig == null || previewConfig == null) return [];
+    const details: { labelKey: keyof typeof TEXT; value: string | undefined }[] = [
+        { labelKey: 'detail.dataFormat.label', value: t(TEXT, DATA_FORMAT_LABEL_KEYS[previewConfig.dataFormatId]) },
+        { labelKey: 'detail.fileType.label', value: previewConfig.fileType?.mime ?? connectionNodeConfig.mimeType },
+        { labelKey: 'detail.encoding.label', value: constructEncodingText(previewConfig) },
+        { labelKey: 'detail.size.label', value: formatNumberAsStorageSize(connectionNodeConfig.size) },
+        {
+            labelKey: 'detail.lastModified.label',
+            value:
+                connectionNodeConfig.lastModifiedAt == null
+                    ? undefined
+                    : new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(connectionNodeConfig.lastModifiedAt)
+        },
+        { labelKey: 'detail.path.label', value: constructItemPath(connectionNodeConfig) }
+    ];
+    return details.filter((detail) => detail.value != null && detail.value !== '');
+});
 
 const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionNodeConfig>>>(() => {
     const folderPath = currentFolderPath.value; // Read synchronously so this computed (and useDataWindow's cache) resets on navigation.
@@ -214,6 +292,8 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
         return;
     }
 
+    if (isUnsupportedNode(connectionNodeConfig)) return; // Shown dimmed in the list, but not offered.
+
     if (connectionNodeConfig.typeId === 'folder') {
         currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
         pickItem();
@@ -224,17 +304,38 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
     pickItem(connectionNodeConfig);
 }
 
+// Arrow keys, Home and End move between tabs and select as they go, since only the selected tab is in the tab order.
+function handleNavigatePreviewTabs(event: KeyboardEvent, previewTabIndex: number): void {
+    const lastIndex = availablePreviewTabs.value.length - 1;
+    const nextIndexByKey: Partial<Record<string, number>> = {
+        ArrowLeft: previewTabIndex === 0 ? lastIndex : previewTabIndex - 1,
+        ArrowRight: previewTabIndex === lastIndex ? 0 : previewTabIndex + 1,
+        End: lastIndex,
+        Home: 0
+    };
+    const nextIndex = nextIndexByKey[event.key];
+    if (nextIndex === undefined) return;
+    event.preventDefault();
+    currentPreviewTabId.value = assertDefined(availablePreviewTabs.value[nextIndex]).id;
+    const tabElements = (event.currentTarget as HTMLElement).parentElement?.querySelectorAll<HTMLElement>('[role="tab"]');
+    tabElements?.[nextIndex]?.focus();
+}
+
 // Saved before moving on, so a reload restores the item, and the data view document can show its structure and data.
 async function handleCommitDetail(): Promise<void> {
     const connectionNodeConfig = activeConnectionObjectConfig.value;
     const previewConfig = activePreviewConfig.value;
-    if (connectionNodeConfig == null || previewConfig == null || dataViewIsSaving.value || dataViewConfig.value == null) return;
+    if (connectionNodeConfig == null || previewConfig == null || !previewIsSelectable.value || dataViewIsSaving.value || dataViewConfig.value == null) return;
 
     try {
         const savedDataViewConfig = await updateDataView({
             ...dataViewConfig.value,
             connectionNodeConfig: constructStorableNodeConfig(connectionNodeConfig),
-            previewConfig: { ...previewConfig, text: undefined }, // All the parsed records are kept, so the data view panel shows the whole preview block, a few kilobytes at most. The raw text is the same block again, so it is not kept.
+            previewConfig: {
+                ...previewConfig,
+                dataFormatId: TABLE_DATA_FORMAT_IDS.has(previewConfig.dataFormatId) ? previewConfig.dataFormatId : 'dtv', // Markdown or plain text opened as a table was parsed as delimited text, so it is saved as that.
+                text: undefined
+            }, // All the parsed records are kept, so the data view panel shows the whole preview block, a few kilobytes at most. The raw text is the same block again, so it is not kept.
             contentAuditConfig: undefined,
             relationshipsAuditConfig: undefined
         });
@@ -292,6 +393,26 @@ function constructFolderNodeConfigs(folderPath: string): ConnectionNodeConfig[] 
     }));
 }
 
+// A file is dimmed in the list when its extension is one the app cannot read. A file with any other extension, or none,
+// is offered, because only its preview can tell what it holds.
+function isUnsupportedNode(connectionNodeConfig: ConnectionNodeConfig): boolean {
+    return connectionNodeConfig.typeId !== 'folder' && isUnsupportedFileExtension(connectionNodeConfig.extension);
+}
+
+// The encoding the preview detected, with how sure the detection was. Without a confidence level nothing was detected
+// and the preview fell back to UTF-8, so the encoding is marked as assumed.
+function constructEncodingText(previewConfig: PreviewConfig): string | undefined {
+    if (previewConfig.encodingId == null) return;
+    const encoding = previewConfig.encodingId.toUpperCase();
+    if (previewConfig.encodingConfidenceLevel == null) return t(TEXT, 'detail.encoding.assumed.text', { encoding });
+    const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(previewConfig.encodingConfidenceLevel);
+    return t(TEXT, 'detail.encoding.text', { confidence, encoding });
+}
+
+function createPreviewTabElementId(previewTabId: PreviewTabId): string {
+    return `${elementIdPrefix}-${previewTabId}-tab`;
+}
+
 // A file handle cannot be stored, and children are listed afresh.
 function constructStorableNodeConfig(connectionNodeConfig: ConnectionNodeConfig): ConnectionNodeConfig {
     return { ...connectionNodeConfig, childNodes: [], handle: undefined };
@@ -299,6 +420,7 @@ function constructStorableNodeConfig(connectionNodeConfig: ConnectionNodeConfig)
 
 function resetPreviewState(): void {
     activePreviewConfig.value = undefined;
+    currentPreviewTabId.value = 'table';
     previewIsPending.value = false;
     previewPercentage.value = 0;
     previewMessage.value = undefined;
@@ -312,6 +434,7 @@ function resetPreviewState(): void {
 
 function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewConfig: PreviewConfig): void {
     activePreviewConfig.value = previewConfig;
+    currentPreviewTabId.value = establishFirstPreviewTabId(previewConfig.dataFormatId);
     const previewSize = previewConfig.size ?? 0;
     const nodeSize = connectionNodeConfig.size ?? 0;
     previewPercentage.value = nodeSize > 0 ? (previewSize / nodeSize) * 100 : 0;
@@ -340,6 +463,13 @@ function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewC
         rowCount: previewRows.length,
         getRows: (start: number, end: number): Promise<{ rows: Record<string, string | null>[] }> => Promise.resolve({ rows: previewRows.slice(start, end) })
     };
+}
+
+// The tab that shows the item as its format suggests: markdown as a document, plain text as text, data as a table.
+function establishFirstPreviewTabId(dataFormatId: DataFormatId): PreviewTabId {
+    if (dataFormatId === 'markdown') return 'document';
+    if (dataFormatId === 'text') return 'text';
+    return TEXT_DATA_FORMAT_IDS.has(dataFormatId) ? 'table' : 'details';
 }
 
 // Navigate to a folder. Setting currentFolderPath is all that's needed: connectionNodeConfigsDataSource picks it
@@ -373,10 +503,37 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
     <GridDetailPanel v-else :selected-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="400px">
         <template #header="{ isSplit }">
-            <div class="flex h-full min-w-0 items-center border-b border-separator px-4 text-sm">
+            <div class="flex h-full min-w-0 items-center gap-x-3 border-b border-separator px-4 text-sm">
                 <!-- The last crumb is the item on show. It leads back to the list, so it stays live only while the list
                      is hidden; 'isSplit' comes from the panel below so the two cannot disagree about that. -->
-                <Breadcrumbs class="h-9.25 flex-1" :items="breadcrumbs" :disable-last="isSplit || activeConnectionObjectConfig == null" @select="handleSelectBreadcrumb" />
+                <Breadcrumbs class="h-9.25 min-w-0 flex-1" :items="breadcrumbs" :disable-last="isSplit || activeConnectionObjectConfig == null" @select="handleSelectBreadcrumb" />
+
+                <!-- Preview Tabs ─ Only once the preview is back, because what it found decides which tabs there are. Icons
+                     rather than words, to leave the breadcrumbs room. -->
+                <div
+                    v-if="activeConnectionObjectConfig && availablePreviewTabs.length > 0"
+                    :aria-label="t(TEXT, 'previewTabs.aria', { label: activeConnectionObjectConfig.label })"
+                    class="flex flex-none items-center gap-x-1 self-stretch"
+                    role="tablist"
+                >
+                    <ActionWrapper
+                        v-for="(previewTab, previewTabIndex) in availablePreviewTabs"
+                        :id="createPreviewTabElementId(previewTab.id)"
+                        :key="previewTab.id"
+                        :aria-controls="`${elementIdPrefix}-panel`"
+                        :aria-label="t(TEXT, previewTab.labelKey)"
+                        :aria-selected="previewTab.id === currentPreviewTabId"
+                        class="flex h-full items-center border-y-2 border-t-transparent px-1.5 hover:state-hover active:state-press"
+                        :class="previewTab.id === currentPreviewTabId ? 'border-b-accent text-accent' : 'border-b-transparent text-muted'"
+                        role="tab"
+                        :tabindex="previewTab.id === currentPreviewTabId ? 0 : -1"
+                        :title="t(TEXT, previewTab.labelKey)"
+                        @click="currentPreviewTabId = previewTab.id"
+                        @keydown="handleNavigatePreviewTabs($event, previewTabIndex)"
+                    >
+                        <component :is="previewTab.icon" aria-hidden="true" class="size-4.5" :stroke-width="1.5" />
+                    </ActionWrapper>
+                </div>
             </div>
         </template>
 
@@ -389,25 +546,52 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 :config="item"
                 :fallback-icon="item.typeId === 'folder' ? FolderIcon : FileIcon"
                 :is-compact="true"
+                :is-disabled="isUnsupportedNode(item)"
                 :overline="t(TEXT, item.typeId === 'folder' ? 'folder.label' : 'item.label')"
                 @click="handleSelectConnectionNode(item)"
-            />
+            >
+                <template v-if="isUnsupportedNode(item)" #note>{{ t(TEXT, 'item.unsupported.label') }}</template>
+            </ConfigCard>
         </template>
 
         <template #detail>
-            <div :aria-busy="previewIsPending" class="relative flex min-h-0 flex-1 flex-col">
+            <!-- A tab panel only while there are tabs, which the preview decides. -->
+            <div
+                :id="`${elementIdPrefix}-panel`"
+                :aria-busy="previewIsPending"
+                :aria-labelledby="availablePreviewTabs.length > 0 ? createPreviewTabElementId(currentPreviewTabId) : undefined"
+                class="relative flex min-h-0 flex-1 flex-col"
+                :role="availablePreviewTabs.length > 0 ? 'tabpanel' : undefined"
+            >
                 <BusyBar v-if="previewIsPending" class="mx-4" />
                 <!-- The usual room after the last row, less the status bar's height: the table already ends above it. -->
                 <Table
-                    v-show="activeItemAction === 'table'"
+                    v-show="currentPreviewTabId === 'table'"
                     class="flex-1"
                     :column-definitions="previewTableColumnDefinitions"
                     :data-source="previewTableDataSource"
                     is-column-picker-hidden
                     scroll-area-padding-bottom="calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))"
                 />
-                <TextViewer v-show="activeItemAction === 'text'" class="flex-1" :text="text" />
-                <div v-show="activeItemAction === 'details'" class="flex-1 overflow-y-auto overscroll-y-none text-sm">{{ activeConnectionObjectConfig }}</div>
+                <TextViewer v-show="currentPreviewTabId === 'text'" class="flex-1" :text="text" />
+                <!-- Rendered only while shown, as rendering parses the whole preview. 'renderMarkdown' sanitises the HTML,
+                     which comes from the file itself. -->
+                <ScrollArea
+                    v-if="currentPreviewTabId === 'document'"
+                    class="flex-1 border-x border-separator"
+                    scroll-area-padding-bottom="var(--vertical-scroll-bottom-embedded-inset)"
+                >
+                    <div class="dpuse-prose px-4 py-3 text-sm" v-html="renderMarkdown(text ?? '')" />
+                </ScrollArea>
+                <ScrollArea v-show="currentPreviewTabId === 'details'" class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-embedded-inset)">
+                    <p v-if="previewIsUnsupported" class="px-4 pt-3 text-sm" role="status">{{ previewUnsupportedText }}</p>
+                    <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 px-4 py-3 text-sm">
+                        <template v-for="detail in itemDetails" :key="detail.labelKey">
+                            <dt class="text-muted">{{ t(TEXT, detail.labelKey) }}</dt>
+                            <dd class="wrap-break-word">{{ detail.value }}</dd>
+                        </template>
+                    </dl>
+                </ScrollArea>
                 <!-- How much of the item the preview read, as a thin accent line along the top edge over a neutral bar. A meter
                      rather than a progress bar, because it shows a settled amount, not work under way. -->
                 <div
@@ -428,8 +612,9 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         </template>
 
         <template #detail-action>
-            <!-- Disabled until the preview arrives, because the preview is what the commit saves with the item. -->
-            <PillButton :disabled="activePreviewConfig == null || dataViewIsSaving" :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
+            <!-- Disabled until the preview arrives, because the preview is what the commit saves with the item, and while the
+                 preview is not data. -->
+            <PillButton :disabled="!previewIsSelectable || dataViewIsSaving" :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
         </template>
 
         <template #no-selection>

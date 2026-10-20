@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "1.0.190",
+    "version": "1.0.191",
     "private": false,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -68,7 +68,7 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject(['unit', 'e2e']))\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.128",
+        "@dpuse/dpuse-shared": "^1.0.129",
         "@fontsource-variable/inter": "^5.3.0",
         "@formkit/drag-and-drop": "^0.6.1",
         "@lucide/vue": "^1.60.0",
@@ -131,6 +131,6 @@
         "vite": "^8.3.4",
         "vitest": "^5.0.5",
         "vue-tsc": "^3.3.13",
-        "wrangler": "4.151.2"
+        "wrangler": "4.151.3"
     }
 }

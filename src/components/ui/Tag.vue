@@ -15,11 +15,11 @@ const { text, color } = defineProps<Properties>();
 const colorClasses = computed(() => {
     switch (color) {
         case 'warning':
-            return 'bg-warning text-warning-text inset-ring-warning-ring/20';
+            return 'bg-warning text-warning-text inset-ring-warning-border';
         case 'success':
-            return 'bg-success text-success-text inset-ring-success-ring/20';
+            return 'bg-success text-success-text inset-ring-success-border';
         case 'danger':
-            return 'bg-danger text-danger-text inset-ring-danger-ring/20';
+            return 'bg-danger text-danger-text inset-ring-danger-border';
         default:
             return 'bg-zinc-100 text-emphasis inset-ring-zinc-300/60 dark:bg-zinc-300/20 dark:text-content dark:inset-ring-zinc-500/30';
     }

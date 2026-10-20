@@ -63,6 +63,7 @@
     --color-success-hover: var(--success-hover);
     --color-success-text: var(--success-text);
     --color-success-ring: var(--success-ring);
+    --color-success-border: var(--success-border); /* Edge of a success tag */
 
     --color-warning: var(--warning);
     --color-warning-hover: var(--warning-hover);
@@ -70,7 +71,7 @@
     --color-warning-press: var(--warning-press); /* A pressed button, one step past hover */
     --color-warning-text: var(--warning-text);
     --color-warning-ring: var(--warning-ring);
-    --color-warning-border: var(--warning-border); /* Edge of a guarded button */
+    --color-warning-border: var(--warning-border); /* Edge of a guarded button or warning tag */
 
     --color-danger: var(--danger);
     --color-danger-hover: var(--danger-hover);
@@ -78,7 +79,7 @@
     --color-danger-press: var(--danger-press); /* A pressed button, one step past hover */
     --color-danger-text: var(--danger-text);
     --color-danger-ring: var(--danger-ring);
-    --color-danger-border: var(--danger-border); /* Edge of a destructive button */
+    --color-danger-border: var(--danger-border); /* Edge of a destructive button or danger tag */
 
     --color-info: var(--info);
     --color-info-hover: var(--info-hover);
@@ -130,6 +131,7 @@
     --success-hover: var(--color-green-100);
     --success-text: var(--color-green-700);
     --success-ring: var(--color-green-600);
+    --success-border: var(--color-green-200);
 
     --warning: var(--color-amber-50);
     --warning-hover: var(--color-amber-100);
@@ -190,6 +192,7 @@
     --success-hover: color-mix(in srgb, var(--color-green-500) 20%, transparent);
     --success-text: var(--color-green-400);
     --success-ring: color-mix(in srgb, var(--color-green-500) 20%, transparent);
+    --success-border: var(--color-green-900);
 
     --warning: color-mix(in srgb, var(--color-amber-400) 10%, transparent);
     --warning-hover: color-mix(in srgb, var(--color-amber-400) 20%, transparent);

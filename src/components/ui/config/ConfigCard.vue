@@ -35,6 +35,7 @@ interface Properties<T extends BaseConfig> {
     icon?: null | string; // Replaces the config's own icon, e.g. with that of the connector behind it.
     iconDark?: null | string;
     isCompact?: boolean;
+    isDisabled?: boolean; // Dimmed and announced as unavailable, but still focusable, so the reason in the note can be found. The host ignores its clicks.
     onCategoryClick?: (config: LocalisedConfig<T>) => void; // Declared as a prop so the card can tell whether '@category-click' is bound.
     overline?: string; // Above the label, e.g. the kind of thing the card is: it is read before the name it classifies.
     prereleaseLabel?: string; // Top right, as a small amber tag, e.g. 'Beta': a caution about the version.
@@ -50,6 +51,7 @@ const {
     icon,
     iconDark,
     isCompact,
+    isDisabled,
     onCategoryClick,
     overline,
     prereleaseLabel,
@@ -59,7 +61,7 @@ const {
 
 defineSlots<{
     details?: () => unknown; // Two muted lines below the label, e.g. what a data view is built from. Makes the title row taller.
-    note?: () => unknown; // Small and muted, in the footer after the category, e.g. a step still to do.
+    note?: () => unknown; // Small and muted, in the footer after the category, or at the end of a compact row, e.g. a step still to do.
 }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -88,9 +90,11 @@ defineOptions({ inheritAttrs: false });
             // stays, transparent, so a row is the same size in every state. Hover, press and selected are layers over the
             // card's own fill, the same as everywhere else in the app.
             isCompact
-                ? selected
-                    ? 'border-transparent state-selected hover:state-selected-hover'
-                    : 'border-transparent hover:state-hover active:state-press'
+                ? isDisabled
+                    ? 'border-transparent'
+                    : selected
+                      ? 'border-transparent state-selected hover:state-selected-hover'
+                      : 'border-transparent hover:state-hover active:state-press'
                 : selected
                   ? 'border-selected-border bg-card state-selected hover:state-selected-hover'
                   : 'border-separator bg-card hover:border-boundary-hover hover:state-hover active:state-press dark:border-zinc-600 dark:hover:border-zinc-500'
@@ -101,10 +105,20 @@ defineOptions({ inheritAttrs: false });
              not contain other interactive content, and this is the one element here that is genuinely one — the
              actions below are real, independently focusable buttons, kept clickable by sitting above this in
              stacking order rather than inside it. The title shows the full label, which the row may truncate. -->
-        <ActionWrapper :aria-label="overline ? `${overline}: ${config.label}` : config.label" class="absolute inset-0 z-10" :title="config.label" :to="to" v-bind="$attrs" />
+        <ActionWrapper
+            :aria-disabled="isDisabled || undefined"
+            :aria-label="overline ? `${overline}: ${config.label}` : config.label"
+            class="absolute inset-0 z-10"
+            :title="config.label"
+            :to="to"
+            v-bind="$attrs"
+        />
 
         <!-- Header ─ One line only: the label truncates rather than wraps, because the card cannot grow. -->
-        <div class="flex min-w-0 items-center gap-x-2" :class="isCompact ? 'flex-1' : $slots.details ? 'h-16 flex-none' : overline ? 'h-9 flex-none' : 'h-7 flex-none'">
+        <div
+            class="flex min-w-0 items-center gap-x-2"
+            :class="[isCompact ? 'flex-1' : $slots.details ? 'h-16 flex-none' : overline ? 'h-9 flex-none' : 'h-7 flex-none', { 'opacity-50': isDisabled }]"
+        >
             <!-- Icon -->
             <ConfigIcon v-if="iconIsPresent" :class="isCompact ? 'size-5' : 'size-7'" :icon="icon ?? config.icon" :icon-dark="iconDark ?? config.iconDark" />
             <component
@@ -140,6 +154,9 @@ defineOptions({ inheritAttrs: false });
                 {{ prereleaseLabel }}
             </span>
         </div>
+
+        <!-- Compact Note -->
+        <span v-if="isCompact && $slots.note" class="flex-none text-xs text-muted"><slot name="note" /></span>
 
         <!-- Footer ─ The category on the left and the actions on the right. A compact row has no footer: the wrapper steps
              aside ('contents') and the actions join the end of the single row. -->

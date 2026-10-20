@@ -9,6 +9,7 @@ import { t } from '@/state/locale';
 import { TEXT } from './ThemePanel_.json';
 
 // ── Static Components
+import ComponentSamples from './_components/ComponentSamples.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHeader from '@/features/studio/_components/StudioHeader.vue';
@@ -98,6 +99,10 @@ const route = useRoute();
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Components -->
+                        <h3 class="mt-6 mb-3 text-sm font-medium text-emphasis">{{ t(TEXT, 'components.title') }}</h3>
+                        <ComponentSamples />
                     </section>
                 </div>
             </div>

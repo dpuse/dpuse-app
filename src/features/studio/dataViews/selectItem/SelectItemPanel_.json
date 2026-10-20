@@ -1,7 +1,35 @@
 {
     "TEXT": {
+        "dataFormat.dpe.label": { "en": "Data Positioning Events", "es": "Eventos de posicionamiento de datos" },
+        "dataFormat.dtv.label": { "en": "Delimited text", "es": "Texto delimitado" },
+        "dataFormat.json.label": { "en": "JSON", "es": "JSON" },
+        "dataFormat.markdown.label": { "en": "Markdown", "es": "Markdown" },
+        "dataFormat.spss.label": { "en": "SPSS", "es": "SPSS" },
+        "dataFormat.text.label": { "en": "Plain text", "es": "Texto sin formato" },
+        "dataFormat.unknown.label": { "en": "Unknown", "es": "Desconocido" },
+        "dataFormat.xlsx.label": { "en": "Excel workbook (XLSX)", "es": "Libro de Excel (XLSX)" },
+        "dataFormat.xml.label": { "en": "XML", "es": "XML" },
+        "detail.dataFormat.label": { "en": "Format", "es": "Formato" },
+        "detail.encoding.assumed.text": { "en": "{encoding} (assumed)", "es": "{encoding} (supuesta)" },
+        "detail.encoding.label": { "en": "Encoding", "es": "Codificación" },
+        "detail.encoding.text": { "en": "{encoding} ({confidence} confidence)", "es": "{encoding} (confianza del {confidence})" },
+        "detail.fileType.label": { "en": "File type", "es": "Tipo de archivo" },
+        "detail.lastModified.label": { "en": "Modified", "es": "Modificado" },
+        "detail.path.label": { "en": "Path", "es": "Ruta" },
+        "detail.size.label": { "en": "Size", "es": "Tamaño" },
         "folder.label": { "en": "Folder", "es": "Carpeta" },
+        "item.empty.text": { "en": "This file is empty, so there is nothing to select.", "es": "Este archivo está vacío, así que no hay nada que seleccionar." },
         "item.label": { "en": "Item", "es": "Elemento" },
-        "preview.aria": { "en": "Amount previewed", "es": "Cantidad previsualizada" }
+        "item.unsupported.label": { "en": "Not supported", "es": "No compatible" },
+        "item.unsupported.text": {
+            "en": "This file can't be read as data or text, so it can't be selected.",
+            "es": "Este archivo no se puede leer como datos ni como texto, así que no se puede seleccionar."
+        },
+        "preview.aria": { "en": "Amount previewed", "es": "Cantidad previsualizada" },
+        "previewTabs.aria": { "en": "View {label} as", "es": "Ver {label} como" },
+        "tab.details.aria": { "en": "Details", "es": "Detalles" },
+        "tab.document.aria": { "en": "Document", "es": "Documento" },
+        "tab.table.aria": { "en": "Table", "es": "Tabla" },
+        "tab.text.aria": { "en": "Text", "es": "Texto" }
     }
 }
