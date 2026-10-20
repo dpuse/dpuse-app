@@ -327,16 +327,10 @@ function formatDateTime(timestamp: number): string {
                         </template>
                     </dl>
                     <p v-else class="text-muted">{{ t(TEXT, 'item.pending.text') }}</p>
-                    <!-- Columns ─ Scrolls sideways on its own, so a wide item does not widen the document. The caption is styled
-                         as a subheading, so it separates the table from the list above it. The table's side borders frame the
-                         rows but not the caption. -->
-                    <ScrollRegion v-if="previewColumnRows.length > 0" class="mt-4" :label="t(TEXT, 'columnTable.title')">
-                        <table class="border-x border-separator text-sm whitespace-nowrap">
-                            <caption class="mb-2 text-left text-sm font-medium text-emphasis">
-                                {{
-                                    t(TEXT, 'columnTable.title')
-                                }}
-                            </caption>
+                    <!-- Columns ─ Scrolls sideways on its own, so a wide item does not widen the document. The title is shown
+                         above the region's frame, which a caption inside the table cannot be, and names the table. -->
+                    <ScrollRegion v-if="previewColumnRows.length > 0" v-slot="{ labelId }" class="mt-4" is-label-shown :label="t(TEXT, 'columnTable.title')">
+                        <table :aria-labelledby="labelId" class="text-sm whitespace-nowrap">
                             <thead>
                                 <tr class="border-b border-separator text-left text-muted">
                                     <th class="py-1 pr-4 font-normal">{{ t(TEXT, 'column.label') }}</th>
@@ -375,17 +369,12 @@ function formatDateTime(timestamp: number): string {
 
                 <StudioDocumentSection :title="t(TEXT, 'data.title')">
                     <template v-if="previewRows.length > 0">
-                        <!-- Scrolls sideways on its own and is framed, as the columns table is. Every row has a cell for every
-                             column, because a record can have fewer values than the item has columns. A cell with no value
-                             holds a non-breaking space, so a record with no values is as tall as the others. The caption is
-                             for screen readers only, because the section heading already names the table on screen. -->
-                        <ScrollRegion :label="t(TEXT, 'dataTable.title')">
-                            <table class="border-x border-separator text-sm whitespace-nowrap">
-                                <caption class="sr-only">
-                                    {{
-                                        t(TEXT, 'dataTable.title')
-                                    }}
-                                </caption>
+                        <!-- Scrolls sideways on its own, as the columns table does. Every row has a cell for every column,
+                             because a record can have fewer values than the item has columns. A cell with no value holds a
+                             non-breaking space, so a record with no values is as tall as the others. The label is for screen
+                             readers only, because the section heading already names the table on screen. -->
+                        <ScrollRegion v-slot="{ labelId }" :label="t(TEXT, 'dataTable.title')">
+                            <table :aria-labelledby="labelId" class="text-sm whitespace-nowrap">
                                 <thead>
                                     <tr class="border-b border-separator text-left text-muted">
                                         <th v-for="(columnLabel, index) in previewColumnLabels" :key="index" class="py-1 pr-4 font-normal">{{ columnLabel }}</th>

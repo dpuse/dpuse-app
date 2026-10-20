@@ -1,21 +1,27 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, useTemplateRef } from 'vue';
+import { computed, useId, useTemplateRef } from 'vue';
 import { useResizeObserver, useScroll } from '@vueuse/core';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-// Holds content that can be wider than its space, such as a table, and scrolls it sideways. A fade shows on each side
-// that has more to scroll to. A border at the edge cannot show that, because a cut-off column looks like the last one.
-// The region takes keyboard focus while it can scroll, so it can be scrolled with the arrow keys, and is named for
-// screen readers.
-const { label } = defineProps<{ label: string }>(); // Names the region for screen readers, usually the content's caption or heading.
+// Holds content that can be wider than its space, such as a table, and scrolls it sideways. The frame stays fixed, so
+// the edges of the scroll area are always visible. A fade inside the frame shows that a side has more to scroll to.
+// It is flat, matching the background, because a darker shadow reads as depth and distracts. The region takes keyboard
+// focus while it can scroll, so it can be scrolled with the arrow keys, and is named for screen readers.
+const { isLabelShown, label } = defineProps<{
+    isLabelShown?: boolean; // Shows the label as a title above the frame, where a table's own caption cannot go.
+    label: string; // Names the region and its table for screen readers.
+}>();
 
-defineSlots<{ default(): unknown }>();
+defineSlots<{
+    default(properties: { labelId: string }): unknown; // 'labelId' names a table after the label, through 'aria-labelledby'.
+}>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const contentElement = useTemplateRef<HTMLDivElement>('content');
+const labelId = useId();
 const scrollElement = useTemplateRef<HTMLDivElement>('scroller');
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -32,25 +38,36 @@ useResizeObserver([scrollElement, contentElement], measure); // A narrower space
 </script>
 
 <template>
-    <div class="relative w-fit max-w-full" data-region="ScrollRegion">
-        <!-- 'overscroll-x-none' stops a swipe that reaches either end from moving the page, for example going back a page. -->
-        <div
-            ref="scroller"
-            :aria-label="label"
-            class="overflow-x-auto overscroll-x-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-            role="region"
-            :tabindex="scrollElementCanScroll ? 0 : undefined"
-        >
-            <!-- 'p-px' keeps a collapsed table border inside the scroller. Half of it sits outside the table, where the
-                 scroller would clip it. 'relative' keeps absolutely positioned content, such as an 'sr-only' caption,
-                 inside the scroller. Otherwise iOS Safari scrolls the whole page sideways. -->
-            <div ref="content" class="relative w-fit p-px">
-                <slot />
-            </div>
-        </div>
+    <div data-region="ScrollRegion">
+        <!-- Label ─ Hidden from view, but still read, when something else on screen already names the content. A hidden
+             caption inside a table would do the same, but it stops Chromium merging the borders under the header row. -->
+        <div :id="labelId" :class="isLabelShown ? 'mb-2 text-sm font-medium text-emphasis' : 'sr-only'">{{ label }}</div>
 
-        <!-- Fades ─ Outside the scroller, so they stay at its edges while the content moves under them. -->
-        <div v-if="!arrivedState.left" aria-hidden="true" class="pointer-events-none absolute inset-y-0 left-0 w-6 bg-linear-to-r from-surface to-transparent" />
-        <div v-if="!arrivedState.right" aria-hidden="true" class="pointer-events-none absolute inset-y-0 right-0 w-6 bg-linear-to-l from-surface to-transparent" />
+        <!-- Frame ─ Only as wide as its content, up to the space it has. -->
+        <div class="relative w-fit max-w-full border border-separator">
+            <!-- 'overscroll-x-none' stops a swipe that reaches either end from moving the page, for example going back a
+                 page. -->
+            <div
+                ref="scroller"
+                :aria-labelledby="labelId"
+                class="overflow-x-auto overscroll-x-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                role="region"
+                :tabindex="scrollElementCanScroll ? 0 : undefined"
+            >
+                <!-- A table drops the outer borders that '.dpuse-prose' gives its edge cells, because the frame draws
+                     them. Otherwise they would double the frame, and the fades would cover them. -->
+                <div
+                    ref="content"
+                    class="w-fit [&_tbody>tr:last-child]:border-b-0 [&_tbody>tr:last-child>*]:border-b-0 [&_thead>tr:first-child>*]:border-t-0 [&_tr>*:first-child]:border-l-0 [&_tr>*:last-child]:border-r-0"
+                >
+                    <slot :label-id="labelId" />
+                </div>
+            </div>
+
+            <!-- Fades ─ Inside the frame's borders, so the borders always show. Outside the scroller, so they stay at its
+                 edges while the content moves under them. -->
+            <div v-if="!arrivedState.left" aria-hidden="true" class="pointer-events-none absolute inset-y-0 left-0 w-10 bg-linear-to-r from-surface to-transparent" />
+            <div v-if="!arrivedState.right" aria-hidden="true" class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-linear-to-l from-surface to-transparent" />
+        </div>
     </div>
 </template>
