@@ -74,12 +74,12 @@ function isPaneVisible(paneId: AssistantPaneId): boolean {
     </div>
 
     <!-- Pill ─ The same height as the app's assistant toggle and ending at its right edge, with a trailing spacer the
-         toggle is fixed over, so the pill reads as growing out of its left side. 'mt-1.75' and '-mr-1' are that
-         toggle's own 7px top offset and the 4px between this header's edge and the toggle's. -->
+         toggle is fixed over, so the pill reads as growing out of its left side. 'mt-1.75' and '-mr-2.5' are that
+         toggle's own 7px top offset and the 10px between this header's edge and the toggle's. -->
     <div
         v-else
         :aria-label="t(TEXT, 'group.aria')"
-        class="mt-1.75 -mr-1 flex h-10 flex-none items-center gap-x-1 self-start rounded-full bg-black/4 pl-0.75 dark:bg-white/6"
+        class="mt-1.75 -mr-2.5 flex h-10 flex-none items-center gap-x-1 self-start rounded-full bg-black/4 pl-0.75 dark:bg-white/6"
         data-region="AssistantToolbar"
         role="group"
     >

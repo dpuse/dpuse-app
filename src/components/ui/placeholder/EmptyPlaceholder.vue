@@ -5,9 +5,13 @@ import { PlusIcon } from '@lucide/vue';
 import { t } from '@/state/locale';
 import { TEXT } from './EmptyPlaceholder_.json';
 
+// ── Static Components
+import RectangleButton from '@/components/ui/action/RectangleButton.vue';
+
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 defineProps<{ messageItemLabel: string; descriptionItemLabel: string; actionItemLabel: string }>();
+defineEmits<{ add: [] }>();
 </script>
 
 <template>
@@ -24,13 +28,12 @@ defineProps<{ messageItemLabel: string; descriptionItemLabel: string; actionItem
         <h3 class="mt-2 text-sm font-semibold text-emphasis">{{ t(TEXT, 'empty.title', { label: messageItemLabel }) }}</h3>
         <p class="mt-1 text-sm text-muted">{{ t(TEXT, 'empty.text', { label: descriptionItemLabel }) }}</p>
         <div class="mt-6">
-            <button
-                type="button"
-                class="inline-flex items-center rounded-md bg-success px-3 py-2 text-sm font-semibold text-success-text shadow-xs hover:bg-success-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-success-ring"
-            >
-                <PlusIcon class="mr-1.5 -ml-0.5 size-5" aria-hidden="true" />
+            <!-- Add ─ The same action as the page's floating add pill, with its icon, but styled as a button in the page
+                 because nothing floats here. -->
+            <RectangleButton class="inline-flex items-center gap-x-1.5" variant="primary" @click="$emit('add')">
+                <PlusIcon aria-hidden="true" class="-ml-0.5 size-5" :stroke-width="1.25" />
                 {{ t(TEXT, 'create.label', { label: actionItemLabel }) }}
-            </button>
+            </RectangleButton>
         </div>
     </div>
 </template>

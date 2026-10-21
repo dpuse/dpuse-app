@@ -138,7 +138,7 @@ function handleRetryMarkedTool(): void {
 
         <template v-else>
             <ScrollArea
-                class="flex flex-1 flex-col pl-4"
+                class="flex flex-1 flex-col pl-page"
                 :scroll-area-padding-bottom="scrollPaddingBottom"
                 :scroll-area-padding-top="scrollPaddingTop"
                 @initialised="handleScrollAreaInitialised"

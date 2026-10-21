@@ -64,7 +64,7 @@ async function renderDiagram(): Promise<void> {
         <ErrorNotice v-if="d3RenderFailure" :failures="[d3RenderFailure]" @retry="handleRetry" />
 
         <!-- v-show, not v-if: keeps this in the DOM so D3 always has an element to draw into, even while hidden. -->
-        <BusyBar v-if="diagramIsPending" class="mx-4" />
+        <BusyBar v-if="diagramIsPending" class="mx-page" />
         <div v-show="!d3RenderFailure" ref="d3Container" :aria-busy="diagramIsPending" class="p-6" />
     </ScrollArea>
 </template>

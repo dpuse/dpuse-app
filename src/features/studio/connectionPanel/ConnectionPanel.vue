@@ -127,7 +127,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
             </template>
 
             <template #detail="{ item }">
-                <div class="ml-4 flex h-10 flex-none items-center gap-x-1 border-b border-separator">
+                <div class="ml-page flex h-10 flex-none items-center gap-x-1 border-b border-separator">
                     <ConfigIcon class="mt-1 h-7" :icon="item.icon" :icon-dark="item.iconDark" />
                     <span class="ml-1 min-w-0 truncate">{{ item.label }}</span>
                 </div>

@@ -268,7 +268,7 @@ function formatDateTime(timestamp: number): string {
 
 <template>
     <StudioDetailLayout data-region="DataViewPanel">
-        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)" scroll-area-padding-left="1rem">
+        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)" scroll-area-padding-left="var(--spacing-page)">
             <!-- No icon beside the title, because the connection's icon is on its line below, as on the card. -->
             <StudioDocumentPanel :overline="t(TEXT, 'dataViews.label')" :title="dataViewLocalisedConfig.label" @close="$emit('close')">
                 <template #actions>

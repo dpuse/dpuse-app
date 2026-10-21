@@ -124,7 +124,7 @@ function handleTogglePane(paneId: 'chat' | 'library'): void {
              containment also makes this a stacking context, so the splitter's 'z-10' and the search bar's 'z-20' are
              sealed in here rather than competing with the app-level ladder in 'App.vue'. -->
 
-        <AssistantHeader class="mx-4 flex-none" :title="t(TEXT, 'assistant.title')" :toolbar-placement="paneIsWide ? 'end' : 'title'">
+        <AssistantHeader class="mx-page flex-none" :title="t(TEXT, 'assistant.title')" :toolbar-placement="paneIsWide ? 'end' : 'title'">
             <template #toolbar>
                 <AssistantToolbar :chat-is-visible="isPaneVisible('chat')" :is-switch="!paneIsWide" :library-is-visible="isPaneVisible('library')" @toggle="handleTogglePane" />
             </template>

@@ -48,7 +48,7 @@ const route = useRoute();
 
 <template>
     <StudioLayout>
-        <StudioHeader class="flex-none px-4" :overline="t(TEXT, 'studio.label')" :title="t(TEXT, 'theme.title')" :to="{ name: 'studio', query: route.query }" />
+        <StudioHeader class="flex-none px-page" :overline="t(TEXT, 'studio.label')" :title="t(TEXT, 'theme.title')" :to="{ name: 'studio', query: route.query }" />
 
         <Separator />
 

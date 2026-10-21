@@ -62,10 +62,10 @@ function handleReloadApp(): void {
 
 <template>
     <div v-if="status.typeId === 'pending'">
-        <BusyBar class="mx-4" />
+        <BusyBar class="mx-page" />
 
         <!-- Slow Retrieval ─ Below the bar, so the bar does not move when it appears. -->
-        <div v-if="retrievalIsSlow" class="mx-4 mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div v-if="retrievalIsSlow" class="mx-page mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
             <p class="text-sm text-muted" role="status">{{ t(TEXT, 'retrieval.slow.text') }}</p>
             <RectangleButton @click="handleReloadApp">{{ t(TEXT, 'reload.label') }}</RectangleButton>
         </div>

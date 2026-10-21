@@ -156,7 +156,7 @@ async function loadModel(modelId: string): Promise<ContextModelConfig | undefine
     <ErrorNotice v-if="markedToolFailure" :failures="[markedToolFailure]" @retry="handleRetryMarkedTool" />
 
     <StudioDetailLayout v-else data-region="ContextModelPanel">
-        <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)" scroll-area-padding-left="1rem">
+        <ScrollArea scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)" scroll-area-padding-left="var(--spacing-page)">
             <StudioDocumentPanel
                 class="max-w-prose"
                 :icon="modelReference.icon"

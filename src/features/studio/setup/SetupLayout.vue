@@ -59,7 +59,7 @@ function handleSelectTab(setupTabItem: { id: string }): void {
         <!-- Tab Bar -->
         <TabBar :active-id="activeSetupOptionLocalisedConfig.id" :aria-label="t(TEXT, 'sections.aria')" :items="setupTabItems" @select="handleSelectTab">
             <template #default="{ item }">
-                <HomeIcon v-if="item.id === 'home'" class="size-4.75! [&>path]:stroke-2" />
+                <HomeIcon v-if="item.id === 'home'" class="size-5! [&>path]:stroke-2" />
                 <div v-else class="text-sm">{{ item.label }}</div>
             </template>
         </TabBar>

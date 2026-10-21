@@ -55,7 +55,7 @@ const sections = computed((): { id: string; configs: typeof workflowOptionConfig
         <!-- Body -->
         <Separator />
         <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
-            <div class="@container max-w-4xl pl-4">
+            <div class="@container max-w-4xl pl-page">
                 <!-- A section with a single card puts its text beside the card on wide screens, rather than
                      above it. -->
                 <section v-for="section in sections" :key="section.id" :aria-labelledby="`${headingIdPrefix}-${section.id}`" class="mt-6 first:mt-4">

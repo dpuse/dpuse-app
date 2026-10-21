@@ -220,7 +220,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
 
         <!-- Cancelled Retrieval ─ Replaces the list and detail pane, as a failure does, because a list that never
              loaded has nothing to show. -->
-        <div v-if="dataViewRetrievalShowsCancelled" class="mx-4 mt-6 flex flex-col items-start gap-3">
+        <div v-if="dataViewRetrievalShowsCancelled" class="mx-page mt-6 flex flex-col items-start gap-3">
             <p class="text-sm text-muted" role="status">{{ t(TEXT, 'retrieval.cancelled.text') }}</p>
             <RectangleButton @click="handleRetryRetrieval">{{ t(TEXT, 'retrieval.retry.label') }}</RectangleButton>
         </div>
@@ -244,7 +244,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
         >
             <!-- Slow Retrieval ─ Below the list's busy bar. Cancel is the safe choice, so it comes first. -->
             <template #busy>
-                <div v-if="dataViewRetrievalShowsSlow" class="mx-4 mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+                <div v-if="dataViewRetrievalShowsSlow" class="mx-page mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
                     <p class="text-sm text-muted" role="status">{{ t(TEXT, 'retrieval.slow.text') }}</p>
                     <div class="flex gap-2">
                         <RectangleButton @click="handleCancelRetrieval">{{ t(TEXT, 'retrieval.cancel.label') }}</RectangleButton>
@@ -283,6 +283,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                     :message-item-label="t(TEXT, 'dataView.other.text')"
                     :description-item-label="t(TEXT, 'dataView.one.text')"
                     :action-item-label="t(TEXT, 'dataView.label')"
+                    @add="handleAddDataView"
                 />
             </template>
 

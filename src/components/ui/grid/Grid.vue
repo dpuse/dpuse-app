@@ -125,7 +125,7 @@ function getRowHeight(item: T | undefined): number {
             <!-- Busy ─ The caller's 'busy' content, such as a slow-load message, sits below the bar so the bar never
                  moves. -->
             <div v-if="state === 'busy'">
-                <BusyBar class="mx-4" />
+                <BusyBar class="mx-page" />
                 <slot name="busy" />
             </div>
 
@@ -156,7 +156,7 @@ function getRowHeight(item: T | undefined): number {
                                 <!-- A compact row is inset 8px on the left, where its own 8px inset then lines its icon up with
                                      the 16px page edge and its hover and selected fill reach 8px into that margin. On the right
                                      it runs up to the scroll area's own strip. -->
-                                <div class="h-full" :class="isCompact ? 'pt-0.5 pl-2' : 'pt-4 pl-4'">
+                                <div class="h-full" :class="isCompact ? 'pt-0.5 pl-3' : 'pt-4 pl-page'">
                                     <slot
                                         v-if="getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
                                         :item="getRow(virtualRow.index * columnCount + columnOffset) as T"

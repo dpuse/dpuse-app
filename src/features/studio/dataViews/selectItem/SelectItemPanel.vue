@@ -6,7 +6,7 @@
 
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
-import { ArrowRightIcon, BookOpenTextIcon, ChevronDownIcon, FileIcon, FolderIcon, HomeIcon, InfoIcon, TableIcon, TextIcon } from '@lucide/vue';
+import { ArrowRightIcon, BookOpenTextIcon, ChevronDownIcon, FolderIcon, HomeIcon, InfoIcon, TableIcon, TextIcon } from '@lucide/vue';
 import { type Component, computed, markRaw, nextTick, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
 import { onClickOutside, until } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
@@ -34,6 +34,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import { ignoreReportedNavigationFailure } from '@/router';
+import { lookupFileIcon } from '../_fileIcons';
 import { renderMarkdown } from '@/services/useMarkedTool';
 import { TEXT } from './SelectItemPanel_.json';
 import { viewportIsWide } from '@/state/device';
@@ -160,6 +161,10 @@ const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as
 // The saved connection, which this step lists the items of. Looked up again from the list, so it follows a change of
 // language.
 const activeConnectionConfig = computed(() => findConnectionLocalisedConfig(dataViewConfig.value?.connectionId));
+
+// A connector whose items are tables shows every item with the table icon, not an icon for its file format. The
+// application emulator stores its tables as CSV files, but they stand in for a real application's tables.
+const connectionItemsAreTables = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId === 'table');
 
 const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...currentFolderNodes.value]);
 
@@ -580,18 +585,18 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
     <GridDetailPanel v-else :selected-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="400px">
         <template #header="{ isSplit }">
-            <div class="flex h-full min-w-0 items-center gap-x-3 border-b border-separator px-4 text-sm">
+            <div class="flex h-full min-w-0 items-center gap-x-3 border-b border-separator px-page text-sm">
                 <!-- The last crumb is the item on show. It leads back to the list, so it stays live only while the list
                      is hidden; 'isSplit' comes from the panel below so the two cannot disagree about that. -->
                 <Breadcrumbs class="h-9.25 min-w-0 flex-1" :items="breadcrumbs" :disable-last="isSplit || activeConnectionObjectConfig == null" @select="handleSelectBreadcrumb" />
 
                 <!-- Preview Tabs ─ Only once the preview is back, because what it found decides which tabs there are. Icons
-                     rather than words, to leave the breadcrumbs room. '-mr-0.5' ends the last icon's circle under the assistant
-                     toggle's sparkle. -->
+                     rather than words, to leave the breadcrumbs room. '-mr-1.5' centres the last icon 30px from the edge,
+                     under the assistant toggle. -->
                 <div
                     v-if="activeConnectionObjectConfig && availablePreviewTabs.length > 0 && viewportIsWide"
                     :aria-label="t(TEXT, 'previewTabs.aria', { label: activeConnectionObjectConfig.label })"
-                    class="-mr-0.5 flex flex-none items-center gap-x-1 self-stretch"
+                    class="-mr-1.5 flex flex-none items-center gap-x-1 self-stretch"
                     role="tablist"
                 >
                     <ActionWrapper
@@ -609,24 +614,24 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         @click="currentPreviewTabId = previewTab.id"
                         @keydown="handleNavigatePreviewTabs($event, previewTabIndex)"
                     >
-                        <component :is="previewTab.icon" aria-hidden="true" class="size-4.5" :stroke-width="1.5" />
+                        <component :is="previewTab.icon" aria-hidden="true" class="size-5" :stroke-width="1.5" />
                     </ActionWrapper>
                 </div>
 
                 <!-- Preview Tab Menu ─ The tabs below 'md', showing only the current view's icon, so the breadcrumbs keep the row.
-                     '-mr-1' ends the arrow under the assistant toggle's sparkle, as the arrow sits well inside its icon box. -->
-                <div v-else-if="activeConnectionObjectConfig && availablePreviewTabs.length > 0" ref="previewTabMenu" class="relative -mr-1 flex-none">
+                     '-mr-3' centres the button 30px from the edge, under the assistant toggle. -->
+                <div v-else-if="activeConnectionObjectConfig && availablePreviewTabs.length > 0" ref="previewTabMenu" class="relative -mr-3 flex-none">
                     <ActionWrapper
                         :aria-controls="`${elementIdPrefix}-menu`"
                         :aria-expanded="previewTabMenuIsOpen"
                         aria-haspopup="menu"
                         :aria-label="t(TEXT, 'previewTabMenu.aria', { label: activeConnectionObjectConfig.label, view: t(TEXT, currentPreviewTab.labelKey) })"
-                        class="flex h-7 items-center gap-x-0.5 rounded-md px-1.5 text-accent hover:state-hover active:state-press"
+                        class="flex h-7 items-center gap-x-0.5 rounded-md px-1 text-accent hover:state-hover active:state-press"
                         :title="t(TEXT, currentPreviewTab.labelKey)"
                         @click="handleTogglePreviewTabMenu"
                         @keydown="handleOpenPreviewTabMenuByKey"
                     >
-                        <component :is="currentPreviewTab.icon" aria-hidden="true" class="size-4.5" :stroke-width="1.5" />
+                        <component :is="currentPreviewTab.icon" aria-hidden="true" class="size-5" :stroke-width="1.5" />
                         <ChevronDownIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
                     </ActionWrapper>
 
@@ -648,7 +653,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             @click="handleSelectPreviewTab(previewTab.id)"
                             @keydown="handleNavigatePreviewTabMenu($event, previewTabIndex)"
                         >
-                            <component :is="previewTab.icon" aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
+                            <component :is="previewTab.icon" aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
                             <span>{{ t(TEXT, previewTab.labelKey) }}</span>
                         </ItemButton>
                     </div>
@@ -663,7 +668,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
             <ConfigCard
                 v-if="item"
                 :config="item"
-                :fallback-icon="item.typeId === 'folder' ? FolderIcon : FileIcon"
+                :fallback-icon="item.typeId === 'folder' ? FolderIcon : connectionItemsAreTables ? TableIcon : lookupFileIcon(item.extension)"
                 :is-compact="true"
                 :is-disabled="isUnsupportedNode(item)"
                 :overline="t(TEXT, item.typeId === 'folder' ? 'folder.label' : 'item.label')"
@@ -683,7 +688,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 class="relative flex min-h-0 flex-1 flex-col"
                 :role="availablePreviewTabs.length > 0 && viewportIsWide ? 'tabpanel' : undefined"
             >
-                <BusyBar v-if="previewIsPending" class="mx-4" />
+                <BusyBar v-if="previewIsPending" class="mx-page" />
                 <!-- The usual room after the last row, less the status bar's height: the table already ends above it. -->
                 <Table
                     v-show="currentPreviewTabId === 'table'"
@@ -701,11 +706,11 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     class="flex-1 border-x border-separator"
                     scroll-area-padding-bottom="var(--vertical-scroll-bottom-embedded-inset)"
                 >
-                    <div class="dpuse-prose px-4 py-3 text-sm" v-html="renderMarkdown(text ?? '')" />
+                    <div class="dpuse-prose px-page py-3 text-sm" v-html="renderMarkdown(text ?? '')" />
                 </ScrollArea>
                 <ScrollArea v-show="currentPreviewTabId === 'details'" class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-embedded-inset)">
-                    <p v-if="previewIsUnsupported" class="px-4 pt-3 text-sm" role="status">{{ previewUnsupportedText }}</p>
-                    <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 px-4 py-3 text-sm">
+                    <p v-if="previewIsUnsupported" class="px-page pt-3 text-sm" role="status">{{ previewUnsupportedText }}</p>
+                    <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 px-page py-3 text-sm">
                         <template v-for="detail in itemDetails" :key="detail.labelKey">
                             <dt class="text-muted">{{ t(TEXT, detail.labelKey) }}</dt>
                             <dd class="wrap-break-word">{{ detail.value }}</dd>

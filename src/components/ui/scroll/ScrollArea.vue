@@ -74,7 +74,7 @@ function toLength(value: number | string | undefined): string | undefined {
         <div
             :id="scrollElementId"
             ref="scrollElement"
-            class="min-h-0 w-full flex-1 scrollbar-none overflow-x-hidden overflow-y-scroll overscroll-none pr-4"
+            class="min-h-0 w-full flex-1 scrollbar-none overflow-x-hidden overflow-y-scroll overscroll-none pr-page"
             :style="{ paddingBottom, paddingLeft, paddingRight, paddingTop }"
         >
             <slot name="header" />

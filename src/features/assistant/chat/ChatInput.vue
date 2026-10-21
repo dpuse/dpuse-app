@@ -108,7 +108,7 @@ function reportHeight(): void {
             // corner and so reaches this pane only when the assistant runs to the left edge of the screen. That is true
             // at every width, so it is a bound rather than a breakpoint: nothing below may reset it, which is why the
             // centring keeps the insets instead of overriding them with 'inset-x-0'.
-            studioPaneIsHidden ? 'right-4 left-16' : 'inset-x-4',
+            studioPaneIsHidden ? 'right-page left-16' : 'inset-x-page',
             // How wide it then gets is about the room the pane has, which is a container query. Capping with 'max-w'
             // rather than setting a width leaves the element free to fill the inset box when it is narrow, and the auto
             // margins centre it within that box once the cap bites.

@@ -88,17 +88,17 @@ async function renderDiagram(): Promise<void> {
 
 <template>
     <StudioLayout>
-        <StudioHeader class="flex-none px-4" :overline="t(TEXT, 'studio.label')" :title="t(TEXT, 'contextualiseData.title')" :to="{ name: 'studio', query: route.query }" />
+        <StudioHeader class="flex-none px-page" :overline="t(TEXT, 'studio.label')" :title="t(TEXT, 'contextualiseData.title')" :to="{ name: 'studio', query: route.query }" />
 
         <Separator />
 
         <ErrorNotice v-if="renderFailure" :failures="[renderFailure]" @retry="handleRetry" />
 
-        <div v-show="!renderFailure" class="px-4 py-2">
+        <div v-show="!renderFailure" class="px-page py-2">
             <RectangleButton variant="outline" @click="handleAutoLayout">{{ t(TEXT, 'autoLayout.label') }}</RectangleButton>
         </div>
 
-        <BusyBar v-if="diagramIsPending" class="mx-4" />
+        <BusyBar v-if="diagramIsPending" class="mx-page" />
         <div v-show="!renderFailure" ref="container" :aria-busy="diagramIsPending" class="w-full flex-1" />
     </StudioLayout>
 </template>

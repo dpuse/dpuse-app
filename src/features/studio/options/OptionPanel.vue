@@ -51,7 +51,7 @@ function handleComplete(): void {
 <template>
     <nav
         :aria-label="t(TEXT, 'studioOptions.aria')"
-        class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+65px)] flex-col border-t border-r border-r-separator bg-surface pt-13.5 pb-[calc(var(--vertical-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
+        class="mt-[env(safe-area-inset-top)] flex h-full w-[calc(env(safe-area-inset-left)+61px)] flex-col border-t border-r border-r-separator bg-surface pt-13.5 pb-[calc(var(--vertical-bottom-screen-inset)+env(safe-area-inset-top))] pl-[env(safe-area-inset-left)]"
         :class="hasTopEdgeLine ? 'border-t-separator' : 'border-t-transparent'"
         data-region="OptionPanel"
     >

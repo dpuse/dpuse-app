@@ -143,7 +143,7 @@ async function loadPresenters(): Promise<void> {
 <template>
     <StudioLayout>
         <!-- Header -->
-        <StudioHeader class="flex-none px-4" :overline="t(TEXT, 'studio.label')" :title="t(TEXT, 'explorePresentations.title')" :to="{ name: 'studio', query: route.query }" />
+        <StudioHeader class="flex-none px-page" :overline="t(TEXT, 'studio.label')" :title="t(TEXT, 'explorePresentations.title')" :to="{ name: 'studio', query: route.query }" />
 
         <!-- Body -->
         <Separator />
@@ -161,7 +161,7 @@ async function loadPresenters(): Promise<void> {
 
             <template #detail>
                 <ErrorNotice v-if="renderFailure" :failures="[renderFailure]" @retry="handleRetryRender" />
-                <BusyBar v-if="renderIsPending" class="mx-4" />
+                <BusyBar v-if="renderIsPending" class="mx-page" />
                 <!-- 'relative' keeps the charts' hidden screen-reader announcers inside the scroll area. Without it they are
                      placed against an outer element, escape the clipping and make the whole page scroll. The 'math'
                      variant stops maths fractions using a smaller font. -->
@@ -169,7 +169,7 @@ async function loadPresenters(): Promise<void> {
                     v-show="!renderFailure"
                     ref="container"
                     :aria-busy="renderIsPending"
-                    class="dpuse-prose relative min-h-0 flex-1 overflow-y-scroll overscroll-y-none px-4 pt-4 [&_math_*]:[font-size:inherit]"
+                    class="dpuse-prose relative min-h-0 flex-1 overflow-y-scroll overscroll-y-none px-page pt-4 [&_math_*]:[font-size:inherit]"
                 />
             </template>
 

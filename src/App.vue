@@ -185,7 +185,7 @@ function syncPaneQuery(): void {
         <!-- Notices ─ Stacked above the bottom row of controls, so two at once never overlap. The stack spans the width
              but lets clicks through, so the page beside a notice still works. -->
         <div
-            class="pointer-events-none fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.75rem)] left-[calc(1rem+env(safe-area-inset-left))] z-40 flex flex-col gap-2 sm:items-end"
+            class="pointer-events-none fixed right-[calc(var(--spacing-page)+env(safe-area-inset-right))] bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.75rem)] left-[calc(var(--spacing-page)+env(safe-area-inset-left))] z-40 flex flex-col gap-2 sm:items-end"
         >
             <!-- New Version Notice ─ For users who stay on one screen, since moving to another loads the new version. -->
             <NewVersionNotice v-if="newAppVersionIsAvailable || moduleUpdateIsAvailable" />

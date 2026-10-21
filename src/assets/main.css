@@ -8,8 +8,8 @@
         max(env(safe-area-inset-bottom), 24px) + 24px
     ); /* Floating button screen bottom offset: 'safe-area-inset-bottom' or '24px' for optional status bar; '24px' for horizontal scroll bar. */
     --safe-top-offset: calc(env(safe-area-inset-top) + 7px); /* Floating button screen top offset: 'safe-area-inset-top'; '7px' for gutter. */
-    --safe-left-offset: calc(env(safe-area-inset-left) + 12px); /* Floating button screen left offset: 'safe-area-inset-left'; '12px' for gutter. */
-    --safe-right-offset: calc(env(safe-area-inset-right) + 12px); /* Floating button screen right offset: 'safe-area-inset-right'; '12px' for gutter. */
+    --safe-left-offset: calc(env(safe-area-inset-left) + 10px); /* Floating button screen left offset: 'safe-area-inset-left'; '10px' for gutter, centring a 40px button 30px in. */
+    --safe-right-offset: calc(env(safe-area-inset-right) + 10px); /* Floating button screen right offset: 'safe-area-inset-right'; '10px' for gutter, mirroring the left. */
 
     --pane-splitter-width: 6px; /* Width of 'PaneSplitter'. Declared here because 'App.vue' subtracts half of it from the studio pane. */
 

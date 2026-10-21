@@ -23,13 +23,13 @@ export interface Action<T extends BaseConfig = BaseConfig> {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A full-size card's metrics, in px. The card's classes state the same numbers — 'p-3', 'gap-y-3', 'h-7', 'h-16' and
+// A full-size card's metrics, in px. The card's classes state the same numbers — 'p-3', 'gap-y-3', 'h-7', 'h-17' and
 // 'pointer-coarse:h-8.5' — so a change to one must be made to the other.
 const CARD_PADDING_PX = 12;
 const CARD_ROW_GAP_PX = 12;
 const CARD_ROW_HEIGHT_PX = 28;
 const CARD_ROW_HEIGHT_COARSE_PX = 34; // The footer row on touch, where the action buttons grow to a comfortable target.
-const CARD_TITLE_ROW_WITH_DETAILS_HEIGHT_PX = 64; // The title row holding two detail lines below the label.
+const CARD_TITLE_ROW_WITH_DETAILS_HEIGHT_PX = 68; // The title row holding two detail lines below the label, each as tall as its 20px icon.
 const GRID_CELL_GAP_PX = 16; // 'Grid' leaves this above each full-size cell.
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────

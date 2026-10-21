@@ -80,7 +80,7 @@ defineOptions({ inheritAttrs: false });
 <template>
     <!-- A full-size card is a fixed height, so every card in a virtualised grid row matches: a title row, then a footer
          row of category and actions, each 'h-7' in 'p-3' with a 'gap-y-3' between; an overline grows the title row to 'h-9' to fit its
-         second line, and details grow it to 'h-16' to fit two lines below the label. 'useCardRowHeight' in './configCard'
+         second line, and details grow it to 'h-17' to fit two lines below the label. 'useCardRowHeight' in './configCard'
          states the same numbers, except the overline's, which no virtualised grid uses. Compact is a single plain list row. -->
     <div
         class="relative flex size-full border"
@@ -117,7 +117,7 @@ defineOptions({ inheritAttrs: false });
         <!-- Header ─ One line only: the label truncates rather than wraps, because the card cannot grow. -->
         <div
             class="flex min-w-0 items-center gap-x-2"
-            :class="[isCompact ? 'flex-1' : $slots.details ? 'h-16 flex-none' : overline ? 'h-9 flex-none' : 'h-7 flex-none', { 'opacity-50': isDisabled }]"
+            :class="[isCompact ? 'flex-1' : $slots.details ? 'h-17 flex-none' : overline ? 'h-9 flex-none' : 'h-7 flex-none', { 'opacity-50': isDisabled }]"
         >
             <!-- Icon -->
             <ConfigIcon v-if="iconIsPresent" :class="isCompact ? 'size-5' : 'size-7'" :icon="icon ?? config.icon" :icon-dark="iconDark ?? config.iconDark" />

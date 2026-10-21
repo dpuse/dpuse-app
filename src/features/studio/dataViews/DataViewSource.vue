@@ -1,12 +1,13 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { BracesIcon, CableIcon, ChevronRightIcon, FileTextIcon, SquareDashedIcon, Table2Icon } from '@lucide/vue';
+import { BracesIcon, CableIcon, ChevronRightIcon, FileTextIcon, SquareDashedIcon, TableIcon } from '@lucide/vue';
 import { type Component, computed } from 'vue';
 
 // ── DPUse Framework
 import type { ConnectionNodeConfig, ConnectorItemTypeId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { lookupFileIcon } from './_fileIcons';
 import { t } from '@/state/locale';
 import { TEXT } from './DataViewSource_.json';
 import { constructItemPath, type DataViewConnection } from './dataViewSummary';
@@ -20,9 +21,10 @@ import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 // chosen. The difference comes from the chosen lines because muted is already the lightest grey that stays readable.
 const CHOSEN_CLASSES = 'text-content';
 
-// A chosen item without an icon of its own shows what kind of item it is. A connector released before it said which
-// shows the table grid.
-const ITEM_TYPE_ICONS: Record<ConnectorItemTypeId, Component> = { apiEndpoint: BracesIcon, file: FileTextIcon, table: Table2Icon };
+// A chosen item without an icon of its own shows its file type when it has an extension, as the item list does, and
+// otherwise what kind of item it is. A table connector's items always show the table grid, even the application
+// emulator's, whose tables are stored as CSV files. A connector released before it said which shows the table grid.
+const ITEM_TYPE_ICONS: Record<ConnectorItemTypeId, Component> = { apiEndpoint: BracesIcon, file: FileTextIcon, table: TableIcon };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -41,15 +43,19 @@ const { connectionId, connectionNodeConfig, dataViewConnection, isSingleLine, it
 const connectionLabel = computed(() => dataViewConnection?.label ?? t(TEXT, connectionId == null ? 'connection.none.text' : 'connection.unavailable.text'));
 const itemIsShown = computed(() => !isSingleLine || dataViewConnection != null || connectionNodeConfig != null);
 const itemIconIsPresent = computed(() => [connectionNodeConfig?.icon, connectionNodeConfig?.iconDark].some((svg) => svg != null && svg !== ''));
-const itemTypeIcon = computed(() => (itemTypeId ? ITEM_TYPE_ICONS[itemTypeId] : Table2Icon));
+const itemTypeIcon = computed(() => {
+    if (itemTypeId === 'table') return TableIcon;
+    if (connectionNodeConfig?.extension != null) return lookupFileIcon(connectionNodeConfig.extension);
+    return itemTypeId ? ITEM_TYPE_ICONS[itemTypeId] : TableIcon;
+});
 
-// Split before the file name, so a long path is cut in the middle: the start of its folder path and the whole file name
-// stay in view. The last slash goes with the name, so it still shows when the folder path is cut.
+// The item's folder path then its label, which a connector can set apart from the name the engine uses, e.g. to show a
+// file as a table. Split before the label, so a long path is cut in the middle: the start of its folder path and the
+// whole label stay in view. The last slash goes with the label, so it still shows when the folder path is cut. The
+// tooltip gives the path the engine uses.
 const itemPathParts = computed(() => {
     if (!connectionNodeConfig) return;
-    const itemPath = constructItemPath(connectionNodeConfig);
-    const nameStart = itemPath.lastIndexOf('/');
-    return { folderPath: itemPath.slice(0, nameStart), name: itemPath.slice(nameStart) };
+    return { folderPath: connectionNodeConfig.folderPath, label: `/${connectionNodeConfig.label}`, path: constructItemPath(connectionNodeConfig) };
 });
 </script>
 
@@ -63,8 +69,8 @@ const itemPathParts = computed(() => {
             class="flex min-h-4 min-w-0 items-center gap-x-2"
             :class="{ 'max-w-1/2 flex-none': isSingleLine, 'opacity-60': connectionIsDraft, [CHOSEN_CLASSES]: dataViewConnection }"
         >
-            <ConfigIcon v-if="dataViewConnection" class="size-4.5" :icon="dataViewConnection.icon" :icon-dark="dataViewConnection.iconDark" />
-            <CableIcon v-else aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
+            <ConfigIcon v-if="dataViewConnection" class="size-5" :icon="dataViewConnection.icon" :icon-dark="dataViewConnection.iconDark" />
+            <CableIcon v-else aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
             <span class="min-w-0 truncate" :title="dataViewConnection?.label">{{ connectionLabel }}</span>
         </div>
 
@@ -75,16 +81,16 @@ const itemPathParts = computed(() => {
         <!-- Item -->
         <div v-if="itemIsShown" class="flex min-h-4 min-w-0 items-center gap-x-2" :class="{ 'opacity-60': itemIsDraft, [CHOSEN_CLASSES]: connectionNodeConfig }">
             <template v-if="connectionNodeConfig && itemPathParts">
-                <ConfigIcon v-if="itemIconIsPresent" class="size-4.5" :icon="connectionNodeConfig.icon" :icon-dark="connectionNodeConfig.iconDark" />
-                <component :is="itemTypeIcon" v-else aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
-                <!-- The folder path is cut first, down to its ellipsis, and the file name only once it alone is too long. -->
-                <span class="flex min-w-0" :title="itemPathParts.folderPath + itemPathParts.name">
+                <ConfigIcon v-if="itemIconIsPresent" class="size-5" :icon="connectionNodeConfig.icon" :icon-dark="connectionNodeConfig.iconDark" />
+                <component :is="itemTypeIcon" v-else aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
+                <!-- The folder path is cut first, down to its ellipsis, and the label only once it alone is too long. -->
+                <span class="flex min-w-0" :title="itemPathParts.path">
                     <span class="min-w-0 truncate">{{ itemPathParts.folderPath }}</span>
-                    <span class="max-w-full shrink-0 truncate">{{ itemPathParts.name }}</span>
+                    <span class="max-w-full shrink-0 truncate">{{ itemPathParts.label }}</span>
                 </span>
             </template>
             <template v-else>
-                <SquareDashedIcon aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
+                <SquareDashedIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
                 <span class="min-w-0 truncate">{{ t(TEXT, 'item.none.text') }}</span>
             </template>
         </div>

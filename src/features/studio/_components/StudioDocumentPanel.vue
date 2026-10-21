@@ -32,7 +32,7 @@ const panesAreSplit = inject(gridDetailIsSplitKey, ref(false));
 
 const iconIsPresent = computed(() => [icon, iconDark].some((svg) => svg != null && svg !== ''));
 const { width: actionsWidth } = useElementSize(actionsElement);
-const headerMarginRight = computed(() => `${String(Math.max(42, actionsWidth.value + 14))}px`); // Keeps the title clear of however many actions there are, and of the 6px the actions sit in from the edge.
+const headerMarginRight = computed(() => `${String(Math.max(36, actionsWidth.value + 8))}px`); // Keeps the title clear of however many actions there are.
 </script>
 
 <template>
@@ -62,8 +62,9 @@ const headerMarginRight = computed(() => `${String(Math.max(42, actionsWidth.val
 
             <!-- Actions ─ Beside the header button rather than inside it, because a button may not contain buttons. They sit in
                  the right margin the header keeps clear, and are centred on the title row whatever the overline's height.
-                 'right-1.5' puts the last action's centre under the assistant toggle's in the top right corner. -->
-            <div v-if="$slots.actions" ref="actionsElement" class="absolute right-1.5 bottom-0 flex h-10 items-center gap-x-2">
+                 'right-0' puts the last action's centre under the assistant toggle's in the top right corner: the page margin
+                 ends 20px from the edge, so a 20px icon there is centred 30px in, as the toggle is. -->
+            <div v-if="$slots.actions" ref="actionsElement" class="absolute right-0 bottom-0 flex h-10 items-center gap-x-2">
                 <slot name="actions" />
             </div>
         </div>

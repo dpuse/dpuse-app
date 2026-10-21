@@ -116,7 +116,7 @@ watch(
                     <div v-if="selectedItem" :key="selectedItem.id" class="relative flex h-full min-h-0 flex-col">
                         <slot name="detail" :item="selectedItem" :close="() => (detailIsOpen = false)" />
                     </div>
-                    <div v-else key="noSelection" class="mx-4 mt-6">
+                    <div v-else key="noSelection" class="mx-page mt-6">
                         <slot name="no-selection" />
                     </div>
                 </Transition>

@@ -192,7 +192,7 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
 <template>
     <StudioLayout>
         <!-- Header -->
-        <StudioHeader class="flex-none px-4" :overline="headerOverline" :title="headerTitle" :to="headerBackRoute" />
+        <StudioHeader class="flex-none px-page" :overline="headerOverline" :title="headerTitle" :to="headerBackRoute" />
 
         <!-- Summary ─ What the data view is built from so far, under its name as on its card. The row is always there,
              even when empty, so the first choice does not push the panel down. Screen readers skip it, because they hear
@@ -201,7 +201,7 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
         <DataViewSource
             v-if="currentTaskLocalisedConfig"
             aria-hidden="true"
-            class="-my-1 h-7 flex-none px-4 pb-2 text-sm"
+            class="-my-1 h-7 flex-none px-page pb-2 text-sm"
             is-single-line
             :connection-id="summaryDataViewConfig?.connectionId"
             :connection-is-draft="summaryConnectionIsDraft"

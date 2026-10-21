@@ -191,7 +191,7 @@ function updateScrollState(): void {
         <component
             :is="rowTag"
             ref="row"
-            class="flex min-w-0 flex-1 scrollbar-none overflow-x-auto overscroll-x-none px-4"
+            class="flex min-w-0 flex-1 scrollbar-none overflow-x-auto overscroll-x-none px-page"
             :class="[rowClass, { 'border-b border-separator': !isBorderless }]"
             :style="{ scrollPaddingInline: `${ARROW_BUTTON_WIDTH}px` }"
             @scroll="handleScroll"

@@ -168,7 +168,7 @@ function handleSelectBreadcrumb(index: number): void {
 
         <!-- One scroller for the whole pane. The trail scrolls with the list it describes; the field sticks to the top
              and the list scrolls up behind it. -->
-        <ScrollArea class="flex flex-1 flex-col pl-4" scroll-area-padding-top="16px">
+        <ScrollArea class="flex flex-1 flex-col pl-page" scroll-area-padding-top="16px">
             <!-- Sticky rather than floated over the pane, so it takes its own space and nothing has to measure it. -->
             <template v-if="searchFieldIsVisible" #header>
                 <div class="sticky top-4 z-20 mx-auto mb-4 max-w-prose">
@@ -180,8 +180,8 @@ function handleSelectBreadcrumb(index: number): void {
                  width: 'max-w-prose' is 65ch, and 'ch' resolves against the font size of whatever element carries it,
                  so the same class on a 'text-sm' row would yield a narrower column than on the trail above it.
                  The sticky field repeats the same class on a wrapper of its own, at the same font size.
-                 The rows carry no right padding of their own — the scroller reserves 16px there for its thumb, which
-                 mirrors the 'pl-4' on this side and leaves the column centred on the pane. -->
+                 The rows carry no right padding of their own — the scroller reserves the page margin there for its thumb,
+                 which mirrors the 'pl-page' on this side and leaves the column centred on the pane. -->
             <div class="mx-auto max-w-prose">
                 <!-- The way back to the top level once a folder has taken the field away, which is the whole of its
                      job here — hence its absence at the top level, where there is nothing to go back to. -->
