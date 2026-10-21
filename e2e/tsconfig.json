@@ -4,5 +4,5 @@
     "lib": ["es2024", "ESNext.Array", "ESNext.Collection", "ESNext.Error", "ESNext.Iterator", "ESNext.Promise", "DOM"], // Code passed to the page, such as 'page.evaluate', runs in the browser.
     "types": ["node", "trusted-types"]
   },
-  "include": ["./**/*", "../env.d.ts"] // 'env.d.ts' declares the page's 'trustedTypes' global.
+  "include": ["./**/*", "../environment.d.ts"] // 'environment.d.ts' declares the page's 'trustedTypes' global.
 }

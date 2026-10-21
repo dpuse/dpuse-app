@@ -427,8 +427,8 @@ function formatDateTime(timestamp: number): string {
                     </template>
                     <p v-else class="text-muted">{{ t(TEXT, `data.pending.${itemSubject}.text`) }}</p>
                     <!-- Show All and Next Step ─ As in the item section: showing the rest of the table on the left, and the next
-                         step on the right. The next step follows the data view's progress: Audit Content until the audit is
-                         done, then Explore Data, which needs an audited item. -->
+                         step on the right. The next step follows the data view's progress: Explore Data once the audit is done.
+                         Until then the link goes to the item task, because only committing the item there starts an audit. -->
                     <div class="mt-2 grid grid-cols-[1fr_auto] items-start gap-x-4 px-3 text-sm">
                         <ActionWrapper
                             v-if="previewRows.length > COLLAPSED_TABLE_ROW_COUNT"
@@ -442,7 +442,7 @@ function formatDateTime(timestamp: number): string {
                             <RouterLink v-if="dataViewLocalisedConfig.contentAuditConfig" class="col-start-2 justify-self-end text-right" :to="constructStepRoute('data')">{{
                                 t(TEXT, 'data.open.label')
                             }}</RouterLink>
-                            <RouterLink v-else class="col-start-2 justify-self-end text-right" :to="constructStepRoute('content')">{{ t(TEXT, 'audit.open.label') }}</RouterLink>
+                            <RouterLink v-else class="col-start-2 justify-self-end text-right" :to="constructStepRoute('item')">{{ t(TEXT, 'audit.open.label') }}</RouterLink>
                         </template>
                     </div>
                 </StudioDocumentSection>

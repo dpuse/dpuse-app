@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { PlusIcon } from '@lucide/vue';
 import { useResizeObserver } from '@vueuse/core';
-import { computed, ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 
 // ── Local Framework
 import { type DataSource, DEFAULT_CACHE_BLOCK_SIZE, useDataWindow } from '@/composables/useDataWindow';
@@ -26,6 +26,7 @@ interface Properties {
     addLabel?: string;
     headerRowHeight?: number; // Row height for items with isHeader set, in px. Default: 24.
     isCompact?: boolean;
+    isScrollTarget?: (item: T) => boolean; // Scrolls the first matching row into view once, e.g. a selection restored when the list opens.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
     rowHeight?: number; // Row height in px. Default: 48, or 36 when compact.
     scrollAreaPaddingBottom?: number | string;
@@ -38,6 +39,7 @@ const {
     addLabel,
     headerRowHeight = 32,
     isCompact,
+    isScrollTarget,
     maxBlocksInCache,
     rowHeight,
     scrollAreaPaddingBottom = 'var(--vertical-scroll-bottom-screen-inset)',
@@ -61,7 +63,7 @@ const scrollElement = shallowRef<HTMLElement | null>(null);
 // fallback). The `?? DEFAULT_CACHE_BLOCK_SIZE` below only covers the brief window before the first
 // onRowCountChange call — same fallback useDataWindow uses internally when cacheBlockSize isn't overridden.
 const correctedRowCount = ref(dataSource.rowCount);
-const { virtualRows, totalSize, getRow, rowCount, knownRowCount } = useDataWindow({
+const { virtualRows, totalSize, getRow, findRowIndex, scrollToIndex, rowCount, knownRowCount } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
     count: () => Math.ceil((correctedRowCount.value ?? cacheBlockSize ?? DEFAULT_CACHE_BLOCK_SIZE) / columnCount.value),
@@ -73,6 +75,7 @@ const { virtualRows, totalSize, getRow, rowCount, knownRowCount } = useDataWindo
     cacheBlockSize: cacheBlockSize == null ? undefined : (): number => cacheBlockSize,
     maxBlocksInCache: maxBlocksInCache == null ? undefined : (): number => maxBlocksInCache
 });
+const scrolledToTarget = shallowRef<(item: T) => boolean>(); // The target last scrolled to, so a user who scrolls away is not pulled back.
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -102,6 +105,18 @@ useResizeObserver(scrollElement, ([entry]) => {
         columnWidth.value = Math.floor(width / columnCount.value);
     }
 });
+
+// The target row may load after the list appears, and the list's scroll area only exists once rows are shown. So this
+// waits for both, then scrolls once. After the DOM updates, so the scroll area has its size.
+watch(
+    () => (isScrollTarget == null || isScrollTarget === scrolledToTarget.value || scrollElement.value == null ? undefined : findRowIndex(isScrollTarget)),
+    (rowIndex) => {
+        if (rowIndex === undefined) return;
+        scrollToIndex(Math.floor(rowIndex / columnCount.value));
+        scrolledToTarget.value = isScrollTarget;
+    },
+    { flush: 'post' }
+);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 

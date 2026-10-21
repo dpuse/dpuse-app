@@ -12,7 +12,7 @@ import { onClickOutside, until } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError, formatNumberAsDecimalNumber, formatNumberAsStorageSize, isUnsupportedFileExtension } from '@dpuse/dpuse-shared';
+import { AppError, formatNumberAsDecimalNumber, formatNumberAsStorageSize } from '@dpuse/dpuse-shared';
 import type {
     ConnectionConfig,
     ConnectionNodeConfig,
@@ -169,12 +169,8 @@ const connectionItemsAreTables = computed(() => activeConnectionConfig.value?.co
 
 const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...currentFolderNodes.value]);
 
-// ── Preview ─ A file the preview could not read as text has only its details to show.
+// ── Preview ─ A file the preview could not read as text says so on the details tab.
 const previewIsUnsupported = computed(() => activePreviewConfig.value != null && !TEXT_DATA_FORMAT_IDS.has(activePreviewConfig.value.dataFormatId));
-const availablePreviewTabs = computed(() => {
-    if (activePreviewConfig.value == null) return [];
-    return previewIsUnsupported.value ? PREVIEW_TABS.filter((previewTab) => previewTab.id === 'details') : PREVIEW_TABS;
-});
 
 const currentPreviewTab = computed(() =>
     assertDefined(
@@ -259,29 +255,34 @@ watch(
     { immediate: true }
 );
 
-watch(activeConnectionObjectConfig, async (newActiveItem) => {
-    const currentRequestId = ++previewRequestId.value;
-    resetPreviewState();
-    if (newActiveItem == null) return;
+// Immediate, because the saved item can already be selected at mount, and its preview must still load.
+watch(
+    activeConnectionObjectConfig,
+    async (newActiveItem) => {
+        const currentRequestId = ++previewRequestId.value;
+        resetPreviewState();
+        if (newActiveItem == null) return;
 
-    previewIsPending.value = true;
-    try {
-        const { processRequest } = await establishEngineWorker();
-        if (!activeConnectionConfig.value) return;
+        previewIsPending.value = true;
+        try {
+            const { processRequest } = await establishEngineWorker();
+            if (!activeConnectionConfig.value) return;
 
-        const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: constructItemPath(newActiveItem) };
-        const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewConfig;
-        if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
+            const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path: constructItemPath(newActiveItem) };
+            const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewConfig;
+            if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
 
-        applyPreviewConfig(newActiveItem, previewConfig);
-    } catch (error) {
-        if (currentRequestId !== previewRequestId.value) return; // A newer selection owns the panel now.
-        const data = { typeId: 'handled' };
-        engineFailure.value = raiseFailure(new AppError('Failed to preview this item.', 'dpuse-app.SelectItemPanel', data, { cause: error }));
-    } finally {
-        if (currentRequestId === previewRequestId.value) previewIsPending.value = false; // A newer selection owns the busy state now.
-    }
-});
+            applyPreviewConfig(newActiveItem, previewConfig);
+        } catch (error) {
+            if (currentRequestId !== previewRequestId.value) return; // A newer selection owns the panel now.
+            const data = { typeId: 'handled' };
+            engineFailure.value = raiseFailure(new AppError('Failed to preview this item.', 'dpuse-app.SelectItemPanel', data, { cause: error }));
+        } finally {
+            if (currentRequestId === previewRequestId.value) previewIsPending.value = false; // A newer selection owns the busy state now.
+        }
+    },
+    { immediate: true }
+);
 
 onClickOutside(previewTabMenuElement, () => {
     previewTabMenuIsOpen.value = false;
@@ -314,8 +315,6 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
         return;
     }
 
-    if (isUnsupportedNode(connectionNodeConfig)) return; // Shown dimmed in the list, but not offered.
-
     if (connectionNodeConfig.typeId === 'folder') {
         currentFolderNodes.value = [...currentFolderNodes.value, connectionNodeConfig];
         pickItem();
@@ -328,7 +327,7 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
 
 // Arrow keys, Home and End move between tabs and select as they go, since only the selected tab is in the tab order.
 function handleNavigatePreviewTabs(event: KeyboardEvent, previewTabIndex: number): void {
-    const lastIndex = availablePreviewTabs.value.length - 1;
+    const lastIndex = PREVIEW_TABS.length - 1;
     const nextIndexByKey: Partial<Record<string, number>> = {
         ArrowLeft: previewTabIndex === 0 ? lastIndex : previewTabIndex - 1,
         ArrowRight: previewTabIndex === lastIndex ? 0 : previewTabIndex + 1,
@@ -338,7 +337,7 @@ function handleNavigatePreviewTabs(event: KeyboardEvent, previewTabIndex: number
     const nextIndex = nextIndexByKey[event.key];
     if (nextIndex === undefined) return;
     event.preventDefault();
-    currentPreviewTabId.value = assertDefined(availablePreviewTabs.value[nextIndex]).id;
+    currentPreviewTabId.value = assertDefined(PREVIEW_TABS[nextIndex]).id;
     const tabElements = (event.currentTarget as HTMLElement).parentElement?.querySelectorAll<HTMLElement>('[role="tab"]');
     tabElements?.[nextIndex]?.focus();
 }
@@ -370,7 +369,7 @@ function handleNavigatePreviewTabMenu(event: KeyboardEvent, previewTabIndex: num
         previewTabMenuIsOpen.value = false;
         return;
     }
-    const lastIndex = availablePreviewTabs.value.length - 1;
+    const lastIndex = PREVIEW_TABS.length - 1;
     const nextIndexByKey: Partial<Record<string, number>> = {
         ArrowDown: previewTabIndex === lastIndex ? 0 : previewTabIndex + 1,
         ArrowUp: previewTabIndex === 0 ? lastIndex : previewTabIndex - 1,
@@ -460,12 +459,6 @@ function constructFolderNodeConfigs(folderPath: string): ConnectionNodeConfig[] 
     }));
 }
 
-// A file is dimmed in the list when its extension is one the app cannot read. A file with any other extension, or none,
-// is offered, because only its preview can tell what it holds.
-function isUnsupportedNode(connectionNodeConfig: ConnectionNodeConfig): boolean {
-    return connectionNodeConfig.typeId !== 'folder' && isUnsupportedFileExtension(connectionNodeConfig.extension);
-}
-
 // The encoding the preview detected, with how sure the detection was. Without a confidence level nothing was detected
 // and the preview fell back to UTF-8, so the encoding is marked as assumed.
 function constructEncodingText(previewConfig: PreviewConfig): string | undefined {
@@ -480,7 +473,7 @@ function constructEncodingText(previewConfig: PreviewConfig): string | undefined
 async function openPreviewTabMenu(): Promise<void> {
     previewTabMenuIsOpen.value = true;
     await nextTick();
-    focusPreviewTabMenuItem(availablePreviewTabs.value.findIndex((previewTab) => previewTab.id === currentPreviewTabId.value));
+    focusPreviewTabMenuItem(PREVIEW_TABS.findIndex((previewTab) => previewTab.id === currentPreviewTabId.value));
 }
 
 function closePreviewTabMenu(): void {
@@ -548,11 +541,11 @@ function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewC
     };
 }
 
-// The tab that shows the item as its format suggests: markdown as a document, plain text as text, data as a table.
+// The tab that shows the item as its format suggests: markdown as a document, data as a table, anything else as text.
+// Every tab stays available, so the user can switch to another view.
 function establishFirstPreviewTabId(dataFormatId: DataFormatId): PreviewTabId {
     if (dataFormatId === 'markdown') return 'document';
-    if (dataFormatId === 'text') return 'text';
-    return TEXT_DATA_FORMAT_IDS.has(dataFormatId) ? 'table' : 'details';
+    return TABLE_DATA_FORMAT_IDS.has(dataFormatId) ? 'table' : 'text';
 }
 
 // Navigate to a folder. Setting currentFolderPath is all that's needed: connectionNodeConfigsDataSource picks it
@@ -591,17 +584,16 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                      is hidden; 'isSplit' comes from the panel below so the two cannot disagree about that. -->
                 <Breadcrumbs class="h-9.25 min-w-0 flex-1" :items="breadcrumbs" :disable-last="isSplit || activeConnectionObjectConfig == null" @select="handleSelectBreadcrumb" />
 
-                <!-- Preview Tabs ─ Only once the preview is back, because what it found decides which tabs there are. Icons
-                     rather than words, to leave the breadcrumbs room. '-mr-1.5' centres the last icon 30px from the edge,
-                     under the assistant toggle. -->
+                <!-- Preview Tabs ─ Icons rather than words, to leave the breadcrumbs room. '-mr-1.5' centres the last icon
+                     30px from the edge, under the assistant toggle. -->
                 <div
-                    v-if="activeConnectionObjectConfig && availablePreviewTabs.length > 0 && viewportIsWide"
+                    v-if="activeConnectionObjectConfig && viewportIsWide"
                     :aria-label="t(TEXT, 'previewTabs.aria', { label: activeConnectionObjectConfig.label })"
                     class="-mr-1.5 flex flex-none items-center gap-x-1 self-stretch"
                     role="tablist"
                 >
                     <ActionWrapper
-                        v-for="(previewTab, previewTabIndex) in availablePreviewTabs"
+                        v-for="(previewTab, previewTabIndex) in PREVIEW_TABS"
                         :id="createPreviewTabElementId(previewTab.id)"
                         :key="previewTab.id"
                         :aria-controls="`${elementIdPrefix}-panel`"
@@ -621,7 +613,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
                 <!-- Preview Tab Menu ─ The tabs below 'md', showing only the current view's icon, so the breadcrumbs keep the row.
                      '-mr-3' centres the button 30px from the edge, under the assistant toggle. -->
-                <div v-else-if="activeConnectionObjectConfig && availablePreviewTabs.length > 0" ref="previewTabMenu" class="relative -mr-3 flex-none">
+                <div v-else-if="activeConnectionObjectConfig" ref="previewTabMenu" class="relative -mr-3 flex-none">
                     <ActionWrapper
                         :aria-controls="`${elementIdPrefix}-menu`"
                         :aria-expanded="previewTabMenuIsOpen"
@@ -644,7 +636,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         role="menu"
                     >
                         <ItemButton
-                            v-for="(previewTab, previewTabIndex) in availablePreviewTabs"
+                            v-for="(previewTab, previewTabIndex) in PREVIEW_TABS"
                             :key="previewTab.id"
                             :aria-checked="previewTab.id === currentPreviewTabId"
                             class="mt-0.5 flex items-center gap-x-2 first:mt-0"
@@ -671,23 +663,20 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 :config="item"
                 :fallback-icon="item.typeId === 'folder' ? FolderIcon : connectionItemsAreTables ? TableIcon : lookupFileIcon(item.extension)"
                 :is-compact="true"
-                :is-disabled="isUnsupportedNode(item)"
                 :overline="t(TEXT, item.typeId === 'folder' ? 'folder.label' : `${itemSubject}.label`)"
+                :selected="item.id === activeConnectionObjectConfig?.id"
                 @click="handleSelectConnectionNode(item)"
-            >
-                <template v-if="isUnsupportedNode(item)" #note>{{ t(TEXT, 'item.unsupported.label') }}</template>
-            </ConfigCard>
+            />
         </template>
 
         <template #detail>
-            <!-- A tab panel only while there are tabs: the preview decides whether there are any, and below 'md' they are a
-                 menu instead. -->
+            <!-- A tab panel only from 'md' up, because below it the tabs are a menu instead. -->
             <div
                 :id="`${elementIdPrefix}-panel`"
                 :aria-busy="previewIsPending"
-                :aria-labelledby="availablePreviewTabs.length > 0 && viewportIsWide ? createPreviewTabElementId(currentPreviewTabId) : undefined"
+                :aria-labelledby="viewportIsWide ? createPreviewTabElementId(currentPreviewTabId) : undefined"
                 class="relative flex min-h-0 flex-1 flex-col"
-                :role="availablePreviewTabs.length > 0 && viewportIsWide ? 'tabpanel' : undefined"
+                :role="viewportIsWide ? 'tabpanel' : undefined"
             >
                 <BusyBar v-if="previewIsPending" class="mx-page" />
                 <!-- The usual room after the last row, less the status bar's height: the table already ends above it. -->
@@ -702,11 +691,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <TextViewer v-show="currentPreviewTabId === 'text'" class="flex-1" :text="text" />
                 <!-- Rendered only while shown, as rendering parses the whole preview. 'renderMarkdown' sanitises the HTML,
                      which comes from the file itself. -->
-                <ScrollArea
-                    v-if="currentPreviewTabId === 'document'"
-                    class="flex-1 border-x border-separator"
-                    scroll-area-padding-bottom="var(--vertical-scroll-bottom-embedded-inset)"
-                >
+                <ScrollArea v-if="currentPreviewTabId === 'document'" class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-embedded-inset)">
                     <div class="dpuse-prose px-page py-3 text-sm" v-html="renderMarkdown(text ?? '')" />
                 </ScrollArea>
                 <ScrollArea v-show="currentPreviewTabId === 'details'" class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-embedded-inset)">

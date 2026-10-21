@@ -128,6 +128,8 @@ interface DataWindow<T> {
     totalSize: ComputedRef<number>;
     visibleRowData: ComputedRef<(T | undefined)[]>;
     getRow: (dataIndex: number) => T | undefined;
+    findRowIndex: (isMatch: (row: T) => boolean) => number | undefined;
+    scrollToIndex: (virtualRowIndex: number) => void;
     rowCount: ComputedRef<number>; // Self-corrected count, matching the virtualizer's own render count (a block-sized guess while unknown, never 0-while-unknown) — prefer this over dataSource().rowCount.
     // Uncoerced version of the above: undefined until the real count is confirmed (via dataSource().rowCount or a
     // resolved fetch's totalCount), distinct from 0 (confirmed empty). A caller's dataSource().rowCount may stay
@@ -313,6 +315,28 @@ export function useDataWindow<T>({
         return block ? (block[dataIndex % cacheBlockSize()] as T) : undefined;
     }
 
+    // The data index of the first loaded row that matches, or undefined when none does. Only loaded blocks are
+    // searched, so a row in a block not fetched yet is found once that block arrives.
+    function findRowIndex(isMatch: (row: T) => boolean): number | undefined {
+        const source = dataSource();
+        if ('rows' in source) {
+            const rowIndex = source.rows.findIndex((row) => isMatch(row));
+            return rowIndex === -1 ? undefined : rowIndex;
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- Read so Vue tracks it as a dependency.
+        blockCacheVersion.value;
+        for (const [blockIndex, rows] of blockCacheMap) {
+            const rowIndex = (rows as T[]).findIndex((row) => isMatch(row));
+            if (rowIndex !== -1) return blockIndex * cacheBlockSize() + rowIndex;
+        }
+        return undefined;
+    }
+
+    // Scrolls only as far as needed to show the row, so a row already in view stays where it is.
+    function scrollToIndex(virtualRowIndex: number): void {
+        virtualizer.value.scrollToIndex(virtualRowIndex, { align: 'auto' });
+    }
+
     function recordBlockAccessed(blockIndex: number): void {
         const position = blockLruOrder.indexOf(blockIndex);
         if (position !== -1) blockLruOrder.splice(position, 1);
@@ -324,6 +348,8 @@ export function useDataWindow<T>({
         totalSize,
         visibleRowData,
         getRow,
+        findRowIndex,
+        scrollToIndex,
         rowCount: computed(() => knownRowCount.value ?? cacheBlockSize()),
         knownRowCount: computed(() => knownRowCount.value)
     };

@@ -24,7 +24,18 @@ interface Properties {
     scrollAreaPaddingTop?: number | string;
     targetColumnWidth?: number; // Column width in px the grid aims for, before it stretches the columns to fill the row. Default: 250.
 }
-const { selectedItem, addLabel, dataSource, isCompact, isDetailInitiallyClosed, maxDetailWidth, maxGridWidth, rowHeight, scrollAreaPaddingTop, targetColumnWidth = 250 } = defineProps<Properties>();
+const {
+    selectedItem,
+    addLabel,
+    dataSource,
+    isCompact,
+    isDetailInitiallyClosed,
+    maxDetailWidth,
+    maxGridWidth,
+    rowHeight,
+    scrollAreaPaddingTop,
+    targetColumnWidth = 250
+} = defineProps<Properties>();
 
 defineSlots<{
     busy?(): unknown;
@@ -51,6 +62,14 @@ const detailPaneIsVisible = computed(() => isSplit.value || detailIsOpen.value);
 const gridPaneIsVisible = computed(() => isSplit.value || !detailIsOpen.value);
 const isSplit = computed(() => bodyWidth.value >= GRID_DETAIL_SPLIT_THRESHOLD_PX);
 provide(gridDetailIsSplitKey, isSplit);
+
+// ── Scroll Target ─ The selected item's row is scrolled into view, so a selection restored when the list opens can be
+// seen. Built from the id, so a new object for the same item, as a language switch gives, does not scroll the list again.
+const selectedItemId = computed(() => selectedItem?.id);
+const matchSelectedRow = computed(() => {
+    const id = selectedItemId.value;
+    return id === undefined ? undefined : (item: T): boolean => item.id === id;
+});
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -84,6 +103,7 @@ watch(
                 class="flex-1"
                 :data-source="dataSource"
                 :is-compact="isCompact"
+                :is-scroll-target="matchSelectedRow"
                 :row-height="rowHeight"
                 :scroll-area-padding-top="scrollAreaPaddingTop"
                 :style="{ maxWidth: isSplit ? maxGridWidth : undefined }"

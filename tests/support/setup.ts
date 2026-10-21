@@ -13,9 +13,11 @@ Object.defineProperties(globalThis, {
             removeEventListener: (): void => {
                 // As above.
             },
+            // eslint-disable-next-line @typescript-eslint/no-deprecated -- The 'MediaQueryList' type still requires it.
             addListener: (): void => {
                 // As above.
             },
+            // eslint-disable-next-line @typescript-eslint/no-deprecated -- The 'MediaQueryList' type still requires it.
             removeListener: (): void => {
                 // As above.
             },

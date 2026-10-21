@@ -48,7 +48,10 @@ export function constructDataViewSteps(dataViewConfig: DataViewProgress): DataVi
     ];
 }
 
-// The first step still pending, or exploring once every step is done.
+// The last step done, or exploring once every step is done. A data view opens on the last step done rather than the
+// next one, because the audit is long-running and only starts when the user commits an item. Reopening an item that
+// was never audited therefore lets the user check or change it first.
 export function resolveCurrentDataViewStepId(dataViewConfig: DataViewProgress): DataViewStepId {
-    return constructDataViewSteps(dataViewConfig).find((step) => step.state === 'pending')?.id ?? 'data';
+    const steps = constructDataViewSteps(dataViewConfig);
+    return steps.every((step) => step.state === 'done') ? 'data' : (steps.findLast((step) => step.state === 'done')?.id ?? 'connection');
 }

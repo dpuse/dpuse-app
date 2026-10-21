@@ -148,7 +148,7 @@ function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewC
     updateDataViewIdParameter(selectedDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id ? undefined : dataViewLocalisedConfig.id);
 }
 
-// Opens the data view at the first task it has not finished, or at Explore Data once every other task is done.
+// Opens the data view at the last task it has finished, or at Explore Data once every other task is done.
 function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
     const routeName = resolveCurrentDataViewStepId(dataViewLocalisedConfig);
     void ignoreReportedNavigationFailure(router.push({ name: routeName, params: { dataViewId: dataViewLocalisedConfig.id }, query: route.query }));

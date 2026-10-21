@@ -57,12 +57,14 @@ const dataViewFailure = useQueryFailure(dataViewError); // Shown in place of the
 // is chosen, or the chosen one has gone.
 const dataViewConnectionLocalisedConfig = computed(() => findConnectionLocalisedConfig(dataViewConfig.value?.connectionId));
 
-// ── Tasks ─ The data view's saved progress unlocks every task up to the first one not done yet. After a reload, or
-// when the data view is opened from the list, the task bar therefore shows every task it has already reached.
+// ── Tasks ─ The data view's saved progress unlocks every task up to the one it opens at. After a reload, or when the
+// data view is opened from the list, the task bar therefore shows every task it has already reached. The audit task
+// stays locked until an audit is saved, because only committing an item starts one.
 const progressUnlockedUpToTaskNumber = computed(() => {
     if (dataViewConfig.value == null) return 0;
     const currentTaskId = resolveCurrentDataViewStepId(dataViewConfig.value);
-    return TASK_CONFIGS.find((config) => config.id === currentTaskId)?.number ?? 0;
+    const unlockedTaskId = currentTaskId === 'connection' ? 'item' : currentTaskId; // A saved data view always has a connection, so its item can always be chosen.
+    return TASK_CONFIGS.find((config) => config.id === unlockedTaskId)?.number ?? 0;
 });
 const taskLocalisedConfigs = computed((): (LocalisedConfig<TaskConfig> & { disabled: boolean })[] =>
     localiseConfigs<TaskConfig>(TASK_CONFIGS, localeId.value).map((taskLocalisedConfig) => ({

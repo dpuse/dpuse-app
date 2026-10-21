@@ -38,8 +38,12 @@ describe('constructDataViewSteps', () => {
 });
 
 describe('resolveCurrentDataViewStepId', () => {
-    it('opens on the first step still pending, which is never the connection', () => {
-        expect(resolveCurrentDataViewStepId({ connectionNodeConfig: undefined, contentAuditConfig: undefined })).toBe('item');
+    it('opens on the connection when no item is saved', () => {
+        expect(resolveCurrentDataViewStepId({ connectionNodeConfig: undefined, contentAuditConfig: undefined })).toBe('connection');
+    });
+
+    it('opens on the item when it is saved but not audited, so the audit only starts from a commit', () => {
+        expect(resolveCurrentDataViewStepId({ connectionNodeConfig: buildNode('csv'), contentAuditConfig: undefined })).toBe('item');
     });
 
     it('opens on exploring once every step is done, since exploring is never finished', () => {
