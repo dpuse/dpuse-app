@@ -161,6 +161,7 @@ const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as
 // The saved connection, which this step lists the items of. Looked up again from the list, so it follows a change of
 // language.
 const activeConnectionConfig = computed(() => findConnectionLocalisedConfig(dataViewConfig.value?.connectionId));
+const itemSubject = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId ?? 'item'); // Wording names the connector's kind of item, e.g. 'File', and falls back to 'item' for a connector released before it said which.
 
 // A connector whose items are tables shows every item with the table icon, not an icon for its file format. The
 // application emulator stores its tables as CSV files, but they stand in for a real application's tables.
@@ -671,7 +672,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 :fallback-icon="item.typeId === 'folder' ? FolderIcon : connectionItemsAreTables ? TableIcon : lookupFileIcon(item.extension)"
                 :is-compact="true"
                 :is-disabled="isUnsupportedNode(item)"
-                :overline="t(TEXT, item.typeId === 'folder' ? 'folder.label' : 'item.label')"
+                :overline="t(TEXT, item.typeId === 'folder' ? 'folder.label' : `${itemSubject}.label`)"
                 @click="handleSelectConnectionNode(item)"
             >
                 <template v-if="isUnsupportedNode(item)" #note>{{ t(TEXT, 'item.unsupported.label') }}</template>
@@ -744,7 +745,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
         <template #no-selection>
             {{ infoString }}
-            <SelectPlaceholder :message="'Select a connection node from the list.'" />
+            <SelectPlaceholder :message="t(TEXT, `${itemSubject}.select.text`)" />
         </template>
     </GridDetailPanel>
 </template>

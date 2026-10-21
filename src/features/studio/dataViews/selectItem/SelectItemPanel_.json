@@ -1,5 +1,7 @@
 {
     "TEXT": {
+        "apiEndpoint.label": { "en": "API endpoint", "es": "Endpoint de API" },
+        "apiEndpoint.select.text": { "en": "Select an API endpoint from the list.", "es": "Selecciona un endpoint de API de la lista." },
         "dataFormat.dpe.label": { "en": "Data Positioning Events", "es": "Eventos de posicionamiento de datos" },
         "dataFormat.dtv.label": { "en": "Delimited text", "es": "Texto delimitado" },
         "dataFormat.json.label": { "en": "JSON", "es": "JSON" },
@@ -17,9 +19,12 @@
         "detail.lastModified.label": { "en": "Modified", "es": "Modificado" },
         "detail.path.label": { "en": "Path", "es": "Ruta" },
         "detail.size.label": { "en": "Size", "es": "Tamaño" },
+        "file.label": { "en": "File", "es": "Archivo" },
+        "file.select.text": { "en": "Select a file from the list.", "es": "Selecciona un archivo de la lista." },
         "folder.label": { "en": "Folder", "es": "Carpeta" },
         "item.empty.text": { "en": "This file is empty, so there is nothing to select.", "es": "Este archivo está vacío, así que no hay nada que seleccionar." },
         "item.label": { "en": "Item", "es": "Elemento" },
+        "item.select.text": { "en": "Select an item from the list.", "es": "Selecciona un elemento de la lista." },
         "item.unsupported.label": { "en": "Not supported", "es": "No compatible" },
         "item.unsupported.text": {
             "en": "This file can't be read as data or text, so it can't be selected.",
@@ -31,6 +36,8 @@
         "tab.details.label": { "en": "Details", "es": "Detalles" },
         "tab.document.label": { "en": "Document", "es": "Documento" },
         "tab.table.label": { "en": "Table", "es": "Tabla" },
-        "tab.text.label": { "en": "Text", "es": "Texto" }
+        "tab.text.label": { "en": "Text", "es": "Texto" },
+        "table.label": { "en": "Table", "es": "Tabla" },
+        "table.select.text": { "en": "Select a table from the list.", "es": "Selecciona una tabla de la lista." }
     }
 }

@@ -1,7 +1,10 @@
 {
     "TEXT": {
+        "apiEndpoint.none.text": { "en": "No API endpoint", "es": "Sin endpoint de API" },
         "connection.none.text": { "en": "No connection", "es": "Sin conexión" },
         "connection.unavailable.text": { "en": "Connection unavailable", "es": "Conexión no disponible" },
-        "item.none.text": { "en": "No item", "es": "Sin elemento" }
+        "file.none.text": { "en": "No file", "es": "Sin archivo" },
+        "item.none.text": { "en": "No item", "es": "Sin elemento" },
+        "table.none.text": { "en": "No table", "es": "Sin tabla" }
     }
 }

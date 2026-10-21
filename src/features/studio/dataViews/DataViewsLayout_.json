@@ -42,6 +42,12 @@
         "dataView.new.title": { "en": "New Data View", "es": "Nueva vista de datos" },
         "dataView.pending.title": { "en": "Loading…", "es": "Cargando…" },
         "establishDataViews.title": { "en": "Establish Data Views", "es": "Establecer vistas de datos" },
+        "itemTask.apiEndpoint.label": { "en": "Select API Endpoint", "es": "Seleccionar endpoint de API" },
+        "itemTask.apiEndpoint.short.label": { "en": "API Endpoint", "es": "endpoint de API" },
+        "itemTask.file.label": { "en": "Select File", "es": "Seleccionar archivo" },
+        "itemTask.file.short.label": { "en": "File", "es": "archivo" },
+        "itemTask.table.label": { "en": "Select Table", "es": "Seleccionar tabla" },
+        "itemTask.table.short.label": { "en": "Table", "es": "tabla" },
         "studio.label": { "en": "Studio", "es": "Estudio" }
     }
 }

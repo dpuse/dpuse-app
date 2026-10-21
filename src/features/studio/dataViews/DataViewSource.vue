@@ -43,6 +43,9 @@ const { connectionId, connectionNodeConfig, dataViewConnection, isSingleLine, it
 const connectionLabel = computed(() => dataViewConnection?.label ?? t(TEXT, connectionId == null ? 'connection.none.text' : 'connection.unavailable.text'));
 const itemIsShown = computed(() => !isSingleLine || dataViewConnection != null || connectionNodeConfig != null);
 const itemIconIsPresent = computed(() => [connectionNodeConfig?.icon, connectionNodeConfig?.iconDark].some((svg) => svg != null && svg !== ''));
+// Messages name the connector's kind of item, e.g. 'No file', and fall back to 'item' for a connector released before
+// it said which.
+const itemSubject = computed(() => itemTypeId ?? 'item');
 const itemTypeIcon = computed(() => {
     if (itemTypeId === 'table') return TableIcon;
     if (connectionNodeConfig?.extension != null) return lookupFileIcon(connectionNodeConfig.extension);
@@ -91,7 +94,7 @@ const itemPathParts = computed(() => {
             </template>
             <template v-else>
                 <SquareDashedIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
-                <span class="min-w-0 truncate">{{ t(TEXT, 'item.none.text') }}</span>
+                <span class="min-w-0 truncate">{{ t(TEXT, `${itemSubject}.none.text`) }}</span>
             </template>
         </div>
     </div>

@@ -171,6 +171,7 @@ const itemDataFormatText = computed(() => {
 });
 
 const itemIsFile = computed(() => dataViewConnection?.itemTypeId === 'file');
+const itemSubject = computed(() => dataViewConnection?.itemTypeId ?? 'item'); // Messages name the connector's kind of item, e.g. 'No file selected yet', and fall back to 'item' for a connector released before it said which.
 
 // ── Columns ─ The columns of the preview saved with the item, with the type the preview inferred for each. The match
 // is the share of sampled values, the header excluded, that fitted that type, as the engine counts it when it chooses.
@@ -286,8 +287,10 @@ function formatDateTime(timestamp: number): string {
                     :item-type-id="dataViewConnection?.itemTypeId"
                 />
 
-                <!-- Description -->
+                <!-- Description ─ A prompt in its place until the user writes one. The prompt is not stored, so it follows the
+                     language and can never be saved as the user's own text. -->
                 <div v-if="dataViewLocalisedConfig.description" v-html="renderMarkdown(dataViewLocalisedConfig.description)" />
+                <p v-else class="text-muted">{{ t(TEXT, 'description.pending.text') }}</p>
 
                 <!-- One section per part of the task, in the order it is done, each documenting what that part produced. A
                      section not reached yet keeps its heading and says so in one line, so the document's shape never
@@ -351,7 +354,7 @@ function formatDateTime(timestamp: number): string {
                             </template>
                         </template>
                     </dl>
-                    <p v-else class="text-muted">{{ t(TEXT, 'item.pending.text') }}</p>
+                    <p v-else class="text-muted">{{ t(TEXT, `${itemSubject}.pending.text`) }}</p>
                     <!-- Columns ─ Scrolls sideways on its own, so a wide item does not widen the document. The title is shown
                          above the region's frame, which a caption inside the table cannot be, and names the table. -->
                     <ScrollRegion v-if="previewColumnRows.length > 0" v-slot="{ labelId }" class="mt-4" is-label-shown :label="t(TEXT, 'columnTable.title')">
@@ -394,7 +397,7 @@ function formatDateTime(timestamp: number): string {
                             {{ columnTableIsExpanded ? t(TEXT, 'column.showFewer.label') : t(TEXT, 'column.showAll.label', { count: previewColumnRows.length }) }}
                         </ActionWrapper>
                         <RouterLink v-if="dataViewLocalisedConfig.connectionId" class="col-start-2 justify-self-end text-right" :to="constructStepRoute('item')">{{
-                            t(TEXT, dataViewLocalisedConfig.connectionNodeConfig ? 'item.change.label' : 'item.select.label')
+                            t(TEXT, dataViewLocalisedConfig.connectionNodeConfig ? `${itemSubject}.change.label` : `${itemSubject}.select.label`)
                         }}</RouterLink>
                     </div>
                 </StudioDocumentSection>
@@ -422,7 +425,7 @@ function formatDateTime(timestamp: number): string {
                             </table>
                         </ScrollRegion>
                     </template>
-                    <p v-else class="text-muted">{{ t(TEXT, 'data.pending.text') }}</p>
+                    <p v-else class="text-muted">{{ t(TEXT, `data.pending.${itemSubject}.text`) }}</p>
                     <!-- Show All and Next Step ─ As in the item section: showing the rest of the table on the left, and the next
                          step on the right. The next step follows the data view's progress: Audit Content until the audit is
                          done, then Explore Data, which needs an audited item. -->

@@ -36,6 +36,9 @@ const router = useRouter();
 
 // ── Task Bar
 const unlockedUpToTaskNumber = ref(0);
+// The summary and task bar follow the view on screen rather than the route. Leaving the list, they appear only once the
+// list has faded out, so nothing below them jumps while it fades. Undefined while the list is on screen.
+const taskIdOnScreen = ref(constructTaskIdOnScreen());
 
 // ── Draft ─ The data view as the current task's unsaved changes would leave it, reported by that task. The summary
 // shows it, dimmed, until the task saves it. It is cleared when the user moves to another task.
@@ -64,6 +67,7 @@ const progressUnlockedUpToTaskNumber = computed(() => {
 const taskLocalisedConfigs = computed((): (LocalisedConfig<TaskConfig> & { disabled: boolean })[] =>
     localiseConfigs<TaskConfig>(TASK_CONFIGS, localeId.value).map((taskLocalisedConfig) => ({
         ...taskLocalisedConfig,
+        ...constructItemTaskLabels(taskLocalisedConfig.id),
         disabled: taskLocalisedConfig.number > Math.max(unlockedUpToTaskNumber.value, progressUnlockedUpToTaskNumber.value)
     }))
 );
@@ -89,14 +93,14 @@ const taskDetails = computed((): Record<string, string | undefined> => {
     const itemConfig = dataViewConfig.value?.connectionNodeConfig;
     return {
         connection: dataViewConnectionLocalisedConfig.value?.label,
-        item: itemConfig ? constructItemPath(itemConfig) : undefined
+        item: itemConfig ? `${itemConfig.folderPath}/${itemConfig.label}` : undefined // The folder path and label, as the summary above the task bar shows them.
     };
 });
 const taskBarLocalisedItems = computed(() =>
     taskLocalisedConfigs.value.map((config) => ({
         ...config,
         detail: taskDetails.value[config.id],
-        to: config.disabled ? undefined : { name: config.id, query: route.query }
+        to: config.disabled || !routeIsTask.value ? undefined : { name: config.id, query: route.query } // No links while the task bar fades out on the way back to the list, whose URL may have no data view for them to take.
     }))
 );
 
@@ -107,7 +111,9 @@ const summaryConnectionLocalisedConfig = computed(() => findConnectionLocalisedC
 const summaryConnectionIsDraft = computed(() => summaryDataViewConfig.value?.connectionId !== dataViewConfig.value?.connectionId);
 const summaryItemConfig = computed(() => summaryDataViewConfig.value?.connectionNodeConfig);
 const summaryItemPath = computed(() => (summaryItemConfig.value ? constructItemPath(summaryItemConfig.value) : undefined));
-const summaryItemIsDraft = computed(() => summaryItemPath.value !== taskDetails.value.item);
+const savedItemConfig = computed(() => dataViewConfig.value?.connectionNodeConfig);
+const savedItemPath = computed(() => (savedItemConfig.value ? constructItemPath(savedItemConfig.value) : undefined)); // Compared by the engine's path, which tells two items apart even where their labels match.
+const summaryItemIsDraft = computed(() => summaryItemPath.value !== savedItemPath.value);
 const summaryItemTypeId = computed(() => summaryConnectionLocalisedConfig.value?.connectorConfig.itemTypeId);
 
 // ── List and Task Panel ─ The layout's own 'RouterView' sits one level in, so the layout shows the spinner while the
@@ -176,6 +182,12 @@ watch(metaStoreId, (_newMetaStoreId, oldMetaStoreId) => {
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
+// A view mounts only once the one before it has faded out, so this is when the header switches between its list and
+// task forms.
+function handleViewMounted(): void {
+    taskIdOnScreen.value = constructTaskIdOnScreen();
+}
+
 function handleRetryDataView(): void {
     void refetchDataView();
 }
@@ -186,6 +198,19 @@ function handleDraftChanged(newDraftDataViewConfig: DataViewConfig | undefined):
 
 function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): void {
     unlockedUpToTaskNumber.value = Math.max(unlockedUpToTaskNumber.value, taskLocalisedConfig.enableUpTo); // Never locks a task reached already.
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function constructTaskIdOnScreen(): string | undefined {
+    return typeof route.name === 'string' && TASK_CONFIGS.some((config) => config.id === route.name) ? route.name : undefined;
+}
+
+// The item task is named for the connector's kind of item, e.g. 'Select File', once a connection that says which is
+// chosen. Otherwise it keeps its own 'Select Item'.
+function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<TaskConfig>, 'label' | 'labelLine2'>> {
+    const itemTypeId = summaryItemTypeId.value;
+    return taskId === 'item' && itemTypeId != null ? { label: t(TEXT, `itemTask.${itemTypeId}.label`), labelLine2: TEXT[`itemTask.${itemTypeId}.short.label`] } : {};
 }
 </script>
 
@@ -198,31 +223,36 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
              even when empty, so the first choice does not push the panel down. Screen readers skip it, because they hear
              each saved choice with its task. '-my-1' pulls it up into the empty space at the bottom of the header, and the
              task bar up by the same amount into its own bottom padding. -->
-        <DataViewSource
-            v-if="currentTaskLocalisedConfig"
-            aria-hidden="true"
-            class="-my-1 h-7 flex-none px-page pb-2 text-sm"
-            is-single-line
-            :connection-id="summaryDataViewConfig?.connectionId"
-            :connection-is-draft="summaryConnectionIsDraft"
-            :connection-node-config="summaryItemConfig"
-            :data-view-connection="summaryConnectionLocalisedConfig"
-            :item-is-draft="summaryItemIsDraft"
-            :item-type-id="summaryItemTypeId"
-        />
+        <!-- Summary and Task Bar ─ Fade in with the first task's panel, and go at once when the list comes back, so the
+             list never sits below them. The current task follows the route, so between tasks it moves on the click. -->
+        <Transition enter-active-class="dpuse-action-fade-enter-active" enter-from-class="dpuse-action-fade-enter-from">
+            <div v-if="taskIdOnScreen" class="flex flex-none flex-col">
+                <DataViewSource
+                    aria-hidden="true"
+                    class="-my-1 h-7 flex-none px-page pb-2 text-sm"
+                    is-single-line
+                    :connection-id="summaryDataViewConfig?.connectionId"
+                    :connection-is-draft="summaryConnectionIsDraft"
+                    :connection-node-config="summaryItemConfig"
+                    :data-view-connection="summaryConnectionLocalisedConfig"
+                    :item-is-draft="summaryItemIsDraft"
+                    :item-type-id="summaryItemTypeId"
+                />
 
-        <!-- Task Bar -->
-        <TaskBar v-if="currentTaskLocalisedConfig" :current-id="currentTaskLocalisedConfig.id" :items="taskBarLocalisedItems" />
+                <!-- Task Bar -->
+                <TaskBar :current-id="currentTaskLocalisedConfig?.id ?? taskIdOnScreen" :items="taskBarLocalisedItems" />
+            </div>
+        </Transition>
 
         <!-- Body ─ Waits for the configuration, because no data view can be read without it. -->
         <RetrievalGate class="min-h-0 flex-1" :status="configStatus">
             <!-- Data View Failure -->
-            <ErrorNotice v-if="dataViewFailure" class="min-h-0 flex-1" :failures="[dataViewFailure]" @retry="handleRetryDataView" />
+            <ErrorNotice v-if="dataViewFailure" class="min-h-0 flex-1" :failures="[dataViewFailure]" @retry="handleRetryDataView" @vue:mounted="handleViewMounted" />
 
             <!-- List and Task Panel ─ The list takes no task props or events, so it is rendered apart from the
                  tasks. -->
             <RouterViewTransition v-else v-slot="{ component }" class="min-h-0 flex-1" :is-loading="taskPanelIsLoading">
-                <component :is="component" v-if="route.name === 'dataViews'" key="dataViews" class="min-h-0 flex-1" />
+                <component :is="component" v-if="route.name === 'dataViews'" key="dataViews" class="min-h-0 flex-1" @vue:mounted="handleViewMounted" />
                 <component
                     :is="component"
                     v-else
@@ -231,6 +261,7 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
                     :task-localised-config="currentTaskLocalisedConfig"
                     @draft-changed="handleDraftChanged"
                     @task-completed="handleTaskCompleted"
+                    @vue:mounted="handleViewMounted"
                 />
             </RouterViewTransition>
         </RetrievalGate>
