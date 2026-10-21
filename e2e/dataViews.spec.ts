@@ -7,7 +7,7 @@ import { expect, test } from '@playwright/test';
 test.describe('Data views', () => {
     test('adds a data view once its connection is chosen, then deletes it', async ({ page }) => {
         await page.goto('/dataViews');
-        await page.getByRole('button', { name: 'Data View', exact: true }).click();
+        await page.locator('[data-region="PillButton"]').getByText('Data View', { exact: true }).click(); // The empty list's own 'Data View' button shares the name.
 
         // Nothing is saved until a connection is committed.
         await expect(page).toHaveURL(/\/dataViews\/new\/connections/);
