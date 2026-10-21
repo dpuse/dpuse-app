@@ -17,13 +17,14 @@ interface Properties {
     addLabel?: string;
     dataSource: DataSource<T>;
     isCompact?: boolean;
+    isDetailInitiallyClosed?: boolean; // Shows the grid, not the detail, for the first selection on a narrow screen, as when the user comes back up to the list.
     maxDetailWidth?: string;
     maxGridWidth?: string;
     rowHeight?: number; // Row height in px. Default: 'Grid''s own.
     scrollAreaPaddingTop?: number | string;
     targetColumnWidth?: number; // Column width in px the grid aims for, before it stretches the columns to fill the row. Default: 250.
 }
-const { selectedItem, addLabel, dataSource, isCompact, maxDetailWidth, maxGridWidth, rowHeight, scrollAreaPaddingTop, targetColumnWidth = 250 } = defineProps<Properties>();
+const { selectedItem, addLabel, dataSource, isCompact, isDetailInitiallyClosed, maxDetailWidth, maxGridWidth, rowHeight, scrollAreaPaddingTop, targetColumnWidth = 250 } = defineProps<Properties>();
 
 defineSlots<{
     busy?(): unknown;
@@ -41,6 +42,7 @@ defineEmits<{ add: [] }>();
 
 const bodyElement = useTemplateRef<HTMLElement>('bodyElement');
 const detailIsOpen = ref(false); // Whether the detail has been opened and not since dismissed, which is intent rather than visibility.
+const firstSelectionIsClosed = ref(isDetailInitiallyClosed); // Cleared once the first selection arrives, which may be after the list loads.
 const { width: bodyWidth } = useElementSize(bodyElement);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -58,7 +60,8 @@ provide(gridDetailIsSplitKey, isSplit);
 watch(
     () => selectedItem?.id,
     (newActiveItemId) => {
-        detailIsOpen.value = newActiveItemId !== undefined;
+        detailIsOpen.value = newActiveItemId !== undefined && !firstSelectionIsClosed.value;
+        if (newActiveItemId !== undefined) firstSelectionIsClosed.value = false;
     },
     { immediate: true }
 );

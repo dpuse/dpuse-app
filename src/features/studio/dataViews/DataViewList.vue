@@ -94,6 +94,7 @@ const dataViewRetrievalShowsCancelled = computed(() => dataViewRetrievalIsCancel
 // same card. It is matched again whenever the list arrives or is rebuilt, which also drops a selection whose data view
 // has gone.
 const selectedDataViewLocalisedConfig = computed(() => dataViewLocalisedConfigs.value.find((config) => config.id === route.params.dataViewId));
+const isSelectedDataViewDetailClosed = (history.state as { detailIsClosed?: boolean } | null)?.detailIsClosed === true; // Set by the header's link back from a task, which returns to the list rather than the data view's detail.
 
 // ── Grid ─ 'rowCount' stays undefined, which keeps the grid busy, until retrieval settles either way; 0 means
 // confirmed empty.
@@ -202,9 +203,10 @@ function constructDataViewConnection(dataViewLocalisedConfig: LocalisedConfig<Da
 }
 
 // An explicit 'name' is needed even though this stays on the same route. Without it, an absent 'dataViewId' keeps the
-// one already in the URL instead of clearing it.
+// one already in the URL instead of clearing it. 'detailIsClosed' is reset because a replace keeps the history entry's
+// other state, and the browser's back button would otherwise return to this entry with the new selection's detail closed.
 function updateDataViewIdParameter(dataViewId?: string): void {
-    void ignoreReportedNavigationFailure(router.replace({ name: 'dataViews', params: { dataViewId }, query: route.query }));
+    void ignoreReportedNavigationFailure(router.replace({ name: 'dataViews', params: { dataViewId }, query: route.query, state: { detailIsClosed: false } }));
 }
 </script>
 
@@ -234,6 +236,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
             :add-label="t(TEXT, 'dataView.label')"
             class="min-h-0 flex-1"
             :data-source="dataViewDataSource"
+            :is-detail-initially-closed="isSelectedDataViewDetailClosed"
             max-detail-width="65ch"
             :row-height="cardRowHeight"
             :target-column-width="340"

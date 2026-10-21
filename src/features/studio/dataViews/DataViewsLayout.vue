@@ -78,8 +78,10 @@ const headerTitle = computed(() => {
     return t(TEXT, dataViewFailure.value || configStatus.value.typeId === 'failed' ? 'dataView.failed.title' : 'dataView.pending.title');
 });
 const headerBackRoute = computed(() =>
-    route.name === 'dataViews' ? { name: 'studio', query: route.query } : { name: 'dataViews', params: { dataViewId: currentDataViewId.value }, query: route.query }
-); // From a task, back to the list with this data view's card still selected.
+    route.name === 'dataViews'
+        ? { name: 'studio', query: route.query }
+        : { name: 'dataViews', params: { dataViewId: currentDataViewId.value }, query: route.query, state: { detailIsClosed: true } }
+); // From a task, back to the list with this data view's card still selected, but on a narrow screen its detail closed, as the link names the list.
 
 // ── Task Bar ─ Each task's saved choice, which screen readers hear with the task. A draft is left out, because the
 // current task already shows it.

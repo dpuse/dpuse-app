@@ -6,9 +6,9 @@
 
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
-import { until } from '@vueuse/core';
-import { ArrowRightIcon, BookOpenTextIcon, FileIcon, FolderIcon, HomeIcon, InfoIcon, TableIcon, TextIcon } from '@lucide/vue';
-import { type Component, computed, markRaw, ref, shallowRef, useId, watch } from 'vue';
+import { ArrowRightIcon, BookOpenTextIcon, ChevronDownIcon, FileIcon, FolderIcon, HomeIcon, InfoIcon, TableIcon, TextIcon } from '@lucide/vue';
+import { type Component, computed, markRaw, nextTick, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
+import { onClickOutside, until } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -36,6 +36,7 @@ import { findConnectionLocalisedConfig } from '@/state/configs';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { renderMarkdown } from '@/services/useMarkedTool';
 import { TEXT } from './SelectItemPanel_.json';
+import { viewportIsWide } from '@/state/device';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 import { localeId, t } from '@/state/locale';
 import { resolveDataViewIdParameter, useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
@@ -47,6 +48,7 @@ import BusyBar from '@/components/ui/BusyBar.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
+import ItemButton from '@/components/ui/action/ItemButton.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
@@ -70,10 +72,10 @@ type PreviewTabId = 'table' | 'text' | 'document' | 'details';
 // ── Preview Tabs ─ Ways to show the item, which also choose how to open it: a markdown or plain text file opened as a
 // table can be selected as data, as can a file whose extension says nothing about its content.
 const PREVIEW_TABS: PreviewTab[] = [
-    { icon: markRaw(TableIcon), id: 'table', labelKey: 'tab.table.aria' },
-    { icon: markRaw(TextIcon), id: 'text', labelKey: 'tab.text.aria' },
-    { icon: markRaw(BookOpenTextIcon), id: 'document', labelKey: 'tab.document.aria' },
-    { icon: markRaw(InfoIcon), id: 'details', labelKey: 'tab.details.aria' }
+    { icon: markRaw(TableIcon), id: 'table', labelKey: 'tab.table.label' },
+    { icon: markRaw(TextIcon), id: 'text', labelKey: 'tab.text.label' },
+    { icon: markRaw(BookOpenTextIcon), id: 'document', labelKey: 'tab.document.label' },
+    { icon: markRaw(InfoIcon), id: 'details', labelKey: 'tab.details.label' }
 ];
 
 // ── Data Formats ─ The preview decodes all four text formats and parses them as delimited text. Only delimited text
@@ -125,9 +127,12 @@ const currentFolderPath = ref('');
 const previewRequestId = ref(0);
 const activePreviewConfig = shallowRef<PreviewConfig>(); // Kept so the commit can save it with the item.
 
-// ── Preview Tabs ─ Tabs and their panel reference each other by id, which must be unique on the page.
+// ── Preview Tabs ─ Tabs and their panel reference each other by id, which must be unique on the page. Below 'md' the
+// tabs fold into a menu.
 const elementIdPrefix = useId();
 const currentPreviewTabId = ref<PreviewTabId>('table');
+const previewTabMenuElement = useTemplateRef<HTMLDivElement>('previewTabMenu');
+const previewTabMenuIsOpen = ref(false);
 
 const previewIsPending = ref(false); // The preview table is empty until the engine answers, which reads as an empty item unless the wait is shown.
 const previewPercentage = ref(0);
@@ -164,6 +169,13 @@ const availablePreviewTabs = computed(() => {
     if (activePreviewConfig.value == null) return [];
     return previewIsUnsupported.value ? PREVIEW_TABS.filter((previewTab) => previewTab.id === 'details') : PREVIEW_TABS;
 });
+
+const currentPreviewTab = computed(() =>
+    assertDefined(
+        PREVIEW_TABS.find((previewTab) => previewTab.id === currentPreviewTabId.value),
+        `Expected a preview tab with id '${currentPreviewTabId.value}'.`
+    )
+);
 
 // Delimited text and JSON can be selected from any tab. Markdown and plain text only from the table tab, because
 // opening them as a table is the user saying their content is data.
@@ -265,6 +277,10 @@ watch(activeConnectionObjectConfig, async (newActiveItem) => {
     }
 });
 
+onClickOutside(previewTabMenuElement, () => {
+    previewTabMenuIsOpen.value = false;
+});
+
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Clearing the failure alone would show the panel again with the same empty window behind it, so the attempt count is
@@ -319,6 +335,51 @@ function handleNavigatePreviewTabs(event: KeyboardEvent, previewTabIndex: number
     currentPreviewTabId.value = assertDefined(availablePreviewTabs.value[nextIndex]).id;
     const tabElements = (event.currentTarget as HTMLElement).parentElement?.querySelectorAll<HTMLElement>('[role="tab"]');
     tabElements?.[nextIndex]?.focus();
+}
+
+async function handleTogglePreviewTabMenu(): Promise<void> {
+    if (previewTabMenuIsOpen.value) {
+        previewTabMenuIsOpen.value = false;
+        return;
+    }
+    await openPreviewTabMenu();
+}
+
+// The arrow keys open the menu from its button, as the WAI-ARIA menu button pattern expects.
+async function handleOpenPreviewTabMenuByKey(event: KeyboardEvent): Promise<void> {
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+    event.preventDefault();
+    await openPreviewTabMenu();
+}
+
+// Arrow keys, Home and End move through the menu. Escape closes it and returns to its button. Tab closes it and moves
+// on, so focus never stays in a menu that is out of the tab order.
+function handleNavigatePreviewTabMenu(event: KeyboardEvent, previewTabIndex: number): void {
+    if (event.key === 'Escape') {
+        event.preventDefault();
+        closePreviewTabMenu();
+        return;
+    }
+    if (event.key === 'Tab') {
+        previewTabMenuIsOpen.value = false;
+        return;
+    }
+    const lastIndex = availablePreviewTabs.value.length - 1;
+    const nextIndexByKey: Partial<Record<string, number>> = {
+        ArrowDown: previewTabIndex === lastIndex ? 0 : previewTabIndex + 1,
+        ArrowUp: previewTabIndex === 0 ? lastIndex : previewTabIndex - 1,
+        End: lastIndex,
+        Home: 0
+    };
+    const nextIndex = nextIndexByKey[event.key];
+    if (nextIndex === undefined) return;
+    event.preventDefault();
+    focusPreviewTabMenuItem(nextIndex);
+}
+
+function handleSelectPreviewTab(previewTabId: PreviewTabId): void {
+    currentPreviewTabId.value = previewTabId;
+    closePreviewTabMenu();
 }
 
 // Saved before moving on, so a reload restores the item, and the data view document can show its structure and data.
@@ -407,6 +468,22 @@ function constructEncodingText(previewConfig: PreviewConfig): string | undefined
     if (previewConfig.encodingConfidenceLevel == null) return t(TEXT, 'detail.encoding.assumed.text', { encoding });
     const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(previewConfig.encodingConfidenceLevel);
     return t(TEXT, 'detail.encoding.text', { confidence, encoding });
+}
+
+// Focus goes to the current view, so the arrow keys start from what is already chosen.
+async function openPreviewTabMenu(): Promise<void> {
+    previewTabMenuIsOpen.value = true;
+    await nextTick();
+    focusPreviewTabMenuItem(availablePreviewTabs.value.findIndex((previewTab) => previewTab.id === currentPreviewTabId.value));
+}
+
+function closePreviewTabMenu(): void {
+    previewTabMenuIsOpen.value = false;
+    previewTabMenuElement.value?.querySelector<HTMLElement>('[aria-haspopup="menu"]')?.focus();
+}
+
+function focusPreviewTabMenuItem(previewTabIndex: number): void {
+    previewTabMenuElement.value?.querySelectorAll<HTMLElement>('[role="menuitemradio"]')[previewTabIndex]?.focus();
 }
 
 function createPreviewTabElementId(previewTabId: PreviewTabId): string {
@@ -509,11 +586,12 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <Breadcrumbs class="h-9.25 min-w-0 flex-1" :items="breadcrumbs" :disable-last="isSplit || activeConnectionObjectConfig == null" @select="handleSelectBreadcrumb" />
 
                 <!-- Preview Tabs ─ Only once the preview is back, because what it found decides which tabs there are. Icons
-                     rather than words, to leave the breadcrumbs room. -->
+                     rather than words, to leave the breadcrumbs room. '-mr-0.5' ends the last icon's circle under the assistant
+                     toggle's sparkle. -->
                 <div
-                    v-if="activeConnectionObjectConfig && availablePreviewTabs.length > 0"
+                    v-if="activeConnectionObjectConfig && availablePreviewTabs.length > 0 && viewportIsWide"
                     :aria-label="t(TEXT, 'previewTabs.aria', { label: activeConnectionObjectConfig.label })"
-                    class="flex flex-none items-center gap-x-1 self-stretch"
+                    class="-mr-0.5 flex flex-none items-center gap-x-1 self-stretch"
                     role="tablist"
                 >
                     <ActionWrapper
@@ -533,6 +611,47 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     >
                         <component :is="previewTab.icon" aria-hidden="true" class="size-4.5" :stroke-width="1.5" />
                     </ActionWrapper>
+                </div>
+
+                <!-- Preview Tab Menu ─ The tabs below 'md', showing only the current view's icon, so the breadcrumbs keep the row.
+                     '-mr-1' ends the arrow under the assistant toggle's sparkle, as the arrow sits well inside its icon box. -->
+                <div v-else-if="activeConnectionObjectConfig && availablePreviewTabs.length > 0" ref="previewTabMenu" class="relative -mr-1 flex-none">
+                    <ActionWrapper
+                        :aria-controls="`${elementIdPrefix}-menu`"
+                        :aria-expanded="previewTabMenuIsOpen"
+                        aria-haspopup="menu"
+                        :aria-label="t(TEXT, 'previewTabMenu.aria', { label: activeConnectionObjectConfig.label, view: t(TEXT, currentPreviewTab.labelKey) })"
+                        class="flex h-7 items-center gap-x-0.5 rounded-md px-1.5 text-accent hover:state-hover active:state-press"
+                        :title="t(TEXT, currentPreviewTab.labelKey)"
+                        @click="handleTogglePreviewTabMenu"
+                        @keydown="handleOpenPreviewTabMenuByKey"
+                    >
+                        <component :is="currentPreviewTab.icon" aria-hidden="true" class="size-4.5" :stroke-width="1.5" />
+                        <ChevronDownIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                    </ActionWrapper>
+
+                    <div
+                        v-if="previewTabMenuIsOpen"
+                        :id="`${elementIdPrefix}-menu`"
+                        :aria-label="t(TEXT, 'previewTabs.aria', { label: activeConnectionObjectConfig.label })"
+                        class="absolute top-full right-0 z-30 mt-1 min-w-40 rounded-md border border-separator bg-surface p-1 shadow-md"
+                        role="menu"
+                    >
+                        <ItemButton
+                            v-for="(previewTab, previewTabIndex) in availablePreviewTabs"
+                            :key="previewTab.id"
+                            :aria-checked="previewTab.id === currentPreviewTabId"
+                            class="mt-0.5 flex items-center gap-x-2 first:mt-0"
+                            :is-active="previewTab.id === currentPreviewTabId"
+                            role="menuitemradio"
+                            tabindex="-1"
+                            @click="handleSelectPreviewTab(previewTab.id)"
+                            @keydown="handleNavigatePreviewTabMenu($event, previewTabIndex)"
+                        >
+                            <component :is="previewTab.icon" aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
+                            <span>{{ t(TEXT, previewTab.labelKey) }}</span>
+                        </ItemButton>
+                    </div>
                 </div>
             </div>
         </template>
@@ -555,13 +674,14 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         </template>
 
         <template #detail>
-            <!-- A tab panel only while there are tabs, which the preview decides. -->
+            <!-- A tab panel only while there are tabs: the preview decides whether there are any, and below 'md' they are a
+                 menu instead. -->
             <div
                 :id="`${elementIdPrefix}-panel`"
                 :aria-busy="previewIsPending"
-                :aria-labelledby="availablePreviewTabs.length > 0 ? createPreviewTabElementId(currentPreviewTabId) : undefined"
+                :aria-labelledby="availablePreviewTabs.length > 0 && viewportIsWide ? createPreviewTabElementId(currentPreviewTabId) : undefined"
                 class="relative flex min-h-0 flex-1 flex-col"
-                :role="availablePreviewTabs.length > 0 ? 'tabpanel' : undefined"
+                :role="availablePreviewTabs.length > 0 && viewportIsWide ? 'tabpanel' : undefined"
             >
                 <BusyBar v-if="previewIsPending" class="mx-4" />
                 <!-- The usual room after the last row, less the status bar's height: the table already ends above it. -->

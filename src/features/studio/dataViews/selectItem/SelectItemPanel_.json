@@ -26,10 +26,11 @@
             "es": "Este archivo no se puede leer como datos ni como texto, así que no se puede seleccionar."
         },
         "preview.aria": { "en": "Amount previewed", "es": "Cantidad previsualizada" },
+        "previewTabMenu.aria": { "en": "View {label} as: {view}", "es": "Ver {label} como: {view}" },
         "previewTabs.aria": { "en": "View {label} as", "es": "Ver {label} como" },
-        "tab.details.aria": { "en": "Details", "es": "Detalles" },
-        "tab.document.aria": { "en": "Document", "es": "Documento" },
-        "tab.table.aria": { "en": "Table", "es": "Tabla" },
-        "tab.text.aria": { "en": "Text", "es": "Texto" }
+        "tab.details.label": { "en": "Details", "es": "Detalles" },
+        "tab.document.label": { "en": "Document", "es": "Documento" },
+        "tab.table.label": { "en": "Table", "es": "Tabla" },
+        "tab.text.label": { "en": "Text", "es": "Texto" }
     }
 }
