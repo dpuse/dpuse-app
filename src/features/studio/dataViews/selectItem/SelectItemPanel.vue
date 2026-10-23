@@ -79,10 +79,10 @@ const PREVIEW_TABS: PreviewTab[] = [
     { icon: markRaw(InfoIcon), id: 'details', labelKey: 'tab.details.label' }
 ];
 
-// ── Data Formats ─ The preview decodes all four text formats and parses them as delimited text. Only delimited text
-// and JSON are data as they stand.
-const TEXT_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv', 'json', 'markdown', 'text']);
-const TABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv', 'json']);
+// ── Data Formats ─ The preview decodes all five text formats and parses them as delimited text. Only delimited text,
+// JSON and JSON Lines are data as they stand.
+const TEXT_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv', 'json', 'jsonl', 'markdown', 'text']);
+const TABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv', 'json', 'jsonl']);
 const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
     dpe: 'dataFormat.dpe.label',
     dtv: 'dataFormat.dtv.label',

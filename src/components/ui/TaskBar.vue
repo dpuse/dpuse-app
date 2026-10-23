@@ -63,13 +63,14 @@ function localiseLine(line: LocaleLabel): string {
                     class="group flex items-start gap-x-1.5 pt-1 pb-2 text-sm"
                     :to="item.to"
                 >
-                    <!-- Marker beside the label rather than above it, which keeps the bar to two lines. Filled circle for
-                         the current step, outlined for the others: accent when it can be opened, muted when it is locked. -->
+                    <!-- Marker beside the label rather than above it, which keeps the bar to two lines. Pale blue circle
+                         for the current step, matching the pill buttons, because a solid blue one was the only strong blue
+                         on the screen. Outlined for the others: accent when it can be opened, muted when it is locked. -->
                     <div
                         aria-hidden="true"
                         class="flex size-5 flex-none items-center justify-center rounded-full border-[1.25px] text-xs font-semibold"
                         :class="[
-                            currentId === item.id ? 'border-accent-fill bg-accent-fill text-surface' : 'bg-surface',
+                            currentId === item.id ? 'border-accent bg-pill text-accent' : 'bg-surface',
                             currentId !== item.id && (item.disabled ? 'border-muted text-muted' : 'border-accent text-accent')
                         ]"
                     >
