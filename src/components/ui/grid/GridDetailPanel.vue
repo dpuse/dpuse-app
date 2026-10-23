@@ -54,14 +54,16 @@ defineEmits<{ add: [] }>();
 const bodyElement = useTemplateRef<HTMLElement>('bodyElement');
 const detailIsOpen = ref(false); // Whether the detail has been opened and not since dismissed, which is intent rather than visibility.
 const firstSelectionIsClosed = ref(isDetailInitiallyClosed); // Cleared once the first selection arrives, which may be after the list loads.
+const shownNarrowPaneId = ref<'detail' | 'grid'>(); // The pane shown on a narrow screen. Unset while the old pane fades out.
 const { width: bodyWidth } = useElementSize(bodyElement);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const detailPaneIsVisible = computed(() => isSplit.value || detailIsOpen.value);
-const gridPaneIsVisible = computed(() => isSplit.value || !detailIsOpen.value);
 const isSplit = computed(() => bodyWidth.value >= GRID_DETAIL_SPLIT_THRESHOLD_PX);
 provide(gridDetailIsSplitKey, isSplit);
+const narrowPaneId = computed(() => (detailIsOpen.value ? 'detail' : 'grid'));
+const detailPaneIsVisible = computed(() => isSplit.value || shownNarrowPaneId.value === 'detail');
+const gridPaneIsVisible = computed(() => isSplit.value || shownNarrowPaneId.value === 'grid');
 
 // ── Scroll Target ─ The selected item's row is scrolled into view, so a selection restored when the list opens can be
 // seen. Built from the id, so a new object for the same item, as a language switch gives, does not scroll the list again.
@@ -84,6 +86,23 @@ watch(
     },
     { immediate: true }
 );
+
+// A narrow screen shows one pane at a time. The old pane fades out before the new one fades in, so the two never share
+// the row and the detail's placeholder is not seen on its way out. With nothing shown yet, as on mount, or when both
+// panes are shown side by side, the pane is shown at once.
+watch(
+    narrowPaneId,
+    (newNarrowPaneId) => {
+        shownNarrowPaneId.value = isSplit.value || shownNarrowPaneId.value === undefined ? newNarrowPaneId : undefined;
+    },
+    { immediate: true }
+);
+
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+function handleShowNarrowPane(): void {
+    shownNarrowPaneId.value = narrowPaneId.value;
+}
 </script>
 
 <template>
@@ -96,54 +115,60 @@ watch(
         <!-- Body -->
         <div ref="bodyElement" class="flex min-h-0 flex-1">
             <!-- Grid (Left) Pane. Hidden with 'v-show' rather than a 'hidden' class because Grid's own root carries
-                 'flex': the two are both display utilities, and which won would rest on stylesheet order alone. -->
-            <Grid
-                v-show="gridPaneIsVisible"
-                :add-label="addLabel"
-                class="flex-1"
-                :data-source="dataSource"
-                :is-compact="isCompact"
-                :is-scroll-target="matchSelectedRow"
-                :row-height="rowHeight"
-                :scroll-area-padding-top="scrollAreaPaddingTop"
-                :style="{ maxWidth: isSplit ? maxGridWidth : undefined }"
-                :target-column-width="targetColumnWidth"
-                @add="$emit('add')"
-            >
-                <template #default="{ item }">
-                    <slot name="item" :item="item" />
-                </template>
+                 'flex': the two are both display utilities, and which won would rest on stylesheet order alone. On a
+                 narrow screen it fades, and the detail pane appears once its fade-out ends. -->
+            <Transition name="dpuse-action-fade" @after-leave="handleShowNarrowPane">
+                <Grid
+                    v-show="gridPaneIsVisible"
+                    :add-label="addLabel"
+                    class="flex-1"
+                    :data-source="dataSource"
+                    :is-compact="isCompact"
+                    :is-scroll-target="matchSelectedRow"
+                    :row-height="rowHeight"
+                    :scroll-area-padding-top="scrollAreaPaddingTop"
+                    :style="{ maxWidth: isSplit ? maxGridWidth : undefined }"
+                    :target-column-width="targetColumnWidth"
+                    @add="$emit('add')"
+                >
+                    <template #default="{ item }">
+                        <slot name="item" :item="item" />
+                    </template>
 
-                <template #busy>
-                    <slot name="busy" />
-                </template>
+                    <template #busy>
+                        <slot name="busy" />
+                    </template>
 
-                <template #no-items>
-                    <slot name="no-items" />
-                </template>
-            </Grid>
+                    <template #no-items>
+                        <slot name="no-items" />
+                    </template>
+                </Grid>
+            </Transition>
 
-            <!-- Detail (Right) Pane -->
-            <div
-                class="@container relative min-w-0 flex-1 border-separator"
-                :class="[detailPaneIsVisible ? 'block' : 'hidden', { 'border-l': isSplit }]"
-                :style="{ maxWidth: isSplit ? maxDetailWidth : undefined }"
-            >
-                <!-- Active Item, or No Selection - Keyed on the item, so each new selection fades in. The old detail fades
-                     out quickly first, as route views do, so it does not vanish in a flash. The comments stay out here
-                     because a comment between the branches would sit inside the transition. -->
-                <Transition name="dpuse-action-fade" mode="out-in">
-                    <div v-if="selectedItem" :key="selectedItem.id" class="relative flex h-full min-h-0 flex-col">
-                        <slot name="detail" :item="selectedItem" :close="() => (detailIsOpen = false)" />
-                    </div>
-                    <div v-else key="noSelection" class="mx-page mt-6">
-                        <slot name="no-selection" />
-                    </div>
-                </Transition>
+            <!-- Detail (Right) Pane ─ On a narrow screen it fades, and the grid pane appears once its fade-out ends. -->
+            <Transition name="dpuse-action-fade" @after-leave="handleShowNarrowPane">
+                <div
+                    v-show="detailPaneIsVisible"
+                    class="@container relative min-w-0 flex-1 border-separator"
+                    :class="{ 'border-l': isSplit }"
+                    :style="{ maxWidth: isSplit ? maxDetailWidth : undefined }"
+                >
+                    <!-- Active Item, or No Selection - Keyed on the item, so each new selection fades in. The old detail
+                         fades out quickly first, as route views do, so it does not vanish in a flash. The comments stay
+                         out here because a comment between the branches would sit inside the transition. -->
+                    <Transition name="dpuse-action-fade" mode="out-in">
+                        <div v-if="selectedItem" :key="selectedItem.id" class="relative flex h-full min-h-0 flex-col">
+                            <slot name="detail" :item="selectedItem" :close="() => (detailIsOpen = false)" />
+                        </div>
+                        <div v-else key="noSelection" class="mx-page mt-6">
+                            <slot name="no-selection" />
+                        </div>
+                    </Transition>
 
-                <!-- Detail Action ─ Outside the transition, so the button stays put while the item's details fade in. -->
-                <slot v-if="selectedItem" name="detail-action" :item="selectedItem" />
-            </div>
+                    <!-- Detail Action ─ Outside the transition, so the button stays put while the item's details fade in. -->
+                    <slot v-if="selectedItem" name="detail-action" :item="selectedItem" />
+                </div>
+            </Transition>
         </div>
     </div>
 </template>
