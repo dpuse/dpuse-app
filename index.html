@@ -14,7 +14,9 @@
 
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <!-- TODO: iOS 27 blurs the top of an installed app, and neither this setting nor a fixed strip at the top removes
+             it. Watch WebKit bug 325807 (https://bugs.webkit.org/show_bug.cgi?id=325807, rdar://189415153) for a fix. -->
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="DPUse" />
 
         <!-- No-media theme-color fallback. -->
