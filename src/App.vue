@@ -195,6 +195,11 @@ function syncPaneQuery(): void {
             <GuestWorkNotice v-if="signInFollowsGuestUse" />
         </div>
 
+        <!-- Status Bar Strip ─ iOS 27 blurs the top of an installed app, over the status bar and the content below it.
+             WebKit leaves the blur off when an opaque fixed element spans the top edge, so this fills the status bar's
+             own area with the page colour. It must be a real element, because iOS ignores pseudo-elements here. -->
+        <div v-if="isPWA" class="pointer-events-none fixed inset-x-0 top-0 z-50 h-[env(safe-area-inset-top)] bg-surface" />
+
         <!-- Top Edge Line ─ Full width on wide viewports, lying exactly over the option bar's own line. -->
         <div v-if="viewportIsWide && viewportRequiresTopEdgeLine" class="pointer-events-none fixed inset-x-0 top-[env(safe-area-inset-top)] z-50 h-px bg-separator" />
 
