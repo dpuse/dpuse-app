@@ -171,7 +171,7 @@ describe('App', () => {
         it('shows the option bar beside the studio content', async () => {
             const { wrapper } = await mountApp('/');
 
-            expect(wrapper.find('[data-region="StudioPane"]').classes()).toContain('grid-cols-[65px_1fr]');
+            expect(wrapper.find('[data-region="StudioPane"]').classes()).toContain('grid-cols-[calc(env(safe-area-inset-left)+61px)_1fr]');
         });
 
         it('opens the assistant beside the studio, then closes the studio but never the last pane showing', async () => {

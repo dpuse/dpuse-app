@@ -36,6 +36,7 @@ const innerScrollElement = useTemplateRef<HTMLElement>('innerScrollElement');
 const innerScrollElementId = useId();
 
 const verticalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('verticalThumb');
+const horizontalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('horizontalThumb');
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -74,11 +75,18 @@ function toLength(value: number | string | undefined): string | undefined {
         <div
             :id="scrollElementId"
             ref="scrollElement"
-            class="min-h-0 w-full flex-1 scrollbar-none overflow-x-hidden overflow-y-scroll overscroll-none pr-page"
-            :style="{ paddingBottom, paddingLeft, paddingRight, paddingTop }"
+            class="min-h-0 w-full flex-1 scrollbar-none overflow-x-hidden overflow-y-scroll overscroll-none"
+            :style="{ paddingBottom, paddingTop }"
         >
             <slot name="header" />
-            <div :id="innerScrollElementId" ref="innerScrollElement" class="w-full scrollbar-none overflow-x-scroll overflow-y-hidden overscroll-none">
+            <!-- The side padding sits on the horizontal scroller, not the vertical one, so wide content scrolls under the
+                 vertical scroll bar to the edge, as it already scrolls under the horizontal one. -->
+            <div
+                :id="innerScrollElementId"
+                ref="innerScrollElement"
+                class="w-full scrollbar-none overflow-x-scroll overflow-y-hidden overscroll-none pr-page"
+                :style="{ paddingLeft, paddingRight }"
+            >
                 <slot />
             </div>
         </div>
@@ -88,9 +96,11 @@ function toLength(value: number | string | undefined): string | undefined {
             orientation="vertical"
             :scroll-element="scrollElement"
             :cross-scroll-element="innerScrollElement"
+            :cross-inset-end="horizontalThumb?.visible ? SCROLL_THUMB_CROSS_INSET : 0"
             :always-visible="scrollbarAlwaysVisible"
         />
         <ScrollThumb
+            ref="horizontalThumb"
             orientation="horizontal"
             :scroll-element="innerScrollElement"
             :cross-scroll-element="scrollElement"

@@ -2,6 +2,7 @@
     "TEXT": {
         "apiEndpoint.label": { "en": "API endpoint", "es": "Endpoint de API" },
         "apiEndpoint.select.text": { "en": "Select an API endpoint from the list.", "es": "Selecciona un endpoint de API de la lista." },
+        "back.aria": { "en": "Back to {label}", "es": "Volver a {label}" },
         "dataFormat.dpe.label": { "en": "Data Positioning Events", "es": "Eventos de posicionamiento de datos" },
         "dataFormat.dtv.label": { "en": "Delimited text", "es": "Texto delimitado" },
         "dataFormat.json.label": { "en": "JSON", "es": "JSON" },
@@ -22,6 +23,7 @@
         "file.label": { "en": "File", "es": "Archivo" },
         "file.select.text": { "en": "Select a file from the list.", "es": "Selecciona un archivo de la lista." },
         "folder.label": { "en": "Folder", "es": "Carpeta" },
+        "home.label": { "en": "Home", "es": "Inicio" },
         "item.empty.text": { "en": "This file is empty, so there is nothing to select.", "es": "Este archivo está vacío, así que no hay nada que seleccionar." },
         "item.label": { "en": "Item", "es": "Elemento" },
         "item.select.text": { "en": "Select an item from the list.", "es": "Selecciona un elemento de la lista." },

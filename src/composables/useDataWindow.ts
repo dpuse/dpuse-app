@@ -205,6 +205,11 @@ export function useDataWindow<T>({
             return count ? count() : (knownRowCount.value ?? cacheBlockSize());
         },
         getScrollElement: () => scrollElement.value,
+        // Off while there is no scroll element, as when a caller swaps the list for a new one. Switching off drops the
+        // stored scroll position, which otherwise carries over and leaves the new list's top rows undrawn.
+        get enabled() {
+            return scrollElement.value != null;
+        },
         estimateSize: (index) => estimateSize(getRow((getDataIndexes ? getDataIndexes(index) : [index])[0])),
         overscan: 5
     });

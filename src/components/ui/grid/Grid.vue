@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import { PlusIcon } from '@lucide/vue';
 import { useResizeObserver } from '@vueuse/core';
-import { computed, ref, shallowRef, watch } from 'vue';
+import { computed, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── Local Framework
 import { type DataSource, DEFAULT_CACHE_BLOCK_SIZE, useDataWindow } from '@/composables/useDataWindow';
@@ -56,6 +56,7 @@ defineEmits<{ add: []; select: [item: T | undefined] }>();
 const columnCount = ref(1);
 const columnWidth = ref(0);
 const scrollElement = shallowRef<HTMLElement | null>(null);
+const rowsElement = useTemplateRef<HTMLDivElement>('rows'); // Measured for the row width, because the scroll area's side padding sits inside the scroller.
 // Grid needs its own `count` override to divide the item count by columnCount for its N-per-row layout, which
 // means useDataWindow's built-in self-correcting row count is bypassed for the virtualizer unless we mirror it
 // locally — correctedRowCount starts at the caller's best guess (possibly undefined/unknown) and is kept in sync
@@ -95,7 +96,7 @@ const state = computed<'busy' | 'empty' | 'rows'>(() => {
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-useResizeObserver(scrollElement, ([entry]) => {
+useResizeObserver(rowsElement, ([entry]) => {
     const width = entry.contentRect.width;
     if (isCompact || targetColumnWidth == null) {
         columnCount.value = 1;
@@ -104,6 +105,12 @@ useResizeObserver(scrollElement, ([entry]) => {
         columnCount.value = Math.max(Math.floor(width / targetColumnWidth), 1);
         columnWidth.value = Math.floor(width / columnCount.value);
     }
+});
+
+// The list's scroll area is replaced whenever a new list loads, such as another folder's. The old one is let go, so the
+// virtualizer starts the new list from the top instead of from the old list's scroll position.
+watch(state, (newState) => {
+    if (newState !== 'rows') scrollElement.value = null;
 });
 
 // The target row may load after the list appears, and the list's scroll area only exists once rows are shown. So this
@@ -154,11 +161,12 @@ function getRowHeight(item: T | undefined): number {
                 role="list"
                 :row-count="rowCount"
                 :scroll-area-padding-bottom="scrollAreaPaddingBottom"
+                :scroll-area-padding-right="isCompact ? '8px' : undefined"
                 :scroll-area-padding-top="contentPaddingTop"
                 @initialised="handleScrollAreaInitialised"
             >
                 <!-- <div :class="{ 'mt-2': isCompact }" :style="{ height: totalSize + 'px', position: 'relative' }"> -->
-                <div :style="{ height: totalSize + 'px', position: 'relative' }">
+                <div ref="rows" :style="{ height: totalSize + 'px', position: 'relative' }">
                     <div
                         v-for="virtualRow in virtualRows"
                         :key="virtualRow.index"
@@ -169,9 +177,9 @@ function getRowHeight(item: T | undefined): number {
                             <!-- Skip cells beyond the last data item (last row may be partially filled) -->
                             <div v-if="virtualRow.index * columnCount + columnOffset < rowCount" class="shrink-0" role="listitem" :style="{ width: `${columnWidth}px` }">
                                 <!-- A compact row is inset 8px on the left, where its own 8px inset then lines its icon up with
-                                     the 16px page edge and its hover and selected fill reach 8px into that margin. On the right
-                                     it runs up to the scroll area's own strip. -->
-                                <div class="h-full" :class="isCompact ? 'pt-0.5 pl-3' : 'pt-4 pl-page'">
+                                     the 16px page edge and its hover and selected fill reach 8px into that margin. The scroll
+                                     area keeps the same 8px on the right, so the fill has an equal gap on both sides. -->
+                                <div class="h-full" :class="isCompact ? 'pt-0.5 pl-2' : 'pt-4 pl-page'">
                                     <slot
                                         v-if="getRow(virtualRow.index * columnCount + columnOffset) !== undefined"
                                         :item="getRow(virtualRow.index * columnCount + columnOffset) as T"

@@ -1,13 +1,12 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { BracesIcon, CableIcon, ChevronRightIcon, FileTextIcon, SquareDashedIcon, TableIcon } from '@lucide/vue';
+import { BracesIcon, CableIcon, ChevronRightIcon, FileIcon, SheetIcon, SquareDashedIcon } from '@lucide/vue';
 import { type Component, computed } from 'vue';
 
 // ── DPUse Framework
 import type { ConnectionNodeConfig, ConnectorItemTypeId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { lookupFileIcon } from './_fileIcons';
 import { t } from '@/state/locale';
 import { TEXT } from './DataViewSource_.json';
 import { constructItemPath, type DataViewConnection } from './dataViewSummary';
@@ -24,7 +23,7 @@ const CHOSEN_CLASSES = 'text-content';
 // A chosen item without an icon of its own shows its file type when it has an extension, as the item list does, and
 // otherwise what kind of item it is. A table connector's items always show the table grid, even the application
 // emulator's, whose tables are stored as CSV files. A connector released before it said which shows the table grid.
-const ITEM_TYPE_ICONS: Record<ConnectorItemTypeId, Component> = { apiEndpoint: BracesIcon, file: FileTextIcon, table: TableIcon };
+const ITEM_TYPE_ICONS: Record<ConnectorItemTypeId, Component> = { apiEndpoint: BracesIcon, file: FileIcon, table: SheetIcon };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -47,9 +46,8 @@ const itemIconIsPresent = computed(() => [connectionNodeConfig?.icon, connection
 // it said which.
 const itemSubject = computed(() => itemTypeId ?? 'item');
 const itemTypeIcon = computed(() => {
-    if (itemTypeId === 'table') return TableIcon;
-    if (connectionNodeConfig?.extension != null) return lookupFileIcon(connectionNodeConfig.extension);
-    return itemTypeId ? ITEM_TYPE_ICONS[itemTypeId] : TableIcon;
+    if (itemTypeId === 'table') return SheetIcon;
+    return itemTypeId ? ITEM_TYPE_ICONS[itemTypeId] : SheetIcon;
 });
 
 // The item's folder path then its label, which a connector can set apart from the name the engine uses, e.g. to show a

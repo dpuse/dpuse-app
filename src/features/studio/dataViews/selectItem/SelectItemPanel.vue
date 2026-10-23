@@ -6,7 +6,7 @@
 
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
-import { ArrowRightIcon, BookOpenTextIcon, ChevronDownIcon, FolderIcon, HomeIcon, InfoIcon, TableIcon, TextIcon } from '@lucide/vue';
+import { ArrowLeftIcon, ArrowRightIcon, BookOpenTextIcon, BracesIcon, ChevronDownIcon, FileIcon, FolderIcon, InfoIcon, SheetIcon, TextIcon } from '@lucide/vue';
 import { type Component, computed, markRaw, nextTick, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
 import { onClickOutside, until } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
@@ -34,7 +34,6 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import { ignoreReportedNavigationFailure } from '@/router';
-import { lookupFileIcon } from '../_fileIcons';
 import { renderMarkdown } from '@/services/useMarkedTool';
 import { TEXT } from './SelectItemPanel_.json';
 import { viewportIsWide } from '@/state/device';
@@ -49,6 +48,7 @@ import BusyBar from '@/components/ui/BusyBar.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
+import HouseIcon from '@/components/icons/HouseIcon.vue';
 import ItemButton from '@/components/ui/action/ItemButton.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
@@ -73,7 +73,7 @@ type PreviewTabId = 'table' | 'text' | 'document' | 'details';
 // ── Preview Tabs ─ Ways to show the item, which also choose how to open it: a markdown or plain text file opened as a
 // table can be selected as data, as can a file whose extension says nothing about its content.
 const PREVIEW_TABS: PreviewTab[] = [
-    { icon: markRaw(TableIcon), id: 'table', labelKey: 'tab.table.label' },
+    { icon: markRaw(SheetIcon), id: 'table', labelKey: 'tab.table.label' },
     { icon: markRaw(TextIcon), id: 'text', labelKey: 'tab.text.label' },
     { icon: markRaw(BookOpenTextIcon), id: 'document', labelKey: 'tab.document.label' },
     { icon: markRaw(InfoIcon), id: 'details', labelKey: 'tab.details.label' }
@@ -154,7 +154,7 @@ const { isPending: dataViewIsSaving, mutateAsync: updateDataView } = useUpdateDa
 const text = ref<string | undefined>();
 
 // TODO: Fix this icon data type compatibility issue.
-const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as unknown as ConnectionNodeConfig;
+const homeBreadcrumb = { id: 'home', icon: markRaw(HouseIcon), label: 'Home' } as unknown as ConnectionNodeConfig;
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -163,11 +163,16 @@ const homeBreadcrumb = { id: 'home', icon: markRaw(HomeIcon), label: 'Home' } as
 const activeConnectionConfig = computed(() => findConnectionLocalisedConfig(dataViewConfig.value?.connectionId));
 const itemSubject = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId ?? 'item'); // Wording names the connector's kind of item, e.g. 'File', and falls back to 'item' for a connector released before it said which.
 
-// A connector whose items are tables shows every item with the table icon, not an icon for its file format. The
-// application emulator stores its tables as CSV files, but they stand in for a real application's tables.
-const connectionItemsAreTables = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId === 'table');
+// Every item shows the icon for the connector's kind of item, as the summary row does. A file's real format is only
+// known once it is previewed, so its name extension is not used to guess one.
+const itemTypeIcon = computed(() => {
+    const itemTypeId = activeConnectionConfig.value?.connectorConfig.itemTypeId;
+    if (itemTypeId === 'apiEndpoint') return BracesIcon;
+    return itemTypeId === 'file' ? FileIcon : SheetIcon; // A connector released before it named its kind of item shows tables, as the summary row does.
+});
 
 const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...currentFolderNodes.value]);
+const backLabel = computed(() => currentFolderNodes.value.at(-1)?.label ?? t(TEXT, 'home.label')); // Names the folder the back button returns to.
 
 // ── Preview ─ A file the preview could not read as text says so on the details tab.
 const previewIsUnsupported = computed(() => activePreviewConfig.value != null && !TEXT_DATA_FORMAT_IDS.has(activePreviewConfig.value.dataFormatId));
@@ -323,6 +328,12 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
     }
 
     pickItem(connectionNodeConfig);
+}
+
+// Narrow screens show the preview in place of the list. Going back does what the last breadcrumb does.
+function handleReturnToList(): void {
+    const index = breadcrumbs.value.length - 1;
+    handleSelectBreadcrumb(index, assertDefined(breadcrumbs.value[index]));
 }
 
 // Arrow keys, Home and End move between tabs and select as they go, since only the selected tab is in the tab order.
@@ -582,7 +593,25 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
             <div class="flex h-full min-w-0 items-center gap-x-3 border-b border-separator px-page text-sm">
                 <!-- The last crumb is the item on show. It leads back to the list, so it stays live only while the list
                      is hidden; 'isSplit' comes from the panel below so the two cannot disagree about that. -->
-                <Breadcrumbs class="h-9.25 min-w-0 flex-1" :items="breadcrumbs" :disable-last="isSplit || activeConnectionObjectConfig == null" @select="handleSelectBreadcrumb" />
+                <!-- Back Button ─ Narrow screens show the preview in place of the list, so the trail gives way to
+                     one button back to it. 'ml-[-3.5px]' starts the arrow, which Lucide insets 3.5px in its box, on
+                     the page margin. -->
+                <ActionWrapper
+                    v-if="!isSplit && activeConnectionObjectConfig != null"
+                    :aria-label="t(TEXT, 'back.aria', { label: backLabel })"
+                    class="flex h-9.25 min-w-0 flex-1 cursor-pointer items-center gap-x-1 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                    @click="handleReturnToList"
+                >
+                    <ArrowLeftIcon aria-hidden="true" class="ml-[-3.5px] size-5 flex-none" :stroke-width="1.5" />
+                    <span class="min-w-0 truncate">{{ backLabel }}</span>
+                </ActionWrapper>
+                <Breadcrumbs
+                    v-else
+                    class="h-9.25 min-w-0 flex-1"
+                    :items="breadcrumbs"
+                    :disable-last="isSplit || activeConnectionObjectConfig == null"
+                    @select="handleSelectBreadcrumb"
+                />
 
                 <!-- Preview Tabs ─ Icons rather than words, to leave the breadcrumbs room. '-mr-1.5' centres the last icon
                      30px from the edge, under the assistant toggle. -->
@@ -661,7 +690,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
             <ConfigCard
                 v-if="item"
                 :config="item"
-                :fallback-icon="item.typeId === 'folder' ? FolderIcon : connectionItemsAreTables ? TableIcon : lookupFileIcon(item.extension)"
+                :fallback-icon="item.typeId === 'folder' ? FolderIcon : itemTypeIcon"
                 :is-compact="true"
                 :overline="t(TEXT, item.typeId === 'folder' ? 'folder.label' : `${itemSubject}.label`)"
                 :selected="item.id === activeConnectionObjectConfig?.id"

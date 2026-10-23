@@ -54,6 +54,7 @@ const innerScrollElement = useTemplateRef<HTMLDivElement>('innerScroller');
 const innerScrollElementId = useId();
 const headerViewport = useTemplateRef<HTMLDivElement>('headerViewport');
 const verticalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('verticalThumb');
+const horizontalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('horizontalThumb');
 
 // ── State - Columns ──────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -308,8 +309,15 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                 </div>
             </div>
 
-            <ScrollThumb ref="verticalThumb" orientation="vertical" :scroll-element="scrollElement" :cross-scroll-element="innerScrollElement" />
             <ScrollThumb
+                ref="verticalThumb"
+                orientation="vertical"
+                :scroll-element="scrollElement"
+                :cross-scroll-element="innerScrollElement"
+                :cross-inset-end="horizontalThumb?.visible ? SCROLL_THUMB_CROSS_INSET : 0"
+            />
+            <ScrollThumb
+                ref="horizontalThumb"
                 orientation="horizontal"
                 :scroll-element="innerScrollElement"
                 :cross-scroll-element="scrollElement"

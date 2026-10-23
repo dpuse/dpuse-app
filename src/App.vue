@@ -224,7 +224,7 @@ function syncPaneQuery(): void {
             v-if="studioPaneWasOpened"
             :hidden="!studioPaneIsVisible"
             class="@container grid h-full"
-            :class="viewportIsWide ? 'grid-cols-[65px_1fr]' : 'grid-cols-1'"
+            :class="viewportIsWide ? 'grid-cols-[calc(env(safe-area-inset-left)+61px)_1fr]' : 'grid-cols-1'"
             data-region="StudioPane"
             :style="studioPaneStyle"
             @focusin="currentAppPaneId = 'studio'"

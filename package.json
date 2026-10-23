@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "1.0.197",
+    "version": "1.0.198",
     "private": false,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -72,7 +72,6 @@
         "@fontsource-variable/inter": "^5.3.0",
         "@formkit/drag-and-drop": "^0.6.1",
         "@lucide/vue": "^1.61.0",
-        "@tabler/icons-vue": "^3.49.0",
         "@tanstack/ai": "^0.71.0",
         "@tanstack/ai-client": "^0.40.1",
         "@tanstack/vue-query": "^5.104.5",

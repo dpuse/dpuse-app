@@ -62,9 +62,9 @@ const headerMarginRight = computed(() => `${String(Math.max(36, actionsWidth.val
 
             <!-- Actions ─ Beside the header button rather than inside it, because a button may not contain buttons. They sit in
                  the right margin the header keeps clear, and are centred on the title row whatever the overline's height.
-                 'right-0' puts the last action's centre under the assistant toggle's in the top right corner: the page margin
-                 ends 20px from the edge, so a 20px icon there is centred 30px in, as the toggle is. -->
-            <div v-if="$slots.actions" ref="actionsElement" class="absolute right-0 bottom-0 flex h-10 items-center gap-x-2">
+                 '-right-1' puts the last action's centre under the assistant toggle's in the top right corner: the page
+                 margin ends 16px from the edge, so a 20px icon 4px past it is centred 30px in, as the toggle is. -->
+            <div v-if="$slots.actions" ref="actionsElement" class="absolute -right-1 bottom-0 flex h-10 items-center gap-x-2">
                 <slot name="actions" />
             </div>
         </div>

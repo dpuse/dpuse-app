@@ -4,9 +4,8 @@
 const THUMB_THICKNESS = 6;
 const THUMB_EDGE_INSET = 2;
 
-// Pass as crossInsetEnd on a horizontal ScrollThumb when a perpendicular vertical one is also visible, so their
-// tracks don't overlap at the corner. There's no equivalent for the vertical track — matching scrollbar convention,
-// the vertical track owns the corner.
+// Pass as crossInsetEnd on either ScrollThumb while the perpendicular one is also visible, so both tracks stop short of
+// the corner they share and neither runs under the other. A track on its own runs the full length.
 export const SCROLL_THUMB_CROSS_INSET = THUMB_THICKNESS + THUMB_EDGE_INSET;
 </script>
 
@@ -68,6 +67,9 @@ watch(
 // The children are watched as well as the element, because content growing inside it changes the scroll range without
 // changing the element's own size.
 useResizeObserver(() => (scrollElement ? [scrollElement, ...(scrollElement.children as HTMLCollectionOf<HTMLElement>)] : []), updateThumb);
+
+// The track shortens when the other track appears, which changes how far the thumb can travel.
+watch(() => crossInsetEnd, updateThumb, { flush: 'post' });
 
 useMutationObserver(
     () => scrollElement,
@@ -248,7 +250,7 @@ function clampFromZero(value: number, max: number): number {
         aria-valuemax="100"
         class="group pointer-events-auto absolute cursor-pointer transition-opacity duration-200 ease-[ease]"
         :class="[isVertical ? 'inset-y-0 right-0 w-6' : 'inset-x-0 bottom-0 h-6', thumbsShown ? 'opacity-100' : 'opacity-0']"
-        :style="!isVertical ? { right: crossInsetEnd + 'px' } : undefined"
+        :style="isVertical ? { bottom: crossInsetEnd + 'px' } : { right: crossInsetEnd + 'px' }"
         @pointerdown="handlePointerDown"
         @touchstart.passive="handleTouchStart"
         @mouseenter="handleShowThumbs"

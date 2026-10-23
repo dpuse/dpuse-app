@@ -11,10 +11,9 @@
     /* TODO: Turn on tabular figures ('tabular-nums') wherever numbers sit in columns or change in place: tables,
        counts, version numbers, progress percentages. Inter supports them, but they are off by default. See:
        https://madegooddesigns.com/best-fonts-for-dashboards/. */
-    /* Page margin: how far content sits from the screen or pane edge, as 'px-page' and the like. 20px puts a 20px icon's
-       centre 30px in, on the same line as the floating buttons ('--safe-left-offset' and '--safe-right-offset' plus
-       half their 40px) and the option bar's icons. */
-    --spacing-page: 1.25rem;
+    /* Page margin: how far content sits from the screen or pane edge, as 'px-page' and the like. 16px starts content on
+       the same line as the Studio logo's left edge, so on narrow screens the content's icons line up under it. */
+    --spacing-page: 1rem;
 
     --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 

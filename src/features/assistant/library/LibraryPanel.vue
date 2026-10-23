@@ -10,7 +10,6 @@
 // leaves the trail as the way back to it.
 
 // ── External Dependencies & Registrations
-import { HouseIcon } from '@lucide/vue';
 import { computed, shallowRef } from 'vue';
 
 import { t } from '@/state/locale';
@@ -23,6 +22,7 @@ import { type LibraryDocument, type LibraryDocumentType, libraryDocumentTypeLabe
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
+import HouseIcon from '@/components/icons/HouseIcon.vue';
 import LibraryDocumentPanel from './LibraryDocumentPanel.vue';
 import LibrarySearchInput from './LibrarySearchInput.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
@@ -171,8 +171,12 @@ function handleSelectBreadcrumb(index: number): void {
         <ScrollArea class="flex flex-1 flex-col pl-page" scroll-area-padding-top="16px">
             <!-- Sticky rather than floated over the pane, so it takes its own space and nothing has to measure it. -->
             <template v-if="searchFieldIsVisible" #header>
-                <div class="sticky top-4 z-20 mx-auto mb-4 max-w-prose">
-                    <LibrarySearchInput />
+                <!-- 'pr-page' matches the margin the scroller keeps on the list's right, so the field stays centred over
+                     the list. -->
+                <div class="sticky top-4 z-20 mb-4 pr-page">
+                    <div class="mx-auto max-w-prose">
+                        <LibrarySearchInput />
+                    </div>
                 </div>
             </template>
 
