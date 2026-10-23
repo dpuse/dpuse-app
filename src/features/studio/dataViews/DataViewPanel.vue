@@ -42,6 +42,7 @@ const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
     dpe: 'dataFormat.dpe.label',
     dtv: 'dataFormat.dtv.label',
     json: 'dataFormat.json.label',
+    jsonl: 'dataFormat.jsonl.label',
     markdown: 'dataFormat.markdown.label',
     spss: 'dataFormat.spss.label',
     text: 'dataFormat.text.label',

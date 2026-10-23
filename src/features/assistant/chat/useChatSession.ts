@@ -85,6 +85,7 @@ export function useChatSession(getModelConfig: () => AssistantModelConfig): Chat
 
     onMounted(() => {
         const client = new ChatClient({
+            threadId: crypto.randomUUID(),
             connection: fetchServerSentEvents(CHAT_API_URL),
             tools: tanstackClientTools,
             forwardedProps: buildForwardedProperties(getModelConfig()),

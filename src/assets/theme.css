@@ -60,6 +60,7 @@
     --color-emphasis: var(--emphasis); /* Text/icons (strong — headings, prominent labels) */
     --color-accent: var(--accent); /* Text/icons (interactive — links, active states) */
     --color-accent-hover: var(--accent-hover); /* Text/icons (interactive — hover) */
+    --color-accent-fill: var(--accent-fill); /* Solid accent background under surface-coloured text (the current step) */
     --color-focus-ring: var(--focus-ring); /* Focus indicator — one colour for every focusable thing */
 
     /* Status colors (success/warning/danger/info) — used for tags, badges, status pills, buttons, and alerts. */
@@ -124,6 +125,7 @@
     --emphasis: var(--color-zinc-900);
     --accent: var(--color-blue-600);
     --accent-hover: var(--color-blue-700);
+    --accent-fill: oklch(48.8% 0.15 264.376); /* blue-700 with its chroma cut from 0.243, because a solid block at full chroma outshines the text and buttons around it. About 6.5:1 under white text. */
     /* Focus follows the accent because focus is an interactive state, but it is its own token so it can be
        retuned without touching links. blue-600 is about 5.2:1 on the white surface and 4.9:1 on the zinc-50 backdrop,
        clearing the 3:1 that WCAG 2.2's focus-appearance criterion asks for. The zinc-300 this replaces was
@@ -189,6 +191,7 @@
     --emphasis: var(--color-zinc-100);
     --accent: var(--color-blue-400);
     --accent-hover: var(--color-blue-200);
+    --accent-fill: var(--accent);
     --focus-ring: var(--accent); /* blue-400: 7.8:1 on the zinc-950 surface, 7:1 on the zinc-900 backdrop. */
 
     /* Dark mode status colors — Tailwind UI's documented dark badge/alert palette (bg-400/10, text-400, ring-400/20; green uses 500 for bg and ring). */

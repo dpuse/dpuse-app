@@ -69,7 +69,7 @@ function localiseLine(line: LocaleLabel): string {
                         aria-hidden="true"
                         class="flex size-5 flex-none items-center justify-center rounded-full border-[1.25px] text-xs font-semibold"
                         :class="[
-                            currentId === item.id ? 'border-accent bg-accent text-surface' : 'bg-surface',
+                            currentId === item.id ? 'border-accent-fill bg-accent-fill text-surface' : 'bg-surface',
                             currentId !== item.id && (item.disabled ? 'border-muted text-muted' : 'border-accent text-accent')
                         ]"
                     >
