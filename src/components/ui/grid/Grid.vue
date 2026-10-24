@@ -115,6 +115,9 @@ watch(state, (newState) => {
 
 // The target row may load after the list appears, and the list's scroll area only exists once rows are shown. So this
 // waits for both, then scrolls once. After the DOM updates, so the scroll area has its size.
+// TODO: Only rows already loaded are searched, so a target beyond them, such as a saved item past the first 100 rows
+// of a folder, is never scrolled to. Finding it means fetching further blocks until it appears, which costs connector
+// calls, or the data source reporting the target's position.
 watch(
     () => (isScrollTarget == null || isScrollTarget === scrolledToTarget.value || scrollElement.value == null ? undefined : findRowIndex(isScrollTarget)),
     (rowIndex) => {

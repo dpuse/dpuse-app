@@ -6,7 +6,7 @@
 
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
-import { ArrowLeftIcon, ArrowRightIcon, BookOpenTextIcon, BracesIcon, ChevronDownIcon, FileIcon, FolderIcon, InfoIcon, SheetIcon, TextIcon } from '@lucide/vue';
+import { ArrowLeftIcon, ArrowRightIcon, BracesIcon, ChevronDownIcon, FileIcon, FolderIcon, InfoIcon, SheetIcon, TextIcon } from '@lucide/vue';
 import { type Component, computed, markRaw, nextTick, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
 import { onClickOutside, until } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
@@ -66,7 +66,7 @@ interface PreviewTab {
     labelKey: keyof typeof TEXT;
 }
 
-type PreviewTabId = 'table' | 'text' | 'document' | 'details';
+type PreviewTabId = 'table' | 'text' | 'details';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -75,14 +75,14 @@ type PreviewTabId = 'table' | 'text' | 'document' | 'details';
 const PREVIEW_TABS: PreviewTab[] = [
     { icon: markRaw(SheetIcon), id: 'table', labelKey: 'tab.table.label' },
     { icon: markRaw(TextIcon), id: 'text', labelKey: 'tab.text.label' },
-    { icon: markRaw(BookOpenTextIcon), id: 'document', labelKey: 'tab.document.label' },
     { icon: markRaw(InfoIcon), id: 'details', labelKey: 'tab.details.label' }
 ];
 
-// ── Data Formats ─ The preview decodes all five text formats and parses them as delimited text. Only delimited text,
-// JSON and JSON Lines are data as they stand.
-const TEXT_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv', 'json', 'jsonl', 'markdown', 'text']);
-const TABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv', 'json', 'jsonl']);
+// ── Data Formats ─ The formats the app can read today. Only delimited text is data as it stands, and markdown and plain
+// text can be read as delimited text. JSON and JSON Lines are left out until they have their own reader, so they show
+// as text and cannot be selected, as XML does.
+const TEXT_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv', 'markdown', 'text']);
+const TABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv']);
 const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
     dpe: 'dataFormat.dpe.label',
     dtv: 'dataFormat.dtv.label',
@@ -177,6 +177,7 @@ const backLabel = computed(() => currentFolderNodes.value.at(-1)?.label ?? t(TEX
 
 // ── Preview ─ A file the preview could not read as text says so on the details tab.
 const previewIsUnsupported = computed(() => activePreviewConfig.value != null && !TEXT_DATA_FORMAT_IDS.has(activePreviewConfig.value.dataFormatId));
+const previewIsMarkdown = computed(() => activePreviewConfig.value?.dataFormatId === 'markdown'); // The text tab shows markdown rendered rather than as source.
 
 const currentPreviewTab = computed(() =>
     assertDefined(
@@ -185,8 +186,12 @@ const currentPreviewTab = computed(() =>
     )
 );
 
-// Delimited text and JSON can be selected from any tab. Markdown and plain text only from the table tab, because
-// opening them as a table is the user saying their content is data.
+// Delimited text can be selected from any tab. Markdown and plain text only from the table tab, because opening them
+// as a table is the user saying their content is data.
+// TODO: Let the user override how the item is read: its format, delimiter, header row and encoding. Changing one
+// re-reads the preview, and the others stay as detected. Save the choice with the item, so the audit reads the file the
+// same way. Then the tabs only show the item, and Select is enabled when the format in force is delimited text, JSON or
+// JSON Lines and gave at least one row, replacing the rule that markdown or plain text opened as a table is data.
 const previewIsSelectable = computed(() => {
     const previewConfig = activePreviewConfig.value;
     if (previewConfig == null || previewConfig.parsedRecords.length === 0) return false;
@@ -535,17 +540,19 @@ function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewC
     }
     text.value = previewConfig.text;
 
-    const previewColumnKeys = previewConfig.columnConfigs.map((config, index) => config.label.en ?? String(index));
+    const previewColumnLabels = previewConfig.columnConfigs.map((config, index) => config.label.en ?? String(index));
 
-    previewTableColumnDefinitions.value = previewColumnKeys.map<ColumnDef<TableFeatureSet, Record<string, string | null>>>((columnKey) => ({
-        accessorKey: columnKey,
-        header: columnKey
+    // Columns are keyed by position, not header text. TanStack reads a dot in an 'accessorKey' as a nested path, and two
+    // columns with the same header text would share one key.
+    previewTableColumnDefinitions.value = previewColumnLabels.map<ColumnDef<TableFeatureSet, Record<string, string | null>>>((label, index) => ({
+        accessorKey: String(index),
+        header: label
     }));
 
     const dataOffset = 1;
     const previewRows = previewConfig.parsedRecords
         .slice(dataOffset)
-        .map((record) => Object.fromEntries(record.map((cell, index) => [previewColumnKeys[index] ?? String(index), cell.value])) as Record<string, string | null>);
+        .map((record) => Object.fromEntries(record.map((cell, index) => [String(index), cell.value])) as Record<string, string | null>);
 
     previewTableDataSource.value = {
         rowCount: previewRows.length,
@@ -553,10 +560,9 @@ function applyPreviewConfig(connectionNodeConfig: ConnectionNodeConfig, previewC
     };
 }
 
-// The tab that shows the item as its format suggests: markdown as a document, data as a table, anything else as text.
-// Every tab stays available, so the user can switch to another view.
+// The tab that shows the item as its format suggests: data as a table, anything else as text. Every tab stays
+// available, so the user can switch to another view.
 function establishFirstPreviewTabId(dataFormatId: DataFormatId): PreviewTabId {
-    if (dataFormatId === 'markdown') return 'document';
     return TABLE_DATA_FORMAT_IDS.has(dataFormatId) ? 'table' : 'text';
 }
 
@@ -718,10 +724,10 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     is-column-picker-hidden
                     scroll-area-padding-bottom="calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))"
                 />
-                <TextViewer v-show="currentPreviewTabId === 'text'" class="flex-1" :text="text" />
-                <!-- Rendered only while shown, as rendering parses the whole preview. 'renderMarkdown' sanitises the HTML,
-                     which comes from the file itself. -->
-                <ScrollArea v-if="currentPreviewTabId === 'document'" class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-embedded-inset)">
+                <TextViewer v-show="currentPreviewTabId === 'text' && !previewIsMarkdown" class="flex-1" :text="text" />
+                <!-- Markdown ─ Rendered only while shown, as rendering parses the whole preview. 'renderMarkdown' sanitises
+                     the HTML, which comes from the file itself. -->
+                <ScrollArea v-if="currentPreviewTabId === 'text' && previewIsMarkdown" class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-embedded-inset)">
                     <div class="dpuse-prose px-page py-3 text-sm" v-html="renderMarkdown(text ?? '')" />
                 </ScrollArea>
                 <ScrollArea v-show="currentPreviewTabId === 'details'" class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-embedded-inset)">
@@ -755,7 +761,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         <template #detail-action>
             <!-- Disabled until the preview arrives, because the preview is what the commit saves with the item, and while the
                  preview is not data. -->
-            <PillButton :disabled="!previewIsSelectable || dataViewIsSaving" :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
+            <PillButton :disabled="!previewIsSelectable || dataViewIsSaving" :icon="ArrowRightIcon" :label="t(TEXT, 'detail.audit.label')" @click="handleCommitDetail" />
         </template>
 
         <template #no-selection>

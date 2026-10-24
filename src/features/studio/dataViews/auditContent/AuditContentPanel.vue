@@ -28,6 +28,9 @@ const router = useRouter();
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
+// TODO: Run the audit when an item is committed on Select Item, save its result as the data view's
+// 'contentAuditConfig', and show the saved audit's details here. This panel never starts an audit by itself. Add a
+// 'Redo audit' action for when the item's data may have changed since it was audited.
 // TODO: Import the audited records into a DPUse store, so Explore Data can show them, before moving on.
 function handleCommitDetail(): void {
     emit('task-completed', taskLocalisedConfig);
@@ -50,6 +53,6 @@ function handleCommitDetail(): void {
 
 <template>
     <div class="relative flex min-h-0 flex-1 flex-col" data-region="AuditContentPanel">
-        <PillButton :icon="ArrowRightIcon" :label="t(TEXT, 'import.label')" @click="handleCommitDetail" />
+        <PillButton :icon="ArrowRightIcon" :label="t(TEXT, 'explore.label')" @click="handleCommitDetail" />
     </div>
 </template>

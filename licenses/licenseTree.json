@@ -1,5 +1,5 @@
 {
-  "version": "1.0.205",
+  "version": "1.0.206",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -178,8 +178,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261023.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261023.1.tgz",
+      "version": "5.20261024.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261024.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -384,8 +384,8 @@
                           "version": "0.2.17"
                         },
                         "undici": {
-                          "version": "6.29.0",
-                          "resolved": "https://registry.npmjs.org/undici/-/undici-6.29.0.tgz",
+                          "version": "6.29.1",
+                          "resolved": "https://registry.npmjs.org/undici/-/undici-6.29.1.tgz",
                           "overridden": false
                         },
                         "which": {
@@ -7201,8 +7201,8 @@
           }
         },
         "undici": {
-          "version": "8.12.1",
-          "resolved": "https://registry.npmjs.org/undici/-/undici-8.12.1.tgz",
+          "version": "8.12.3",
+          "resolved": "https://registry.npmjs.org/undici/-/undici-8.12.3.tgz",
           "overridden": false
         },
         "w3c-xmlserializer": {
@@ -8220,7 +8220,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261023.1"
+          "version": "5.20261024.1"
         },
         "blake3-wasm": {
           "version": "2.1.5",
