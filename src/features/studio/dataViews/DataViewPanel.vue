@@ -443,6 +443,8 @@ function formatDateTime(timestamp: number): string {
                             <RouterLink v-if="dataViewLocalisedConfig.contentAuditConfig" class="col-start-2 justify-self-end text-right" :to="constructStepRoute('data')">{{
                                 t(TEXT, 'data.open.label')
                             }}</RouterLink>
+                            <!-- TODO: Remove this link. The item section above already links to the item task, and the audit
+                                 section already says the item is not audited, so it adds nothing. -->
                             <RouterLink v-else class="col-start-2 justify-self-end text-right" :to="constructStepRoute('item')">{{ t(TEXT, 'audit.open.label') }}</RouterLink>
                         </template>
                     </div>

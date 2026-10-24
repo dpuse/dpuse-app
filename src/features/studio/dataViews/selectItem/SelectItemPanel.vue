@@ -2,7 +2,8 @@
 // ── Template Notes ─ TODO: Revisit later. These belong beside their elements in the template, but a comment at the
 // template's root breaks the fade between route views in development: Vue never reports the old view as gone, so the
 // next one never appears. Production builds strip comments, so only development is affected.
-// - Engine error notice: covers the region, because without the engine there is nothing to list, preview or open here.
+// - List error notice: covers the region, because without the list there is nothing to choose from. An item's error
+//   covers only the detail, so the list stays usable.
 
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
@@ -78,9 +79,9 @@ const PREVIEW_TABS: PreviewTab[] = [
     { icon: markRaw(InfoIcon), id: 'details', labelKey: 'tab.details.label' }
 ];
 
-// ── Data Formats ─ The formats the app can read today. Only delimited text is data as it stands, and markdown and plain
-// text can be read as delimited text. JSON and JSON Lines are left out until they have their own reader, so they show
-// as text and cannot be selected, as XML does.
+// ── Data Formats ─ The formats the app can read today. Only delimited text is data as it stands, and markdown and
+// plain text can be read as delimited text. JSON and JSON Lines are left out until they have their own reader, so they
+// show as text and cannot be selected, as XML does.
 const TEXT_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv', 'markdown', 'text']);
 const TABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv']);
 const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
@@ -117,10 +118,12 @@ const emit = defineEmits<{
 
 const activeConnectionObjectConfig = shallowRef<ConnectionNodeConfig | undefined>();
 
-// Whatever the engine could not do for this panel — list a folder, preview an item, read its info. One ref for all
-// three, because they are one loss to the user: the panel cannot reach the connection.
-const engineFailure = shallowRef<AppFailure | undefined>();
-const engineAttempt = ref(0); // Bumped on retry, which rebuilds the data source and makes the window fetch again.
+// ── Failures ─ A folder that cannot be listed leaves nothing to choose from, so its failure covers the panel. An item
+// that cannot be previewed or read only fails that item, so its failure covers the detail and the list stays usable.
+const listFailure = shallowRef<AppFailure | undefined>();
+const listAttempt = ref(0); // Bumped on retry, which rebuilds the data source and makes the window fetch again.
+const itemFailure = shallowRef<AppFailure | undefined>();
+const itemAttempt = ref(0); // Bumped on retry, which previews the same item again.
 
 const currentFolderNodes = shallowRef<ConnectionNodeConfig[]>([]);
 
@@ -137,6 +140,7 @@ const previewTabMenuElement = useTemplateRef<HTMLDivElement>('previewTabMenu');
 const previewTabMenuIsOpen = ref(false);
 
 const previewIsPending = ref(false); // The preview table is empty until the engine answers, which reads as an empty item unless the wait is shown.
+const hasLastPreviewSucceeded = ref(false); // Whether the last preview to finish loaded, so the Audit button stays in place while the next item loads.
 const previewPercentage = ref(0);
 const previewMessage = ref<string>();
 const previewTableColumnDefinitions = shallowRef<ColumnDef<TableFeatureSet, Record<string, string | null>>[]>([]);
@@ -226,7 +230,7 @@ const itemDetails = computed(() => {
 const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionNodeConfig>>>(() => {
     const folderPath = currentFolderPath.value; // Read synchronously so this computed (and useDataWindow's cache) resets on navigation.
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- Read so Vue tracks it as a dependency.
-    engineAttempt.value; // Read for the same reason: a retry has to produce a new data source for the window to refetch.
+    listAttempt.value; // Read for the same reason: a retry has to produce a new data source for the window to refetch.
     return {
         rowCount: undefined, // Unknown until the first listNodes response reports totalCount — useDataWindow guarantees that fetch happens.
         getRows: async (start: number, end: number): Promise<{ rows: LocalisedConfig<ConnectionNodeConfig>[]; totalCount: number }> => {
@@ -243,7 +247,7 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
                 // Settled with an empty page as well as raised: the window is waiting on this promise, and a rejection
                 // would leave it loading behind the failure it is being told about.
                 const data = { folderPath, typeId: 'handled' };
-                engineFailure.value = raiseFailure(new AppError('Failed to list the items in this connection.', 'dpuse-app.SelectItemPanel.getRows', data, { cause: error }));
+                listFailure.value = raiseFailure(new AppError('Failed to list the items in this connection.', 'dpuse-app.SelectItemPanel.getRows', data, { cause: error }));
                 return { rows: [], totalCount: 0 };
             }
         }
@@ -266,11 +270,13 @@ watch(
     { immediate: true }
 );
 
-// Immediate, because the saved item can already be selected at mount, and its preview must still load.
+// Immediate, because the saved item can already be selected at mount, and its preview must still load. Also run on a
+// retry of the item, and a new selection or retry clears the item's last failure.
 watch(
-    activeConnectionObjectConfig,
-    async (newActiveItem) => {
+    [activeConnectionObjectConfig, itemAttempt],
+    async ([newActiveItem]) => {
         const currentRequestId = ++previewRequestId.value;
+        itemFailure.value = undefined;
         resetPreviewState();
         if (newActiveItem == null) return;
 
@@ -284,10 +290,12 @@ watch(
             if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
 
             applyPreviewConfig(newActiveItem, previewConfig);
+            hasLastPreviewSucceeded.value = true;
         } catch (error) {
             if (currentRequestId !== previewRequestId.value) return; // A newer selection owns the panel now.
             const data = { typeId: 'handled' };
-            engineFailure.value = raiseFailure(new AppError('Failed to preview this item.', 'dpuse-app.SelectItemPanel', data, { cause: error }));
+            itemFailure.value = raiseFailure(new AppError('Failed to preview this item.', 'dpuse-app.SelectItemPanel', data, { cause: error }));
+            hasLastPreviewSucceeded.value = false;
         } finally {
             if (currentRequestId === previewRequestId.value) previewIsPending.value = false; // A newer selection owns the busy state now.
         }
@@ -303,9 +311,13 @@ onClickOutside(previewTabMenuElement, () => {
 
 // Clearing the failure alone would show the panel again with the same empty window behind it, so the attempt count is
 // bumped too: that rebuilds the data source, which is what makes the window ask for its rows a second time.
-function handleRetryEngine(): void {
-    engineFailure.value = undefined;
-    engineAttempt.value++;
+function handleRetryList(): void {
+    listFailure.value = undefined;
+    listAttempt.value++;
+}
+
+function handleRetryItem(): void {
+    itemAttempt.value++;
 }
 
 function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): void {
@@ -513,7 +525,6 @@ function constructStorableNodeConfig(connectionNodeConfig: ConnectionNodeConfig)
 
 function resetPreviewState(): void {
     activePreviewConfig.value = undefined;
-    currentPreviewTabId.value = 'table';
     previewIsPending.value = false;
     previewPercentage.value = 0;
     previewMessage.value = undefined;
@@ -587,13 +598,13 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         console.log(infoWithoutChildren);
     } catch (error) {
         const data = { typeId: 'handled' };
-        engineFailure.value = raiseFailure(new AppError('Failed to read this item.', 'dpuse-app.SelectItemPanel.getInfo', data, { cause: error }));
+        itemFailure.value = raiseFailure(new AppError('Failed to read this item.', 'dpuse-app.SelectItemPanel.getInfo', data, { cause: error }));
     }
 }
 </script>
 
 <template>
-    <ErrorNotice v-if="engineFailure" :failures="[engineFailure]" @retry="handleRetryEngine" />
+    <ErrorNotice v-if="listFailure" :failures="[listFailure]" @retry="handleRetryList" />
 
     <GridDetailPanel v-else :selected-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="400px">
         <template #header="{ isSplit }">
@@ -706,8 +717,10 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         </template>
 
         <template #detail>
+            <ErrorNotice v-if="itemFailure" :failures="[itemFailure]" @retry="handleRetryItem" />
             <!-- A tab panel only from 'md' up, because below it the tabs are a menu instead. -->
             <div
+                v-else
                 :id="`${elementIdPrefix}-panel`"
                 :aria-busy="previewIsPending"
                 :aria-labelledby="viewportIsWide ? createPreviewTabElementId(currentPreviewTabId) : undefined"
@@ -717,20 +730,24 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <BusyBar v-if="previewIsPending" class="mx-page" />
                 <!-- The usual room after the last row, less the status bar's height: the table already ends above it. -->
                 <Table
-                    v-show="currentPreviewTabId === 'table'"
+                    v-show="currentPreviewTabId === 'table' && activePreviewConfig != null"
                     class="flex-1"
                     :column-definitions="previewTableColumnDefinitions"
                     :data-source="previewTableDataSource"
                     is-column-picker-hidden
                     scroll-area-padding-bottom="calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))"
                 />
-                <TextViewer v-show="currentPreviewTabId === 'text' && !previewIsMarkdown" class="flex-1" :text="text" />
+                <TextViewer v-show="currentPreviewTabId === 'text' && activePreviewConfig != null && !previewIsMarkdown" class="flex-1" :text="text" />
                 <!-- Markdown ─ Rendered only while shown, as rendering parses the whole preview. 'renderMarkdown' sanitises
                      the HTML, which comes from the file itself. -->
                 <ScrollArea v-if="currentPreviewTabId === 'text' && previewIsMarkdown" class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-embedded-inset)">
                     <div class="dpuse-prose px-page py-3 text-sm" v-html="renderMarkdown(text ?? '')" />
                 </ScrollArea>
-                <ScrollArea v-show="currentPreviewTabId === 'details'" class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-embedded-inset)">
+                <ScrollArea
+                    v-show="currentPreviewTabId === 'details' && activePreviewConfig != null"
+                    class="flex-1"
+                    scroll-area-padding-bottom="var(--vertical-scroll-bottom-embedded-inset)"
+                >
                     <p v-if="previewIsUnsupported" class="px-page pt-3 text-sm" role="status">{{ previewUnsupportedText }}</p>
                     <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 px-page py-3 text-sm">
                         <template v-for="detail in itemDetails" :key="detail.labelKey">
@@ -759,9 +776,17 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         </template>
 
         <template #detail-action>
-            <!-- Disabled until the preview arrives, because the preview is what the commit saves with the item, and while the
-                 preview is not data. -->
-            <PillButton :disabled="!previewIsSelectable || dataViewIsSaving" :icon="ArrowRightIcon" :label="t(TEXT, 'detail.audit.label')" @click="handleCommitDetail" />
+            <!-- Shown once a preview arrives, because the preview is what the commit saves with the item. A first
+                 preview that fails therefore never shows the button. Moving on from an item that previewed keeps the
+                 button in place while the next one loads, rather than making it blink. Disabled while the preview is
+                 not data, or while saving. -->
+            <PillButton
+                v-if="itemFailure == null && (activePreviewConfig != null || (previewIsPending && hasLastPreviewSucceeded))"
+                :disabled="!previewIsSelectable || dataViewIsSaving"
+                :icon="ArrowRightIcon"
+                :label="t(TEXT, 'detail.audit.label')"
+                @click="handleCommitDetail"
+            />
         </template>
 
         <template #no-selection>

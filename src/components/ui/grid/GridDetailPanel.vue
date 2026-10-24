@@ -60,6 +60,7 @@ const { width: bodyWidth } = useElementSize(bodyElement);
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const isSplit = computed(() => bodyWidth.value >= GRID_DETAIL_SPLIT_THRESHOLD_PX);
+const bodyIsMeasured = computed(() => bodyWidth.value > 0); // The width is 0 until first measured, which would lay the panes out as narrow for a frame.
 provide(gridDetailIsSplitKey, isSplit);
 const narrowPaneId = computed(() => (detailIsOpen.value ? 'detail' : 'grid'));
 const detailPaneIsVisible = computed(() => isSplit.value || shownNarrowPaneId.value === 'detail');
@@ -113,7 +114,7 @@ function handleShowNarrowPane(): void {
         </header>
 
         <!-- Body -->
-        <div ref="bodyElement" class="flex min-h-0 flex-1">
+        <div ref="bodyElement" class="flex min-h-0 flex-1" :class="{ invisible: !bodyIsMeasured }">
             <!-- Grid (Left) Pane. Hidden with 'v-show' rather than a 'hidden' class because Grid's own root carries
                  'flex': the two are both display utilities, and which won would rest on stylesheet order alone. On a
                  narrow screen it fades, and the detail pane appears once its fade-out ends. -->

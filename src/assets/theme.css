@@ -21,6 +21,7 @@
 
     --animate-pending-letter: pending-letter 1600ms ease-in-out infinite;
     --animate-shimmer: shimmer 1.2s ease-in-out infinite;
+    --animate-busy-appear: busy-appear 200ms ease-in 300ms both; /* Fades a loading bar in after 300ms, so a short wait shows nothing and one just over it hardly a flicker. */
 
     --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1); /* A sheet sliding from the bottom edge. */
 }
@@ -31,6 +32,15 @@
         opacity: 0.25;
     }
     40% {
+        opacity: 1;
+    }
+}
+
+@keyframes busy-appear {
+    from {
+        opacity: 0;
+    }
+    to {
         opacity: 1;
     }
 }

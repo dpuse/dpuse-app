@@ -30,8 +30,8 @@
         "item.label": { "en": "Item", "es": "Elemento" },
         "item.select.text": { "en": "Select an item from the list.", "es": "Selecciona un elemento de la lista." },
         "item.unsupported.text": {
-            "en": "This file can't be read as data or text, so it can't be selected.",
-            "es": "Este archivo no se puede leer como datos ni como texto, así que no se puede seleccionar."
+            "en": "This type of file can't be used yet, so it can't be selected.",
+            "es": "Este tipo de archivo todavía no se puede usar, así que no se puede seleccionar."
         },
         "preview.aria": { "en": "Amount previewed", "es": "Cantidad previsualizada" },
         "previewTabMenu.aria": { "en": "View {label} as: {view}", "es": "Ver {label} como: {view}" },
