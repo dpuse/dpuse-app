@@ -32,7 +32,7 @@ const {
 } = defineProps<{
     description?: string; // Read out after the value, for what the value alone does not say.
     disabled?: boolean;
-    isCompact?: boolean; // Sized and framed for a toolbar: small text, no border until hovered, as wide as its value.
+    isCompact?: boolean; // Sized and framed for a toolbar: small text, no border until hovered, as wide as its value. Keeps its small text on iOS too.
     isDefault?: boolean; // The value is a default the user has not chosen, so it shows in muted italics. The option's text must say so too.
     label: string;
     labelHidden?: boolean;
@@ -57,6 +57,8 @@ const optionGroups = computed(() => {
     }
     return groups;
 });
+
+const selectedOptionLabel = computed(() => options.find((option) => option.id === selectedOptionId.value)?.label ?? '');
 </script>
 
 <template>
@@ -65,8 +67,11 @@ const optionGroups = computed(() => {
         <label :for="selectId" :class="labelHidden ? 'sr-only' : 'mb-1 block text-xs font-medium text-muted'">{{ label }}</label>
 
         <!-- Select ─ The browser's own control, for its keyboard, screen reader and touch support. 'appearance-none' drops
-             its arrow, which cannot be styled, for a chevron drawn over it. A compact select sizes to its value
-             ('field-sizing-content') where the browser can, and otherwise to its widest option.
+             its arrow, which cannot be styled, for a chevron drawn over it.
+             Compact ─ iOS Safari zooms into a form field whose text is under 16px, so 'main.css' sets every field to 16px
+             there. A compact select shows its value in a span at the toolbar's small size instead, and lies over it
+             unseen at full size, so a tap still opens the select and nothing zooms. The span also sizes it to its value.
+             It takes the select's hover, focus ring and disabled look through 'peer-*'.
              TODO: Review 'appearance: base-select' later. The open list is drawn by the browser, and on macOS Chrome and
              Safari it ignores CSS, so group labels and options cannot be styled (verified on Chrome 155). 'base-select'
              makes the list and its options styleable through '::picker(select)'. It needs Chrome and Edge 135, and
@@ -77,13 +82,15 @@ const optionGroups = computed(() => {
                 :id="selectId"
                 v-model="selectedOptionId"
                 :aria-describedby="description ? descriptionId : undefined"
-                class="max-w-full min-w-0 cursor-pointer appearance-none truncate rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring disabled:cursor-not-allowed disabled:opacity-50"
-                :class="[
+                class="cursor-pointer appearance-none disabled:cursor-not-allowed"
+                :class="
                     isCompact
-                        ? 'field-sizing-content h-7 border border-transparent bg-transparent pr-6 pl-1.5 text-xs enabled:hover:state-hover'
-                        : 'h-9 w-full border border-boundary bg-surface pr-8 pl-2.5 text-sm',
-                    isDefault ? 'text-muted italic' : 'text-content'
-                ]"
+                        ? 'peer absolute inset-0 size-full opacity-0'
+                        : [
+                              'h-9 w-full max-w-full min-w-0 truncate rounded-md border border-boundary bg-surface pr-8 pl-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring disabled:opacity-50',
+                              isDefault ? 'text-muted italic' : 'text-content'
+                          ]
+                "
                 :disabled="disabled"
             >
                 <template v-for="optionGroup in optionGroups" :key="optionGroup.id">
@@ -96,6 +103,13 @@ const optionGroups = computed(() => {
                     </template>
                 </template>
             </select>
+            <span
+                v-if="isCompact"
+                aria-hidden="true"
+                class="block h-7 max-w-full truncate rounded-md border border-transparent pr-6 pl-1.5 text-xs leading-6.5 transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-focus-ring peer-hover:peer-enabled:state-hover peer-disabled:opacity-50"
+                :class="isDefault ? 'text-muted italic' : 'text-content'"
+                >{{ selectedOptionLabel }}</span
+            >
             <ChevronDownIcon
                 aria-hidden="true"
                 class="pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted"
