@@ -4,7 +4,8 @@ import { BracesIcon, CableIcon, ChevronRightIcon, FileIcon, SheetIcon, SquareDas
 import { type Component, computed } from 'vue';
 
 // ── DPUse Framework
-import type { ConnectionNodeConfig, ConnectorItemTypeId } from '@dpuse/dpuse-shared';
+import { DATA_FORMAT_ICON_CONFIGS } from '@dpuse/dpuse-shared';
+import type { ConnectionNodeConfig, ConnectorItemTypeId, DataFormatId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { t } from '@/state/locale';
@@ -20,17 +21,18 @@ import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 // chosen. The difference comes from the chosen lines because muted is already the lightest grey that stays readable.
 const CHOSEN_CLASSES = 'text-content';
 
-// A chosen item without an icon of its own shows its file type when it has an extension, as the item list does, and
-// otherwise what kind of item it is. A table connector's items always show the table grid, even the application
-// emulator's, whose tables are stored as CSV files. A connector released before it said which shows the table grid.
+// A chosen item without an icon of its own shows what kind of item it is. A file shows its format's icon instead, once it
+// has been previewed. A table connector's items always show the table grid, even the application emulator's, whose
+// tables are stored as CSV files. A connector released before it said which shows the table grid.
 const ITEM_TYPE_ICONS: Record<ConnectorItemTypeId, Component> = { apiEndpoint: BracesIcon, file: FileIcon, table: SheetIcon };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { connectionId, connectionNodeConfig, dataViewConnection, isSingleLine, itemTypeId } = defineProps<{
+const { connectionId, connectionNodeConfig, dataFormatId, dataViewConnection, isSingleLine, itemTypeId } = defineProps<{
     connectionId?: string; // The chosen connection, so one that has since gone reads as unavailable rather than as none chosen.
     connectionIsDraft?: boolean; // Dimmed until the current step saves it.
     connectionNodeConfig: ConnectionNodeConfig | undefined; // Undefined until an item is chosen.
+    dataFormatId?: DataFormatId; // The item's format, once it has been previewed, which picks its format icon.
     dataViewConnection: Pick<DataViewConnection, 'icon' | 'iconDark' | 'label'> | undefined; // Undefined until a connection is chosen, or once it has gone.
     isSingleLine?: boolean; // Both on one line where there is room. The item only shows once there is a connection to choose it from.
     itemIsDraft?: boolean; // Dimmed until the current step saves it.
@@ -45,6 +47,7 @@ const itemIconIsPresent = computed(() => [connectionNodeConfig?.icon, connection
 // Messages name the connector's kind of item, e.g. 'No file', and fall back to 'item' for a connector released before
 // it said which.
 const itemSubject = computed(() => itemTypeId ?? 'item');
+const itemFormatIconConfig = computed(() => (itemTypeId !== 'file' || dataFormatId == null || dataFormatId === 'unknown' ? undefined : DATA_FORMAT_ICON_CONFIGS[dataFormatId]));
 const itemTypeIcon = computed(() => {
     if (itemTypeId === 'table') return SheetIcon;
     return itemTypeId ? ITEM_TYPE_ICONS[itemTypeId] : SheetIcon;
@@ -83,6 +86,7 @@ const itemPathParts = computed(() => {
         <div v-if="itemIsShown" class="flex min-h-4 min-w-0 items-center gap-x-2" :class="{ 'opacity-60': itemIsDraft, [CHOSEN_CLASSES]: connectionNodeConfig }">
             <template v-if="connectionNodeConfig && itemPathParts">
                 <ConfigIcon v-if="itemIconIsPresent" class="size-5" :icon="connectionNodeConfig.icon" :icon-dark="connectionNodeConfig.iconDark" />
+                <ConfigIcon v-else-if="itemFormatIconConfig" class="size-5" :icon="itemFormatIconConfig.icon" :icon-dark="itemFormatIconConfig.iconDark" />
                 <component :is="itemTypeIcon" v-else aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
                 <!-- The folder path is cut first, down to its ellipsis, and the label only once it alone is too long. -->
                 <span class="flex min-w-0" :title="itemPathParts.path">

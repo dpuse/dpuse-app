@@ -21,6 +21,10 @@ import {
     upsertMetaStoreRecord
 } from '@/services/metaStore';
 
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+type StoredDataViewConfig = Omit<DataViewConfig, 'description' | 'label'> & Partial<Pick<DataViewConfig, 'description' | 'label'>>; // A record saved by an older build can lack its label and description.
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DATA_VIEW_LIST_KEY = constructMetaStoreListKey('dataViews');
@@ -118,8 +122,8 @@ export function resolveDataViewIdParameter(dataViewIdParameter: unknown): string
 
 async function retrieveDataViewConfigs(signal: AbortSignal): Promise<DataViewConfig[]> {
     try {
-        const dataViewConfigs = await retrieveMetaStoreRecords<DataViewConfig>('dataViews', signal);
-        return dataViewConfigs.map((config) => ({ ...config, icon: dataViewIcon }));
+        const dataViewConfigs = await retrieveMetaStoreRecords<StoredDataViewConfig>('dataViews', signal);
+        return dataViewConfigs.map((config) => restoreDataViewConfig(config));
     } catch (error) {
         if (signal.aborted) throw error; // A cancelled read is not a failure, so it keeps its abort reason.
         throw new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error });
@@ -128,11 +132,22 @@ async function retrieveDataViewConfigs(signal: AbortSignal): Promise<DataViewCon
 
 async function getDataViewConfig(id: string): Promise<DataViewConfig> {
     try {
-        const dataViewConfig = await getMetaStoreRecord<DataViewConfig>('dataViews', id);
-        return { ...dataViewConfig, icon: dataViewIcon };
+        const dataViewConfig = await getMetaStoreRecord<StoredDataViewConfig>('dataViews', id);
+        return restoreDataViewConfig(dataViewConfig);
     } catch (error) {
         throw new AppError('Failed to open this data view.', 'dpuse-app.dataViews.getDataViewConfig', { typeId: 'handled' }, { cause: error });
     }
+}
+
+// A stored record gets back the icon, which is not stored, and a label and description if an older build saved it
+// without them, because the list cannot show a data view that has none.
+function restoreDataViewConfig(storedDataViewConfig: StoredDataViewConfig): DataViewConfig {
+    return {
+        ...storedDataViewConfig,
+        label: storedDataViewConfig.label ?? UNTITLED_DATA_VIEW_LABEL,
+        description: storedDataViewConfig.description ?? {},
+        icon: dataViewIcon
+    };
 }
 
 function createDataViewConfig(connectionId: string): Promise<DataViewConfig> {

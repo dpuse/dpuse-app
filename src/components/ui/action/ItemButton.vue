@@ -26,12 +26,12 @@ const classes = computed(() => [
     'rounded-md text-[15px] leading-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring dark:text-content w-full text-left min-w-0 py-1 px-2 overflow-hidden',
     variant === 'destructive'
         ? [
-              'bg-red-50 hover:state-hover active:state-press text-red-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
+              'bg-red-50 not-disabled:hover:state-hover not-disabled:active:state-press text-red-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
               'dark:bg-red-300/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring dark:text-red-300',
               isActive ? 'bg-red-300! dark:bg-red-400/40!' : undefined
           ]
         : [
-              'bg-zinc-50 hover:state-hover active:state-press focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
+              'bg-zinc-50 not-disabled:hover:state-hover not-disabled:active:state-press focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
               'dark:bg-zinc-300/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
               isActive ? 'state-selected! cursor-default! pointer-events-none!' : undefined
           ]

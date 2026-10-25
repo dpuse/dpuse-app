@@ -144,6 +144,9 @@ function handleAddDataView(): void {
     void ignoreReportedNavigationFailure(router.push({ name: 'connection', params: { dataViewId: NEW_DATA_VIEW_ID }, query: route.query }));
 }
 
+// TODO: On a narrow screen, coming back to the list leaves the data view's card selected with its detail closed. A tap
+// on that card then deselects it rather than opening its detail, so reaching 'Open' takes two taps. A tap on the
+// selected card should open its detail while it is closed.
 function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
     updateDataViewIdParameter(selectedDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id ? undefined : dataViewLocalisedConfig.id);
 }

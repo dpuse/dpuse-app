@@ -20,7 +20,7 @@ export async function executePreviewConnectorItem(arguments_: unknown): Promise<
     // something the chat already knows how to say.
     try {
         const engine = await establishEngineWorker();
-        const options: PreviewObjectOptions = { chunkSize: undefined, extension: undefined, path };
+        const options: PreviewObjectOptions = { chunkSize: undefined, dataFormatId: undefined, encodingId: undefined, extension: undefined, mimeType: undefined, path }; // The assistant names only a path, so the extension decides the format.
         const previewConfig = (await engine.processRequest('previewObject', connection, options)) as PreviewConfig;
 
         if (previewConfig.errorMessage != null) return { error: previewConfig.errorMessage };

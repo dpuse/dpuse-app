@@ -54,6 +54,7 @@ const actions = computed((): Action<DataViewConfig>[] => [
             <DataViewSource
                 :connection-id="dataViewLocalisedConfig.connectionId"
                 :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig"
+                :data-format-id="dataViewLocalisedConfig.previewConfig?.dataFormatId"
                 :data-view-connection="dataViewConnection"
                 :item-type-id="dataViewConnection?.itemTypeId"
             />

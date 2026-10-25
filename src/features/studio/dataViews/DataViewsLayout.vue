@@ -236,6 +236,7 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
                     :connection-id="summaryDataViewConfig?.connectionId"
                     :connection-is-draft="summaryConnectionIsDraft"
                     :connection-node-config="summaryItemConfig"
+                    :data-format-id="summaryDataViewConfig?.previewConfig?.dataFormatId"
                     :data-view-connection="summaryConnectionLocalisedConfig"
                     :item-is-draft="summaryItemIsDraft"
                     :item-type-id="summaryItemTypeId"

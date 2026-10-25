@@ -1,5 +1,5 @@
 {
-  "version": "1.0.209",
+  "version": "1.0.210",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -178,8 +178,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261024.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261024.1.tgz",
+      "version": "5.20261025.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261025.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -188,7 +188,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.132"
+          "version": "1.0.142"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1336,8 +1336,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.132",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.132.tgz",
+      "version": "1.0.142",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.142.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1420,7 +1420,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.132"
+          "version": "1.0.142"
         },
         "@tanstack/charts": {
           "version": "1.0.0",
@@ -7619,7 +7619,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261024.1"
+          "version": "5.20261025.1"
         },
         "blake3-wasm": {
           "version": "2.1.5",

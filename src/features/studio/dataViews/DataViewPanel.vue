@@ -39,13 +39,16 @@ const COLLAPSED_TABLE_ROW_COUNT = 10; // Rows a long table shows until the user 
 const NON_BREAKING_SPACE = '\u{A0}'; // Gives a cell with no value a line of text, so its row keeps its height.
 
 const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
-    dpe: 'dataFormat.dpe.label',
+    arrow: 'dataFormat.arrow.label',
+    avro: 'dataFormat.avro.label',
     dtv: 'dataFormat.dtv.label',
     json: 'dataFormat.json.label',
     jsonl: 'dataFormat.jsonl.label',
     markdown: 'dataFormat.markdown.label',
-    spss: 'dataFormat.spss.label',
-    text: 'dataFormat.text.label',
+    ods: 'dataFormat.ods.label',
+    parquet: 'dataFormat.parquet.label',
+    sav: 'dataFormat.sav.label',
+    sqlite: 'dataFormat.sqlite.label',
     unknown: 'dataFormat.unknown.label',
     xlsx: 'dataFormat.xlsx.label',
     xml: 'dataFormat.xml.label'
@@ -284,6 +287,7 @@ function formatDateTime(timestamp: number): string {
                     class="mt-1 mb-4 text-sm"
                     :connection-id="dataViewLocalisedConfig.connectionId"
                     :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig"
+                    :data-format-id="dataViewLocalisedConfig.previewConfig?.dataFormatId"
                     :data-view-connection="dataViewConnection"
                     :item-type-id="dataViewConnection?.itemTypeId"
                 />
