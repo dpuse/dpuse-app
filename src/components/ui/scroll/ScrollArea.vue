@@ -51,19 +51,39 @@ onMounted(() => {
     if (scrollElement.value) emit('initialised', scrollElement.value);
 });
 
-useEventListener(scrollElement, 'wheel', handleContentWheel, { passive: true });
+useEventListener(scrollElement, 'wheel', handleContentWheel, { passive: false });
 
 // ── Wheel Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Wheeling over content hits the inner (horizontal-only) element first. Because it's a scroll container
-// even with overflow-y: hidden, it claims the wheel event and drops the vertical component instead of
-// letting it bubble to the outer scroller natively, so the vertical component is routed here explicitly.
+// Browsers keep a wheel or trackpad gesture on the element it started scrolling, momentum included, so a swipe that
+// turns from vertical to sideways did nothing until the gesture ended. Each event is routed here instead, to the
+// element for whichever axis it moves along most, so the direction can change at once but never scrolls diagonally.
 function handleContentWheel(wheelEvent: WheelEvent): void {
-    if (wheelEvent.deltaY === 0) return;
-    scrollElement.value?.scrollBy({ top: wheelEvent.deltaY });
+    if (wheelEvent.ctrlKey) return; // A trackpad pinch-zoom arrives as a wheel event with 'ctrlKey' set.
+    const isHorizontal = Math.abs(wheelEvent.deltaX) > Math.abs(wheelEvent.deltaY);
+    const delta = isHorizontal ? wheelEvent.deltaX : wheelEvent.deltaY;
+    if (delta === 0) return;
+    if (wheelEvent.target instanceof Element && canNestedElementScroll(wheelEvent.target, isHorizontal, delta)) return;
+    wheelEvent.preventDefault();
+    if (isHorizontal) innerScrollElement.value?.scrollBy({ left: delta });
+    else scrollElement.value?.scrollBy({ top: delta });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Content can hold its own scrollers, such as a 'ScrollRow'. A wheel event one of them can still take in its direction
+// is left to the browser, so it scrolls that element rather than the whole area.
+function canNestedElementScroll(target: Element, isHorizontal: boolean, delta: number): boolean {
+    const areaElements = new Set<Element | null>([innerScrollElement.value, scrollElement.value]);
+    for (let element: Element | null = target; element && !areaElements.has(element); element = element.parentElement) {
+        const style = getComputedStyle(element);
+        if (!['auto', 'overlay', 'scroll'].includes(isHorizontal ? style.overflowX : style.overflowY)) continue;
+        const offset = isHorizontal ? element.scrollLeft : element.scrollTop;
+        const range = isHorizontal ? element.scrollWidth - element.clientWidth : element.scrollHeight - element.clientHeight;
+        if (delta < 0 ? offset > 0 : offset < range - 1) return true;
+    }
+    return false;
+}
 
 function toLength(value: number | string | undefined): string | undefined {
     return typeof value === 'number' ? `${String(value)}px` : value;

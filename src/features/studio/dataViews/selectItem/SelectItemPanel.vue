@@ -809,15 +809,15 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <!-- The last crumb is the item on show. It leads back to the list, so it stays live only while the list
                      is hidden; 'isSplit' comes from the panel below so the two cannot disagree about that. -->
                 <!-- Back Button ─ Narrow screens show the preview in place of the list, so the trail gives way to
-                     one button back to it. 'ml-[-3.5px]' starts the arrow, which Lucide insets 3.5px in its box, on
-                     the page margin. -->
+                     one button back to it. The arrow and 'gap-x-2' match the icon and gap of each row in
+                     'DataViewSource', so the arrow centres under those icons and the label lines up with theirs. -->
                 <ActionWrapper
                     v-if="!isSplit && activeConnectionObjectConfig != null"
                     :aria-label="t(TEXT, 'back.aria', { label: backLabel })"
-                    class="flex h-9.25 min-w-0 flex-1 cursor-pointer items-center gap-x-1 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                    class="flex h-9.25 min-w-0 flex-1 cursor-pointer items-center gap-x-2 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                     @click="handleReturnToList"
                 >
-                    <ArrowLeftIcon aria-hidden="true" class="ml-[-3.5px] size-5 flex-none" :stroke-width="1.5" />
+                    <ArrowLeftIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
                     <span class="min-w-0 truncate">{{ backLabel }}</span>
                 </ActionWrapper>
                 <Breadcrumbs
