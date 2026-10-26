@@ -152,7 +152,7 @@ const itemDescription = computed(() => {
 const itemEncodingText = computed(() => {
     const previewConfig = dataViewLocalisedConfig.previewConfig;
     if (previewConfig?.encodingId == null) return;
-    const encoding = previewConfig.encodingId.toUpperCase();
+    const encoding = previewConfig.encodingId;
     if (previewConfig.encodingConfidenceLevel == null) return t(TEXT, 'item.encoding.assumed.text', { encoding });
     const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(previewConfig.encodingConfidenceLevel);
     return t(TEXT, 'item.encoding.text', { confidence, encoding });

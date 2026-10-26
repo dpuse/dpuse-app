@@ -334,11 +334,8 @@ const dataFormatOptions = computed<SelectOption[]>(() => {
 const encodingOptions = computed<SelectOption[]>(() => {
     const options: SelectOption[] = getEncodingTypeConfigs(localeId.value)
         .filter((encodingTypeConfig) => encodingTypeConfig.isDecodable)
-        .map(({ groupLabel, id }) => ({ groupLabel: groupLabel === '' ? undefined : groupLabel, id, label: constructEncodingCode(id) }));
-    const encodingId = detectedEncodingId.value;
-    if (encodingId == null) return [constructAutoOption(), ...options];
-    const encoding = constructEncodingCode(encodingId);
-    return [constructAutoOption(encoding, detectedEncodingIsAssumed.value), ...options];
+        .map(({ groupLabel, id }) => ({ groupLabel: groupLabel === '' ? undefined : groupLabel, id, label: id }));
+    return [constructAutoOption(detectedEncodingId.value, detectedEncodingIsAssumed.value), ...options];
 });
 
 // The value each select shows: the user's choice, or else what the preview detected. Choosing reads the item again.
@@ -730,7 +727,7 @@ function constructFolderNodeConfigs(folderPath: string): ConnectionNodeConfig[] 
 // and the preview fell back to UTF-8, so the encoding is marked as assumed.
 function constructEncodingText(previewConfig: PreviewConfig): string | undefined {
     if (previewConfig.encodingId == null) return;
-    const encoding = previewConfig.encodingId.toUpperCase();
+    const encoding = previewConfig.encodingId;
     if (previewConfig.encodingConfidenceLevel == null) return t(TEXT, 'detail.encoding.assumed.text', { encoding });
     const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(previewConfig.encodingConfidenceLevel);
     return t(TEXT, 'detail.encoding.text', { confidence, encoding });
@@ -761,11 +758,6 @@ function constructDataFormatText(dataFormatId: DataFormatId): string {
     const itemExtension = activeConnectionObjectConfig.value?.extension;
     const isNamedByItem = itemExtension != null && itemExtension !== '' && CONTAINER_FILE_TYPE_EXTENSIONS.has(fileType.ext);
     return (isNamedByItem ? itemExtension : fileType.ext).toUpperCase();
-}
-
-// An encoding's code as detection names it, apart from UTF and ASCII, which are conventionally written in capitals.
-function constructEncodingCode(encodingId: string): string {
-    return /^(?:utf|ascii)/i.test(encodingId) ? encodingId.toUpperCase() : encodingId;
 }
 
 // Sorted by label in the current language, because translation changes the order.
