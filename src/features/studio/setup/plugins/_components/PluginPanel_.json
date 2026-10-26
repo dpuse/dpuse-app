@@ -1,9 +1,19 @@
 {
     "TEXT": {
-        "documentation.label": { "en": "{label} Documentation", "es": "Documentación de {label}" },
-        "gitHubRepository.label": { "en": "GitHub Repository", "es": "Repositorio de GitHub" },
+        "created.label": { "en": "Created", "es": "Creado" },
+        "documentation.label": { "en": "Documentation", "es": "Documentación" },
+        "gitHubRepository.label": { "en": "GitHub", "es": "GitHub" },
+        "hide.label": { "en": "Hide {label}", "es": "Ocultar {label}" },
+        "hide.text": {
+            "en": "Hiding this removes it from the lists in the app. It can be shown again.",
+            "es": "Al ocultarlo, desaparece de las listas de la aplicación. Se puede volver a mostrar."
+        },
+        "hide.title": { "en": "Hide", "es": "Ocultar" },
+        "lastUpdated.label": { "en": "Last updated", "es": "Última actualización" },
         "links.title": { "en": "Links", "es": "Enlaces" },
-        "signIn.label": { "en": "{label} Sign in", "es": "Iniciar sesión en {label}" },
-        "website.label": { "en": "{label} Website", "es": "Sitio web de {label}" }
+        "signIn.label": { "en": "Sign in", "es": "Iniciar sesión" },
+        "version.label": { "en": "Version", "es": "Versión" },
+        "version.text": { "en": "v{version}", "es": "v{version}" },
+        "website.label": { "en": "Website", "es": "Sitio web" }
     }
 }

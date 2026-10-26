@@ -10,7 +10,11 @@ import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-defineProps<{ messageItemLabel: string; descriptionItemLabel: string; actionItemLabel: string }>();
+defineProps<{
+    messageItemLabel: string;
+    descriptionItemLabel: string; // The new item with its article, e.g. 'a new connection', because Spanish needs 'una nueva' or 'un nuevo' to match.
+    actionItemLabel: string;
+}>();
 defineEmits<{ add: [] }>();
 </script>
 

@@ -1,7 +1,34 @@
 {
     "TEXT": {
         "connection.label": { "en": "Connection", "es": "Conexión" },
+        "connection.new.text": { "en": "a new connection", "es": "una nueva conexión" },
+        "connection.other.text": { "en": "connections", "es": "conexiones" },
+        "delete.confirm.label": { "en": "Delete", "es": "Eliminar" },
+        "delete.confirm.text": { "en": "Delete “{name}”? This cannot be undone.", "es": "¿Eliminar «{name}»? No se puede deshacer." },
+        "delete.confirm.title": { "en": "Delete Connection", "es": "Eliminar conexión" },
+        "delete.inUse.one.text": {
+            "en": "{count} data view uses this connection. Deleting it leaves that data view without a connection.",
+            "es": "{count} vista de datos usa esta conexión. Al eliminarla, esa vista de datos se queda sin conexión."
+        },
+        "delete.inUse.other.text": {
+            "en": "{count} data views use this connection. Deleting it leaves those data views without a connection.",
+            "es": "{count} vistas de datos usan esta conexión. Al eliminarla, esas vistas de datos se quedan sin conexión."
+        },
         "detail.select.label": { "en": "Select", "es": "Seleccionar" },
+        "hide.confirm.label": { "en": "Hide", "es": "Ocultar" },
+        "hide.confirm.text": {
+            "en": "Hide “{name}”? It will no longer appear in the list of connections.",
+            "es": "¿Ocultar «{name}»? Dejará de aparecer en la lista de conexiones."
+        },
+        "hide.confirm.title": { "en": "Hide Connection", "es": "Ocultar conexión" },
+        "hide.inUse.one.text": {
+            "en": "{count} data view uses this connection. Hiding it leaves that data view without a connection until it is shown again.",
+            "es": "{count} vista de datos usa esta conexión. Al ocultarla, esa vista de datos se queda sin conexión hasta que se vuelva a mostrar."
+        },
+        "hide.inUse.other.text": {
+            "en": "{count} data views use this connection. Hiding it leaves those data views without a connection until it is shown again.",
+            "es": "{count} vistas de datos usan esta conexión. Al ocultarla, esas vistas de datos se quedan sin conexión hasta que se vuelva a mostrar."
+        },
         "noSelection.text": { "en": "Select a connection from the list.", "es": "Selecciona una conexión de la lista." }
     }
 }

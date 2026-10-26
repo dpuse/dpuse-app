@@ -40,7 +40,7 @@ const {
 defineSlots<{
     busy?(): unknown;
     header(properties: { isSplit: boolean }): unknown;
-    item(properties: { item: T }): unknown;
+    item(properties: { item: T; isSplit: boolean; openDetail: () => void }): unknown; // 'openDetail' shows the selected item's detail again after the user closed it.
     'no-items'(): unknown;
     detail(properties: { item: T; close: () => void }): unknown;
     'detail-action'(properties: { item: T }): unknown;
@@ -88,6 +88,13 @@ watch(
     { immediate: true }
 );
 
+// Going back to the list on a narrow screen hides the detail but keeps the item selected. Side by side, the detail
+// shows anyway, so when the panel narrows again it shows the selected item's detail, which the user was just looking
+// at, rather than a list they went back to earlier.
+watch(isSplit, (newIsSplit, oldIsSplit) => {
+    if (oldIsSplit && !newIsSplit) detailIsOpen.value = selectedItem != null;
+});
+
 // A narrow screen shows one pane at a time. The old pane fades out before the new one fades in, so the two never share
 // the row and the detail's placeholder is not seen on its way out. With nothing shown yet, as on mount, or when both
 // panes are shown side by side, the pane is shown at once.
@@ -133,7 +140,7 @@ function handleShowNarrowPane(): void {
                     @add="$emit('add')"
                 >
                     <template #default="{ item }">
-                        <slot name="item" :item="item" />
+                        <slot name="item" :is-split="isSplit" :item="item" :open-detail="() => (detailIsOpen = true)" />
                     </template>
 
                     <template #busy>

@@ -82,8 +82,12 @@ const itemPathParts = computed(() => {
              reads as a breadcrumb, because the item sits inside the connection. -->
         <ChevronRightIcon v-if="isSingleLine && itemIsShown" aria-hidden="true" class="size-4 flex-none" :stroke-width="1.5" />
 
-        <!-- Item -->
-        <div v-if="itemIsShown" class="flex min-h-4 min-w-0 items-center gap-x-2" :class="{ 'opacity-60': itemIsDraft, [CHOSEN_CLASSES]: connectionNodeConfig }">
+        <!-- Item ─ Dimmed while unsaved, and always when there is none, so 'No file' never looks like a chosen item. -->
+        <div
+            v-if="itemIsShown"
+            class="flex min-h-4 min-w-0 items-center gap-x-2"
+            :class="{ 'opacity-60': itemIsDraft || !connectionNodeConfig, [CHOSEN_CLASSES]: connectionNodeConfig }"
+        >
             <template v-if="connectionNodeConfig && itemPathParts">
                 <ConfigIcon v-if="itemIconIsPresent" class="size-5" :icon="connectionNodeConfig.icon" :icon-dark="connectionNodeConfig.iconDark" />
                 <ConfigIcon v-else-if="itemFormatIconConfig" class="size-5" :icon="itemFormatIconConfig.icon" :icon-dark="itemFormatIconConfig.iconDark" />

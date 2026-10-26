@@ -39,6 +39,10 @@ const {
     options?: SelectOption[];
 }>();
 
+defineSlots<{
+    icon?(): unknown; // Rendered before the value, inside its hover fill and focus ring. Compact only.
+}>();
+
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const selectId = useId();
@@ -106,10 +110,11 @@ const selectedOptionLabel = computed(() => options.find((option) => option.id ==
             <span
                 v-if="isCompact"
                 aria-hidden="true"
-                class="block h-7 max-w-full truncate rounded-md border border-transparent pr-6 pl-1.5 text-xs leading-6.5 transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-focus-ring peer-hover:peer-enabled:state-hover peer-disabled:opacity-50"
-                :class="isDefault ? 'text-muted italic' : 'text-content'"
-                >{{ selectedOptionLabel }}</span
+                class="flex h-7 max-w-full items-center gap-x-1 rounded-md border border-transparent pr-6 pl-1.5 text-xs leading-6.5 transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-focus-ring peer-hover:peer-enabled:state-hover peer-disabled:opacity-50"
             >
+                <slot name="icon" />
+                <span class="truncate" :class="isDefault ? 'text-muted italic' : 'text-content'">{{ selectedOptionLabel }}</span>
+            </span>
             <ChevronDownIcon
                 aria-hidden="true"
                 class="pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted"

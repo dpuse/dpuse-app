@@ -27,9 +27,10 @@ interface Properties {
     scrollElement: HTMLElement | null; // The element this thumb measures and scrolls.
     crossScrollElement?: HTMLElement | null; // The perpendicular axis's element — wheeling this track also forwards the orthogonal delta, so a plain vertical mouse wheel still does something sensible over the horizontal track.
     crossInsetEnd?: number; // px to shrink this track by at its trailing edge — see SCROLL_THUMB_CROSS_INSET.
+    insetStart?: number; // px to shrink this track by at its leading edge, e.g. to start it past a column that does not scroll.
     alwaysVisible?: boolean;
 }
-const { orientation, scrollElement, crossScrollElement = null, crossInsetEnd = 0, alwaysVisible } = defineProps<Properties>();
+const { orientation, scrollElement, crossScrollElement = null, crossInsetEnd = 0, insetStart = 0, alwaysVisible } = defineProps<Properties>();
 
 const isVertical = orientation === 'vertical';
 
@@ -69,7 +70,7 @@ watch(
 useResizeObserver(() => (scrollElement ? [scrollElement, ...(scrollElement.children as HTMLCollectionOf<HTMLElement>)] : []), updateThumb);
 
 // The track shortens when the other track appears, which changes how far the thumb can travel.
-watch(() => crossInsetEnd, updateThumb, { flush: 'post' });
+watch([(): number => crossInsetEnd, (): number => insetStart], updateThumb, { flush: 'post' });
 
 useMutationObserver(
     () => scrollElement,
@@ -250,7 +251,7 @@ function clampFromZero(value: number, max: number): number {
         aria-valuemax="100"
         class="group pointer-events-auto absolute cursor-pointer transition-opacity duration-200 ease-[ease]"
         :class="[isVertical ? 'inset-y-0 right-0 w-6' : 'inset-x-0 bottom-0 h-6', thumbsShown ? 'opacity-100' : 'opacity-0']"
-        :style="isVertical ? { bottom: crossInsetEnd + 'px' } : { right: crossInsetEnd + 'px' }"
+        :style="isVertical ? { bottom: crossInsetEnd + 'px', top: insetStart + 'px' } : { left: insetStart + 'px', right: crossInsetEnd + 'px' }"
         @pointerdown="handlePointerDown"
         @touchstart.passive="handleTouchStart"
         @mouseenter="handleShowThumbs"

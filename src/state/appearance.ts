@@ -11,4 +11,4 @@ export const appearance = useColorMode({ disableTransition: false, modes: { ligh
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const appearanceIsDark: ComputedRef<boolean> = computed(() => appearance.state.value === 'dark');
+export const appearanceIsDark: ComputedRef<boolean> = computed(() => appearance.value === 'dark');

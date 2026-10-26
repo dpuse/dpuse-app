@@ -18,7 +18,7 @@ const { pluginLocalisedConfig, setupOptionLocalisedConfig } = defineProps<{
 
 <template>
     <!-- 'close' reaches 'PluginPanel' by attribute fallthrough, so this must stay single-root. -->
-    <PluginPanel :plugin-localised-config="pluginLocalisedConfig" :setup-option-localised-config="setupOptionLocalisedConfig">
+    <PluginPanel is-hideable :plugin-localised-config="pluginLocalisedConfig" :setup-option-localised-config="setupOptionLocalisedConfig">
         <!-- TODO -->
     </PluginPanel>
 </template>

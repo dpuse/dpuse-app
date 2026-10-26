@@ -9,13 +9,15 @@ import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from './ScrollThumb.vue';
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
+    horizontalScrollbarInsetStart?: number; // px the horizontal scroll bar starts in from the left, e.g. past a column that does not scroll sideways.
     scrollAreaPaddingBottom?: number | string;
     scrollAreaPaddingLeft?: number | string; // Inside the scrolling element, so the wheel scrolls over the padding too.
     scrollAreaPaddingRight?: number | string; // Overrides the default gutter — pass 0 where the content is narrower than the reserved 16px.
     scrollAreaPaddingTop?: number | string; // Clears a control floating above the content, the way the bottom padding clears one below it.
     scrollbarAlwaysVisible?: boolean;
 }
-const { scrollAreaPaddingBottom, scrollAreaPaddingLeft, scrollAreaPaddingRight, scrollAreaPaddingTop, scrollbarAlwaysVisible } = defineProps<Properties>();
+const { horizontalScrollbarInsetStart, scrollAreaPaddingBottom, scrollAreaPaddingLeft, scrollAreaPaddingRight, scrollAreaPaddingTop, scrollbarAlwaysVisible } =
+    defineProps<Properties>();
 
 defineSlots<{
     default(): unknown;
@@ -125,6 +127,7 @@ function toLength(value: number | string | undefined): string | undefined {
             :scroll-element="innerScrollElement"
             :cross-scroll-element="scrollElement"
             :cross-inset-end="verticalThumb?.visible ? SCROLL_THUMB_CROSS_INSET : 0"
+            :inset-start="horizontalScrollbarInsetStart"
             :always-visible="scrollbarAlwaysVisible"
         />
     </div>

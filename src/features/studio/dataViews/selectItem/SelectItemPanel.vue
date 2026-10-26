@@ -13,13 +13,15 @@ import {
     BracesIcon,
     CheckIcon,
     ChevronDownIcon,
+    CircleAlertIcon,
     CircleOffIcon,
     FileIcon,
     FolderIcon,
-    HourglassIcon,
     InfoIcon,
+    LanguagesIcon,
     SheetIcon,
-    TextIcon
+    TextIcon,
+    TriangleAlertIcon
 } from '@lucide/vue';
 import { type Component, computed, markRaw, nextTick, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
 import { onClickOutside, until } from '@vueuse/core';
@@ -38,6 +40,8 @@ import type {
     ListNodesResult,
     LocalisedConfig,
     PreviewConfig,
+    PreviewIssue,
+    PreviewIssueSeverityId,
     PreviewObjectOptions
 } from '@dpuse/dpuse-shared';
 
@@ -73,7 +77,7 @@ import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue
 import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
-import TextViewer from '@/components/ui/text/TextViewer.vue';
+import TextViewer, { type LineHighlightId } from '@/components/ui/text/TextViewer.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -88,7 +92,7 @@ type PreviewTabId = 'table' | 'text' | 'details';
 interface FormatSupport {
     ariaKey: keyof typeof TEXT;
     colorClass: string;
-    icon: Component;
+    icon?: Component; // Shown when the format has no icon of its own in the toolbar.
     id: FormatSupportId;
 }
 
@@ -114,9 +118,26 @@ const PLANNED_DATA_FORMAT_IDS = new Set<DataFormatId>(['arrow', 'avro', 'json', 
 // ── Format Supports ─ How the toolbar marks the format: readable, planned but with no reader yet, or not data at all.
 const FORMAT_SUPPORTS: FormatSupport[] = [
     { ariaKey: 'format.supported.aria', colorClass: 'text-success-text', icon: markRaw(CheckIcon), id: 'supported' },
-    { ariaKey: 'format.planned.aria', colorClass: 'text-warning-text', icon: markRaw(HourglassIcon), id: 'planned' },
+    { ariaKey: 'format.planned.aria', colorClass: 'text-warning-text', id: 'planned' },
     { ariaKey: 'format.unsupported.aria', colorClass: 'text-danger-text', icon: markRaw(CircleOffIcon), id: 'unsupported' }
 ];
+
+// ── Preview Issues ─ The app's own wording for the issues it knows, by the parser's code. Any other issue shows the
+// parser's message, which is in English. Each severity has its own icon and colour, as status tags do.
+const PREVIEW_ISSUE_TEXT_KEYS: Partial<Record<string, keyof typeof TEXT>> = {
+    CSV_INVALID_CLOSING_QUOTE: 'issue.invalidClosingQuote.text',
+    CSV_NON_TRIMABLE_CHAR_AFTER_CLOSING_QUOTE: 'issue.charAfterClosingQuote.text',
+    CSV_QUOTE_NOT_CLOSED: 'issue.quoteNotClosed.text',
+    empty: 'issue.empty.text',
+    INVALID_OPENING_QUOTE: 'issue.invalidOpeningQuote.text'
+};
+const PREVIEW_ISSUE_SEVERITIES: Record<PreviewIssueSeverityId, { bandClass: string; colorClass: string; icon: Component; lineHighlightId: LineHighlightId }> = {
+    error: { bandClass: 'bg-danger', colorClass: 'text-danger-text', icon: markRaw(CircleAlertIcon), lineHighlightId: 'danger' },
+    info: { bandClass: 'bg-info', colorClass: 'text-info-text', icon: markRaw(InfoIcon), lineHighlightId: 'info' },
+    warning: { bandClass: 'bg-warning', colorClass: 'text-warning-text', icon: markRaw(TriangleAlertIcon), lineHighlightId: 'warning' }
+};
+const PREVIEW_ISSUE_SEVERITY_IDS: PreviewIssueSeverityId[] = ['error', 'warning', 'info']; // Most serious first.
+
 const AUTO_OPTION_ID = 'auto'; // The selects' value for 'read it as detected'. No format or encoding has this id.
 const CONTAINER_FILE_TYPE_EXTENSIONS = new Set(['cfb']); // Detected types that only name a container, e.g. a legacy Excel or Word file, so the item's own extension names it better.
 const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
@@ -186,6 +207,7 @@ const elementIdPrefix = useId();
 const currentPreviewTabId = ref<PreviewTabId>('table');
 const previewTabMenuElement = useTemplateRef<HTMLDivElement>('previewTabMenu');
 const previewTabMenuIsOpen = ref(false);
+const textViewerComponent = useTemplateRef<InstanceType<typeof TextViewer>>('textViewer');
 
 const previewIsPending = ref(false); // The preview table is empty until the engine answers, which reads as an empty item unless the wait is shown.
 const hasLastPreviewSucceeded = ref(false); // Whether the last preview to finish loaded, so the Audit button stays in place while the next item loads.
@@ -244,6 +266,49 @@ const previewFormatSupport = computed(() => {
         FORMAT_SUPPORTS.find((formatSupport) => formatSupport.id === id),
         `Expected a format support with id '${id}'.`
     );
+});
+
+// ── Preview Issues ─ Not failures: the preview still holds what was read, so the toolbar, text and details stay usable
+// and the user can try another reading. A connector that does not report issues sends none. The band behind the list
+// takes the colour of the most serious one.
+const previewIssues = computed(() => activePreviewConfig.value?.issues ?? []);
+const previewHasErrorIssue = computed(() => previewIssues.value.some((issue) => issue.severityId === 'error'));
+// Each issue says all it can about where it is: its lines, its record and its value within the record, each as its own
+// phrase, so a language can order its words. The value at fault shows as it appears in the file.
+const previewIssueItems = computed(() =>
+    previewIssues.value.map((issue, index) => ({
+        ...PREVIEW_ISSUE_SEVERITIES[issue.severityId],
+        fieldText: issue.fieldNumber == null ? undefined : t(TEXT, 'issue.field.text', { field: formatCount(issue.fieldNumber) }),
+        key: `${String(index)}-${issue.id}`,
+        lineNumber: issue.lineNumber,
+        lineText: constructPreviewIssueLineText(issue),
+        recordText: issue.recordNumber == null ? undefined : t(TEXT, 'issue.record.text', { record: formatCount(issue.recordNumber) }),
+        text: constructPreviewIssueText(issue),
+        value: issue.value
+    }))
+);
+const previewIssueCountText = computed(() => {
+    const count = previewIssues.value.length;
+    if (count === 0) return;
+    return t(TEXT, count === 1 ? 'issue.one.text' : 'issue.other.text', { count });
+});
+const previewIssueBandClass = computed(() => {
+    const severityId = PREVIEW_ISSUE_SEVERITY_IDS.find((id) => previewIssues.value.some((issue) => issue.severityId === id));
+    return severityId == null ? undefined : PREVIEW_ISSUE_SEVERITIES[severityId].bandClass;
+});
+// The text tab colours each line an issue names. A line with several issues takes the colour of the most serious.
+// Every line an issue covers, from where it starts to where it ends, e.g. all the lines a quote never closed runs over.
+const previewLineHighlights = computed(() => {
+    const lineHighlights = new Map<number, LineHighlightId>();
+    for (const severityId of PREVIEW_ISSUE_SEVERITY_IDS.toReversed()) {
+        for (const issue of previewIssues.value) {
+            if (issue.severityId !== severityId || issue.lineNumber == null) continue;
+            for (let lineNumber = issue.lineNumber; lineNumber <= (issue.endLineNumber ?? issue.lineNumber); lineNumber++) {
+                lineHighlights.set(lineNumber, PREVIEW_ISSUE_SEVERITIES[severityId].lineHighlightId);
+            }
+        }
+    }
+    return lineHighlights;
 });
 
 // ── Read Options ─ What the toolbar's format and encoding selects offer. Auto comes first, set apart by a line: it
@@ -325,7 +390,7 @@ const currentPreviewTab = computed(() =>
 // JSON Lines and gave at least one row.
 const previewIsSelectable = computed(() => {
     const previewConfig = activePreviewConfig.value;
-    if (previewConfig == null || previewConfig.parsedRecords.length === 0) return false;
+    if (previewConfig == null || previewConfig.parsedRecords.length === 0 || previewHasErrorIssue.value) return false;
     const isOpenedAsTable = TEXT_DATA_FORMAT_IDS.has(previewConfig.dataFormatId) && currentPreviewTabId.value === 'table';
     return TABLE_DATA_FORMAT_IDS.has(previewConfig.dataFormatId) || isOpenedAsTable;
 });
@@ -355,7 +420,8 @@ const itemDetails = computed(() => {
                     ? undefined
                     : new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(connectionNodeConfig.lastModifiedAt)
         },
-        { labelKey: 'detail.path.label', value: constructItemPath(connectionNodeConfig) }
+        { labelKey: 'detail.path.label', value: constructItemPath(connectionNodeConfig) },
+        { labelKey: 'detail.issues.label', value: previewIssueCountText.value } // Listed in the band above the tabs.
     ];
     return details.filter((detail) => detail.value != null && detail.value !== '');
 });
@@ -438,7 +504,6 @@ watch(
 
             applyPreviewConfig(previewConfig);
             recordDetectedValues(previewConfig);
-            if (newActiveItem === pickedItemConfig.value) reportDraft(newActiveItem, previewConfig); // The summary above the step then shows the item's format.
             hasLastPreviewSucceeded.value = true;
         } catch (error) {
             if (currentRequestId !== previewRequestId.value) return; // A newer selection owns the panel now.
@@ -451,6 +516,16 @@ watch(
     },
     { immediate: true }
 );
+
+// The picked item is reported once its preview shows it can be selected, with the preview, so the summary above the
+// step shows its format. Until then, and while it cannot be selected, it is reported as no item. Opening a markdown
+// file as a table can make it selectable without a new preview.
+watch([activePreviewConfig, previewIsSelectable], ([previewConfig, isSelectable]) => {
+    const pickedItem = pickedItemConfig.value;
+    if (pickedItem == null || previewConfig == null) return; // 'pickItem' has already reported no item.
+    if (isSelectable) reportDraft(pickedItem, previewConfig);
+    else reportDraft();
+});
 
 onClickOutside(previewTabMenuElement, () => {
     previewTabMenuIsOpen.value = false;
@@ -559,6 +634,13 @@ function handleNavigatePreviewTabMenu(event: KeyboardEvent, previewTabIndex: num
     focusPreviewTabMenuItem(nextIndex);
 }
 
+// Opens the text on the line an issue names, so the user sees what the parser could not read.
+async function handleShowIssueLine(lineNumber: number): Promise<void> {
+    currentPreviewTabId.value = 'text';
+    await nextTick(); // The text is only laid out once its tab shows.
+    textViewerComponent.value?.scrollToLine(lineNumber);
+}
+
 function handleSelectPreviewTab(previewTabId: PreviewTabId): void {
     currentPreviewTabId.value = previewTabId;
     closePreviewTabMenu();
@@ -604,13 +686,12 @@ function pickItem(connectionNodeConfig?: ConnectionNodeConfig): void {
     pickedItemConfig.value = connectionNodeConfig;
     selectedDataFormatId.value = undefined;
     selectedEncodingId.value = undefined;
-    reportDraft(connectionNodeConfig);
+    reportDraft(); // A new pick shows as no item until its preview shows it can be selected.
 }
 
-// The pick is saved only when it is committed. It is reported as soon as it is made, and again with its preview once
-// that arrives, so the summary above the step shows it. The later steps are cleared in what is reported, because they
-// were worked out from the item it replaces.
-function reportDraft(connectionNodeConfig: ConnectionNodeConfig | undefined, previewConfig?: PreviewConfig): void {
+// The pick is saved only when it is committed. It is reported before then, so the summary above the step shows it. The
+// later steps are cleared in what is reported, because they were worked out from the item it replaces.
+function reportDraft(connectionNodeConfig?: ConnectionNodeConfig, previewConfig?: PreviewConfig): void {
     if (dataViewConfig.value == null) return;
     emit('draft-changed', {
         ...dataViewConfig.value,
@@ -707,11 +788,16 @@ function focusPreviewTabMenuItem(previewTabIndex: number): void {
     previewTabMenuElement.value?.querySelectorAll<HTMLElement>('[role="menuitemradio"]')[previewTabIndex]?.focus();
 }
 
-// Only a format the app can read as data has a table to show. Markdown, a format not supported yet and one that never
-// will be all show as text. The table stays enabled while there is no preview, so the tabs do not flicker as it loads.
+// Only a format the app can read as data has a table to show, and only when something was parsed without an error.
+// Markdown, a format not supported yet and one that never will be all show as text. The table stays enabled while
+// there is no preview, so the tabs do not flicker as it loads.
 function isPreviewTabDisabled(previewTabId: PreviewTabId): boolean {
-    const dataFormatId = activePreviewConfig.value?.dataFormatId;
-    return previewTabId === 'table' && dataFormatId != null && !READABLE_DATA_FORMAT_IDS.has(dataFormatId);
+    const previewConfig = activePreviewConfig.value;
+    return (
+        previewTabId === 'table' &&
+        previewConfig != null &&
+        (previewHasErrorIssue.value || previewConfig.parsedRecords.length === 0 || !READABLE_DATA_FORMAT_IDS.has(previewConfig.dataFormatId))
+    );
 }
 
 // The next enabled tab in the direction given, wrapping round at either end.
@@ -745,7 +831,7 @@ function resetPreviewState(): void {
 
 function applyPreviewConfig(previewConfig: PreviewConfig): void {
     activePreviewConfig.value = previewConfig;
-    currentPreviewTabId.value = establishFirstPreviewTabId(previewConfig.dataFormatId);
+    currentPreviewTabId.value = establishFirstPreviewTabId(previewConfig);
     text.value = previewConfig.text;
 
     const previewColumnLabels = previewConfig.columnConfigs.map((config, index) => config.label.en ?? String(index));
@@ -768,10 +854,26 @@ function applyPreviewConfig(previewConfig: PreviewConfig): void {
     };
 }
 
-// The tab that shows the item as its format suggests: data as a table, anything else as text. Every other tab stays
-// available, so the user can switch to another view, apart from the table for markdown.
-function establishFirstPreviewTabId(dataFormatId: DataFormatId): PreviewTabId {
-    return TABLE_DATA_FORMAT_IDS.has(dataFormatId) ? 'table' : 'text';
+// The tab that shows the item as its format suggests: data as a table, anything else as text. Data with no usable
+// table opens on the text, so the user can see why. Every other tab stays available, apart from a disabled table.
+function establishFirstPreviewTabId(previewConfig: PreviewConfig): PreviewTabId {
+    const tableIsUsable = previewConfig.parsedRecords.length > 0 && (previewConfig.issues ?? []).every((issue) => issue.severityId !== 'error');
+    return tableIsUsable && TABLE_DATA_FORMAT_IDS.has(previewConfig.dataFormatId) ? 'table' : 'text';
+}
+
+function constructPreviewIssueLineText(issue: PreviewIssue): string | undefined {
+    if (issue.lineNumber == null) return;
+    if (issue.endLineNumber == null) return t(TEXT, 'issue.line.text', { line: formatCount(issue.lineNumber) });
+    return t(TEXT, 'issue.lines.text', { end: formatCount(issue.endLineNumber), start: formatCount(issue.lineNumber) });
+}
+
+function formatCount(count: number): string {
+    return formatNumberAsDecimalNumber(count, 0, 0, localeId.value);
+}
+
+function constructPreviewIssueText(issue: PreviewIssue): string {
+    const textKey = PREVIEW_ISSUE_TEXT_KEYS[issue.id];
+    return textKey ? t(TEXT, textKey) : issue.message;
 }
 
 // Navigate to a folder. Setting currentFolderPath is all that's needed: connectionNodeConfigsDataSource picks it
@@ -850,9 +952,10 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
             <!-- Preview Toolbar ─ Sits over the preview only, so the breadcrumbs keep the whole header row. -->
             <div v-else class="relative flex h-9.25 flex-none items-center gap-x-3 border-b border-separator px-page text-xs text-muted">
                 <!-- Preview Meter ─ Along the top edge, clear of the selected tab's underline at the bottom. Only when the
-                     item's size is known. Green when the whole item was read. The grey track shows how much was not, so a
-                     sliver read from a large item is still visible. A meter rather than a progress bar, because it shows a
-                     settled amount, not work under way. -->
+                     item's size is known. Green when the whole item was read. The grey track shows how much was not. Any
+                     amount read keeps a minimum width, so a sliver read from a large item is still visible rather than
+                     looking like nothing. A meter rather than a progress bar, because it shows a settled amount, not
+                     work under way. -->
                 <div
                     v-if="previewAmount?.percentage != null"
                     :aria-label="t(TEXT, 'preview.aria')"
@@ -860,10 +963,19 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     aria-valuemin="0"
                     :aria-valuenow="Math.round(previewAmount.percentage)"
                     :aria-valuetext="previewAmount.text"
-                    class="absolute inset-x-0 top-0 h-0.75 bg-separator"
+                    class="absolute inset-x-0 top-0 h-0.75 bg-separator/50"
                     role="meter"
                 >
-                    <div class="h-full" :class="previewAmount.isComplete ? 'bg-success-text' : 'bg-accent'" :style="{ width: `${previewAmount.percentage}%` }" />
+                    <div
+                        class="h-full"
+                        :class="[
+                            previewAmount.isComplete
+                                ? 'bg-[color-mix(in_srgb,var(--color-success-text)_40%,var(--color-card))]'
+                                : 'bg-[color-mix(in_srgb,var(--color-accent)_40%,var(--color-card))]',
+                            { 'min-w-0.75': previewAmount.percentage > 0 }
+                        ]"
+                        :style="{ width: `${previewAmount.percentage}%` }"
+                    />
                 </div>
                 <!-- Hidden from screen readers when the meter already reads it out. Sized to its text, and the selects give
                      way first, so the amount always shows. 'mr-auto' pushes the rest of the toolbar to the right. -->
@@ -875,34 +987,38 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
                 <!-- Format and Encoding ─ Choosing either reads the item again that way. A binary file has no encoding to
                      choose. -->
-                <div v-if="previewFormatText" class="flex min-w-0 items-center">
-                    <!-- One icon: the format's own for a format the app can read, and otherwise why it cannot be read. -->
-                    <ConfigIcon
-                        v-if="previewFormatSupport?.id === 'supported' && previewFormatIconConfig"
-                        class="size-[1.25em]"
-                        :icon="previewFormatIconConfig.icon"
-                        :icon-dark="previewFormatIconConfig.iconDark"
-                    />
-                    <component
-                        :is="previewFormatSupport.icon"
-                        v-else-if="previewFormatSupport && previewFormatSupport.id !== 'supported'"
-                        aria-hidden="true"
-                        class="size-[1.25em] flex-none"
-                        :class="previewFormatSupport.colorClass"
-                        :stroke-width="2.5"
-                    />
-                    <SelectInput
-                        v-model="previewDataFormatId"
-                        :is-default="selectedDataFormatId == null"
-                        class="min-w-0"
-                        :description="previewFormatSupport ? t(TEXT, previewFormatSupport.ariaKey) : undefined"
-                        :disabled="previewIsPending"
-                        is-compact
-                        :label="t(TEXT, 'format.label')"
-                        label-hidden
-                        :options="dataFormatOptions"
-                    />
-                </div>
+                <SelectInput
+                    v-if="previewFormatText"
+                    v-model="previewDataFormatId"
+                    :is-default="selectedDataFormatId == null"
+                    class="min-w-0"
+                    :description="previewFormatSupport ? t(TEXT, previewFormatSupport.ariaKey) : undefined"
+                    :disabled="previewIsPending"
+                    is-compact
+                    :label="t(TEXT, 'format.label')"
+                    label-hidden
+                    :options="dataFormatOptions"
+                >
+                    <!-- One icon: the format's own for a format the app can read or plans to, greyed out while it has no reader,
+                         and otherwise why it cannot be read. -->
+                    <template #icon>
+                        <ConfigIcon
+                            v-if="(previewFormatSupport?.id === 'supported' || previewFormatSupport?.id === 'planned') && previewFormatIconConfig"
+                            class="size-[1.25em] flex-none"
+                            :class="{ 'opacity-60 grayscale': previewFormatSupport.id === 'planned' }"
+                            :icon="previewFormatIconConfig.icon"
+                            :icon-dark="previewFormatIconConfig.iconDark"
+                        />
+                        <component
+                            :is="previewFormatSupport.icon"
+                            v-else-if="previewFormatSupport?.icon && previewFormatSupport.id !== 'supported'"
+                            aria-hidden="true"
+                            class="size-[1.25em] flex-none"
+                            :class="previewFormatSupport.colorClass"
+                            :stroke-width="2.5"
+                        />
+                    </template>
+                </SelectInput>
                 <SelectInput
                     v-if="activePreviewConfig?.encodingId != null"
                     v-model="previewEncodingId"
@@ -913,7 +1029,9 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     :label="t(TEXT, 'encoding.label')"
                     label-hidden
                     :options="encodingOptions"
-                />
+                >
+                    <template #icon><LanguagesIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
+                </SelectInput>
 
                 <!-- Preview Tabs ─ Icons rather than words, to leave the toolbar room. '-mr-1.5' centres the last icon 30px
                      from the edge, under the assistant toggle. -->
@@ -985,6 +1103,34 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     </div>
                 </div>
             </div>
+            <!-- Preview Issues ─ Between the toolbar and the tabs, so they show on every tab without hiding the text or details.
+                 A long list scrolls rather than pushing the preview out of view. -->
+            <div
+                v-if="itemFailure == null && previewIssueItems.length > 0"
+                class="max-h-32 flex-none overflow-y-auto border-b border-separator px-page py-2 text-sm"
+                :class="previewIssueBandClass"
+                role="status"
+            >
+                <ul :aria-label="t(TEXT, 'issues.aria')" class="flex flex-col gap-y-1">
+                    <li v-for="issueItem in previewIssueItems" :key="issueItem.key" class="flex items-start gap-x-2">
+                        <component :is="issueItem.icon" aria-hidden="true" class="mt-0.5 size-4 flex-none" :class="issueItem.colorClass" :stroke-width="2" />
+                        <!-- Where it is, then what it is, then the value at fault. The lines link to the text, except in markdown,
+                             which shows rendered rather than as lines. -->
+                        <span class="min-w-0 wrap-break-word">
+                            <ActionWrapper
+                                v-if="issueItem.lineNumber != null && !previewIsMarkdown"
+                                class="mr-2 text-accent hover:underline"
+                                @click="handleShowIssueLine(issueItem.lineNumber)"
+                                >{{ issueItem.lineText }}</ActionWrapper
+                            ><span v-else-if="issueItem.lineText" class="mr-2 text-muted">{{ issueItem.lineText }}</span
+                            ><span v-if="issueItem.recordText" class="mr-2 text-muted">{{ issueItem.recordText }}</span
+                            ><span v-if="issueItem.fieldText" class="mr-2 text-muted">{{ issueItem.fieldText }}</span
+                            >{{ issueItem.text }}
+                            <code v-if="issueItem.value != null" class="ml-1 rounded-sm bg-surface px-1 font-mono text-xs whitespace-pre-wrap">{{ issueItem.value }}</code>
+                        </span>
+                    </li>
+                </ul>
+            </div>
             <!-- A tab panel only from 'md' up, because below it the tabs are a menu instead. -->
             <div
                 v-if="itemFailure == null"
@@ -1004,7 +1150,9 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 />
                 <TextViewer
                     v-show="currentPreviewTabId === 'text' && activePreviewConfig != null && !previewIsMarkdown"
+                    ref="textViewer"
                     class="flex-1"
+                    :line-highlights="previewLineHighlights"
                     scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)"
                     :text="text"
                 />

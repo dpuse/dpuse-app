@@ -1,5 +1,8 @@
 {
     "TEXT": {
+        "authentication.notRequired.text": { "en": "Authentication is not required.", "es": "No se requiere autenticación." },
+        "authentication.reauthenticate.label": { "en": "Reauthenticate", "es": "Volver a autenticar" },
+        "authentication.title": { "en": "Authentication", "es": "Autenticación" },
         "capabilities.label": { "en": "Capabilities", "es": "Capacidades" },
         "configuration.text": {
             "en": "Add connection-specific fields here as this workflow evolves.",
@@ -8,7 +11,18 @@
         "configuration.title": { "en": "Configuration", "es": "Configuración" },
         "connectionType.label": { "en": "Connection Type", "es": "Tipo de Conexión" },
         "connections.label": { "en": "Connections", "es": "Conexiones" },
+        "connector.title": { "en": "Connector", "es": "Conector" },
         "continue.label": { "en": "Continue", "es": "Continuar" },
+        "delete.label": { "en": "Delete Connection", "es": "Eliminar conexión" },
+        "delete.text": { "en": "Deleting this connection cannot be undone.", "es": "La eliminación de esta conexión no se puede deshacer." },
+        "delete.title": { "en": "Delete", "es": "Eliminar" },
+        "description.pending.text": { "en": "Describe what this connection is for.", "es": "Describe para qué sirve esta conexión." },
+        "hide.label": { "en": "Hide Connection", "es": "Ocultar conexión" },
+        "hide.text": {
+            "en": "This connection comes with its connector, so it cannot be deleted. Hiding it removes it from the list of connections.",
+            "es": "Esta conexión viene con su conector, por lo que no se puede eliminar. Al ocultarla, desaparece de la lista de conexiones."
+        },
+        "hide.title": { "en": "Hide", "es": "Ocultar" },
         "implementationUnavailable.error": { "en": "Implementation not available", "es": "Implementación no disponible" },
         "noConnection.text": { "en": "Choose a connection from the list to continue.", "es": "Elige una conexión de la lista para continuar." },
         "noConnection.title": { "en": "No connection selected", "es": "No se ha seleccionado ninguna conexión" },
@@ -17,6 +31,11 @@
             "es": "Revisa la conexión seleccionada y deja espacio para configuraciones específicas de la conexión antes de continuar."
         },
         "selectConnection.title": { "en": "Select Connection", "es": "Seleccionar Conexión" },
-        "selectedConnection.title": { "en": "Selected Connection", "es": "Conexión Seleccionada" }
+        "selectedConnection.title": { "en": "Selected Connection", "es": "Conexión Seleccionada" },
+        "usedBy.current.text": { "en": "(this data view)", "es": "(esta vista de datos)" },
+        "usedBy.none.text": { "en": "No data views use this connection yet.", "es": "Todavía ninguna vista de datos usa esta conexión." },
+        "usedBy.showAll.label": { "en": "Show all {count} data views", "es": "Mostrar las {count} vistas de datos" },
+        "usedBy.showFewer.label": { "en": "Show fewer data views", "es": "Mostrar menos vistas de datos" },
+        "usedBy.title": { "en": "Used By", "es": "Usada por" }
     }
 }

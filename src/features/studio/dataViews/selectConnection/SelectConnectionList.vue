@@ -1,18 +1,19 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { ArrowRightIcon } from '@lucide/vue';
-import { computed, ref, watch } from 'vue';
+import { useConfirmDialog } from '@vueuse/core';
+import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared';
+import { AppError, constructConnectorCategoryConfig } from '@dpuse/dpuse-shared';
 import type { ConnectionConfig, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
+import { defineLazyComponent } from '@/utilities/index.ts';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { raiseAppFailure } from '@/state/errors';
-import { t } from '@/state/locale';
 import { TEXT } from './SelectConnectionList_.json';
 import { useDialogs } from '@/state/dialogs';
 import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
@@ -23,23 +24,26 @@ import {
     resolveDataViewIdParameter,
     useCreateDataView,
     useDataView,
+    useDataViews,
     useUpdateDataView
 } from '@/features/studio/dataViews/_dataViews';
+import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
+import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
 import SelectConnectionPanel from './SelectConnectionPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
 
+// ── Dynamic Components
+const EmptyPlaceholder = defineLazyComponent(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const ACTION_CONFIGS: Action<ConnectionConfig>[] = [
-    { typeId: 'delete', onClick: handleDeleteConnection },
-    { typeId: 'open', onClick: handleOpenConnection }
-];
+const ACTION_CONFIGS: Action<ConnectionConfig>[] = [{ typeId: 'open', onClick: handleOpenConnection }];
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -66,6 +70,11 @@ const { isPending: dataViewIsSaving, mutateAsync: updateDataView } = useUpdateDa
 // ── Choice ─ The connection picked in this step, saved only when it is committed. Starts as the saved one.
 const pickedConnectionId = ref<string>();
 
+// ── Removal Confirmation ─ One dialog for deleting and hiding, because a connection offers one or the other.
+const { data: dataViewConfigs } = useDataViews(); // Counted in the warning about the data views that use the connection.
+const { cancel: cancelRemoval, confirm: confirmRemoval, isRevealed: removalConfirmIsOpen, reveal: revealRemovalConfirm } = useConfirmDialog();
+const removingConnection = shallowRef<{ action: 'delete' | 'hide'; connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> }>(); // Kept after the dialog closes, so its text does not blank while it fades out.
+
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // ── Data View
@@ -75,6 +84,24 @@ const pickedConnectionLocalisedConfig = computed(() => findConnectionLocalisedCo
 
 // Cards here carry actions, which take a second row.
 const cardRowHeight = useCardRowHeight(true);
+
+// ── Removal Confirmation ─ The data views that use the connection are named in the question, so the user decides
+// knowing what it leaves without a connection.
+const removalConfirmText = computed(() => {
+    const removal = removingConnection.value;
+    if (removal == null) return '';
+    const { action, connectionLocalisedConfig } = removal;
+    const questionText = t(TEXT, `${action}.confirm.text`, { name: connectionLocalisedConfig.label });
+    const count = dataViewConfigs.value?.filter((dataViewConfig) => dataViewConfig.connectionId === connectionLocalisedConfig.id).length ?? 0;
+    if (count === 0) return questionText;
+    const inUseKey: keyof typeof TEXT = count === 1 ? `${action}.inUse.one.text` : `${action}.inUse.other.text`;
+    return `${questionText} ${t(TEXT, inUseKey, { count })}`;
+});
+
+// ── Connector Categories ─ The category each card names, keyed by connection id, as data view cards name theirs.
+const connectorCategoryLabelsById = computed(
+    () => new Map(connectionLocalisedConfigs.value.map((config) => [config.id, constructConnectorCategoryConfig(config.connectorConfig.categoryId, localeId.value).label]))
+);
 
 const connectionLocalisedConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionConfig>>>(() => ({
     rowCount: connectionLocalisedConfigs.value.length, // Known, because 'DataViewsLayout' shows this list only once the configuration has arrived.
@@ -123,8 +150,18 @@ async function handleCommitDetail(): Promise<void> {
     }
 }
 
-function handleDeleteConnection(_connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
-    // TODO
+async function handleDeleteConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): Promise<void> {
+    removingConnection.value = { action: 'delete', connectionLocalisedConfig };
+    const { isCanceled } = await revealRemovalConfirm();
+    if (isCanceled) return;
+    // TODO: Delete the connection, once connections can be deleted.
+}
+
+async function handleHideConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): Promise<void> {
+    removingConnection.value = { action: 'hide', connectionLocalisedConfig };
+    const { isCanceled } = await revealRemovalConfirm();
+    if (isCanceled) return;
+    // TODO: Hide the connection, once connections can be hidden.
 }
 
 // Opening never deselects.
@@ -133,8 +170,11 @@ function handleOpenConnection(connectionLocalisedConfig: LocalisedConfig<Connect
     void handleCommitDetail();
 }
 
-function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
-    pickConnection(pickedConnectionId.value === connectionLocalisedConfig.id ? undefined : connectionLocalisedConfig.id);
+// A card stays picked when tapped again, as in a select. On a narrow screen, coming back to the list hides the picked
+// card's detail, so the tap opens it again. Beside the list the detail is already showing, so the tap changes nothing.
+function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>, openDetail: () => void): void {
+    if (pickedConnectionId.value === connectionLocalisedConfig.id) openDetail();
+    else pickConnection(connectionLocalisedConfig.id);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -172,18 +212,49 @@ function pickConnection(connectionId: string | undefined): void {
         :data-source="connectionLocalisedConfigsDataSource"
         max-detail-width="65ch"
         :row-height="cardRowHeight"
+        :target-column-width="340"
         @add="handleAddConnection"
     >
-        <template #item="{ item }">
-            <ConfigCard v-if="item" :actions="ACTION_CONFIGS" :config="item" :selected="item.id === pickedConnectionId" @click="handleSelectConnection(item)" />
+        <!-- 'is-inert' ─ Beside the list, the picked card's detail is already showing, so a click on it does nothing and the
+             card does not look clickable. -->
+        <template #item="{ isSplit, item, openDetail }">
+            <ConfigCard
+                v-if="item"
+                :actions="ACTION_CONFIGS"
+                :category-label="connectorCategoryLabelsById.get(item.id)"
+                :config="item"
+                :is-inert="isSplit && item.id === pickedConnectionId"
+                :selected="item.id === pickedConnectionId"
+                @click="handleSelectConnection(item, openDetail)"
+            />
         </template>
 
         <template #detail="{ item, close }">
-            <SelectConnectionPanel :connection-localised-config="item" @close="close" />
+            <SelectConnectionPanel :connection-localised-config="item" @close="close" @delete="handleDeleteConnection(item)" @hide="handleHideConnection(item)" />
+            <!-- In the detail rather than beside the list, because this component must stay single-root for the route's
+                 transition, and only the detail offers Delete and Hide. A dialog takes no room in the layout. -->
+            <ConfirmDialog
+                :confirm-label="t(TEXT, `${removingConnection?.action ?? 'delete'}.confirm.label`)"
+                :confirm-variant="removingConnection?.action === 'hide' ? 'guarded' : 'destructive'"
+                :is-open="removalConfirmIsOpen"
+                :message="removalConfirmText"
+                :title="t(TEXT, `${removingConnection?.action ?? 'delete'}.confirm.title`)"
+                @cancel="cancelRemoval"
+                @confirm="confirmRemoval"
+            />
         </template>
 
         <template #detail-action>
             <PillButton :icon="ArrowRightIcon" :label="t(TEXT, 'detail.select.label')" @click="handleCommitDetail" />
+        </template>
+
+        <template #no-items>
+            <EmptyPlaceholder
+                :message-item-label="t(TEXT, 'connection.other.text')"
+                :description-item-label="t(TEXT, 'connection.new.text')"
+                :action-item-label="t(TEXT, 'connection.label')"
+                @add="handleAddConnection"
+            />
         </template>
 
         <template #no-selection>

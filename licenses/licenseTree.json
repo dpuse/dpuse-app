@@ -1,5 +1,5 @@
 {
-  "version": "1.0.212",
+  "version": "1.0.213",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -178,8 +178,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261025.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261025.1.tgz",
+      "version": "5.20261026.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261026.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -188,7 +188,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.142"
+          "version": "1.0.144"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1336,8 +1336,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.142",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.142.tgz",
+      "version": "1.0.144",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.144.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1420,7 +1420,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.142"
+          "version": "1.0.144"
         },
         "@tanstack/charts": {
           "version": "1.0.0",
@@ -4482,8 +4482,8 @@
       }
     },
     "@tanstack/vue-query": {
-      "version": "5.104.5",
-      "resolved": "https://registry.npmjs.org/@tanstack/vue-query/-/vue-query-5.104.5.tgz",
+      "version": "5.105.0",
+      "resolved": "https://registry.npmjs.org/@tanstack/vue-query/-/vue-query-5.105.0.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/match-sorter-utils": {
@@ -4499,8 +4499,8 @@
           }
         },
         "@tanstack/query-core": {
-          "version": "5.104.5",
-          "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.104.5.tgz",
+          "version": "5.105.0",
+          "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.105.0.tgz",
           "overridden": false
         },
         "@vue/composition-api": {},
@@ -4549,13 +4549,13 @@
       }
     },
     "@tanstack/vue-virtual": {
-      "version": "3.13.48",
-      "resolved": "https://registry.npmjs.org/@tanstack/vue-virtual/-/vue-virtual-3.13.48.tgz",
+      "version": "3.13.49",
+      "resolved": "https://registry.npmjs.org/@tanstack/vue-virtual/-/vue-virtual-3.13.49.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/virtual-core": {
-          "version": "3.19.7",
-          "resolved": "https://registry.npmjs.org/@tanstack/virtual-core/-/virtual-core-3.19.7.tgz",
+          "version": "3.19.8",
+          "resolved": "https://registry.npmjs.org/@tanstack/virtual-core/-/virtual-core-3.19.8.tgz",
           "overridden": false
         },
         "vue": {
@@ -5154,7 +5154,7 @@
           "version": "8.72.0"
         },
         "eslint-plugin-vue": {
-          "version": "10.11.1"
+          "version": "10.12.0"
         },
         "eslint": {
           "version": "10.13.0"
@@ -5801,8 +5801,8 @@
       }
     },
     "eslint-plugin-vue": {
-      "version": "10.11.1",
-      "resolved": "https://registry.npmjs.org/eslint-plugin-vue/-/eslint-plugin-vue-10.11.1.tgz",
+      "version": "10.12.0",
+      "resolved": "https://registry.npmjs.org/eslint-plugin-vue/-/eslint-plugin-vue-10.12.0.tgz",
       "overridden": false,
       "dependencies": {
         "@eslint-community/eslint-utils": {
@@ -7619,7 +7619,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261025.1"
+          "version": "5.20261026.1"
         },
         "blake3-wasm": {
           "version": "2.1.5",

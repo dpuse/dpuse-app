@@ -77,11 +77,14 @@ const currentTaskLocalisedConfig = computed(() => taskLocalisedConfigs.value.fin
 
 // ── Header
 const headerOverline = computed(() => t(TEXT, currentTaskLocalisedConfig.value ? 'establishDataViews.title' : 'studio.label'));
+const headerTitleIsPending = computed(
+    () => currentTaskLocalisedConfig.value != null && !dataViewIsNew.value && dataViewConfig.value == null && !dataViewFailure.value && configStatus.value.typeId !== 'failed'
+); // A saved data view's name is not known until it loads, e.g. after a reload.
 const headerTitle = computed(() => {
     if (!currentTaskLocalisedConfig.value) return t(TEXT, 'establishDataViews.title');
     if (dataViewIsNew.value) return t(TEXT, 'dataView.new.title');
     if (dataViewConfig.value) return localiseConfig(dataViewConfig.value, localeId.value).label;
-    return t(TEXT, dataViewFailure.value || configStatus.value.typeId === 'failed' ? 'dataView.failed.title' : 'dataView.pending.title');
+    return t(TEXT, headerTitleIsPending.value ? 'dataView.pending.title' : 'dataView.failed.title');
 });
 const headerBackRoute = computed(() =>
     route.name === 'dataViews'
@@ -117,6 +120,12 @@ const savedItemConfig = computed(() => dataViewConfig.value?.connectionNodeConfi
 const savedItemPath = computed(() => (savedItemConfig.value ? constructItemPath(savedItemConfig.value) : undefined)); // Compared by the engine's path, which tells two items apart even where their labels match.
 const summaryItemIsDraft = computed(() => summaryItemPath.value !== savedItemPath.value);
 const summaryItemTypeId = computed(() => summaryConnectionLocalisedConfig.value?.connectorConfig.itemTypeId);
+
+// ── Summary and Task Bar ─ After a reload, both stay hidden until the data view and the connection list have loaded,
+// then fade in together. Otherwise the summary first reads 'No connection' and step 2 'Select Item', and both change
+// once the real values arrive. Nothing waits on a load that has failed, because its values will never arrive.
+const connectionsArePending = computed(() => configStatus.value.typeId === 'pending' || (sessionIsAuthenticated.value !== false && accountConfigStatus.value.typeId === 'pending')); // Signed out, there are no account connections to wait for.
+const summaryAndTaskBarArePending = computed(() => headerTitleIsPending.value || (dataViewConfig.value != null && connectionsArePending.value));
 
 // ── List and Task Panel ─ The layout's own 'RouterView' sits one level in, so the layout shows the spinner while the
 // list or a task panel loads. 'App.vue' shows the spinner for the layout itself, which keeps the header and task bar in
@@ -219,16 +228,18 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
 <template>
     <StudioLayout>
         <!-- Header -->
-        <StudioHeader class="flex-none px-page" :overline="headerOverline" :title="headerTitle" :to="headerBackRoute" />
+        <StudioHeader class="flex-none px-page" :overline="headerOverline" :title="headerTitle" :title-is-pending="headerTitleIsPending" :to="headerBackRoute" />
 
         <!-- Summary ─ What the data view is built from so far, under its name as on its card. The row is always there,
              even when empty, so the first choice does not push the panel down. Screen readers skip it, because they hear
              each saved choice with its task. '-my-1' pulls it up into the empty space at the bottom of the header, and the
              task bar up by the same amount into its own bottom padding. -->
         <!-- Summary and Task Bar ─ Fade in with the first task's panel, and go at once when the list comes back, so the
-             list never sits below them. The current task follows the route, so between tasks it moves on the click. -->
+             list never sits below them. The current task follows the route, so between tasks it moves on the click. While
+             they wait for the data view after a reload, 'invisible' keeps their space, so nothing below them moves when
+             they fade in. -->
         <Transition enter-active-class="dpuse-action-fade-enter-active" enter-from-class="dpuse-action-fade-enter-from">
-            <div v-if="taskIdOnScreen" class="flex flex-none flex-col">
+            <div v-if="taskIdOnScreen" class="flex flex-none flex-col transition-opacity duration-250 ease-[ease]" :class="{ 'invisible opacity-0': summaryAndTaskBarArePending }">
                 <DataViewSource
                     aria-hidden="true"
                     class="-my-1 h-7 flex-none px-page pb-2 text-sm"

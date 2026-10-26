@@ -36,6 +36,7 @@ interface Properties<T extends BaseConfig> {
     iconDark?: null | string;
     isCompact?: boolean;
     isDisabled?: boolean; // Dimmed and announced as unavailable, but still focusable, so the reason in the note can be found. The host ignores its clicks.
+    isInert?: boolean; // Selected, and a click would change nothing, e.g. beside its open detail. Shows the default cursor and no hover, but stays focusable.
     onCategoryClick?: (config: LocalisedConfig<T>) => void; // Declared as a prop so the card can tell whether '@category-click' is bound.
     overline?: string; // Above the label, e.g. the kind of thing the card is: it is read before the name it classifies.
     prereleaseLabel?: string; // Top right, as a small amber tag, e.g. 'Beta': a caution about the version.
@@ -52,6 +53,7 @@ const {
     iconDark,
     isCompact,
     isDisabled,
+    isInert,
     onCategoryClick,
     overline,
     prereleaseLabel,
@@ -93,10 +95,10 @@ defineOptions({ inheritAttrs: false });
                 ? isDisabled
                     ? 'border-transparent'
                     : selected
-                      ? 'border-transparent state-selected hover:state-selected-hover'
+                      ? ['border-transparent state-selected', { 'hover:state-selected-hover': !isInert }]
                       : 'border-transparent hover:state-hover active:state-press'
                 : selected
-                  ? 'border-selected-border bg-card state-selected hover:state-selected-hover'
+                  ? ['border-selected-border bg-card state-selected', { 'hover:state-selected-hover': !isInert }]
                   : 'border-separator bg-card hover:border-boundary-hover hover:state-hover active:state-press dark:border-zinc-600 dark:hover:border-zinc-500'
         ]"
         data-region="ConfigCard"
@@ -109,6 +111,7 @@ defineOptions({ inheritAttrs: false });
             :aria-disabled="isDisabled || undefined"
             :aria-label="overline ? `${overline}: ${config.label}` : config.label"
             class="absolute inset-0 z-10"
+            :class="{ 'cursor-default': isInert }"
             :title="config.label"
             :to="to"
             v-bind="$attrs"

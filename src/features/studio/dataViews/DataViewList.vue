@@ -6,8 +6,8 @@ import { useConfirmDialog, useTimeoutFn } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError, constructConnectorCategoryConfig, constructConnectorItemTypeConfig, getComponentStatus, localiseConfig, localiseConfigs } from '@dpuse/dpuse-shared';
-import type { ConnectorItemTypeId, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
+import { AppError, localiseConfigs } from '@dpuse/dpuse-shared';
+import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
@@ -19,7 +19,7 @@ import { TEXT } from './DataViewList_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useQueryFailure } from '@/services/queryClient';
 import { cancelDataViewRetrieval, NEW_DATA_VIEW_ID, useDataViews, useDeleteDataView } from '@/features/studio/dataViews/_dataViews';
-import { type DataViewConnection, resolveCurrentDataViewStepId } from './dataViewSummary';
+import { constructDataViewConnection, type DataViewConnection, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -108,7 +108,7 @@ const cardRowHeight = useCardRowHeight(true, true);
 
 // ── Data View Summary ─ The connector behind each data view, keyed by data view id; undefined until a connection is
 // chosen.
-const dataViewConnectionsById = computed(() => new Map(dataViewLocalisedConfigs.value.map((config) => [config.id, constructDataViewConnection(config)])));
+const dataViewConnectionsById = computed(() => new Map(dataViewLocalisedConfigs.value.map((config) => [config.id, findDataViewConnection(config)])));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -144,11 +144,12 @@ function handleAddDataView(): void {
     void ignoreReportedNavigationFailure(router.push({ name: 'connection', params: { dataViewId: NEW_DATA_VIEW_ID }, query: route.query }));
 }
 
-// TODO: On a narrow screen, coming back to the list leaves the data view's card selected with its detail closed. A tap
-// on that card then deselects it rather than opening its detail, so reaching 'Open' takes two taps. A tap on the
-// selected card should open its detail while it is closed.
-function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
-    updateDataViewIdParameter(selectedDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id ? undefined : dataViewLocalisedConfig.id);
+// A card stays selected when tapped again, as in a select. On a narrow screen, coming back to the list hides the
+// selected card's detail, so the tap opens it again. Beside the list the detail is already showing, so the tap changes
+// nothing.
+function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>, openDetail: () => void): void {
+    if (selectedDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id) openDetail();
+    else updateDataViewIdParameter(dataViewLocalisedConfig.id);
 }
 
 // Opens the data view at the last task it has finished, or at Explore Data once every other task is done.
@@ -186,23 +187,9 @@ function handleFilterByCategory(): void {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function constructDataViewConnection(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): DataViewConnection | undefined {
+function findDataViewConnection(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): DataViewConnection | undefined {
     const connectionLocalisedConfig = findConnectionLocalisedConfig(dataViewLocalisedConfig.connectionId);
-    if (!connectionLocalisedConfig) return undefined;
-    const { connectorConfig } = connectionLocalisedConfig;
-    const itemTypeId = connectorConfig.itemTypeId as ConnectorItemTypeId | undefined; // Missing from a connector released before the field existed.
-    return {
-        categoryLabel: constructConnectorCategoryConfig(connectorConfig.categoryId, localeId.value).label,
-        connectorId: connectorConfig.id,
-        connectorLabel: localiseConfig(connectorConfig, localeId.value).label,
-        icon: connectionLocalisedConfig.icon,
-        iconDark: connectionLocalisedConfig.iconDark,
-        itemTypeId,
-        itemTypeLabel: itemTypeId ? constructConnectorItemTypeConfig(itemTypeId, localeId.value).label : undefined,
-        label: connectionLocalisedConfig.label,
-        status: connectorConfig.statusId ? getComponentStatus(connectorConfig.statusId, localeId.value) : undefined,
-        version: connectorConfig.version
-    };
+    return connectionLocalisedConfig ? constructDataViewConnection(connectionLocalisedConfig, localeId.value) : undefined;
 }
 
 // An explicit 'name' is needed even though this stays on the same route. Without it, an absent 'dataViewId' keeps the
@@ -256,13 +243,16 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                 </div>
             </template>
 
-            <template #item="{ item }">
+            <template #item="{ isSplit, item, openDetail }">
+                <!-- 'is-inert' ─ Beside the list, the selected card's detail is already showing, so a click on it does
+                     nothing and the card does not look clickable. -->
                 <DataViewCard
                     :data-view-connection="dataViewConnectionsById.get(item.id)"
                     :data-view-localised-config="item"
+                    :is-inert="isSplit && item.id === selectedDataViewLocalisedConfig?.id"
                     :selected="item.id === selectedDataViewLocalisedConfig?.id"
                     @category-click="handleFilterByCategory"
-                    @click="handleSelectDataView(item)"
+                    @click="handleSelectDataView(item, openDetail)"
                     @open="handleOpenDataView(item)"
                 />
             </template>
@@ -284,7 +274,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
             <template #no-items>
                 <EmptyPlaceholder
                     :message-item-label="t(TEXT, 'dataView.other.text')"
-                    :description-item-label="t(TEXT, 'dataView.one.text')"
+                    :description-item-label="t(TEXT, 'dataView.new.text')"
                     :action-item-label="t(TEXT, 'dataView.label')"
                     @add="handleAddDataView"
                 />

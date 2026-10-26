@@ -47,8 +47,8 @@ const actions = computed((): Action<DataViewConfig>[] => [
 </script>
 
 <template>
-    <!-- '@click', '@category-click' and 'selected' reach 'ConfigCard' by attribute fallthrough, so this must stay
-         single-root. -->
+    <!-- '@click', '@category-click', 'selected' and 'is-inert' reach 'ConfigCard' by attribute fallthrough, so this must
+         stay single-root. -->
     <ConfigCard :actions="actions" :category-label="dataViewConnection?.categoryLabel" :config="dataViewLocalisedConfig" hides-icon>
         <template #details>
             <DataViewSource

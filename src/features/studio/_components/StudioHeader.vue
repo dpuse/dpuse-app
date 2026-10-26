@@ -9,7 +9,12 @@ import { viewportIsWide } from '@/state/device';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { overline, title, to } = defineProps<{ overline?: string; title: string; to?: RouteLocationRaw }>();
+const { overline, title, titleIsPending, to } = defineProps<{
+    overline?: string;
+    title: string;
+    titleIsPending?: boolean; // The title is a placeholder, such as 'Loading…', until what it names has loaded.
+    to?: RouteLocationRaw;
+}>();
 </script>
 
 <template>
@@ -28,8 +33,11 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
         <component
             :is="to ? 'RouterLink' : 'div'"
             v-if="overline"
-            class="-mt-1.5 flex min-h-6 w-fit max-w-full min-w-0 items-end text-sm leading-tight text-muted"
-            :class="{ 'mx-auto': !viewportIsWide, 'hover:text-blue-500': to }"
+            class="-mt-1.5 flex min-h-6 w-fit max-w-full min-w-0 items-end text-sm leading-tight"
+            :class="[
+                { 'mx-auto': !viewportIsWide },
+                to ? 'text-accent hover:text-accent-hover hover:underline hover:decoration-accent-hover/40 hover:underline-offset-2' : 'text-muted'
+            ]"
             :to="to"
         >
             <!-- The arrow and text are centred on each other inside the bottom-aligned link. 'text-box' trims the font's
@@ -43,7 +51,15 @@ const { overline, title, to } = defineProps<{ overline?: string; title: string; 
             </span>
         </component>
 
-        <!-- Title -->
-        <h1 class="ml-0.5 truncate leading-snug text-content" :class="{ 'text-center': !viewportIsWide }">{{ title }}</h1>
+        <!-- Title ─ A placeholder title is for screen readers only, so it never flashes on screen during a short load.
+             The real title fades in when it replaces the placeholder. A title already known on first render just shows,
+             because 'Transition' does not run on first render. The heading keeps one line's height while the title is
+             blank, so the overline does not move as the title arrives. -->
+        <h1 class="ml-0.5 min-h-lh truncate leading-snug text-content" :class="{ 'text-center': !viewportIsWide }">
+            <Transition enter-active-class="dpuse-action-fade-enter-active" enter-from-class="dpuse-action-fade-enter-from">
+                <span v-if="titleIsPending" class="sr-only">{{ title }}</span>
+                <span v-else>{{ title }}</span>
+            </Transition>
+        </h1>
     </header>
 </template>

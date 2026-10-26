@@ -1,6 +1,37 @@
 {
     "TEXT": {
+        "account.label": { "en": "DPUse account", "es": "Cuenta de DPUse" },
+        "account.needed.text": { "en": "Needed", "es": "Necesaria" },
+        "account.notNeeded.text": { "en": "Not needed", "es": "No es necesaria" },
+        "action.abortOperation.label": { "en": "Abort operation", "es": "Cancelar operación" },
+        "action.auditObjectContent.label": { "en": "Audit content", "es": "Auditar contenido" },
+        "action.createObject.label": { "en": "Create object", "es": "Crear objeto" },
+        "action.describeConnection.label": { "en": "Describe connection", "es": "Describir conexión" },
+        "action.dropObject.label": { "en": "Drop object", "es": "Eliminar objeto" },
+        "action.findObject.label": { "en": "Find object", "es": "Buscar objeto" },
+        "action.getInfo.label": { "en": "Get information", "es": "Obtener información" },
+        "action.getReadableStream.label": { "en": "Stream content", "es": "Transmitir contenido" },
+        "action.getRecord.label": { "en": "Get record", "es": "Obtener registro" },
+        "action.listNodes.label": { "en": "List items", "es": "Listar elementos" },
+        "action.previewObject.label": { "en": "Preview", "es": "Vista previa" },
+        "action.removeRecords.label": { "en": "Remove records", "es": "Quitar registros" },
+        "action.retrieveChunks.label": { "en": "Retrieve chunks", "es": "Recuperar fragmentos" },
+        "action.retrieveRecords.label": { "en": "Retrieve records", "es": "Recuperar registros" },
+        "action.upsertRecords.label": { "en": "Insert or update records", "es": "Insertar o actualizar registros" },
+        "actions.none.text": { "en": "This connector lists no actions.", "es": "Este conector no indica ninguna acción." },
+        "actions.title": { "en": "Actions", "es": "Acciones" },
         "authentication.title": { "en": "Authentication", "es": "Autenticación" },
-        "connections.title": { "en": "Connections", "es": "Conexiones" }
+        "category.label": { "en": "Category", "es": "Categoría" },
+        "connectionLimit.label": { "en": "Connections allowed", "es": "Conexiones permitidas" },
+        "connectionLimit.none.text": { "en": "Unlimited", "es": "Ilimitadas" },
+        "connections.none.text": { "en": "No connections use this connector yet.", "es": "Todavía ninguna conexión usa este conector." },
+        "connections.title": { "en": "Connections", "es": "Conexiones" },
+        "implementation.label": { "en": "Implementation", "es": "Implementación" },
+        "itemType.label": { "en": "Item type", "es": "Tipo de elemento" },
+        "signIn.apiKey.text": { "en": "API key", "es": "Clave de API" },
+        "signIn.label": { "en": "Sign-in", "es": "Inicio de sesión" },
+        "signIn.none.text": { "en": "Not needed", "es": "No es necesario" },
+        "signIn.oAuth2.text": { "en": "OAuth 2.0", "es": "OAuth 2.0" },
+        "usage.label": { "en": "Usage", "es": "Uso" }
     }
 }

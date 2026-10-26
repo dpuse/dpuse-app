@@ -20,6 +20,7 @@ import { useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dat
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
+import ConnectorDetails from './ConnectorDetails.vue';
 import DataViewSource from './DataViewSource.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
@@ -28,7 +29,6 @@ import ScrollRegion from '@/components/ui/scroll/ScrollRegion.vue';
 import StudioDetailLayout from '@/features/studio/_components/StudioDetailLayout.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
-import Tag from '@/components/ui/Tag.vue';
 
 // ── Dynamic Components
 const StudioDescriptorsPanel = defineLazyComponent(() => import('@/features/studio/_components/StudioDescriptorsPanel.vue'), 'StudioDescriptorsPanel');
@@ -301,25 +301,18 @@ function formatDateTime(timestamp: number): string {
                      section not reached yet keeps its heading and says so in one line, so the document's shape never
                      changes. -->
                 <!-- Laid out as the item section is. The name and the connector are both shown, because one connector
-                     can have several connections ('Dropbox', 'Dropbox (2)'). Status keeps its tag, because it is a
-                     caution. A line under every row, the last one included, shows where a value that wraps ends. The
-                     label column has a fixed width, so the values line up across both lists. A longer label wraps. -->
+                     can have several connections ('Dropbox', 'Dropbox (2)'). A line under every row shows where a value
+                     that wraps ends, except under the last row when nothing follows it in the section, because the next
+                     section's heading draws its own line. The label column is at least 7.5rem wide, so the values line up
+                     across both lists, and widens to fit a longer label rather than letting it run into its value. -->
                 <StudioDocumentSection :title="t(TEXT, 'connection.title')">
-                    <dl v-if="dataViewConnection" class="grid grid-cols-[7.5rem_1fr] text-sm *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
+                    <dl
+                        v-if="dataViewConnection"
+                        class="grid grid-cols-[minmax(7.5rem,max-content)_1fr] text-sm *:border-b *:border-separator *:py-1 [&:is(:last-child,:has(+section))>:nth-last-child(-n+2)]:border-b-0 [&>dt]:pr-4"
+                    >
                         <dt class="text-muted">{{ t(TEXT, 'connection.name.label') }}</dt>
                         <dd class="m-0 min-w-0 wrap-break-word">{{ dataViewConnection.label }}</dd>
-                        <dt class="text-muted">{{ t(TEXT, 'connection.connector.label') }}</dt>
-                        <!-- The connector with its version and, unless it is generally available, its status. General availability
-                             has no label, so shows no tag. -->
-                        <dd class="m-0 flex min-w-0 flex-wrap items-center gap-x-2">
-                            <RouterLink class="wrap-break-word" :to="{ name: 'connectors', params: { id: dataViewConnection.connectorId }, query: route.query }">{{
-                                dataViewConnection.connectorLabel
-                            }}</RouterLink>
-                            <span>{{ t(TEXT, 'connection.version.text', { version: dataViewConnection.version }) }}</span>
-                            <Tag v-if="dataViewConnection.status?.label" :color="dataViewConnection.status.color" :text="dataViewConnection.status.label" />
-                        </dd>
-                        <dt class="text-muted">{{ t(TEXT, 'connection.category.label') }}</dt>
-                        <dd class="m-0">{{ dataViewConnection.categoryLabel }}</dd>
+                        <ConnectorDetails :data-view-connection="dataViewConnection" />
                     </dl>
                     <p v-else class="text-muted">{{ t(TEXT, 'connection.unavailable.text') }}</p>
                     <!-- On the right, as every step link in the panel is. -->
@@ -329,7 +322,10 @@ function formatDateTime(timestamp: number): string {
                 </StudioDocumentSection>
 
                 <StudioDocumentSection :title="dataViewConnection?.itemTypeLabel ?? t(TEXT, 'item.title')">
-                    <dl v-if="dataViewLocalisedConfig.connectionNodeConfig" class="grid grid-cols-[7.5rem_1fr] text-sm *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
+                    <dl
+                        v-if="dataViewLocalisedConfig.connectionNodeConfig"
+                        class="grid grid-cols-[minmax(7.5rem,max-content)_1fr] text-sm *:border-b *:border-separator *:py-1 [&:is(:last-child,:has(+section))>:nth-last-child(-n+2)]:border-b-0 [&>dt]:pr-4"
+                    >
                         <dt class="text-muted">{{ t(TEXT, 'item.folder.label') }}</dt>
                         <dd class="m-0 min-w-0 wrap-break-word">{{ itemFolderPath }}</dd>
                         <dt class="text-muted">{{ t(TEXT, 'item.name.label') }}</dt>

@@ -17,9 +17,16 @@ import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 // whether it means yes or no. Escape means Cancel. On a small screen it is a sheet at the bottom, within reach of the
 // thumb and with the page still visible above it. From 'md' up it is a small box in the middle of the screen.
 //
-// For an action that cannot be undone, so the confirm button is always the destructive one. Opening and closing are the
-// caller's, which pairs with VueUse's 'useConfirmDialog': 'isRevealed' in, 'confirm' and 'cancel' out.
-const { confirmLabel, isOpen, message, title } = defineProps<{ confirmLabel: string; isOpen: boolean; message: string; title: string }>();
+// For an action that cannot be undone, so the confirm button is the destructive one, unless the action can be undone
+// and only needs care, such as hiding something that can be shown again. Opening and closing are the caller's, which
+// pairs with VueUse's 'useConfirmDialog': 'isRevealed' in, 'confirm' and 'cancel' out.
+const {
+    confirmLabel,
+    confirmVariant = 'destructive',
+    isOpen,
+    message,
+    title
+} = defineProps<{ confirmLabel: string; confirmVariant?: 'destructive' | 'guarded'; isOpen: boolean; message: string; title: string }>();
 const emit = defineEmits<{ cancel: []; confirm: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -59,11 +66,11 @@ function handleConfirm(): void {
         <DialogHeader :id="`${idPrefix}-title`" class="flex-none" :title="title" />
         <p :id="`${idPrefix}-message`" class="p-4">{{ message }}</p>
 
-        <!-- Cancel comes first so it, not the destructive button, takes focus when the dialog opens. The bottom padding
+        <!-- Cancel comes first so it, not the confirm button, takes focus when the dialog opens. The bottom padding
              clears the home indicator on phones, where the sheet sits against the bottom edge. -->
         <div class="flex justify-end gap-x-2 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:pb-4">
             <RectangleButton @click="handleCancel">{{ t(TEXT, 'cancel.label') }}</RectangleButton>
-            <RectangleButton variant="destructive" @click="handleConfirm">{{ confirmLabel }}</RectangleButton>
+            <RectangleButton :variant="confirmVariant" @click="handleConfirm">{{ confirmLabel }}</RectangleButton>
         </div>
     </DialogBase>
 </template>

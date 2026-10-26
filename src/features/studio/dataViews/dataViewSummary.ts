@@ -1,8 +1,9 @@
 // What a data view's list card and detail panel both show: its progress through the steps and the connection behind it.
-// Held in one place so the card, the panel and the open action always agree.
+// Held in one place so the card, the panel, the connection's own panel and the open action always agree.
 
 // ── DPUse Framework
-import type { ConnectionNodeConfig, ConnectorItemTypeId, DataViewConfig, getComponentStatus } from '@dpuse/dpuse-shared';
+import type { ConnectionConfig, ConnectionNodeConfig, ConnectorItemTypeId, DataViewConfig, LocaleId, LocalisedConfig } from '@dpuse/dpuse-shared';
+import { constructConnectorCategoryConfig, constructConnectorItemTypeConfig, getComponentStatus, localiseConfig } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -36,6 +37,23 @@ export interface DataViewConnection {
 export function constructItemPath(connectionNodeConfig: ConnectionNodeConfig): string {
     const extension = connectionNodeConfig.extension == null ? '' : `.${connectionNodeConfig.extension}`;
     return `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}${extension}`;
+}
+
+export function constructDataViewConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>, localeId: LocaleId): DataViewConnection {
+    const { connectorConfig } = connectionLocalisedConfig;
+    const itemTypeId = connectorConfig.itemTypeId as ConnectorItemTypeId | undefined; // Missing from a connector released before the field existed.
+    return {
+        categoryLabel: constructConnectorCategoryConfig(connectorConfig.categoryId, localeId).label,
+        connectorId: connectorConfig.id,
+        connectorLabel: localiseConfig(connectorConfig, localeId).label,
+        icon: connectionLocalisedConfig.icon,
+        iconDark: connectionLocalisedConfig.iconDark,
+        itemTypeId,
+        itemTypeLabel: itemTypeId ? constructConnectorItemTypeConfig(itemTypeId, localeId).label : undefined,
+        label: connectionLocalisedConfig.label,
+        status: connectorConfig.statusId ? getComponentStatus(connectorConfig.statusId, localeId) : undefined,
+        version: connectorConfig.version
+    };
 }
 
 // Exploring is left out: it never has to be finished, so it is never outstanding. The connection is always done, because

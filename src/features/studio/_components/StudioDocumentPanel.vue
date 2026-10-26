@@ -41,7 +41,15 @@ const headerMarginRight = computed(() => `${String(Math.max(36, actionsWidth.val
         <div class="relative">
             <ActionWrapper class="group block w-full min-w-0 cursor-pointer text-left" :class="{ 'pointer-events-none': panesAreSplit }" @click="$emit('close')">
                 <!-- Overline with optional back icon. -->
-                <div class="flex min-w-0 items-center gap-x-0.5 text-sm leading-tight text-muted group-hover:text-blue-500" :style="{ marginRight: headerMarginRight }">
+                <div
+                    class="flex min-w-0 items-center gap-x-0.5 text-sm leading-tight"
+                    :class="
+                        panesAreSplit
+                            ? 'text-muted'
+                            : 'text-accent group-hover:text-accent-hover group-hover:underline group-hover:decoration-accent-hover/40 group-hover:underline-offset-2'
+                    "
+                    :style="{ marginRight: headerMarginRight }"
+                >
                     <ArrowLeftIcon v-if="!panesAreSplit" class="size-4 flex-none" />
                     <span class="min-w-0 truncate">{{ overline }} </span>
                 </div>
