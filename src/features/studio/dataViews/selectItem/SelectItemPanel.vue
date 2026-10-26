@@ -284,7 +284,8 @@ const previewIssueItems = computed(() =>
         lineText: constructPreviewIssueLineText(issue),
         recordText: issue.recordNumber == null ? undefined : t(TEXT, 'issue.record.text', { record: formatCount(issue.recordNumber) }),
         text: constructPreviewIssueText(issue),
-        value: issue.value
+        value: issue.value,
+        valueName: constructPreviewIssueValueName(issue.value)
     }))
 );
 const previewIssueCountText = computed(() => {
@@ -867,6 +868,14 @@ function constructPreviewIssueLineText(issue: PreviewIssue): string | undefined 
     return t(TEXT, 'issue.lines.text', { end: formatCount(issue.endLineNumber), start: formatCount(issue.lineNumber) });
 }
 
+// A value of only spaces or tabs cannot be seen, so it is named instead.
+function constructPreviewIssueValueName(value: string | undefined): string | undefined {
+    if (value?.trim() !== '') return;
+    if (value === ' ') return t(TEXT, 'issue.value.space.text');
+    if (value === '\t') return t(TEXT, 'issue.value.tab.text');
+    return t(TEXT, 'issue.value.whitespace.text');
+}
+
 function formatCount(count: number): string {
     return formatNumberAsDecimalNumber(count, 0, 0, localeId.value);
 }
@@ -1126,7 +1135,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             ><span v-if="issueItem.recordText" class="mr-2 text-muted">{{ issueItem.recordText }}</span
                             ><span v-if="issueItem.fieldText" class="mr-2 text-muted">{{ issueItem.fieldText }}</span
                             >{{ issueItem.text }}
-                            <code v-if="issueItem.value != null" class="ml-1 rounded-sm bg-surface px-1 font-mono text-xs whitespace-pre-wrap">{{ issueItem.value }}</code>
+                            <span v-if="issueItem.valueName" class="ml-1 italic">{{ issueItem.valueName }}</span>
+                            <code v-else-if="issueItem.value != null" class="ml-1 rounded-sm bg-surface px-1 font-mono text-xs whitespace-pre-wrap">{{ issueItem.value }}</code>
                         </span>
                     </li>
                 </ul>
