@@ -28,6 +28,7 @@ import { configStatus, findConnectionLocalisedConfig } from '@/state/configs';
 import {
     constructMetaStoreListKey,
     constructMetaStoreRecordKey,
+    establishDataViewRecordStore,
     getMetaStoreRecord,
     removeMetaStoreRecord,
     retrieveMetaStoreRecords,
@@ -41,6 +42,7 @@ vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTrac
 vi.mock('@/services/metaStore', async (importOriginal) => ({
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
     ...(await importOriginal<typeof import('@/services/metaStore')>()),
+    establishDataViewRecordStore: vi.fn(),
     getMetaStoreRecord: vi.fn(),
     removeMetaStoreRecord: vi.fn(() => Promise.resolve(GUEST_META_STORE_ID)),
     retrieveMetaStoreRecords: vi.fn(),
@@ -248,6 +250,8 @@ describe('data views', () => {
             });
             vi.mocked(findConnectionLocalisedConfig).mockReturnValue(connectionConfig as never);
             vi.mocked(establishEngineWorker).mockResolvedValue({ processRequest } as never);
+            const recordStore = { connectionConfig: { id: 'meta-store' }, nodeId: 'a', storeId: GUEST_META_STORE_ID };
+            vi.mocked(establishDataViewRecordStore).mockResolvedValue(recordStore as never);
             const dataViewConfig = {
                 ...buildDataView('a', 'Sales'),
                 connectionId: 'connection-a',
@@ -267,11 +271,13 @@ describe('data views', () => {
                     hasHeaders: true,
                     parserId: 'dpuse-tool-adaltas-csv-parser',
                     path: '/reports/sales.csv',
+                    recordStore,
                     valueDelimiterId: ';'
                 },
                 expect.any(Function)
             );
             expect(onProgress).toHaveBeenCalledWith(2);
+            expect(establishDataViewRecordStore).toHaveBeenCalledWith('a'); // The data view's own table.
         });
     });
 

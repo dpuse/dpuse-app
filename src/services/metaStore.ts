@@ -19,6 +19,7 @@ import type {
     FindObjectResult,
     GetRecordOptions,
     GetRecordResult,
+    RecordStoreConfig,
     RemoveRecordsOptions,
     RetrieveRecordsOptions,
     UpsertRecordsOptions
@@ -158,6 +159,13 @@ export async function removeAccountMetaStoreRecords(): Promise<void> {
     if (accountMetaStoreId === GUEST_META_STORE_ID) return;
 
     for (const nodeId of META_STORE_NODE_IDS) await removeStoreRecords(accountMetaStoreId, nodeId, []); // No keys removes every record.
+}
+
+// ── Data View Records ─ An audit stores a data view's records in a table of the current meta store, named by the data
+// view's id. The engine writes the table through the meta store connector while the audit reads the item.
+export async function establishDataViewRecordStore(dataViewId: string): Promise<RecordStoreConfig> {
+    const connectionConfig = assertDefined(metaStoreConnectionConfig.value, 'No meta store connection configuration.');
+    return { connectionConfig, nodeId: dataViewId, storeId: await establishCurrentMetaStoreId() };
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

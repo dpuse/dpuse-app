@@ -15,7 +15,9 @@
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <!-- TODO: iOS 27 blurs the top of an installed app, and neither this setting nor a fixed strip at the top removes
-             it. Watch WebKit bug 325807 (https://bugs.webkit.org/show_bug.cgi?id=325807, rdar://189415153) for a fix. -->
+             it. Watch WebKit bug 325807 (https://bugs.webkit.org/show_bug.cgi?id=325807, rdar://189415153) for a fix.
+             Still present in iOS 27.2. The bug was still open and unassigned on 27 October 2026. A sticky rather than
+             fixed header is reported to avoid the blur, but is untested here. -->
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="DPUse" />
 
