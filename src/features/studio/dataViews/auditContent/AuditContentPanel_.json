@@ -1,5 +1,23 @@
 {
     "TEXT": {
+        "audit.again.label": { "en": "Audit again", "es": "Auditar de nuevo" },
+        "audit.pending.text": { "en": "Auditing… {count} records so far", "es": "Auditando… {count} registros hasta ahora" },
+        "column.dataType.label": { "en": "Data type", "es": "Tipo de dato" },
+        "column.label": { "en": "Name", "es": "Nombre" },
+        "column.voidValues.label": { "en": "Empty values", "es": "Valores vacíos" },
+        "columnTable.title": { "en": "Columns", "es": "Columnas" },
+        "dataType.boolean.label": { "en": "Boolean", "es": "Booleano" },
+        "dataType.numeric.label": { "en": "Number", "es": "Número" },
+        "dataType.string.label": { "en": "Text", "es": "Texto" },
+        "dataType.temporal.label": { "en": "Date and time", "es": "Fecha y hora" },
+        "dataType.unknown.label": { "en": "Unknown", "es": "Desconocido" },
+        "detail.asAt.label": { "en": "Audited", "es": "Auditado" },
+        "detail.commentLines.label": { "en": "Comment lines", "es": "Líneas de comentario" },
+        "detail.duration.label": { "en": "Duration", "es": "Duración" },
+        "detail.emptyLines.label": { "en": "Empty lines", "es": "Líneas vacías" },
+        "detail.lines.label": { "en": "Lines", "es": "Líneas" },
+        "detail.records.label": { "en": "Records", "es": "Registros" },
+        "detail.unevenRecords.label": { "en": "Uneven records", "es": "Registros irregulares" },
         "explore.label": { "en": "Explore", "es": "Explorar" }
     }
 }

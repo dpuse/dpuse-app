@@ -67,6 +67,7 @@
             "en": "The {format} format can't be used yet, so this file can't be selected.",
             "es": "El formato {format} todavía no se puede usar, así que este archivo no se puede seleccionar."
         },
+        "parser.label": { "en": "Parser", "es": "Analizador" },
         "preview.aria": { "en": "Amount previewed", "es": "Cantidad previsualizada" },
         "preview.entireItem.text": { "en": "Previewing entire file of {size}", "es": "Previsualizando el archivo completo de {size}" },
         "preview.partial.short.text": { "en": "{size} of {total} ({percentage}%)", "es": "{size} de {total} ({percentage} %)" },

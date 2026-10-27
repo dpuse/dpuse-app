@@ -4,13 +4,15 @@ import { useMutation, type UseMutationReturnType, useQuery, type UseQueryReturnT
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
-import type { DataViewConfig } from '@dpuse/dpuse-shared';
+import type { AuditObjectContentOptions, AuditObjectContentResult, ContentAuditConfig, DataViewConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
-import { configStatus } from '@/state/configs';
+import { constructItemPath } from './dataViewSummary';
+import { establishEngineWorker } from '@/services/engine';
 import { queryClient } from '@/services/queryClient';
 import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
+import { configStatus, findConnectionLocalisedConfig } from '@/state/configs';
 import {
     constructMetaStoreListKey,
     constructMetaStoreRecordKey,
@@ -116,6 +118,36 @@ export function constructNewDataViewConfig(connectionId: string): DataViewConfig
 // The data view id in the URL, or undefined while a data view is added and has no id yet.
 export function resolveDataViewIdParameter(dataViewIdParameter: unknown): string | undefined {
     return typeof dataViewIdParameter === 'string' && dataViewIdParameter !== NEW_DATA_VIEW_ID ? dataViewIdParameter : undefined;
+}
+
+// Reads the whole item the way its saved preview read it, so it can take minutes. 'onProgress' receives the number of
+// records audited so far.
+export async function auditDataViewContent(dataViewConfig: DataViewConfig, onProgress: (recordCount: number) => void): Promise<ContentAuditConfig> {
+    const connectionLocalisedConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
+    const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
+    const previewConfig = assertDefined(dataViewConfig.previewConfig, 'No preview for this data view.');
+    const options: Omit<AuditObjectContentOptions, 'supportsTransferableStreams'> = {
+        chunkSize: undefined,
+        dataFormatId: previewConfig.dataFormatId,
+        encodingId: assertDefined(previewConfig.encodingId, 'No encoding in the preview.'),
+        hasHeaders: previewConfig.hasHeaders === true,
+        parserId: previewConfig.parserId, // The tool that read the preview, so the audit reads the item the same way.
+        path: constructItemPath(connectionNodeConfig),
+        valueDelimiterId: assertDefined(previewConfig.valueDelimiterId, 'No value delimiter in the preview.')
+    }; // The engine adds 'supportsTransferableStreams', because only the worker can test for it.
+    const { processRequest } = await establishEngineWorker();
+    const { contentAuditConfig } = (await processRequest('auditObjectContent', connectionLocalisedConfig, options, (callbackData) => {
+        if (callbackData.typeId === 'progress') onProgress(Number(callbackData.properties.recordCount));
+    })) as AuditObjectContentResult;
+    return contentAuditConfig;
+}
+
+// A connector keeps one abort controller, so this stops whichever operation it started last.
+export async function abortDataViewContentAudit(connectionId: string): Promise<void> {
+    const connectionLocalisedConfig = findConnectionLocalisedConfig(connectionId);
+    if (connectionLocalisedConfig == null) return;
+    const { processRequest } = await establishEngineWorker();
+    await processRequest('abort', connectionLocalisedConfig, {});
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

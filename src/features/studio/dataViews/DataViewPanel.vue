@@ -427,9 +427,8 @@ function formatDateTime(timestamp: number): string {
                         </ScrollRegion>
                     </template>
                     <p v-else class="text-muted">{{ t(TEXT, `data.pending.${itemSubject}.text`) }}</p>
-                    <!-- Show All and Next Step ─ As in the item section: showing the rest of the table on the left, and the next
-                         step on the right. The next step follows the data view's progress: Explore Data once the audit is done.
-                         Until then the link goes to the item task, because only committing the item there starts an audit. -->
+                    <!-- Show All and Explore Data ─ As in the item section: showing the rest of the table on the left, and the
+                         next step on the right once the audit is done. -->
                     <div class="mt-2 grid grid-cols-[1fr_auto] items-start gap-x-4 px-3 text-sm">
                         <ActionWrapper
                             v-if="previewRows.length > COLLAPSED_TABLE_ROW_COUNT"
@@ -439,14 +438,12 @@ function formatDateTime(timestamp: number): string {
                         >
                             {{ dataTableIsExpanded ? t(TEXT, 'data.showFewer.label') : t(TEXT, 'data.showAll.label', { count: previewRows.length }) }}
                         </ActionWrapper>
-                        <template v-if="dataViewLocalisedConfig.connectionNodeConfig">
-                            <RouterLink v-if="dataViewLocalisedConfig.contentAuditConfig" class="col-start-2 justify-self-end text-right" :to="constructStepRoute('data')">{{
-                                t(TEXT, 'data.open.label')
-                            }}</RouterLink>
-                            <!-- TODO: Remove this link. The item section above already links to the item task, and the audit
-                                 section already says the item is not audited, so it adds nothing. -->
-                            <RouterLink v-else class="col-start-2 justify-self-end text-right" :to="constructStepRoute('item')">{{ t(TEXT, 'audit.open.label') }}</RouterLink>
-                        </template>
+                        <RouterLink
+                            v-if="dataViewLocalisedConfig.connectionNodeConfig && dataViewLocalisedConfig.contentAuditConfig"
+                            class="col-start-2 justify-self-end text-right"
+                            :to="constructStepRoute('data')"
+                            >{{ t(TEXT, 'data.open.label') }}</RouterLink
+                        >
                     </div>
                 </StudioDocumentSection>
 

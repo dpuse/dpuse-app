@@ -234,7 +234,14 @@ async function retrieveStoreRecords<T>(storeId: string, nodeId: MetaStoreNodeId)
     const { connectionConfig, nodePath } = await establishMetaStoreNode(storeId, nodeId);
     const { processRequest } = await establishEngineWorker();
     const records: T[] = [];
-    const retrieveRecordsOptions: RetrieveRecordsOptions = { encodingId: '', path: nodePath, valueDelimiterId: '', chunkSize: undefined }; // TODO: Implement paging.
+    const retrieveRecordsOptions: RetrieveRecordsOptions = {
+        dataFormatId: 'unknown',
+        encodingId: '',
+        parserId: undefined,
+        path: nodePath,
+        valueDelimiterId: '',
+        chunkSize: undefined
+    }; // TODO: Implement paging. A store holds records rather than a file, so no format or parser applies.
     await processRequest('retrieveRecords', connectionConfig, retrieveRecordsOptions, (data: EngineCallbackData) => {
         if (data.typeId === 'chunk') records.push(...(data.properties.records as T[]));
     });

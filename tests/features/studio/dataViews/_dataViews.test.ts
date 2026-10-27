@@ -8,11 +8,13 @@ import { mount, type VueWrapper } from '@vue/test-utils';
 import type { DataViewConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { configStatus } from '@/state/configs';
+import { establishEngineWorker } from '@/services/engine';
 import { queryClient } from '@/services/queryClient';
 import { sessionIsAuthenticated } from '@/state/session';
 import { settle } from '~/tests/support/settle';
 import {
+    abortDataViewContentAudit,
+    auditDataViewContent,
     cancelDataViewRetrieval,
     NEW_DATA_VIEW_ID,
     resolveDataViewIdParameter,
@@ -22,6 +24,7 @@ import {
     useDeleteDataView,
     useUpdateDataView
 } from '@/features/studio/dataViews/_dataViews';
+import { configStatus, findConnectionLocalisedConfig } from '@/state/configs';
 import {
     constructMetaStoreListKey,
     constructMetaStoreRecordKey,
@@ -42,6 +45,14 @@ vi.mock('@/services/metaStore', async (importOriginal) => ({
     removeMetaStoreRecord: vi.fn(() => Promise.resolve(GUEST_META_STORE_ID)),
     retrieveMetaStoreRecords: vi.fn(),
     upsertMetaStoreRecord: vi.fn(() => Promise.resolve(GUEST_META_STORE_ID))
+}));
+
+// The audit goes through the engine worker too. The connection is looked up by id, so only that lookup is replaced.
+vi.mock('@/services/engine', () => ({ establishEngineWorker: vi.fn() }));
+vi.mock('@/state/configs', async (importOriginal) => ({
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
+    ...(await importOriginal<typeof import('@/state/configs')>()),
+    findConnectionLocalisedConfig: vi.fn()
 }));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -224,6 +235,64 @@ describe('data views', () => {
             await mutateAsync('a');
 
             expect(cachedList()?.map((config) => config.id)).toStrictEqual(['a', 'b']);
+        });
+    });
+
+    describe('auditDataViewContent', () => {
+        it('audits the item the way its saved preview read it, passing on progress', async () => {
+            const connectionConfig = { id: 'connection-a' };
+            const contentAuditConfig = { recordCount: 2 };
+            const processRequest = vi.fn((_id: string, _config: unknown, _options: unknown, callback: (callbackData: unknown) => void) => {
+                callback({ typeId: 'progress', properties: { recordCount: 2 } });
+                return Promise.resolve({ contentAuditConfig });
+            });
+            vi.mocked(findConnectionLocalisedConfig).mockReturnValue(connectionConfig as never);
+            vi.mocked(establishEngineWorker).mockResolvedValue({ processRequest } as never);
+            const dataViewConfig = {
+                ...buildDataView('a', 'Sales'),
+                connectionId: 'connection-a',
+                connectionNodeConfig: { extension: 'csv', folderPath: '/reports', name: 'sales' },
+                previewConfig: { dataFormatId: 'dtv', encodingId: 'utf-8', hasHeaders: true, parserId: 'dpuse-tool-adaltas-csv-parser', valueDelimiterId: ';' }
+            } as DataViewConfig;
+            const onProgress = vi.fn();
+
+            expect(await auditDataViewContent(dataViewConfig, onProgress)).toBe(contentAuditConfig);
+            expect(processRequest).toHaveBeenCalledWith(
+                'auditObjectContent',
+                connectionConfig,
+                {
+                    chunkSize: undefined,
+                    dataFormatId: 'dtv',
+                    encodingId: 'utf-8',
+                    hasHeaders: true,
+                    parserId: 'dpuse-tool-adaltas-csv-parser',
+                    path: '/reports/sales.csv',
+                    valueDelimiterId: ';'
+                },
+                expect.any(Function)
+            );
+            expect(onProgress).toHaveBeenCalledWith(2);
+        });
+    });
+
+    describe('abortDataViewContentAudit', () => {
+        it('asks the engine to stop the connection’s operation', async () => {
+            const connectionConfig = { id: 'connection-a' };
+            const processRequest = vi.fn(() => Promise.resolve());
+            vi.mocked(findConnectionLocalisedConfig).mockReturnValue(connectionConfig as never);
+            vi.mocked(establishEngineWorker).mockResolvedValue({ processRequest } as never);
+
+            await abortDataViewContentAudit('connection-a');
+
+            expect(processRequest).toHaveBeenCalledWith('abort', connectionConfig, {});
+        });
+
+        it('does nothing for a connection that no longer exists', async () => {
+            vi.mocked(findConnectionLocalisedConfig).mockReturnValue(undefined);
+
+            await abortDataViewContentAudit('connection-gone');
+
+            expect(establishEngineWorker).not.toHaveBeenCalled();
         });
     });
 

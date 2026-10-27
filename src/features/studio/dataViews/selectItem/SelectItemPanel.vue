@@ -19,6 +19,7 @@ import {
     FolderIcon,
     InfoIcon,
     LanguagesIcon,
+    ScanTextIcon,
     SheetIcon,
     TextIcon,
     TriangleAlertIcon
@@ -28,7 +29,15 @@ import { onClickOutside, until } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError, DATA_FORMAT_ICON_CONFIGS, formatNumberAsDecimalNumber, formatNumberAsStorageSize, getEncodingTypeConfigs } from '@dpuse/dpuse-shared';
+import {
+    AppError,
+    DATA_FORMAT_ICON_CONFIGS,
+    formatNumberAsDecimalNumber,
+    formatNumberAsStorageSize,
+    getEncodingTypeConfigs,
+    listParserToolConfigs,
+    localiseConfigs
+} from '@dpuse/dpuse-shared';
 import type {
     ConnectionConfig,
     ConnectionNodeConfig,
@@ -50,12 +59,12 @@ import { assertDefined } from '@/utilities/index.ts';
 import { constructItemPath } from '../dataViewSummary';
 import type { DataSource } from '@/composables/useDataWindow';
 import { establishEngineWorker } from '@/services/engine';
-import { findConnectionLocalisedConfig } from '@/state/configs';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { renderMarkdown } from '@/services/useMarkedTool';
 import { TEXT } from './SelectItemPanel_.json';
 import { viewportIsWide } from '@/state/device';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
+import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
 import { localeId, t } from '@/state/locale';
 import { resolveDataViewIdParameter, useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
 
@@ -197,8 +206,10 @@ const pickedItemConfig = shallowRef<ConnectionNodeConfig>(); // The item the use
 // option still names what detection found.
 const selectedDataFormatId = ref<DataFormatId>();
 const selectedEncodingId = ref<string>();
+const selectedParserId = ref<string>(); // The config id of the tool chosen to read the item.
 const detectedDataFormatId = ref<DataFormatId>();
 const detectedEncodingId = ref<string>();
+const detectedParserId = ref<string>();
 const detectedEncodingIsAssumed = ref(false);
 
 // ── Preview Tabs ─ Tabs and their panel reference each other by id, which must be unique on the page. Below 'md' the
@@ -338,17 +349,36 @@ const encodingOptions = computed<SelectOption[]>(() => {
     return [constructAutoOption(detectedEncodingId.value, detectedEncodingIsAssumed.value), ...options];
 });
 
-// The value each select shows: the user's choice, or else what the preview detected. Choosing reads the item again.
+// The tools that read the previewed format. Auto names the one that read it. The select shows only when there is a
+// choice, because most formats have a single parser.
+const parserOptions = computed<SelectOption[]>(() => {
+    const dataFormatId = activePreviewConfig.value?.dataFormatId;
+    if (dataFormatId == null) return [];
+    const options: SelectOption[] = localiseConfigs(listParserToolConfigs(toolConfigs.value, dataFormatId), localeId.value).map(({ id, label }) => ({ id, label }));
+    const detectedLabel = options.find((option) => option.id === detectedParserId.value)?.label;
+    return [constructAutoOption(detectedLabel), ...options];
+});
+const parserIsChoosable = computed(() => parserOptions.value.length > 2); // Auto, and more than one parser.
+
+// The value each select shows: the user's choice, or else what the preview detected. Choosing reads the item again. A
+// new format clears the chosen parser, which may not read it.
 const previewDataFormatId = computed({
     get: () => selectedDataFormatId.value ?? AUTO_OPTION_ID,
     set: (dataFormatId: string) => {
         selectedDataFormatId.value = dataFormatId === AUTO_OPTION_ID ? undefined : (dataFormatId as DataFormatId); // The other options are all format ids.
+        selectedParserId.value = undefined;
     }
 });
 const previewEncodingId = computed({
     get: () => selectedEncodingId.value ?? AUTO_OPTION_ID,
     set: (encodingId: string) => {
         selectedEncodingId.value = encodingId === AUTO_OPTION_ID ? undefined : encodingId;
+    }
+});
+const previewParserId = computed({
+    get: () => selectedParserId.value ?? AUTO_OPTION_ID,
+    set: (parserId: string) => {
+        selectedParserId.value = parserId === AUTO_OPTION_ID ? undefined : parserId;
     }
 });
 
@@ -471,7 +501,7 @@ watch(
 // retry of the item, and a new selection or retry clears the item's last failure. A new read choice keeps the current
 // preview on show while the item is read again, so the toolbar, and the select the user is on, stay in place.
 watch(
-    [activeConnectionObjectConfig, itemAttempt, selectedDataFormatId, selectedEncodingId],
+    [activeConnectionObjectConfig, itemAttempt, selectedDataFormatId, selectedEncodingId, selectedParserId],
     async ([newActiveItem, newItemAttempt], oldValues) => {
         const currentRequestId = ++previewRequestId.value;
         itemFailure.value = undefined;
@@ -481,6 +511,7 @@ watch(
             resetPreviewState();
             detectedDataFormatId.value = undefined;
             detectedEncodingId.value = undefined;
+            detectedParserId.value = undefined;
         }
         if (newActiveItem == null) return;
 
@@ -495,6 +526,7 @@ watch(
                 encodingId: selectedEncodingId.value,
                 extension: undefined,
                 mimeType: newActiveItem.mimeType,
+                parserId: selectedParserId.value,
                 path: constructItemPath(newActiveItem)
             };
             const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewConfig;
@@ -651,15 +683,16 @@ async function handleCommitDetail(): Promise<void> {
     if (connectionNodeConfig == null || previewConfig == null || !previewIsSelectable.value || dataViewIsSaving.value || dataViewConfig.value == null) return;
 
     try {
+        const storablePreviewConfig: PreviewConfig = {
+            ...previewConfig,
+            dataFormatId: TABLE_DATA_FORMAT_IDS.has(previewConfig.dataFormatId) ? previewConfig.dataFormatId : 'dtv', // Markdown opened as a table was parsed as delimited text, so it is saved as that.
+            text: undefined
+        }; // All the parsed records are kept, so the data view panel shows the whole preview block, a few kilobytes at most. The raw text is the same block again, so it is not kept.
         const savedDataViewConfig = await updateDataView({
             ...dataViewConfig.value,
             connectionNodeConfig: constructStorableNodeConfig(connectionNodeConfig),
-            previewConfig: {
-                ...previewConfig,
-                dataFormatId: TABLE_DATA_FORMAT_IDS.has(previewConfig.dataFormatId) ? previewConfig.dataFormatId : 'dtv', // Markdown opened as a table was parsed as delimited text, so it is saved as that.
-                text: undefined
-            }, // All the parsed records are kept, so the data view panel shows the whole preview block, a few kilobytes at most. The raw text is the same block again, so it is not kept.
-            contentAuditConfig: undefined,
+            previewConfig: storablePreviewConfig,
+            contentAuditConfig: isSameAsSavedItem(dataViewConfig.value, connectionNodeConfig, storablePreviewConfig) ? dataViewConfig.value.contentAuditConfig : undefined, // A saved audit still describes the item, so the next step shows it rather than auditing again.
             relationshipsAuditConfig: undefined
         });
         emit('task-completed', taskLocalisedConfig);
@@ -684,6 +717,7 @@ function pickItem(connectionNodeConfig?: ConnectionNodeConfig): void {
     pickedItemConfig.value = connectionNodeConfig;
     selectedDataFormatId.value = undefined;
     selectedEncodingId.value = undefined;
+    selectedParserId.value = undefined;
     reportDraft(); // A new pick shows as no item until its preview shows it can be selected.
 }
 
@@ -737,6 +771,7 @@ function constructEncodingText(previewConfig: PreviewConfig): string | undefined
 // detection, so each is taken only while it was not chosen.
 function recordDetectedValues(previewConfig: PreviewConfig): void {
     if (selectedDataFormatId.value == null) detectedDataFormatId.value = previewConfig.dataFormatId;
+    if (selectedParserId.value == null) detectedParserId.value = previewConfig.parserId;
     if (selectedEncodingId.value != null) return;
     detectedEncodingId.value = previewConfig.encodingId;
     detectedEncodingIsAssumed.value = previewConfig.encodingConfidenceLevel == null;
@@ -809,6 +844,24 @@ function createPreviewTabElementId(previewTabId: PreviewTabId): string {
 // A file handle cannot be stored, and children are listed afresh.
 function constructStorableNodeConfig(connectionNodeConfig: ConnectionNodeConfig): ConnectionNodeConfig {
     return { ...connectionNodeConfig, childNodes: [], handle: undefined };
+}
+
+// Whether the item committed is the one saved, unchanged since, and read the same way, so its saved audit still applies.
+function isSameAsSavedItem(dataViewConfig: DataViewConfig, connectionNodeConfig: ConnectionNodeConfig, previewConfig: PreviewConfig): boolean {
+    const savedNodeConfig = dataViewConfig.connectionNodeConfig;
+    const savedPreviewConfig = dataViewConfig.previewConfig;
+    return (
+        savedNodeConfig != null &&
+        savedPreviewConfig != null &&
+        constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig) &&
+        savedNodeConfig.lastModifiedAt === connectionNodeConfig.lastModifiedAt &&
+        savedPreviewConfig.dataFormatId === previewConfig.dataFormatId &&
+        savedPreviewConfig.encodingId === previewConfig.encodingId &&
+        savedPreviewConfig.parserId === previewConfig.parserId &&
+        savedPreviewConfig.hasHeaders === previewConfig.hasHeaders &&
+        savedPreviewConfig.recordDelimiterId === previewConfig.recordDelimiterId &&
+        savedPreviewConfig.valueDelimiterId === previewConfig.valueDelimiterId
+    );
 }
 
 function resetPreviewState(): void {
@@ -986,8 +1039,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 </p>
                 <span v-else class="flex-1" />
 
-                <!-- Format and Encoding ─ Choosing either reads the item again that way. A binary file has no encoding to
-                     choose. -->
+                <!-- Format, Encoding and Parser ─ Choosing any of them reads the item again that way. A binary file has no
+                     encoding to choose, and the parser is offered only when more than one reads the format. -->
                 <SelectInput
                     v-if="previewFormatText"
                     v-model="previewDataFormatId"
@@ -1032,6 +1085,19 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     :options="encodingOptions"
                 >
                     <template #icon><LanguagesIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
+                </SelectInput>
+                <SelectInput
+                    v-if="parserIsChoosable"
+                    v-model="previewParserId"
+                    :is-default="selectedParserId == null"
+                    class="min-w-0"
+                    :disabled="previewIsPending"
+                    is-compact
+                    :label="t(TEXT, 'parser.label')"
+                    label-hidden
+                    :options="parserOptions"
+                >
+                    <template #icon><ScanTextIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
                 </SelectInput>
 
                 <!-- Preview Tabs ─ Icons rather than words, to leave the toolbar room. '-mr-1.5' centres the last icon 30px

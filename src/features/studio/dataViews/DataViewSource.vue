@@ -91,7 +91,17 @@ const itemPathParts = computed(() => {
             <template v-if="connectionNodeConfig && itemPathParts">
                 <ConfigIcon v-if="itemIconIsPresent" class="size-5" :icon="connectionNodeConfig.icon" :icon-dark="connectionNodeConfig.iconDark" />
                 <ConfigIcon v-else-if="itemFormatIconConfig" class="size-5" :icon="itemFormatIconConfig.icon" :icon-dark="itemFormatIconConfig.iconDark" />
-                <component :is="itemTypeIcon" v-else aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
+                <!-- A table or API endpoint has no format icon, so its kind's icon takes the DPUse green and stroke weight
+                     the delimited-text format icon uses. A file still to be previewed stays grey until its format icon
+                     replaces it. -->
+                <component
+                    :is="itemTypeIcon"
+                    v-else
+                    aria-hidden="true"
+                    class="size-5 flex-none"
+                    :class="{ 'text-[#488f86]': itemTypeId !== 'file' }"
+                    :stroke-width="itemTypeId === 'file' ? 1.5 : 1.75"
+                />
                 <!-- The folder path is cut first, down to its ellipsis, and the label only once it alone is too long. -->
                 <span class="flex min-w-0" :title="itemPathParts.path">
                     <span class="min-w-0 truncate">{{ itemPathParts.folderPath }}</span>

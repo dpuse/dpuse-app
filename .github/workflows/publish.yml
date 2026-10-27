@@ -77,9 +77,9 @@ jobs:
             # TODO: Run the end-to-end tests here again once the job no longer downloads Ubuntu packages. Run the job in
             # Playwright's Docker image ('mcr.microsoft.com/playwright'), which has Chromium and its packages built in: add
             # a 'container' to the job with the image tag Playwright's Docker docs give for the '@playwright/test' version,
-            # pinned by digest for OpenSSF Scorecard. Then copy back the 'Create localhost certificate' and 'Upload
-            # Playwright results' steps from 'ci.yml', and run 'npm test' in this step. No browser install step is needed,
-            # as the image already has the browsers.
+            # pinned by digest for OpenSSF Scorecard. Then add back the two steps kept in the TODO above the 'Test' step in
+            # 'ci.yml', and run 'npm test' in this step. No browser install step is needed, as the image already has the
+            # browsers.
             - name: Test
               run: |
                   export PATH="$PWD/node_modules/.bin:$PATH"

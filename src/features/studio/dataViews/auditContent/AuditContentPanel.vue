@@ -1,19 +1,45 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowRightIcon } from '@lucide/vue';
+import { ArrowRightIcon, RefreshCwIcon } from '@lucide/vue';
+import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import type { LocalisedConfig } from '@dpuse/dpuse-shared';
+import { AppError } from '@dpuse/dpuse-shared';
+import type { DataTypeId, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { ignoreReportedNavigationFailure } from '@/router';
-import { t } from '@/state/locale';
 import { TEXT } from './AuditContentPanel_.json';
+import { abortDataViewContentAudit, auditDataViewContent, resolveDataViewIdParameter, useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
+import { type AppFailure, raiseFailure } from '@/state/errors';
+import { localeId, t } from '@/state/locale';
 
 // ── Static Components
+import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
+import BusyBar from '@/components/ui/BusyBar.vue';
+import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
+import ScrollRegion from '@/components/ui/scroll/ScrollRegion.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
+
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+interface AuditDetail {
+    id: string;
+    labelKey: keyof typeof TEXT;
+    value: string | undefined; // Undefined when the parser used did not count it, and the detail is then left out.
+}
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const DATA_TYPE_LABEL_KEYS: Record<DataTypeId, keyof typeof TEXT> = {
+    boolean: 'dataType.boolean.label',
+    numeric: 'dataType.numeric.label',
+    string: 'dataType.string.label',
+    temporal: 'dataType.temporal.label',
+    unknown: 'dataType.unknown.label'
+};
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -26,33 +52,159 @@ const emit = defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConf
 const route = useRoute();
 const router = useRouter();
 
+// ── Data View
+const { data: dataViewConfig } = useDataView(() => resolveDataViewIdParameter(route.params.dataViewId));
+const { mutateAsync: updateDataView } = useUpdateDataView();
+
+// ── Audit
+const auditIsRunning = ref(false);
+const auditIsAbandoned = ref(false); // Set on leaving the panel, so the stopped audit is not reported as a failure.
+const auditedRecordCount = ref(0);
+const auditFailure = shallowRef<AppFailure>();
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const contentAuditConfig = computed(() => dataViewConfig.value?.contentAuditConfig);
+
+const auditDetails = computed((): AuditDetail[] => {
+    const auditConfig = contentAuditConfig.value;
+    if (auditConfig == null) return [];
+    const numberFormat = new Intl.NumberFormat(localeId.value);
+    const formatCount = (count: number | undefined): string | undefined => (count == null ? undefined : numberFormat.format(count));
+    const details: AuditDetail[] = [
+        { id: 'records', labelKey: 'detail.records.label', value: formatCount(auditConfig.recordCount) },
+        { id: 'lines', labelKey: 'detail.lines.label', value: formatCount(auditConfig.lineCount) },
+        { id: 'emptyLines', labelKey: 'detail.emptyLines.label', value: formatCount(auditConfig.emptyLineCount) },
+        { id: 'commentLines', labelKey: 'detail.commentLines.label', value: formatCount(auditConfig.commentLineCount) },
+        { id: 'unevenRecords', labelKey: 'detail.unevenRecords.label', value: formatCount(auditConfig.invalidFieldLengthCount) },
+        {
+            id: 'duration',
+            labelKey: 'detail.duration.label',
+            value: new Intl.NumberFormat(localeId.value, { style: 'unit', unit: 'second', maximumFractionDigits: 1 }).format(auditConfig.duration / 1000)
+        },
+        { id: 'asAt', labelKey: 'detail.asAt.label', value: new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(auditConfig.asAt) }
+    ];
+    return details.filter((detail) => detail.value != null);
+});
+
+const auditColumnRows = computed(() => {
+    const numberFormat = new Intl.NumberFormat(localeId.value);
+    return (contentAuditConfig.value?.columns ?? []).map((columnConfig, index) => ({
+        label: columnConfig.label[localeId.value] ?? columnConfig.label.en ?? String(index + 1),
+        dataTypeLabel: t(TEXT, DATA_TYPE_LABEL_KEYS[columnConfig.dataTypeId]),
+        voidValueText: columnConfig.voidValueCount == null ? '' : numberFormat.format(columnConfig.voidValueCount)
+    }));
+});
+
+const auditPendingText = computed(() => t(TEXT, 'audit.pending.text', { count: new Intl.NumberFormat(localeId.value).format(auditedRecordCount.value) }));
+
+// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// An item committed without a saved audit is audited as soon as it opens here. A saved audit is shown as it is, and
+// only 'Audit again' replaces it. A failed audit waits for the user to retry.
+watch(
+    () => dataViewConfig.value != null && dataViewConfig.value.contentAuditConfig == null,
+    (dataViewNeedsAudit) => {
+        if (dataViewNeedsAudit && !auditIsRunning.value && auditFailure.value == null) void auditContent();
+    },
+    { immediate: true }
+);
+
+// An audit reads the whole item, so leaving stops it rather than letting it run on unseen.
+onBeforeUnmount(() => {
+    if (!auditIsRunning.value || dataViewConfig.value == null) return;
+    auditIsAbandoned.value = true;
+    void abortDataViewContentAudit(dataViewConfig.value.connectionId).catch((error: unknown) => {
+        raiseFailure(new AppError('Failed to stop the audit.', 'dpuse-app.AuditContentPanel', { typeId: 'handled' }, { cause: error }));
+    });
+});
+
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-// TODO: Run the audit when an item is committed on Select Item, save its result as the data view's
-// 'contentAuditConfig', and show the saved audit's details here. This panel never starts an audit by itself. Add a
-// 'Redo audit' action for when the item's data may have changed since it was audited.
+function handleAuditAgain(): void {
+    void auditContent();
+}
+
 // TODO: Import the audited records into a DPUse store, so Explore Data can show them, before moving on.
 function handleCommitDetail(): void {
     emit('task-completed', taskLocalisedConfig);
     void ignoreReportedNavigationFailure(router.push({ name: 'data', query: route.query }));
 }
 
-// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// const startTime = performance.now();
-// // const response = await fetch('https://sample-data-eu.dpuse.app/fileStore/ENGAGEMENT_START_EVENTS_202405121858.csv');
-// const response = await fetch('https://sample-data-eu.dpuse.app/WDI_Data.csv');
-
-// const auditObjectContentSettings: AuditContentSettings = { encodingId: 'utf-8', path: '/WDI_Data.csv', valueDelimiterId: ',' };
-// const auditObjectContentResult = (await processRequest('auditObjectContent', testConnectionConfig!, auditObjectContentSettings)) as AuditContentResult;
-// const elapsedMs = performance.now() - startTime;
-// console.log('auditObjectContentResult', elapsedMs, auditObjectContentResult);
-
-// ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// The data view is saved with the audit as it was when the audit started, with any later save to it, such as a new
+// label, kept.
+async function auditContent(): Promise<void> {
+    const auditedDataViewConfig = dataViewConfig.value;
+    if (auditedDataViewConfig == null || auditIsRunning.value) return;
+    auditIsRunning.value = true;
+    auditedRecordCount.value = 0;
+    auditFailure.value = undefined;
+    try {
+        const newContentAuditConfig = await auditDataViewContent(auditedDataViewConfig, (recordCount) => {
+            auditedRecordCount.value = recordCount;
+        });
+        const latestDataViewConfig: DataViewConfig = dataViewConfig.value.id === auditedDataViewConfig.id ? dataViewConfig.value : auditedDataViewConfig;
+        await updateDataView({ ...latestDataViewConfig, contentAuditConfig: newContentAuditConfig });
+    } catch (error) {
+        if (auditIsAbandoned.value) return;
+        auditFailure.value = raiseFailure(new AppError('Failed to audit this item.', 'dpuse-app.AuditContentPanel.auditContent', { typeId: 'handled' }, { cause: error }));
+    } finally {
+        auditIsRunning.value = false;
+    }
+}
 </script>
 
 <template>
     <div class="relative flex min-h-0 flex-1 flex-col" data-region="AuditContentPanel">
-        <PillButton :icon="ArrowRightIcon" :label="t(TEXT, 'explore.label')" @click="handleCommitDetail" />
+        <BusyBar v-if="auditIsRunning" />
+
+        <ErrorNotice v-if="auditFailure" :failures="[auditFailure]" @retry="handleAuditAgain" />
+
+        <template v-else>
+            <!-- Toolbar ─ 'Audit again' is for an item whose data may have changed since it was audited. -->
+            <div class="flex h-9.25 flex-none items-center justify-end border-b border-separator px-page text-xs">
+                <ActionWrapper :disabled="auditIsRunning" class="inline-flex items-center gap-x-1 text-accent hover:underline disabled:text-muted" @click="handleAuditAgain">
+                    <RefreshCwIcon aria-hidden="true" class="size-4" :stroke-width="1.5" />
+                    {{ t(TEXT, 'audit.again.label') }}
+                </ActionWrapper>
+            </div>
+
+            <div class="min-h-0 flex-1 overflow-y-auto px-page py-4">
+                <!-- Announced as it changes, because the count is the only sign that a long audit is still going. -->
+                <p v-if="auditIsRunning" aria-live="polite" class="text-sm text-muted">{{ auditPendingText }}</p>
+
+                <template v-else-if="contentAuditConfig">
+                    <dl class="grid grid-cols-[minmax(7.5rem,max-content)_1fr] text-sm *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
+                        <template v-for="auditDetail in auditDetails" :key="auditDetail.id">
+                            <dt class="text-muted">{{ t(TEXT, auditDetail.labelKey) }}</dt>
+                            <dd class="m-0">{{ auditDetail.value }}</dd>
+                        </template>
+                    </dl>
+
+                    <ScrollRegion v-if="auditColumnRows.length > 0" v-slot="{ labelId }" class="mt-4" is-label-shown :label="t(TEXT, 'columnTable.title')">
+                        <table :aria-labelledby="labelId" class="text-sm whitespace-nowrap">
+                            <thead>
+                                <tr class="text-left">
+                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.label') }}</th>
+                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.dataType.label') }}</th>
+                                    <th class="py-1 font-normal text-muted">{{ t(TEXT, 'column.voidValues.label') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(columnRow, index) in auditColumnRows" :key="index">
+                                    <td class="py-1 pr-4">{{ columnRow.label }}</td>
+                                    <td class="py-1 pr-4">{{ columnRow.dataTypeLabel }}</td>
+                                    <td class="py-1">{{ columnRow.voidValueText }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </ScrollRegion>
+                </template>
+            </div>
+        </template>
+
+        <PillButton v-if="contentAuditConfig && !auditIsRunning" :icon="ArrowRightIcon" :label="t(TEXT, 'explore.label')" @click="handleCommitDetail" />
     </div>
 </template>
