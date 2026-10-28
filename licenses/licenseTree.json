@@ -1,5 +1,5 @@
 {
-  "version": "1.0.220",
+  "version": "1.0.221",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -188,7 +188,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261027.1"
+              "version": "5.20261028.1"
             },
             "blake3-wasm": {
               "version": "2.1.5"
@@ -225,8 +225,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261027.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261027.1.tgz",
+      "version": "5.20261028.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261028.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -235,7 +235,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.153"
+          "version": "1.0.155"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1383,8 +1383,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.153",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.153.tgz",
+      "version": "1.0.155",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.155.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1467,7 +1467,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.153"
+          "version": "1.0.155"
         },
         "@tanstack/charts": {
           "version": "1.0.0",
@@ -4335,8 +4335,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.62.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.62.0.tgz",
+      "version": "1.63.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.63.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -7666,7 +7666,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261027.1"
+          "version": "5.20261028.1"
         },
         "blake3-wasm": {
           "version": "2.1.5",

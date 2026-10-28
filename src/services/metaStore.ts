@@ -19,9 +19,11 @@ import type {
     FindObjectResult,
     GetRecordOptions,
     GetRecordResult,
+    RecordRange,
     RecordStoreConfig,
     RemoveRecordsOptions,
     RetrieveRecordsOptions,
+    RetrieveRecordsSummary,
     UpsertRecordsOptions
 } from '@dpuse/dpuse-shared';
 
@@ -166,6 +168,33 @@ export async function removeAccountMetaStoreRecords(): Promise<void> {
 export async function establishDataViewRecordStore(dataViewId: string): Promise<RecordStoreConfig> {
     const connectionConfig = assertDefined(metaStoreConnectionConfig.value, 'No meta store connection configuration.');
     return { connectionConfig, nodeId: dataViewId, storeId: await establishCurrentMetaStoreId() };
+}
+
+// The data view's stored records at a range of positions, with how many it holds in all. A data view not audited since
+// records were first stored has no table yet, so it holds none.
+export async function retrieveDataViewRecordRange(dataViewId: string, range: RecordRange): Promise<{ records: Record<string, unknown>[]; totalCount: number }> {
+    const { connectionConfig, nodeId, storeId } = await establishDataViewRecordStore(dataViewId);
+    const { processRequest } = await establishEngineWorker();
+    const findObjectOptions: FindObjectOptions = { nodeId, storeId };
+    const { path } = (await processRequest('findObject', connectionConfig, findObjectOptions)) as FindObjectResult;
+    if (path == null) return { records: [], totalCount: 0 };
+
+    const records: Record<string, unknown>[] = [];
+    let totalCount = 0;
+    const retrieveRecordsOptions: RetrieveRecordsOptions = {
+        chunkSize: undefined,
+        dataFormatId: 'unknown',
+        encodingId: '',
+        parserId: undefined,
+        path,
+        range,
+        valueDelimiterId: ''
+    }; // A store holds records rather than a file, so no format or parser applies.
+    await processRequest('retrieveRecords', connectionConfig, retrieveRecordsOptions, (data: EngineCallbackData) => {
+        if (data.typeId === 'chunk') records.push(...(data.properties.records as Record<string, unknown>[]));
+        else if (data.typeId === 'complete') totalCount = (data.properties.summary as RetrieveRecordsSummary).totalCount ?? records.length;
+    });
+    return { records, totalCount };
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

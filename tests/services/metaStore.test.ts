@@ -2,8 +2,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 // ── Local Framework
+import { establishEngineWorker } from '@/services/engine';
 import { accountId, sessionIsAuthenticated } from '@/state/session';
-import { constructMetaStoreListKey, constructMetaStoreRecordKey, establishDataViewRecordStore } from '@/services/metaStore';
+import { constructMetaStoreListKey, constructMetaStoreRecordKey, establishDataViewRecordStore, retrieveDataViewRecordRange } from '@/services/metaStore';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -14,6 +15,9 @@ vi.mock('@/state/configs', async (importOriginal) => {
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
     return { ...(await importOriginal<typeof import('@/state/configs')>()), metaStoreConnectionConfig: ref({ id: 'meta-store' }) };
 });
+
+// The meta store is reached through the engine worker, which jsdom cannot run.
+vi.mock('@/services/engine', () => ({ establishEngineWorker: vi.fn() }));
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -43,5 +47,35 @@ describe('establishDataViewRecordStore', () => {
         sessionIsAuthenticated.value = true;
 
         expect(await establishDataViewRecordStore('dataView1')).toMatchObject({ nodeId: 'dataView1', storeId: 'dpuMetaStore-account1' });
+    });
+});
+
+describe('retrieveDataViewRecordRange', () => {
+    it("reads the range from the data view's table, with the table's total", async () => {
+        sessionIsAuthenticated.value = false;
+        const processRequest = vi.fn((action: string, _config: unknown, _options: unknown, callback?: (data: unknown) => void) => {
+            if (action === 'findObject') return Promise.resolve({ path: '/dpuMetaStore/dataView1' });
+            callback?.({ typeId: 'chunk', properties: { records: [{ c1: 1 }, { c1: 2 }] } });
+            callback?.({ typeId: 'complete', properties: { summary: { recordCount: 2, totalCount: 250 } } });
+            return Promise.resolve();
+        });
+        vi.mocked(establishEngineWorker).mockResolvedValue({ processRequest } as never);
+
+        expect(await retrieveDataViewRecordRange('dataView1', { limit: 2, offset: 100 })).toEqual({ records: [{ c1: 1 }, { c1: 2 }], totalCount: 250 });
+        expect(processRequest).toHaveBeenCalledWith(
+            'retrieveRecords',
+            META_STORE_CONNECTION_CONFIG,
+            expect.objectContaining({ path: '/dpuMetaStore/dataView1', range: { limit: 2, offset: 100 } }),
+            expect.any(Function)
+        );
+    });
+
+    it('returns no records for a data view whose table does not exist yet', async () => {
+        sessionIsAuthenticated.value = false;
+        const processRequest = vi.fn(() => Promise.resolve({ path: undefined }));
+        vi.mocked(establishEngineWorker).mockResolvedValue({ processRequest } as never);
+
+        expect(await retrieveDataViewRecordRange('dataView1', { limit: 100, offset: 0 })).toEqual({ records: [], totalCount: 0 });
+        expect(processRequest).toHaveBeenCalledOnce(); // Only the look for the table.
     });
 });
