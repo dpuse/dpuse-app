@@ -16,7 +16,6 @@ import { configStatus, findConnectionLocalisedConfig } from '@/state/configs';
 import {
     constructMetaStoreListKey,
     constructMetaStoreRecordKey,
-    establishDataViewRecordStore,
     getMetaStoreRecord,
     metaStoreId,
     removeMetaStoreRecord,
@@ -122,7 +121,7 @@ export function resolveDataViewIdParameter(dataViewIdParameter: unknown): string
 }
 
 // Reads the whole item the way its saved preview read it, so it can take minutes. 'onProgress' receives the number of
-// records audited so far. The records are stored in the meta store as they are read, replacing any an earlier audit stored.
+// records audited so far. Nothing is stored: the result describes each column, ready for loading the records later.
 export async function auditDataViewContent(dataViewConfig: DataViewConfig, onProgress: (recordCount: number) => void): Promise<ContentAuditConfig> {
     const connectionLocalisedConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
     const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
@@ -134,7 +133,6 @@ export async function auditDataViewContent(dataViewConfig: DataViewConfig, onPro
         hasHeaders: previewConfig.hasHeaders === true,
         parserId: previewConfig.parserId, // The tool that read the preview, so the audit reads the item the same way.
         path: constructItemPath(connectionNodeConfig),
-        recordStore: await establishDataViewRecordStore(dataViewConfig.id),
         valueDelimiterId: assertDefined(previewConfig.valueDelimiterId, 'No value delimiter in the preview.')
     }; // The engine adds 'supportsTransferableStreams', because only the worker can test for it.
     const { processRequest } = await establishEngineWorker();
