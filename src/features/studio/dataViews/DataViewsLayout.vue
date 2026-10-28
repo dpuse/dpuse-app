@@ -8,10 +8,10 @@ import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 import { localiseConfig, localiseConfigs } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { metaStoreId } from '@/services/metaStore';
 import { sessionIsAuthenticated } from '@/state/session';
 import { useQueryFailure } from '@/services/queryClient';
 import { useUnsavedWork } from '@/state/unsavedWork';
+import { workspaceStoreId } from '@/services/workspaceStore';
 import { accountConfigStatus, configStatus, connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
 import { constructItemPath, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
@@ -185,8 +185,8 @@ watch(
 
 // Signing in or out moves to another account's store, where the open or selected data view does not exist, so go back
 // to the list with nothing selected. The first store chosen after the session check is not a move.
-watch(metaStoreId, (_newMetaStoreId, oldMetaStoreId) => {
-    if (oldMetaStoreId == null || (route.name === 'dataViews' && route.params.dataViewId === '')) return;
+watch(workspaceStoreId, (_newWorkspaceStoreId, oldWorkspaceStoreId) => {
+    if (oldWorkspaceStoreId == null || (route.name === 'dataViews' && route.params.dataViewId === '')) return;
 
     void ignoreReportedNavigationFailure(router.replace({ name: 'dataViews', params: { dataViewId: undefined }, query: route.query }));
 });

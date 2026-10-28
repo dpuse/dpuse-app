@@ -9,6 +9,7 @@ import type { DataViewConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { establishEngineWorker } from '@/services/engine';
+import { findConnectionLocalisedConfig } from '@/state/configs';
 import { queryClient } from '@/services/queryClient';
 import { sessionIsAuthenticated } from '@/state/session';
 import { settle } from '~/tests/support/settle';
@@ -24,27 +25,26 @@ import {
     useDeleteDataView,
     useUpdateDataView
 } from '@/features/studio/dataViews/_dataViews';
-import { configStatus, findConnectionLocalisedConfig } from '@/state/configs';
 import {
-    constructMetaStoreListKey,
-    constructMetaStoreRecordKey,
-    getMetaStoreRecord,
-    removeMetaStoreRecord,
-    retrieveMetaStoreRecords,
-    upsertMetaStoreRecord
-} from '@/services/metaStore';
+    constructWorkspaceStoreListKey,
+    constructWorkspaceStoreRecordKey,
+    getWorkspaceStoreRecord,
+    removeWorkspaceStoreRecord,
+    retrieveWorkspaceStoreRecords,
+    upsertWorkspaceStoreRecord
+} from '@/services/workspaceStore';
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
 
-// The meta store goes through the engine worker, which jsdom cannot run. Its query keys stay real, so the cache entries
-// asserted on are the ones the app uses.
-vi.mock('@/services/metaStore', async (importOriginal) => ({
+// The workspace store has its own tests, so its reads and writes are replaced here. Its query keys stay real, so the
+// cache entries asserted on are the ones the app uses.
+vi.mock('@/services/workspaceStore', async (importOriginal) => ({
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
-    ...(await importOriginal<typeof import('@/services/metaStore')>()),
-    getMetaStoreRecord: vi.fn(),
-    removeMetaStoreRecord: vi.fn(() => Promise.resolve(GUEST_META_STORE_ID)),
-    retrieveMetaStoreRecords: vi.fn(),
-    upsertMetaStoreRecord: vi.fn(() => Promise.resolve(GUEST_META_STORE_ID))
+    ...(await importOriginal<typeof import('@/services/workspaceStore')>()),
+    getWorkspaceStoreRecord: vi.fn(),
+    removeWorkspaceStoreRecord: vi.fn(() => Promise.resolve(GUEST_WORKSPACE_STORE_ID)),
+    retrieveWorkspaceStoreRecords: vi.fn(),
+    upsertWorkspaceStoreRecord: vi.fn(() => Promise.resolve(GUEST_WORKSPACE_STORE_ID))
 }));
 
 // The audit goes through the engine worker too. The connection is looked up by id, so only that lookup is replaced.
@@ -57,9 +57,9 @@ vi.mock('@/state/configs', async (importOriginal) => ({
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const GUEST_META_STORE_ID = 'dpuMetaStore'; // The store in use while signed out, which every test is.
-const LIST_KEY = constructMetaStoreListKey('dataViews');
-const PREVIOUS_META_STORE_ID = 'dpuMetaStore-previous'; // Stands for the store of a user who signed out while a change was under way.
+const GUEST_WORKSPACE_STORE_ID = 'dpuWorkspaceStore'; // The store in use while signed out, which every test is.
+const LIST_KEY = constructWorkspaceStoreListKey('dataViews');
+const PREVIOUS_WORKSPACE_STORE_ID = 'dpuWorkspaceStore-previous'; // Stands for the store of a user who signed out while a change was under way.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -100,9 +100,8 @@ async function runInComponent<T>(useHooks: () => T): Promise<T> {
 
 describe('data views', () => {
     beforeEach(() => {
-        configStatus.value = { typeId: 'ready' };
         sessionIsAuthenticated.value = false;
-        vi.mocked(retrieveMetaStoreRecords).mockResolvedValue([buildDataView('a', 'Sales'), buildDataView('b', 'Stock')]);
+        vi.mocked(retrieveWorkspaceStoreRecords).mockResolvedValue([buildDataView('a', 'Sales'), buildDataView('b', 'Stock')]);
     });
 
     afterEach(() => {
@@ -113,23 +112,15 @@ describe('data views', () => {
     });
 
     describe('useDataViews', () => {
-        it('reads the list once the configuration is ready, adding the icon to each', async () => {
+        it('reads the list, adding the icon to each', async () => {
             const { data } = await runInComponent(() => useDataViews());
 
             expect(data.value?.map((config) => config.id)).toStrictEqual(['a', 'b']);
             expect(data.value?.every((config) => config.icon != null)).toBe(true);
         });
 
-        it('waits rather than fails while the configuration is pending', async () => {
-            configStatus.value = { typeId: 'pending' };
-            const { data } = await runInComponent(() => useDataViews());
-
-            expect(data.value).toBeUndefined();
-            expect(retrieveMetaStoreRecords).not.toHaveBeenCalled();
-        });
-
         it('names the failure in the user’s terms when the store cannot be read', async () => {
-            vi.mocked(retrieveMetaStoreRecords).mockRejectedValueOnce(new Error('Worker gone.'));
+            vi.mocked(retrieveWorkspaceStoreRecords).mockRejectedValueOnce(new Error('Worker gone.'));
             const { error } = await runInComponent(() => useDataViews());
 
             expect(error.value?.message).toBe('Failed to retrieve data views.');
@@ -137,8 +128,8 @@ describe('data views', () => {
 
         it('aborts a read that is cancelled, leaving the list not loaded rather than failed', async () => {
             const signals: (AbortSignal | undefined)[] = [];
-            // A stuck read, which settles only when aborted, as the meta store's does.
-            vi.mocked(retrieveMetaStoreRecords).mockImplementationOnce(async (_nodeId, signal) => {
+            // A read that settles only when aborted, standing for a slow store.
+            vi.mocked(retrieveWorkspaceStoreRecords).mockImplementationOnce(async (_nodeId, signal) => {
                 signals.push(signal);
                 return new Promise<never>((_resolve, reject) => {
                     signal?.addEventListener('abort', () => {
@@ -162,7 +153,7 @@ describe('data views', () => {
             const { data } = await runInComponent(() => useDataView('b'));
 
             expect(data.value?.id).toBe('b');
-            expect(getMetaStoreRecord).not.toHaveBeenCalled();
+            expect(getWorkspaceStoreRecord).not.toHaveBeenCalled();
         });
     });
 
@@ -173,7 +164,7 @@ describe('data views', () => {
 
             const created = await mutateAsync('connection-1');
 
-            expect(upsertMetaStoreRecord).toHaveBeenCalledOnce();
+            expect(upsertWorkspaceStoreRecord).toHaveBeenCalledOnce();
             expect(created.connectionId).toBe('connection-1');
             expect(created.label).toStrictEqual({ en: 'Untitled Data View', es: 'Vista de datos sin título' });
             expect(cachedList()?.map((config) => config.id)).toStrictEqual(['a', 'b', created.id]);
@@ -184,7 +175,7 @@ describe('data views', () => {
 
             await mutateAsync({ ...buildDataView('a', 'Sales'), icon: '<svg />' });
 
-            expect(vi.mocked(upsertMetaStoreRecord).mock.calls[0]?.[1]).toMatchObject({ icon: null, iconDark: null });
+            expect(vi.mocked(upsertWorkspaceStoreRecord).mock.calls[0]?.[1]).toMatchObject({ icon: null, iconDark: null });
         });
 
         it('leaves a list that has not loaded alone, so loading it later picks the change up', async () => {
@@ -193,7 +184,7 @@ describe('data views', () => {
             const created = await mutateAsync('connection-1');
 
             expect(cachedList()).toBeUndefined();
-            expect(queryClient.getQueryData(constructMetaStoreRecordKey('dataViews', created.id))).toStrictEqual(created);
+            expect(queryClient.getQueryData(constructWorkspaceStoreRecordKey('dataViews', created.id))).toStrictEqual(created);
         });
 
         it('replaces an updated data view in place in the list', async () => {
@@ -212,15 +203,15 @@ describe('data views', () => {
 
             await mutateAsync('a');
 
-            expect(removeMetaStoreRecord).toHaveBeenCalledWith('dataViews', 'a');
+            expect(removeWorkspaceStoreRecord).toHaveBeenCalledWith('dataViews', 'a');
             expect(cachedList()?.map((config) => config.id)).toStrictEqual(['b']);
-            expect(queryClient.getQueryData(constructMetaStoreRecordKey('dataViews', 'a'))).toBeUndefined();
+            expect(queryClient.getQueryData(constructWorkspaceStoreRecordKey('dataViews', 'a'))).toBeUndefined();
         });
 
         it('keeps a save that finishes after signing in or out out of the next user’s list', async () => {
             await runInComponent(() => useDataViews());
             const { mutateAsync } = await runInComponent(() => useUpdateDataView());
-            vi.mocked(upsertMetaStoreRecord).mockResolvedValueOnce(PREVIOUS_META_STORE_ID);
+            vi.mocked(upsertWorkspaceStoreRecord).mockResolvedValueOnce(PREVIOUS_WORKSPACE_STORE_ID);
 
             await mutateAsync(buildDataView('a', 'Sales by region'));
 
@@ -230,7 +221,7 @@ describe('data views', () => {
         it('keeps a delete that finishes after signing in or out out of the next user’s list', async () => {
             await runInComponent(() => useDataViews());
             const { mutateAsync } = await runInComponent(() => useDeleteDataView());
-            vi.mocked(removeMetaStoreRecord).mockResolvedValueOnce(PREVIOUS_META_STORE_ID);
+            vi.mocked(removeWorkspaceStoreRecord).mockResolvedValueOnce(PREVIOUS_WORKSPACE_STORE_ID);
 
             await mutateAsync('a');
 

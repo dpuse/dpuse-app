@@ -10,7 +10,7 @@ import { AppError, formatNumberAsDuration, type LocaleId, SUPPORTED_LANGUAGES } 
 // ── Local Framework
 import { appearance } from '@/state/appearance';
 import { raiseAppFailure } from '@/state/errors';
-import { removeAccountMetaStoreRecords } from '@/services/metaStore';
+import { removeAccountWorkspaceStoreRecords } from '@/services/workspaceStore';
 import { signOut } from '@/services/auth';
 import { useDialogs } from '@/state/dialogs';
 import { expiresIn, lifetime, sessionIsAuthenticated, setSessionExpiryTimer } from '@/state/session';
@@ -148,7 +148,7 @@ async function handleSignOutAndRemove(): Promise<void> {
     if (isCanceled) return;
 
     try {
-        await removeAccountMetaStoreRecords();
+        await removeAccountWorkspaceStoreRecords();
     } catch (error) {
         raiseAppFailure(new AppError('Failed to remove data from this browser.', 'dpuse-app.SessionMenu.handleSignOutAndRemove', { typeId: 'handled' }, { cause: error }));
         return;

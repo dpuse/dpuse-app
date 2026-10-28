@@ -10,18 +10,18 @@ import type { AuditObjectContentOptions, AuditObjectContentResult, ContentAuditC
 import { assertDefined } from '@/utilities/index.ts';
 import { constructItemPath } from './dataViewSummary';
 import { establishEngineWorker } from '@/services/engine';
+import { findConnectionLocalisedConfig } from '@/state/configs';
 import { queryClient } from '@/services/queryClient';
 import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
-import { configStatus, findConnectionLocalisedConfig } from '@/state/configs';
 import {
-    constructMetaStoreListKey,
-    constructMetaStoreRecordKey,
-    getMetaStoreRecord,
-    metaStoreId,
-    removeMetaStoreRecord,
-    retrieveMetaStoreRecords,
-    upsertMetaStoreRecord
-} from '@/services/metaStore';
+    constructWorkspaceStoreListKey,
+    constructWorkspaceStoreRecordKey,
+    getWorkspaceStoreRecord,
+    removeWorkspaceStoreRecord,
+    retrieveWorkspaceStoreRecords,
+    upsertWorkspaceStoreRecord,
+    workspaceStoreId
+} from '@/services/workspaceStore';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -29,7 +29,7 @@ type StoredDataViewConfig = Omit<DataViewConfig, 'description' | 'label'> & Part
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const DATA_VIEW_LIST_KEY = constructMetaStoreListKey('dataViews');
+const DATA_VIEW_LIST_KEY = constructWorkspaceStoreListKey('dataViews');
 export const NEW_DATA_VIEW_ID = 'new'; // Stands in the URL for the id of a data view being added, which has none until it is saved.
 const UNTITLED_DATA_VIEW_LABEL = { en: 'Untitled Data View', es: 'Vista de datos sin título' }; // Stored with the record, so it carries every language rather than reading the current one.
 
@@ -41,7 +41,6 @@ export function useDataViews(): UseQueryReturnType<DataViewConfig[], Error> {
     return useQuery({
         queryKey: DATA_VIEW_LIST_KEY,
         queryFn: ({ signal }) => retrieveDataViewConfigs(signal),
-        enabled: () => configStatus.value.typeId === 'ready', // Fails, rather than waits, when the meta store connector is missing.
         staleTime: Infinity
     });
 }
@@ -53,9 +52,9 @@ export function useDataView(dataViewId: MaybeRefOrGetter<string | undefined>): U
     return useQuery(() => {
         const id = toValue(dataViewId);
         return {
-            queryKey: constructMetaStoreRecordKey('dataViews', id),
+            queryKey: constructWorkspaceStoreRecordKey('dataViews', id),
             queryFn: () => getDataViewConfig(assertDefined(id)),
-            enabled: id != null && configStatus.value.typeId === 'ready',
+            enabled: id != null,
             initialData: () => queryClient.getQueryData<DataViewConfig[]>(DATA_VIEW_LIST_KEY)?.find((config) => config.id === id),
             initialDataUpdatedAt: () => queryClient.getQueryState(DATA_VIEW_LIST_KEY)?.dataUpdatedAt,
             staleTime: Infinity
@@ -154,7 +153,7 @@ export async function abortDataViewContentAudit(connectionId: string): Promise<v
 
 async function retrieveDataViewConfigs(signal: AbortSignal): Promise<DataViewConfig[]> {
     try {
-        const dataViewConfigs = await retrieveMetaStoreRecords<StoredDataViewConfig>('dataViews', signal);
+        const dataViewConfigs = await retrieveWorkspaceStoreRecords<StoredDataViewConfig>('dataViews', signal);
         return dataViewConfigs.map((config) => restoreDataViewConfig(config));
     } catch (error) {
         if (signal.aborted) throw error; // A cancelled read is not a failure, so it keeps its abort reason.
@@ -164,7 +163,7 @@ async function retrieveDataViewConfigs(signal: AbortSignal): Promise<DataViewCon
 
 async function getDataViewConfig(id: string): Promise<DataViewConfig> {
     try {
-        const dataViewConfig = await getMetaStoreRecord<StoredDataViewConfig>('dataViews', id);
+        const dataViewConfig = await getWorkspaceStoreRecord<StoredDataViewConfig>('dataViews', id);
         return restoreDataViewConfig(dataViewConfig);
     } catch (error) {
         throw new AppError('Failed to open this data view.', 'dpuse-app.dataViews.getDataViewConfig', { typeId: 'handled' }, { cause: error });
@@ -189,9 +188,9 @@ function createDataViewConfig(connectionId: string): Promise<DataViewConfig> {
 // The cache is written here rather than in 'onSuccess', because only here is the store the change went to known.
 async function saveDataViewConfig(dataViewConfig: DataViewConfig): Promise<DataViewConfig> {
     try {
-        const storeId = await upsertMetaStoreRecord('dataViews', { ...dataViewConfig, icon: null, iconDark: null }); // The icon is added on reading, so it is not stored.
+        const storeId = await upsertWorkspaceStoreRecord('dataViews', { ...dataViewConfig, icon: null, iconDark: null }); // The icon is added on reading, so it is not stored.
         const savedDataViewConfig = { ...dataViewConfig, icon: dataViewIcon };
-        if (storeId === metaStoreId.value) writeDataViewConfigToCache(savedDataViewConfig); // A save that finishes after signing in or out stays out of the next user's lists.
+        if (storeId === workspaceStoreId.value) writeDataViewConfigToCache(savedDataViewConfig); // A save that finishes after signing in or out stays out of the next user's lists.
         return savedDataViewConfig;
     } catch (error) {
         throw new AppError('Failed to save data view.', 'dpuse-app.dataViews.saveDataViewConfig', { typeId: 'handled' }, { cause: error });
@@ -200,8 +199,8 @@ async function saveDataViewConfig(dataViewConfig: DataViewConfig): Promise<DataV
 
 async function removeDataViewConfig(id: string): Promise<void> {
     try {
-        const storeId = await removeMetaStoreRecord('dataViews', id);
-        if (storeId === metaStoreId.value) removeDataViewConfigFromCache(id); // As for a save.
+        const storeId = await removeWorkspaceStoreRecord('dataViews', id);
+        if (storeId === workspaceStoreId.value) removeDataViewConfigFromCache(id); // As for a save.
     } catch (error) {
         throw new AppError('Failed to remove data view.', 'dpuse-app.dataViews.removeDataViewConfig', { typeId: 'handled' }, { cause: error });
     }
@@ -209,7 +208,7 @@ async function removeDataViewConfig(id: string): Promise<void> {
 
 // A list not loaded yet is left alone. Loading it later picks up the change.
 function writeDataViewConfigToCache(dataViewConfig: DataViewConfig): void {
-    queryClient.setQueryData(constructMetaStoreRecordKey('dataViews', dataViewConfig.id), dataViewConfig);
+    queryClient.setQueryData(constructWorkspaceStoreRecordKey('dataViews', dataViewConfig.id), dataViewConfig);
     queryClient.setQueryData<DataViewConfig[]>(DATA_VIEW_LIST_KEY, (dataViewConfigs) => {
         if (dataViewConfigs == null) return dataViewConfigs;
         return dataViewConfigs.some((config) => config.id === dataViewConfig.id)
@@ -220,5 +219,5 @@ function writeDataViewConfigToCache(dataViewConfig: DataViewConfig): void {
 
 function removeDataViewConfigFromCache(id: string): void {
     queryClient.setQueryData<DataViewConfig[]>(DATA_VIEW_LIST_KEY, (dataViewConfigs) => dataViewConfigs?.filter((config) => config.id !== id));
-    queryClient.removeQueries({ queryKey: constructMetaStoreRecordKey('dataViews', id), exact: true });
+    queryClient.removeQueries({ queryKey: constructWorkspaceStoreRecordKey('dataViews', id), exact: true });
 }

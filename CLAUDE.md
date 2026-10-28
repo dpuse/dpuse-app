@@ -94,7 +94,7 @@ Design rules:
 
 ### Services
 
-- `src/services/` holds shared plumbing that talks to something outside the app: the engine worker, the meta store,
+- `src/services/` holds shared plumbing that talks to something outside the app: the engine worker, the workspace store,
   the query client, authentication, and the loaders for tools and presenters. It has no business logic and no UI.
 - Network calls and module loads live in a service. A component or composable holds only the reactive state around
   them: loading, failure and retry.

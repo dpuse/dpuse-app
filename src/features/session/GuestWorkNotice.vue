@@ -10,8 +10,7 @@ import { hasReportedAppError } from '@/observability/errorTracking';
 import { raiseAppFailure } from '@/state/errors';
 import { t } from '@/state/locale';
 import { TEXT } from './GuestWorkNotice_.json';
-import { countGuestMetaStoreRecords, moveGuestMetaStoreRecords } from '@/services/metaStore';
-import { metaStoreConnectionConfig, useConfigsReady } from '@/state/configs';
+import { countGuestWorkspaceStoreRecords, moveGuestWorkspaceStoreRecords } from '@/services/workspaceStore';
 
 // ── Static Components
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
@@ -23,13 +22,9 @@ const guestWorkIsMoving = ref(false);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The guest store is in the meta store, so the configuration that names its connector must arrive first.
 onMounted(async () => {
-    await useConfigsReady();
-    if (metaStoreConnectionConfig.value == null) return;
-
     try {
-        noticeIsVisible.value = (await countGuestMetaStoreRecords()) > 0;
+        noticeIsVisible.value = (await countGuestWorkspaceStoreRecords()) > 0;
     } catch (error) {
         // Logged and reported, but not shown: the guest work is still in its own store, so nothing is lost and the user
         // has nothing to act on.
@@ -48,7 +43,7 @@ async function handleMoveGuestWork(): Promise<void> {
 
     guestWorkIsMoving.value = true;
     try {
-        await moveGuestMetaStoreRecords();
+        await moveGuestWorkspaceStoreRecords();
         noticeIsVisible.value = false;
     } catch (error) {
         // Left open, so the user can try again. Each record is copied before it is removed, so none is lost.

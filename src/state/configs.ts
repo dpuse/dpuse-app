@@ -32,10 +32,6 @@ export type ConnectionAccountConfig = Pick<AccountConnectionConfig, 'connectorId
 // Where a retrieval has got to. Until it is 'ready', an empty list means still loading, not empty.
 export type RetrievalStatus = { typeId: 'failed'; failure: AppFailure } | { typeId: 'pending' } | { typeId: 'ready' };
 
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const LOCAL_META_STORE_CONNECTOR_ID = 'dpuse-connector-dexie-js'; // The meta store is kept in the browser, through this connector.
-
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Resolves once the configuration has arrived or retrieval has failed. Await this before reading 'toolConfigs',
@@ -91,11 +87,6 @@ export const connectionConfigs = computed<ConnectionConfig[]>(() => {
 });
 
 export const connectionLocalisedConfigs = computed((): LocalisedConfig<ConnectionConfig>[] => localiseConfigs<ConnectionConfig>(connectionConfigs.value, localeId.value, true));
-
-export const metaStoreConnectionConfig = computed(() => {
-    const metaStoreConnectorConfig: ConnectorConfig | undefined = connectorConfigs.value.find((connectorConfig) => connectorConfig.id === LOCAL_META_STORE_CONNECTOR_ID);
-    return metaStoreConnectorConfig ? constructConnectionConfig(metaStoreConnectorConfig) : undefined;
-});
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
