@@ -1,6 +1,15 @@
 {
     "TEXT": {
         "audit.required.text": { "en": "Audit this data view to see its records here.", "es": "Audita esta vista de datos para ver aquí sus registros." },
-        "records.pending.text": { "en": "Investigating this data view's records is coming soon.", "es": "Pronto podrás investigar aquí los registros de esta vista de datos." }
+        "load.again.label": { "en": "Load again", "es": "Cargar de nuevo" },
+        "load.pending.text": { "en": "Loading records… {count} so far.", "es": "Cargando registros… {count} hasta ahora." },
+        "load.stop.label": { "en": "Stop", "es": "Detener" },
+        "load.stopped.text": { "en": "Loading stopped. The records loaded before, if any, are kept.", "es": "Carga detenida. Se conservan los registros cargados antes, si los hay." },
+        "retry.label": { "en": "Try again", "es": "Reintentar" },
+        "store.heldElsewhere.text": { "en": "Investigate is open in another tab. Close it there to use it here.", "es": "Investigar está abierto en otra pestaña. Ciérralo allí para usarlo aquí." },
+        "store.unavailable.text": {
+            "en": "This browser has no storage for investigating records, as in some private windows.",
+            "es": "Este navegador no tiene almacenamiento para investigar registros, como en algunas ventanas privadas."
+        }
     }
 }

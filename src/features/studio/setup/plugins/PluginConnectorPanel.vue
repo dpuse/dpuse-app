@@ -21,6 +21,7 @@ import StudioDocumentSection from '@/features/studio/_components/StudioDocumentS
 const ACTION_LABEL_KEYS: Record<ConnectorActionName, keyof typeof TEXT> = {
     abortOperation: 'action.abortOperation.label',
     auditObjectContent: 'action.auditObjectContent.label',
+    closeStore: 'action.closeStore.label',
     createObject: 'action.createObject.label',
     describeConnection: 'action.describeConnection.label',
     dropObject: 'action.dropObject.label',
@@ -29,7 +30,10 @@ const ACTION_LABEL_KEYS: Record<ConnectorActionName, keyof typeof TEXT> = {
     getReadableStream: 'action.getReadableStream.label',
     getRecord: 'action.getRecord.label',
     listNodes: 'action.listNodes.label',
+    loadObjectRecords: 'action.loadObjectRecords.label',
+    openStore: 'action.openStore.label',
     previewObject: 'action.previewObject.label',
+    queryRecords: 'action.queryRecords.label',
     removeRecords: 'action.removeRecords.label',
     retrieveChunks: 'action.retrieveChunks.label',
     retrieveRecords: 'action.retrieveRecords.label',

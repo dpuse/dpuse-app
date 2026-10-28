@@ -1,12 +1,14 @@
 // ── External Dependencies & Registrations
 import { mount } from '@vue/test-utils';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { defineComponent, h, type VNode } from 'vue';
 
 // ── Local Framework
 import InvestigateDataPanel from '@/features/studio/dataViews/exploreData/InvestigateDataPanel.vue';
 import { settle } from '~/tests/support/settle';
-import { t } from '@/state/locale';
 import { TEXT } from '@/features/studio/dataViews/exploreData/InvestigateDataPanel_.json';
+import { closeDataViewStore, isDataViewLoaded, loadDataViewRecords, openDataViewStore, queryDataViewRecords } from '@/features/studio/dataViews/_dataViewStore';
+import { localeId, t } from '@/state/locale';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -20,32 +22,128 @@ vi.mock('@/features/studio/dataViews/_dataViews', async (importOriginal) => {
         useDataView: (): { data: unknown } => ({ data: computed(() => dataView.config) })
     };
 });
+vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
+    abortDataViewRecordLoad: vi.fn(),
+    closeDataViewStore: vi.fn(),
+    isDataViewLoaded: vi.fn(),
+    loadDataViewRecords: vi.fn(),
+    openDataViewStore: vi.fn(),
+    queryDataViewRecords: vi.fn()
+}));
 vi.mock('vue-router', async (importOriginal) => ({
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
     ...(await importOriginal<typeof import('vue-router')>()),
     useRoute: (): { params: { dataViewId: string } } => ({ params: { dataViewId: 'dataView1' } })
 }));
 
+// The table scrolls and measures, which jsdom cannot, so it is stood in for and what it is given is checked.
+const renderNothing = (): VNode => h('div');
+const TableStub = defineComponent({
+    props: { columnDefinitions: { type: Array, required: true }, dataSource: { type: Object, required: true } },
+    setup: () => renderNothing
+});
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+interface TableProperties {
+    columnDefinitions: { accessorKey: string; header: string }[];
+    dataSource: { getRows: (startRow: number, endRow: number) => Promise<{ rows: Record<string, string>[]; totalCount: number }> };
+}
+
+const AUDITED_DATA_VIEW = {
+    contentAuditConfig: {
+        asAt: 1,
+        columns: [
+            { dataSubtypeId: 'integer', dataTypeId: 'numeric', label: { en: 'Id' } },
+            { dataSubtypeId: 'date', dataTypeId: 'temporal', label: { en: 'Day' } }
+        ]
+    },
+    id: 'dataView1'
+};
+
+function mountPanel(): ReturnType<typeof mount> {
+    return mount(InvestigateDataPanel, { global: { stubs: { Table: TableStub } } });
+}
+
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+beforeEach(() => {
+    vi.mocked(openDataViewStore).mockResolvedValue('ready');
+    vi.mocked(closeDataViewStore).mockResolvedValue();
+    vi.mocked(isDataViewLoaded).mockReturnValue(true);
+    vi.mocked(loadDataViewRecords).mockResolvedValue();
+});
 
 afterEach(() => {
     dataView.config = undefined;
+    vi.clearAllMocks();
 });
 
 describe('InvestigateDataPanel', () => {
-    it('asks for an audit when the data view has none', async () => {
+    it('asks for an audit, and opens no store, when the data view has none', async () => {
         dataView.config = { contentAuditConfig: undefined, id: 'dataView1' };
-        const wrapper = mount(InvestigateDataPanel);
+        const wrapper = mountPanel();
         await settle();
 
         expect(wrapper.text()).toContain(t(TEXT, 'audit.required.text'));
+        expect(openDataViewStore).not.toHaveBeenCalled();
     });
 
-    it('shows a holding message once the data view is audited', async () => {
-        dataView.config = { contentAuditConfig: { asAt: 1, columns: [] }, id: 'dataView1' };
-        const wrapper = mount(InvestigateDataPanel);
+    it('shows a loaded data view without loading it again, a page at a time with its values formatted', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(queryDataViewRecords).mockResolvedValue({ records: [[7, new Date(2026, 9, 28)]], totalCount: 1 });
+        const wrapper = mountPanel();
         await settle();
 
-        expect(wrapper.text()).toContain(t(TEXT, 'records.pending.text'));
+        const table = wrapper.findComponent(TableStub).props() as TableProperties;
+        const page = await table.dataSource.getRows(0, 100);
+
+        expect(loadDataViewRecords).not.toHaveBeenCalled();
+        expect(table.columnDefinitions.map((column) => column.header)).toEqual(['Id', 'Day']);
+        expect(queryDataViewRecords).toHaveBeenCalledWith('dataView1', { aggregates: [], filters: [], groupColumnIndexes: [], limit: 100, offset: 0, sorts: [] });
+        expect(page).toEqual({ rows: [{ c0: '7', c1: new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium' }).format(new Date(2026, 9, 28)) }], totalCount: 1 });
+    });
+
+    it('loads a data view that is not loaded yet, then shows it', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(isDataViewLoaded).mockReturnValue(false);
+        const wrapper = mountPanel();
+        await settle();
+
+        expect(loadDataViewRecords).toHaveBeenCalledOnce();
+        expect(wrapper.findComponent(TableStub).exists()).toBe(true);
+    });
+
+    it('says so when another tab has the store, and tries again when asked', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(openDataViewStore).mockResolvedValueOnce('heldElsewhere');
+        const wrapper = mountPanel();
+        await settle();
+
+        expect(wrapper.text()).toContain(t(TEXT, 'store.heldElsewhere.text'));
+
+        await wrapper.findAll('button').find((button) => button.text() === t(TEXT, 'retry.label'))?.trigger('click');
+        await settle();
+
+        expect(openDataViewStore).toHaveBeenCalledTimes(2);
+        expect(wrapper.findComponent(TableStub).exists()).toBe(true);
+    });
+
+    it('says so when the browser has no storage for the store', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(openDataViewStore).mockResolvedValueOnce('unavailable');
+        const wrapper = mountPanel();
+        await settle();
+
+        expect(wrapper.text()).toContain(t(TEXT, 'store.unavailable.text'));
+    });
+
+    it('closes the store on leaving, so another tab can use it', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        const wrapper = mountPanel();
+        await settle();
+        wrapper.unmount();
+
+        expect(closeDataViewStore).toHaveBeenCalledOnce();
     });
 });
