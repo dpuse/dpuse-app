@@ -83,7 +83,7 @@ describe('workspace store', () => {
         await signIn(app, undefined);
         const config = { id: 'a', label: { en: 'Sales' }, previewConfig: { hasHeaders: true } };
 
-        expect(await app.workspaceStore.upsertWorkspaceStoreRecord('dataViews', config)).toBe('dpuWorkspaceStore');
+        expect(await app.workspaceStore.upsertWorkspaceStoreRecord('dataViews', config)).toBe('dpuseWorkspaceStore');
         expect(await app.workspaceStore.getWorkspaceStoreRecord('dataViews', 'a')).toStrictEqual(config);
         expect(await listIds(app)).toStrictEqual(['a']);
 
@@ -99,7 +99,7 @@ describe('workspace store', () => {
 
         await signIn(app, 'account-1');
 
-        expect(await saving).toBe('dpuWorkspaceStore-account-1');
+        expect(await saving).toBe('dpuseWorkspaceStore-account-1');
     });
 
     it('keeps guest work and each account’s work apart', async () => {

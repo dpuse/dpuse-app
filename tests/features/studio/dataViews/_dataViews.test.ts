@@ -57,9 +57,9 @@ vi.mock('@/state/configs', async (importOriginal) => ({
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const GUEST_WORKSPACE_STORE_ID = 'dpuWorkspaceStore'; // The store in use while signed out, which every test is.
+const GUEST_WORKSPACE_STORE_ID = 'dpuseWorkspaceStore'; // The store in use while signed out, which every test is.
 const LIST_KEY = constructWorkspaceStoreListKey('dataViews');
-const PREVIOUS_WORKSPACE_STORE_ID = 'dpuWorkspaceStore-previous'; // Stands for the store of a user who signed out while a change was under way.
+const PREVIOUS_WORKSPACE_STORE_ID = 'dpuseWorkspaceStore-previous'; // Stands for the store of a user who signed out while a change was under way.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

@@ -39,7 +39,7 @@ interface WorkspaceStore {
 
 const CONFIG_CELL_ID = 'config'; // Each config is one cell holding the whole object, so the later save of a config wins.
 const GUEST_META_STORE_ID = 'dpuMetaStore'; // The Dexie database guest work was saved in before the workspace store. Each account's was this name, a hyphen and the account id.
-const GUEST_WORKSPACE_STORE_ID = 'dpuWorkspaceStore';
+const GUEST_WORKSPACE_STORE_ID = 'dpuseWorkspaceStore';
 const META_STORE_IS_MOVED_VALUE_ID = 'metaStoreIsMoved';
 const WORKSPACE_STORE_QUERY_KEY = ['workspaceStore'] as const;
 const WORKSPACE_STORE_TABLE_IDS: WorkspaceStoreTableId[] = ['dataViews'];
