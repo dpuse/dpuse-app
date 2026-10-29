@@ -71,17 +71,16 @@ const auditDetails = computed((): AuditDetail[] => {
     if (auditConfig == null) return [];
     const numberFormat = new Intl.NumberFormat(localeId.value);
     const formatCount = (count: number | undefined): string | undefined => (count == null ? undefined : numberFormat.format(count));
+    const secondsFormat = new Intl.NumberFormat(localeId.value, { style: 'unit', unit: 'second', maximumFractionDigits: 1 });
+    const formatSeconds = (milliseconds: number | undefined): string | undefined => (milliseconds == null ? undefined : secondsFormat.format(milliseconds / 1000));
     const details: AuditDetail[] = [
         { id: 'records', labelKey: 'detail.records.label', value: formatCount(auditConfig.recordCount) },
         { id: 'lines', labelKey: 'detail.lines.label', value: formatCount(auditConfig.lineCount) },
         { id: 'emptyLines', labelKey: 'detail.emptyLines.label', value: formatCount(auditConfig.emptyLineCount) },
         { id: 'commentLines', labelKey: 'detail.commentLines.label', value: formatCount(auditConfig.commentLineCount) },
         { id: 'unevenRecords', labelKey: 'detail.unevenRecords.label', value: formatCount(auditConfig.invalidFieldLengthCount) },
-        {
-            id: 'duration',
-            labelKey: 'detail.duration.label',
-            value: new Intl.NumberFormat(localeId.value, { style: 'unit', unit: 'second', maximumFractionDigits: 1 }).format(auditConfig.duration / 1000)
-        },
+        { id: 'duration', labelKey: 'detail.duration.label', value: formatSeconds(auditConfig.duration) },
+        { id: 'sourceWait', labelKey: 'detail.sourceWait.label', value: formatSeconds(auditConfig.sourceWaitDuration) }, // Part of the duration. Not shown for audits saved before it was measured.
         { id: 'asAt', labelKey: 'detail.asAt.label', value: new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(auditConfig.asAt) }
     ];
     return details.filter((detail) => detail.value != null);
