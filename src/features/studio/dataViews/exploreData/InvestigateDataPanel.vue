@@ -41,12 +41,13 @@ type DisplayRow = Record<string, string>; // Keyed by column position, 'c0' firs
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A date shows its time only where the audited column holds one.
+// A date shows its time only where the audited column holds one. Dates are stored in UTC and shown in UTC, because a date
+// with no time zone in the file would otherwise show as the day before for anyone west of Greenwich.
 const DATE_FORMAT_OPTIONS: Partial<Record<DataSubtypeId, Intl.DateTimeFormatOptions>> = {
-    date: { dateStyle: 'medium' },
-    time: { timeStyle: 'medium' }
+    date: { dateStyle: 'medium', timeZone: 'UTC' },
+    time: { timeStyle: 'medium', timeZone: 'UTC' }
 };
-const DATE_TIME_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'medium' };
+const DATE_TIME_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'medium', timeZone: 'UTC' };
 
 // The messages for states that show only text, centred in the panel.
 const MESSAGE_KEYS: Partial<Record<InvestigateState['typeId'], keyof typeof TEXT>> = {

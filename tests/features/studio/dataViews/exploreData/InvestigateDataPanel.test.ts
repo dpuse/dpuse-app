@@ -91,7 +91,7 @@ describe('InvestigateDataPanel', () => {
 
     it('shows a loaded data view without loading it again, a page at a time with its values formatted', async () => {
         dataView.config = AUDITED_DATA_VIEW;
-        vi.mocked(queryDataViewRecords).mockResolvedValue({ records: [[7, new Date(2026, 9, 28)]], totalCount: 1 });
+        vi.mocked(queryDataViewRecords).mockResolvedValue({ records: [[7, new Date(Date.UTC(2026, 9, 28))]], totalCount: 1 });
         const wrapper = mountPanel();
         await settle();
 
@@ -101,7 +101,8 @@ describe('InvestigateDataPanel', () => {
         expect(loadDataViewRecords).not.toHaveBeenCalled();
         expect(table.columnDefinitions.map((column) => column.header)).toEqual(['Id', 'Day']);
         expect(queryDataViewRecords).toHaveBeenCalledWith('dataView1', { aggregates: [], filters: [], groupColumnIndexes: [], limit: 100, offset: 0, sorts: [] });
-        expect(page).toEqual({ rows: [{ c0: '7', c1: new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium' }).format(new Date(2026, 9, 28)) }], totalCount: 1 });
+        const expectedDateText = new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeZone: 'UTC' }).format(Date.UTC(2026, 9, 28));
+        expect(page).toEqual({ rows: [{ c0: '7', c1: expectedDateText }], totalCount: 1 });
     });
 
     it('loads a data view that is not loaded yet, then shows it', async () => {
