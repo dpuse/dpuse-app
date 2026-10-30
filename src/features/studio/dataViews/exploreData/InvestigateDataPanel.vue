@@ -12,7 +12,7 @@ import type { DataSubtypeId, ObjectColumnConfig, StoreRecord, StoreValue } from 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
 import { TEXT } from './InvestigateDataPanel_.json';
-import { abortDataViewRecordLoad, closeDataViewStore, isDataViewLoaded, loadDataViewRecords, openDataViewStore, queryDataViewRecords } from '@/features/studio/dataViews/_dataViewStore';
+import { abortDataViewRecordLoad, closeDataViewStore, findDataViewStoreLabel, isDataViewLoaded, loadDataViewRecords, openDataViewStore, queryDataViewRecords } from '@/features/studio/dataViews/_dataViewStore';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 import { localeId, t } from '@/state/locale';
 import { resolveDataViewIdParameter, useDataView } from '@/features/studio/dataViews/_dataViews';
@@ -67,6 +67,7 @@ const auditedColumnConfigs = computed(() => dataViewConfig.value?.contentAuditCo
 
 // ── Store
 const investigateState = shallowRef<InvestigateState>({ typeId: 'opening' });
+const loadDuration = ref<number>(); // How long this panel's last finished load took, in milliseconds. A load from an earlier visit has none.
 const loadedRecordCount = ref(0);
 const loadIsAbandoned = ref(false); // Set on leaving the panel, so the stopped load is not shown as a failure.
 const loadIsStopped = ref(false); // Set by 'Stop', so the stopped load is shown as stopped, not as a failure.
@@ -77,6 +78,12 @@ const loadVersion = ref(0); // Counts loads, so the table drops the records it h
 const messageKey = computed(() => MESSAGE_KEYS[investigateState.value.typeId]);
 
 const loadPendingText = computed(() => t(TEXT, 'load.pending.text', { count: new Intl.NumberFormat(localeId.value).format(loadedRecordCount.value) }));
+
+const loadDurationText = computed(() => {
+    if (loadDuration.value == null) return '';
+    const seconds = new Intl.NumberFormat(localeId.value, { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(loadDuration.value / 1000);
+    return t(TEXT, 'load.duration.text', { seconds, store: findDataViewStoreLabel() });
+});
 
 // ── Table ─ One column for each audited column, named as the audit named it.
 const columnDefinitions = computed<ColumnDef<TableFeatureSet, DisplayRow>[]>(() =>
@@ -167,11 +174,14 @@ async function openAndLoad(isReloaded: boolean): Promise<void> {
         }
         if (isReloaded || !isDataViewLoaded(openedDataViewConfig)) {
             investigateState.value = { typeId: 'loading' };
+            loadDuration.value = undefined;
             loadedRecordCount.value = 0;
             loadIsStopped.value = false;
+            const loadStartTime = performance.now();
             await loadDataViewRecords(openedDataViewConfig, (recordCount) => {
                 loadedRecordCount.value = recordCount;
             });
+            loadDuration.value = performance.now() - loadStartTime;
             loadVersion.value++;
         }
         investigateState.value = { typeId: 'ready' };
@@ -215,7 +225,8 @@ function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig): 
 
         <template v-else>
             <!-- Toolbar ─ 'Load again' is for a data view whose source may have changed since it was loaded. -->
-            <div v-if="investigateState.typeId === 'ready' || investigateState.typeId === 'loading'" class="flex h-9.25 flex-none items-center justify-end border-b border-separator px-page text-xs">
+            <div v-if="investigateState.typeId === 'ready' || investigateState.typeId === 'loading'" class="flex h-9.25 flex-none items-center justify-end gap-x-3 border-b border-separator px-page text-xs">
+                <span v-if="investigateState.typeId === 'ready' && loadDurationText" class="text-muted">{{ loadDurationText }}</span>
                 <ActionWrapper v-if="investigateState.typeId === 'loading'" class="text-accent hover:underline" @click="handleStopLoad">{{ t(TEXT, 'load.stop.label') }}</ActionWrapper>
                 <ActionWrapper v-else class="inline-flex items-center gap-x-1 text-accent hover:underline" @click="handleLoadAgain">
                     <RefreshCwIcon aria-hidden="true" class="size-4" :stroke-width="1.5" />

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { SquarePenIcon } from '@lucide/vue';
-import { computed, ref } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 import { type RouteLocationRaw, useRoute } from 'vue-router';
 
 // ── DPUse Framework
@@ -25,6 +25,7 @@ import DataViewSource from './DataViewSource.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
+import ScrollEndButtons from '@/components/ui/scroll/ScrollEndButtons.vue';
 import ScrollRegion from '@/components/ui/scroll/ScrollRegion.vue';
 import StudioDetailLayout from '@/features/studio/_components/StudioDetailLayout.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
@@ -125,6 +126,9 @@ const editedSubjectLabel = ref(''); // Taken when the dialog opens, so its title
 // ── Tables ─ Each long table starts with its first rows only, so the document stays short until the user asks for more.
 const columnTableIsExpanded = ref(false);
 const dataTableIsExpanded = ref(false);
+
+// ── Scrolling
+const documentScrollElement = shallowRef<HTMLElement>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -280,7 +284,12 @@ function formatDateTime(timestamp: number): string {
 
 <template>
     <StudioDetailLayout data-region="DataViewPanel">
-        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)" scroll-area-padding-left="var(--spacing-page)">
+        <ScrollArea
+            class="flex-1"
+            scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)"
+            scroll-area-padding-left="var(--spacing-page)"
+            @initialised="documentScrollElement = $event"
+        >
             <!-- No icon beside the title, because the connection's icon is on its line below, as on the card. -->
             <StudioDocumentPanel :overline="t(TEXT, 'dataViews.label')" :title="dataViewLocalisedConfig.label" @close="$emit('close')">
                 <template #actions>
@@ -464,6 +473,10 @@ function formatDateTime(timestamp: number): string {
                 </StudioDocumentSection>
             </StudioDocumentPanel>
         </ScrollArea>
+
+        <!-- Scroll Buttons ─ In the bottom row, because floating notices sit just above it. 'right-30' clears the 'Open'
+             pill in 'DataViewList', which is 24px from the edge and about 90px wide in both languages. -->
+        <ScrollEndButtons class="absolute right-30 bottom-(--safe-bottom-offset)" :scroll-element="documentScrollElement" />
 
         <Dialog
             :is-open="editDialogIsOpen"

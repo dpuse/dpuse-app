@@ -2,6 +2,7 @@
     "TEXT": {
         "audit.required.text": { "en": "Audit this data view to see its records here.", "es": "Audita esta vista de datos para ver aquí sus registros." },
         "load.again.label": { "en": "Load again", "es": "Cargar de nuevo" },
+        "load.duration.text": { "en": "Loaded into {store} in {seconds} s", "es": "Cargado en {store} en {seconds} s" },
         "load.pending.text": { "en": "Loading records… {count} so far.", "es": "Cargando registros… {count} hasta ahora." },
         "load.stop.label": { "en": "Stop", "es": "Detener" },
         "load.stopped.text": { "en": "Loading stopped. The records loaded before, if any, are kept.", "es": "Carga detenida. Se conservan los registros cargados antes, si los hay." },

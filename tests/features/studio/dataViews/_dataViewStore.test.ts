@@ -8,6 +8,7 @@ import type { DataViewConfig, EngineWorker } from '@dpuse/dpuse-shared';
 import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import {
+    findDataViewStoreLabel,
     INVESTIGATE_STORE_CONNECTOR_ID,
     isDataViewLoaded,
     loadDataViewRecords,
@@ -48,6 +49,13 @@ afterEach(() => {
 });
 
 describe('_dataViewStore', () => {
+    it("names the store by its connection's label", () => {
+        vi.mocked(findConnectionLocalisedConfig).mockReturnValue({ label: 'SQLite' } as ReturnType<typeof findConnectionLocalisedConfig>);
+
+        expect(findDataViewStoreLabel()).toBe('SQLite');
+        expect(findConnectionLocalisedConfig).toHaveBeenCalledWith(INVESTIGATE_STORE_CONNECTOR_ID);
+    });
+
     it('opens the investigate store and returns its state', async () => {
         processRequest.mockResolvedValueOnce({ storeStateId: 'heldElsewhere' });
 

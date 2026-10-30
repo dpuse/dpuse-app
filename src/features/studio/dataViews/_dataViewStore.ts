@@ -27,10 +27,10 @@ export type DataViewRecordQuery = Pick<QueryRecordsOptions, 'aggregates' | 'filt
 
 // The store that investigate loads data views into. SQLite is the default, because it needs far less memory and a much
 // smaller download than DuckDB. Set it to 'dpuse-connector-duckdb-wasm' for DuckDB until the app has a setting for it.
-export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-sqlite-wasm';
+//export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-sqlite-wasm';
+export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-duckdb-wasm';
 
 const LOAD_FORMAT_VERSION = 2; // Raised when stored values change meaning, so that what is already loaded is loaded again. 2 stores dates in UTC, as true dates and times.
-//export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-duckdb-wasm';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -98,6 +98,10 @@ export async function queryDataViewRecords(dataViewId: string, query: DataViewRe
     const options: QueryRecordsOptions = { ...query, path: dataViewId };
     const { processRequest } = await establishEngineWorker();
     return (await processRequest('queryRecords', findStoreConnectionLocalisedConfig(), options)) as QueryRecordsResult;
+}
+
+export function findDataViewStoreLabel(): string {
+    return findStoreConnectionLocalisedConfig().label;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

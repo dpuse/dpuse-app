@@ -7,7 +7,7 @@ import { defineComponent, h, type VNode } from 'vue';
 import InvestigateDataPanel from '@/features/studio/dataViews/exploreData/InvestigateDataPanel.vue';
 import { settle } from '~/tests/support/settle';
 import { TEXT } from '@/features/studio/dataViews/exploreData/InvestigateDataPanel_.json';
-import { closeDataViewStore, isDataViewLoaded, loadDataViewRecords, openDataViewStore, queryDataViewRecords } from '@/features/studio/dataViews/_dataViewStore';
+import { closeDataViewStore, findDataViewStoreLabel, isDataViewLoaded, loadDataViewRecords, openDataViewStore, queryDataViewRecords } from '@/features/studio/dataViews/_dataViewStore';
 import { localeId, t } from '@/state/locale';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -25,6 +25,7 @@ vi.mock('@/features/studio/dataViews/_dataViews', async (importOriginal) => {
 vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
     abortDataViewRecordLoad: vi.fn(),
     closeDataViewStore: vi.fn(),
+    findDataViewStoreLabel: vi.fn(),
     isDataViewLoaded: vi.fn(),
     loadDataViewRecords: vi.fn(),
     openDataViewStore: vi.fn(),
@@ -70,6 +71,7 @@ function mountPanel(): ReturnType<typeof mount> {
 beforeEach(() => {
     vi.mocked(openDataViewStore).mockResolvedValue('ready');
     vi.mocked(closeDataViewStore).mockResolvedValue();
+    vi.mocked(findDataViewStoreLabel).mockReturnValue('SQLite');
     vi.mocked(isDataViewLoaded).mockReturnValue(true);
     vi.mocked(loadDataViewRecords).mockResolvedValue();
 });
@@ -113,6 +115,31 @@ describe('InvestigateDataPanel', () => {
 
         expect(loadDataViewRecords).toHaveBeenCalledOnce();
         expect(wrapper.findComponent(TableStub).exists()).toBe(true);
+    });
+
+    it('shows which store a load went into, and how long it took, beside "Load again"', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(isDataViewLoaded).mockReturnValue(false);
+        let clockTime = 1000;
+        const clock = vi.spyOn(performance, 'now').mockImplementation(() => clockTime);
+        vi.mocked(loadDataViewRecords).mockImplementationOnce(() => {
+            clockTime += 12_500;
+            return Promise.resolve();
+        });
+        const wrapper = mountPanel();
+        await settle();
+        clock.mockRestore();
+
+        const seconds = new Intl.NumberFormat(localeId.value, { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(12.5);
+        expect(wrapper.text()).toContain(t(TEXT, 'load.duration.text', { seconds, store: 'SQLite' }));
+    });
+
+    it('shows no load time for records loaded on an earlier visit', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        const wrapper = mountPanel();
+        await settle();
+
+        expect(wrapper.find('span.text-muted').exists()).toBe(false);
     });
 
     it('says so when another tab has the store, and tries again when asked', async () => {
