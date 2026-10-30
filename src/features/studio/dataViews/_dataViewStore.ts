@@ -27,7 +27,8 @@ export type DataViewRecordQuery = Pick<QueryRecordsOptions, 'aggregates' | 'filt
 
 // The store that investigate loads data views into. SQLite is the default, because it needs far less memory and a much
 // smaller download than DuckDB. Set it to 'dpuse-connector-duckdb-wasm' for DuckDB until the app has a setting for it.
-export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-sqlite-wasm';
+// export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-sqlite-wasm';
+export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-duckdb-wasm';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
