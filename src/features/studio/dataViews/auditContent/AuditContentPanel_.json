@@ -3,7 +3,10 @@
         "audit.again.label": { "en": "Audit again", "es": "Auditar de nuevo" },
         "audit.pending.text": { "en": "Auditing… {count} records so far", "es": "Auditando… {count} registros hasta ahora" },
         "column.dataType.label": { "en": "Data type", "es": "Tipo de dato" },
+        "column.formats.label": { "en": "Formats", "es": "Formatos" },
+        "column.invalidValues.label": { "en": "Don't fit", "es": "No encajan" },
         "column.label": { "en": "Name", "es": "Nombre" },
+        "column.reading.label": { "en": "Read as", "es": "Leído como" },
         "column.voidValues.label": { "en": "Empty values", "es": "Valores vacíos" },
         "columnTable.title": { "en": "Columns", "es": "Columnas" },
         "dataType.boolean.label": { "en": "Boolean", "es": "Booleano" },
@@ -19,6 +22,11 @@
         "detail.records.label": { "en": "Records", "es": "Registros" },
         "detail.sourceWait.label": { "en": "Waiting for data", "es": "Esperando datos" },
         "detail.unevenRecords.label": { "en": "Uneven records", "es": "Registros irregulares" },
-        "explore.label": { "en": "Explore", "es": "Explorar" }
+        "explore.label": { "en": "Explore", "es": "Explorar" },
+        "reading.dayFirst.text": { "en": "Day first", "es": "Día primero" },
+        "reading.decimalComma.text": { "en": "Decimal comma", "es": "Coma decimal" },
+        "reading.decimalPoint.text": { "en": "Decimal point", "es": "Punto decimal" },
+        "reading.monthFirst.text": { "en": "Month first", "es": "Mes primero" },
+        "reading.unclear.text": { "en": "{reading} (unclear, check this column)", "es": "{reading} (dudoso, revise esta columna)" }
     }
 }

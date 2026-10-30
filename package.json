@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "1.0.230",
+    "version": "1.0.231",
     "private": false,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -67,10 +67,10 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject(['unit', 'e2e']))\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.163",
+        "@dpuse/dpuse-shared": "^1.0.164",
         "@fontsource-variable/inter": "^5.3.0",
         "@formkit/drag-and-drop": "^0.6.1",
-        "@lucide/vue": "^1.64.0",
+        "@lucide/vue": "^1.65.0",
         "@tanstack/ai": "^1.0.1",
         "@tanstack/ai-client": "^1.0.1",
         "@tanstack/vue-query": "^5.105.0",
@@ -88,7 +88,7 @@
     "devDependencies": {
         "@axe-core/playwright": "^4.14.0",
         "@cloudflare/vite-plugin": "1.66.0",
-        "@cloudflare/workers-types": "^5.20261029.1",
+        "@cloudflare/workers-types": "^5.20261030.1",
         "@dpuse/dpuse-development": "^1.0.141",
         "@dpuse/dpuse-tool-d3-visualiser": "^1.0.118",
         "@dpuse/dpuse-tool-marked-markdown-parser": "^1.0.106",
@@ -119,7 +119,7 @@
         "eslint-plugin-tailwindcss": "^4.4.0",
         "eslint-plugin-vue": "~10.12.0",
         "eslint-plugin-vuejs-accessibility": "^2.6.3",
-        "fake-indexeddb": "^6.2.6",
+        "fake-indexeddb": "^6.2.7",
         "jsdom": "^30.1.3",
         "npm-run-all2": "^9.0.4",
         "prettier": "3.9.10",

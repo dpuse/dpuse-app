@@ -1,5 +1,5 @@
 {
-  "version": "1.0.229",
+  "version": "1.0.230",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -175,7 +175,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261029.1"
+              "version": "5.20261030.1"
             },
             "blake3-wasm": {
               "version": "2.1.5"
@@ -212,8 +212,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261029.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261029.1.tgz",
+      "version": "5.20261030.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261030.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -222,7 +222,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.163"
+          "version": "1.0.164"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1370,8 +1370,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.163",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.163.tgz",
+      "version": "1.0.164",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.164.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1457,7 +1457,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.163"
+          "version": "1.0.164"
         },
         "@tanstack/charts": {
           "version": "1.1.0",
@@ -4325,8 +4325,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.64.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.64.0.tgz",
+      "version": "1.65.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.65.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -6429,8 +6429,8 @@
       }
     },
     "fake-indexeddb": {
-      "version": "6.2.6",
-      "resolved": "https://registry.npmjs.org/fake-indexeddb/-/fake-indexeddb-6.2.6.tgz",
+      "version": "6.2.7",
+      "resolved": "https://registry.npmjs.org/fake-indexeddb/-/fake-indexeddb-6.2.7.tgz",
       "overridden": false
     },
     "jsdom": {
@@ -6852,7 +6852,7 @@
         "@automerge/automerge-repo": {},
         "@capacitor-community/sqlite": {},
         "@cloudflare/workers-types": {
-          "version": "5.20261029.1"
+          "version": "5.20261030.1"
         },
         "@electric-sql/pglite": {},
         "@libsql/client": {},
@@ -7746,7 +7746,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261029.1"
+          "version": "5.20261030.1"
         },
         "blake3-wasm": {
           "version": "2.1.5",

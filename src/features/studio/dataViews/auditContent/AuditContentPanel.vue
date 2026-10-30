@@ -6,7 +6,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
-import type { DataTypeId, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
+import type { DataTypeId, DataViewConfig, LocalisedConfig, ObjectColumnConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { ignoreReportedNavigationFailure } from '@/router';
@@ -91,6 +91,12 @@ const auditColumnRows = computed(() => {
     return (contentAuditConfig.value?.columns ?? []).map((columnConfig, index) => ({
         label: columnConfig.label[localeId.value] ?? columnConfig.label.en ?? String(index + 1),
         dataTypeLabel: t(TEXT, DATA_TYPE_LABEL_KEYS[columnConfig.dataTypeId]),
+        formatText: Object.entries(columnConfig.formats)
+            .toSorted((left, right) => right[1] - left[1])
+            .map(([formatId, count]) => `${formatId} (${numberFormat.format(count)})`)
+            .join(', '),
+        invalidValueText: columnConfig.invalidValueCount == null ? '' : numberFormat.format(columnConfig.invalidValueCount),
+        readingText: constructReadingText(columnConfig),
         voidValueText: columnConfig.voidValueCount == null ? '' : numberFormat.format(columnConfig.voidValueCount)
     }));
 });
@@ -131,6 +137,16 @@ function handleCommitDetail(): void {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// How the audit decided to read values that could be taken two ways. It says so when the column's own values did not
+// settle it, because those values may then be loaded wrongly.
+function constructReadingText(columnConfig: ObjectColumnConfig): string {
+    const readings: string[] = [];
+    if (columnConfig.dateOrderId != null) readings.push(t(TEXT, columnConfig.dateOrderId === 'dayFirst' ? 'reading.dayFirst.text' : 'reading.monthFirst.text'));
+    if (columnConfig.decimalSeparatorId != null) readings.push(t(TEXT, columnConfig.decimalSeparatorId === ',' ? 'reading.decimalComma.text' : 'reading.decimalPoint.text'));
+    const readingText = readings.join(', ');
+    return columnConfig.isFormatAmbiguous === true ? t(TEXT, 'reading.unclear.text', { reading: readingText }) : readingText;
+}
 
 // The data view is saved with the audit as it was when the audit started, with any later save to it, such as a new
 // label, kept.
@@ -188,14 +204,20 @@ async function auditContent(): Promise<void> {
                                 <tr class="text-left">
                                     <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.label') }}</th>
                                     <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.dataType.label') }}</th>
-                                    <th class="py-1 font-normal text-muted">{{ t(TEXT, 'column.voidValues.label') }}</th>
+                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.voidValues.label') }}</th>
+                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.invalidValues.label') }}</th>
+                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.reading.label') }}</th>
+                                    <th class="py-1 font-normal text-muted">{{ t(TEXT, 'column.formats.label') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="(columnRow, index) in auditColumnRows" :key="index">
                                     <td class="py-1 pr-4">{{ columnRow.label }}</td>
                                     <td class="py-1 pr-4">{{ columnRow.dataTypeLabel }}</td>
-                                    <td class="py-1">{{ columnRow.voidValueText }}</td>
+                                    <td class="py-1 pr-4">{{ columnRow.voidValueText }}</td>
+                                    <td class="py-1 pr-4">{{ columnRow.invalidValueText }}</td>
+                                    <td class="py-1 pr-4">{{ columnRow.readingText }}</td>
+                                    <td class="py-1">{{ columnRow.formatText }}</td>
                                 </tr>
                             </tbody>
                         </table>

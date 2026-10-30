@@ -192,8 +192,7 @@ const previewColumnRows = computed(() => {
             count: previewConfig.hasHeaders === true ? count - (columnConfig.leadingInferenceCounts[inferenceTypeId] ?? 0) : count
         }));
         const total = sampleCounts.reduce((sum, sampleCount) => sum + sampleCount.count, 0);
-        const chosenInferenceTypeId = columnConfig.dataSubtypeId === undefined ? columnConfig.dataTypeId : `${columnConfig.dataTypeId}.${columnConfig.dataSubtypeId}`;
-        const count = sampleCounts.find((sampleCount) => sampleCount.inferenceTypeId === chosenInferenceTypeId)?.count ?? 0;
+        const count = countColumnMatches(columnConfig.dataTypeId, sampleCounts, total);
         return {
             label: previewColumnLabels.value[index],
             dataTypeLabel: t(TEXT, DATA_TYPE_LABEL_KEYS[columnConfig.dataTypeId]),
@@ -254,6 +253,14 @@ function constructStepRoute(stepId: DataViewStepId): RouteLocationRaw {
 }
 
 // A full match is just '100%'. The counts are only added below that, so a weak guess stands out.
+// A column takes its main type, so every subtype of that type matches. Text fits any value.
+function countColumnMatches(dataTypeId: DataTypeId, sampleCounts: { count: number; inferenceTypeId: string }[], total: number): number {
+    if (dataTypeId === 'string') return total;
+    let matchCount = 0;
+    for (const { count, inferenceTypeId } of sampleCounts) if (inferenceTypeId === dataTypeId || inferenceTypeId.startsWith(`${dataTypeId}.`)) matchCount += count;
+    return matchCount;
+}
+
 function formatMatchText(count: number, total: number, percentFormat: Intl.NumberFormat): string {
     if (total === 0) return '';
     const percent = percentFormat.format(count / total);
