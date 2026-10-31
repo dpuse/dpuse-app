@@ -81,7 +81,14 @@ const loadPendingText = computed(() => t(TEXT, 'load.pending.text', { count: new
 
 const loadDurationText = computed(() => {
     if (loadDuration.value == null) return '';
-    const seconds = new Intl.NumberFormat(localeId.value, { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(loadDuration.value / 1000);
+    // One decimal place, with more only for a time too short to show in one, so a quick load does not read as 0.
+    const seconds = new Intl.NumberFormat(localeId.value, {
+        maximumFractionDigits: 1,
+        maximumSignificantDigits: 1,
+        minimumFractionDigits: 1,
+        minimumSignificantDigits: 1,
+        roundingPriority: 'morePrecision'
+    }).format(loadDuration.value / 1000);
     return t(TEXT, 'load.duration.text', { seconds, store: findDataViewStoreLabel() });
 });
 

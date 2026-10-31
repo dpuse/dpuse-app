@@ -6,7 +6,7 @@ import { type RouteLocationRaw, useRoute } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError, formatNumberAsStorageSize } from '@dpuse/dpuse-shared';
-import type { DataFormatId, DataSubtypeId, DataTypeId, DataViewConfig, LocalisedConfig, RecordDelimiterId, ValueDelimiterId } from '@dpuse/dpuse-shared';
+import type { DataFormatId, DataViewConfig, LocalisedConfig, RecordDelimiterId, ValueDelimiterId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { defineLazyComponent } from '@/utilities/index.ts';
@@ -23,6 +23,7 @@ import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ConnectorDetails from './ConnectorDetails.vue';
 import DataViewSource from './DataViewSource.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
+import PreviewColumnTable from './PreviewColumnTable.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import ScrollEndButtons from '@/components/ui/scroll/ScrollEndButtons.vue';
@@ -73,30 +74,6 @@ const VALUE_DELIMITER_LABEL_KEYS: Record<ValueDelimiterId, keyof typeof TEXT> = 
     _: 'valueDelimiter.underscore.label',
     '0x1F': 'valueDelimiter.unitSeparator.label',
     '|': 'valueDelimiter.verticalBar.label'
-};
-
-const DATA_TYPE_LABEL_KEYS: Record<DataTypeId, keyof typeof TEXT> = {
-    boolean: 'dataType.boolean.label',
-    numeric: 'dataType.numeric.label',
-    string: 'dataType.string.label',
-    temporal: 'dataType.temporal.label',
-    unknown: 'dataType.unknown.label'
-};
-
-const DATA_SUBTYPE_LABEL_KEYS: Record<DataSubtypeId, keyof typeof TEXT> = {
-    bigint: 'dataSubtype.bigint.label',
-    date: 'dataSubtype.date.label',
-    dateTime: 'dataSubtype.dateTime.label',
-    decimal: 'dataSubtype.decimal.label',
-    email: 'dataSubtype.email.label',
-    integer: 'dataSubtype.integer.label',
-    ipv4: 'dataSubtype.ipv4.label',
-    ipv6: 'dataSubtype.ipv6.label',
-    plain: 'dataSubtype.plain.label',
-    time: 'dataSubtype.time.label',
-    ulid: 'dataSubtype.ulid.label',
-    url: 'dataSubtype.url.label',
-    uuid: 'dataSubtype.uuid.label'
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -181,37 +158,15 @@ const itemDataFormatText = computed(() => {
 const itemIsFile = computed(() => dataViewConnection?.itemTypeId === 'file');
 const itemSubject = computed(() => dataViewConnection?.itemTypeId ?? 'item'); // Messages name the connector's kind of item, e.g. 'No file selected yet', and fall back to 'item' for a connector released before it said which.
 
-// ── Columns ─ The columns of the preview saved with the item, with the type the preview inferred for each. The match
-// is the share of sampled values, the header excluded, that fitted that type, as the engine counts it when it chooses.
+// ── Columns
 const previewColumnLabels = computed(
     () => dataViewLocalisedConfig.previewConfig?.columnConfigs.map((config, index) => config.label[localeId.value] ?? config.label.en ?? String(index + 1)) ?? []
 );
-const previewColumnRows = computed(() => {
-    const previewConfig = dataViewLocalisedConfig.previewConfig;
-    if (!previewConfig) return [];
-    const percentFormat = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 });
-    return previewConfig.columnConfigs.map((columnConfig, index) => {
-        const sampleCounts = Object.entries(columnConfig.inferenceCounts).map(([inferenceTypeId, count]) => ({
-            inferenceTypeId,
-            count: previewConfig.hasHeaders === true ? count - (columnConfig.leadingInferenceCounts[inferenceTypeId] ?? 0) : count
-        }));
-        const total = sampleCounts.reduce((sum, sampleCount) => sum + sampleCount.count, 0);
-        const count = countColumnMatches(columnConfig.dataTypeId, sampleCounts, total);
-        return {
-            label: previewColumnLabels.value[index],
-            dataTypeLabel: t(TEXT, DATA_TYPE_LABEL_KEYS[columnConfig.dataTypeId]),
-            dataSubtypeLabel:
-                columnConfig.dataSubtypeId === undefined || columnConfig.dataSubtypeId === 'plain' ? '' : t(TEXT, DATA_SUBTYPE_LABEL_KEYS[columnConfig.dataSubtypeId]), // Plain text has no special format, so it gets no subtype label and real subtypes stand out.
-            matchText: formatMatchText(count, total, percentFormat)
-        };
-    });
-});
 
 // ── Data ─ The rows of the preview saved with the item. Its first record is the header row, as SelectItemPanel treats it.
 const previewRows = computed(() => dataViewLocalisedConfig.previewConfig?.parsedRecords.slice(1) ?? []);
 
 // ── Tables
-const shownPreviewColumnRows = computed(() => (columnTableIsExpanded.value ? previewColumnRows.value : previewColumnRows.value.slice(0, COLLAPSED_TABLE_ROW_COUNT)));
 const shownPreviewRows = computed(() => (dataTableIsExpanded.value ? previewRows.value : previewRows.value.slice(0, COLLAPSED_TABLE_ROW_COUNT)));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -254,21 +209,6 @@ async function handleCloseEditDialog(): Promise<void> {
 // The route of one of the data view's steps, which each section links to so the user can go and change what it shows.
 function constructStepRoute(stepId: DataViewStepId): RouteLocationRaw {
     return { name: stepId, params: { dataViewId: dataViewLocalisedConfig.id }, query: route.query };
-}
-
-// A full match is just '100%'. The counts are only added below that, so a weak guess stands out.
-// A column takes its main type, so every subtype of that type matches. Text fits any value.
-function countColumnMatches(dataTypeId: DataTypeId, sampleCounts: { count: number; inferenceTypeId: string }[], total: number): number {
-    if (dataTypeId === 'string') return total;
-    let matchCount = 0;
-    for (const { count, inferenceTypeId } of sampleCounts) if (inferenceTypeId === dataTypeId || inferenceTypeId.startsWith(`${dataTypeId}.`)) matchCount += count;
-    return matchCount;
-}
-
-function formatMatchText(count: number, total: number, percentFormat: Intl.NumberFormat): string {
-    if (total === 0) return '';
-    const percent = percentFormat.format(count / total);
-    return count === total ? percent : t(TEXT, 'column.match.text', { percent, count, total });
 }
 
 // Joins the parts that are present as a list in the user's language, e.g. 'text/csv, UTF-8'. Undefined when none are.
@@ -372,46 +312,25 @@ function formatDateTime(timestamp: number): string {
                         </template>
                     </dl>
                     <p v-else class="text-muted">{{ t(TEXT, `${itemSubject}.pending.text`) }}</p>
-                    <!-- Columns ─ Scrolls sideways on its own, so a wide item does not widen the document. The title is shown
-                         above the region's frame, which a caption inside the table cannot be, and names the table. -->
-                    <ScrollRegion v-if="previewColumnRows.length > 0" v-slot="{ labelId }" class="mt-4" is-label-shown :label="t(TEXT, 'columnTable.title')">
-                        <table :aria-labelledby="labelId" class="text-sm whitespace-nowrap">
-                            <thead>
-                                <tr class="text-left">
-                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.label') }}</th>
-                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.dataType.label') }}</th>
-                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.dataSubtype.label') }}</th>
-                                    <th class="py-1 font-normal text-muted">{{ t(TEXT, 'column.match.label') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(columnRow, index) in shownPreviewColumnRows" :key="index">
-                                    <td class="py-1 pr-4">{{ columnRow.label }}</td>
-                                    <td class="py-1 pr-4">{{ columnRow.dataTypeLabel }}</td>
-                                    <!-- A column with no subtype is left blank on screen, and screen readers hear 'None',
-                                         because a blank cell alone does not say why it is empty. 'relative' keeps the hidden
-                                         text inside the scroller, or iOS Safari scrolls the whole page sideways. -->
-                                    <td v-if="columnRow.dataSubtypeLabel" class="py-1 pr-4">{{ columnRow.dataSubtypeLabel }}</td>
-                                    <td v-else class="relative py-1 pr-4">
-                                        <span class="sr-only">{{ t(TEXT, 'column.dataSubtype.none.text') }}</span>
-                                    </td>
-                                    <td class="py-1">{{ columnRow.matchText }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </ScrollRegion>
+                    <PreviewColumnTable
+                        v-if="dataViewLocalisedConfig.previewConfig && previewColumnLabels.length > 0"
+                        class="mt-4"
+                        is-label-shown
+                        :preview-config="dataViewLocalisedConfig.previewConfig"
+                        :row-limit="columnTableIsExpanded ? undefined : COLLAPSED_TABLE_ROW_COUNT"
+                    />
                     <!-- Show All and Change Item ─ Two columns: showing the rest of the table on the left, under the table it
                          expands, and going to the item step on the right. The left one wraps when it is too long, so the
                          step stays on the first line. An item is chosen from a connection, so there is nothing to go to
                          until one is chosen. -->
                     <div class="mt-2 grid grid-cols-[1fr_auto] items-start gap-x-4 px-3 text-sm">
                         <ActionWrapper
-                            v-if="previewColumnRows.length > COLLAPSED_TABLE_ROW_COUNT"
+                            v-if="previewColumnLabels.length > COLLAPSED_TABLE_ROW_COUNT"
                             :aria-expanded="columnTableIsExpanded"
                             class="justify-self-start text-left text-accent hover:underline"
                             @click="columnTableIsExpanded = !columnTableIsExpanded"
                         >
-                            {{ columnTableIsExpanded ? t(TEXT, 'column.showFewer.label') : t(TEXT, 'column.showAll.label', { count: previewColumnRows.length }) }}
+                            {{ columnTableIsExpanded ? t(TEXT, 'column.showFewer.label') : t(TEXT, 'column.showAll.label', { count: previewColumnLabels.length }) }}
                         </ActionWrapper>
                         <RouterLink v-if="dataViewLocalisedConfig.connectionId" class="col-start-2 justify-self-end text-right" :to="constructStepRoute('item')">{{
                             t(TEXT, dataViewLocalisedConfig.connectionNodeConfig ? `${itemSubject}.change.label` : `${itemSubject}.select.label`)

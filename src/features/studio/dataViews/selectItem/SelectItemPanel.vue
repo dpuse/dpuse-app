@@ -20,6 +20,7 @@ import {
     InfoIcon,
     LanguagesIcon,
     ScanTextIcon,
+    SeparatorVerticalIcon,
     SheetIcon,
     TextIcon,
     TriangleAlertIcon
@@ -36,7 +37,8 @@ import {
     formatNumberAsStorageSize,
     getEncodingTypeConfigs,
     listParserToolConfigs,
-    localiseConfigs
+    localiseConfigs,
+    ORDERED_VALUE_DELIMITER_IDS
 } from '@dpuse/dpuse-shared';
 import type {
     ConnectionConfig,
@@ -51,7 +53,9 @@ import type {
     PreviewConfig,
     PreviewIssue,
     PreviewIssueSeverityId,
-    PreviewObjectOptions
+    PreviewObjectOptions,
+    RecordDelimiterId,
+    ValueDelimiterId
 } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
@@ -80,10 +84,13 @@ import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import HouseIcon from '@/components/icons/HouseIcon.vue';
 import ItemButton from '@/components/ui/action/ItemButton.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
+import PreviewColumnTable from '../PreviewColumnTable.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import SelectInput from '@/components/ui/SelectInput.vue';
 import type { SelectOption } from '@/components/ui/SelectInput.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
+import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
+import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
 import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
@@ -148,7 +155,7 @@ const PREVIEW_ISSUE_SEVERITIES: Record<PreviewIssueSeverityId, { bandClass: stri
 };
 const PREVIEW_ISSUE_SEVERITY_IDS: PreviewIssueSeverityId[] = ['error', 'warning', 'info']; // Most serious first.
 
-const AUTO_OPTION_ID = 'auto'; // The selects' value for 'read it as detected'. No format or encoding has this id.
+const AUTO_OPTION_ID = 'auto'; // The selects' value for 'read it as detected'. No format, encoding or value delimiter has this id.
 const CONTAINER_FILE_TYPE_EXTENSIONS = new Set(['cfb']); // Detected types that only name a container, e.g. a legacy Excel or Word file, so the item's own extension names it better.
 const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
     arrow: 'dataFormat.arrow.label',
@@ -164,6 +171,24 @@ const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
     unknown: 'dataFormat.unknown.label',
     xlsx: 'dataFormat.xlsx.label',
     xml: 'dataFormat.xml.label'
+};
+const RECORD_DELIMITER_LABEL_KEYS: Record<RecordDelimiterId, keyof typeof TEXT> = {
+    '\n': 'recordDelimiter.newline.label',
+    '\r': 'recordDelimiter.carriageReturn.label',
+    '\r\n': 'recordDelimiter.carriageReturnNewline.label'
+};
+const VALUE_DELIMITER_LABEL_KEYS: Record<ValueDelimiterId, keyof typeof TEXT> = {
+    '': 'valueDelimiter.other.label',
+    ':': 'valueDelimiter.colon.label',
+    ',': 'valueDelimiter.comma.label',
+    '!': 'valueDelimiter.exclamationMark.label',
+    '0x1E': 'valueDelimiter.recordSeparator.label',
+    ';': 'valueDelimiter.semicolon.label',
+    ' ': 'valueDelimiter.space.label',
+    '\t': 'valueDelimiter.tab.label',
+    _: 'valueDelimiter.underscore.label',
+    '0x1F': 'valueDelimiter.unitSeparator.label',
+    '|': 'valueDelimiter.verticalBar.label'
 };
 
 // useDataWindow's retry-with-backoff (~900ms total) is tuned for transient blips, not a cold app boot — on a fresh
@@ -208,11 +233,12 @@ const pickedItemConfig = shallowRef<ConnectionNodeConfig>(); // The item the use
 const selectedDataFormatId = ref<DataFormatId>();
 const selectedEncodingId = ref<string>();
 const selectedParserId = ref<string>(); // The config id of the tool chosen to read the item.
+const selectedValueDelimiterId = ref<ValueDelimiterId>();
 const selectedHasHeaders = ref<boolean>();
 const detectedDataFormatId = ref<DataFormatId>();
 const detectedEncodingId = ref<string>();
-const detectedParserId = ref<string>();
 const detectedEncodingIsAssumed = ref(false);
+const detectedValueDelimiterId = ref<ValueDelimiterId>();
 
 // ── Preview Tabs ─ Tabs and their panel reference each other by id, which must be unique on the page. Below 'md' the
 // tabs fold into a menu.
@@ -351,25 +377,31 @@ const encodingOptions = computed<SelectOption[]>(() => {
     return [constructAutoOption(detectedEncodingId.value, detectedEncodingIsAssumed.value), ...options];
 });
 
-// The tools that read the previewed format. Auto names the one that read it. The select shows only when there is a
-// choice, because most formats have a single parser.
+// The tools that read the previewed format. The select shows only when there is a choice, because most formats have a
+// single parser.
 const parserOptions = computed<SelectOption[]>(() => {
     const dataFormatId = activePreviewConfig.value?.dataFormatId;
-    if (dataFormatId == null) return [];
-    const options: SelectOption[] = localiseConfigs(listParserToolConfigs(toolConfigs.value, dataFormatId), localeId.value).map(({ id, label }) => ({ id, label }));
-    const detectedLabel = options.find((option) => option.id === detectedParserId.value)?.label;
-    return [constructAutoOption(detectedLabel), ...options];
+    return dataFormatId == null ? [] : localiseConfigs(listParserToolConfigs(toolConfigs.value, dataFormatId), localeId.value).map(({ id, label }) => ({ id, label }));
 });
-const parserIsChoosable = computed(() => parserOptions.value.length > 2); // Auto, and more than one parser.
+const parserIsChoosable = computed(() => parserOptions.value.length > 1);
+
+// Delimited text is the only format split by a value delimiter. Auto names the one detected.
+const valueDelimiterOptions = computed<SelectOption[]>(() => {
+    const detectedId = detectedValueDelimiterId.value;
+    const options: SelectOption[] = ORDERED_VALUE_DELIMITER_IDS.map((id) => ({ id, label: t(TEXT, VALUE_DELIMITER_LABEL_KEYS[id]) }));
+    return [constructAutoOption(detectedId == null ? undefined : t(TEXT, VALUE_DELIMITER_LABEL_KEYS[detectedId])), ...options];
+});
+const valueDelimiterIsChoosable = computed(() => activePreviewConfig.value?.dataFormatId === 'dtv');
 const previewHeadersAreChoosable = computed(() => activePreviewConfig.value?.dataFormatId === 'dtv' && activePreviewConfig.value.parsedRecords.length > 0);
 
 // The value each select shows: the user's choice, or else what the preview detected. Choosing reads the item again. A
-// new format clears the chosen parser, which may not read it.
+// new format clears the chosen parser, which may not read it, and the chosen value delimiter, which may not apply to it.
 const previewDataFormatId = computed({
     get: () => selectedDataFormatId.value ?? AUTO_OPTION_ID,
     set: (dataFormatId: string) => {
         selectedDataFormatId.value = dataFormatId === AUTO_OPTION_ID ? undefined : (dataFormatId as DataFormatId); // The other options are all format ids.
         selectedParserId.value = undefined;
+        selectedValueDelimiterId.value = undefined;
     }
 });
 const previewHasHeaders = computed({
@@ -381,6 +413,12 @@ const previewHasHeaders = computed({
         showPreviewTable(activePreviewConfig.value);
     }
 });
+const previewValueDelimiterId = computed({
+    get: () => selectedValueDelimiterId.value ?? AUTO_OPTION_ID,
+    set: (valueDelimiterId: string) => {
+        selectedValueDelimiterId.value = valueDelimiterId === AUTO_OPTION_ID ? undefined : (valueDelimiterId as ValueDelimiterId); // The other options are all value delimiter ids.
+    }
+});
 const previewEncodingId = computed({
     get: () => selectedEncodingId.value ?? AUTO_OPTION_ID,
     set: (encodingId: string) => {
@@ -388,9 +426,9 @@ const previewEncodingId = computed({
     }
 });
 const previewParserId = computed({
-    get: () => selectedParserId.value ?? AUTO_OPTION_ID,
-    set: (parserId: string) => {
-        selectedParserId.value = parserId === AUTO_OPTION_ID ? undefined : parserId;
+    get: () => selectedParserId.value ?? activePreviewConfig.value?.parserId, // No choice yet shows the parser that read the preview.
+    set: (parserId: string | undefined) => {
+        selectedParserId.value = parserId;
     }
 });
 
@@ -443,27 +481,61 @@ const previewUnsupportedText = computed(() => {
     return t(TEXT, 'item.unsupportedFormat.text', { format: t(TEXT, DATA_FORMAT_LABEL_KEYS[previewConfig.dataFormatId]) });
 });
 
-// The details tab lists only the facts there are: a listing or a preview can leave any of them out.
-const itemDetails = computed(() => {
+// The details tab is a read-only document of what the toolbar's choices produced. It lists only the facts there are: a
+// listing or a preview can leave any of them out. The first section is about the item itself, the second about its
+// content and the third about how it was parsed.
+const itemDetailGroups = computed(() => {
     const connectionNodeConfig = activeConnectionObjectConfig.value;
     const previewConfig = activePreviewConfig.value;
     if (connectionNodeConfig == null || previewConfig == null) return [];
-    const details: { labelKey: keyof typeof TEXT; value: string | undefined }[] = [
-        { labelKey: 'detail.dataFormat.label', value: previewFormatText.value },
-        { labelKey: 'detail.fileType.label', value: previewConfig.fileType?.mime ?? connectionNodeConfig.mimeType },
-        { labelKey: 'detail.encoding.label', value: constructEncodingText(previewConfig) },
-        { labelKey: 'detail.size.label', value: formatNumberAsStorageSize(connectionNodeConfig.size) },
+    const previewedAmountText =
+        previewAmount.value?.isComplete === true ? t(TEXT, 'detail.previewed.entire.text', { size: previewAmount.value.shortText }) : previewAmount.value?.shortText;
+    const previewedText = t(TEXT, 'detail.previewed.text', {
+        amount: previewedAmountText ?? '',
+        at: new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(previewConfig.asAt),
+        duration: constructDurationText(previewConfig.duration)
+    });
+    const detailGroups: { id: string; title: string; details: { labelKey: keyof typeof TEXT; value: string | undefined }[] }[] = [
         {
-            labelKey: 'detail.lastModified.label',
-            value:
-                connectionNodeConfig.lastModifiedAt == null
-                    ? undefined
-                    : new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(connectionNodeConfig.lastModifiedAt)
+            id: 'item',
+            title: t(TEXT, `${itemSubject.value}.label`),
+            details: [
+                { labelKey: 'detail.path.label', value: constructItemPath(connectionNodeConfig) },
+                { labelKey: 'detail.fileType.label', value: previewConfig.fileType?.mime ?? connectionNodeConfig.mimeType },
+                { labelKey: 'detail.size.label', value: formatNumberAsStorageSize(connectionNodeConfig.size) },
+                {
+                    labelKey: 'detail.lastModified.label',
+                    value:
+                        connectionNodeConfig.lastModifiedAt == null
+                            ? undefined
+                            : new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(connectionNodeConfig.lastModifiedAt)
+                }
+            ]
         },
-        { labelKey: 'detail.path.label', value: constructItemPath(connectionNodeConfig) },
-        { labelKey: 'detail.issues.label', value: previewIssueCountText.value } // Listed in the band above the tabs.
+        {
+            id: 'content',
+            title: t(TEXT, 'detail.content.title'),
+            details: [
+                { labelKey: 'detail.dataFormat.label', value: previewFormatText.value },
+                { labelKey: 'detail.encoding.label', value: constructEncodingText(previewConfig) },
+                { labelKey: 'detail.issues.label', value: previewIssueCountText.value } // Listed in the band above the tabs.
+            ]
+        },
+        {
+            id: 'parsing',
+            title: t(TEXT, 'detail.parsing.title'),
+            details: [
+                { labelKey: 'parser.label', value: parserOptions.value.find((option) => option.id === previewConfig.parserId)?.label },
+                { labelKey: 'detail.previewed.label', value: previewedText },
+                { labelKey: 'hasHeaders.label', value: constructHeadersText(previewConfig) },
+                { labelKey: 'recordDelimiter.label', value: constructRecordDelimiterText(previewConfig) },
+                { labelKey: 'valueDelimiter.label', value: constructValueDelimiterText(previewConfig) }
+            ]
+        }
     ];
-    return details.filter((detail) => detail.value != null && detail.value !== '');
+    return detailGroups
+        .map((detailGroup) => ({ ...detailGroup, details: detailGroup.details.filter((detail) => detail.value != null && detail.value !== '') }))
+        .filter((detailGroup) => detailGroup.details.length > 0);
 });
 
 const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionNodeConfig>>>(() => {
@@ -513,7 +585,7 @@ watch(
 // retry of the item, and a new selection or retry clears the item's last failure. A new read choice keeps the current
 // preview on show while the item is read again, so the toolbar, and the select the user is on, stay in place.
 watch(
-    [activeConnectionObjectConfig, itemAttempt, selectedDataFormatId, selectedEncodingId, selectedParserId],
+    [activeConnectionObjectConfig, itemAttempt, selectedDataFormatId, selectedEncodingId, selectedParserId, selectedValueDelimiterId],
     async ([newActiveItem, newItemAttempt], oldValues) => {
         const currentRequestId = ++previewRequestId.value;
         itemFailure.value = undefined;
@@ -523,7 +595,7 @@ watch(
             resetPreviewState();
             detectedDataFormatId.value = undefined;
             detectedEncodingId.value = undefined;
-            detectedParserId.value = undefined;
+            detectedValueDelimiterId.value = undefined;
         }
         if (newActiveItem == null) return;
 
@@ -539,7 +611,8 @@ watch(
                 extension: undefined,
                 mimeType: newActiveItem.mimeType,
                 parserId: selectedParserId.value,
-                path: constructItemPath(newActiveItem)
+                path: constructItemPath(newActiveItem),
+                valueDelimiterId: selectedValueDelimiterId.value
             };
             const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewConfig;
             if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
@@ -730,6 +803,7 @@ function pickItem(connectionNodeConfig?: ConnectionNodeConfig): void {
     selectedDataFormatId.value = undefined;
     selectedEncodingId.value = undefined;
     selectedParserId.value = undefined;
+    selectedValueDelimiterId.value = undefined;
     selectedHasHeaders.value = undefined;
     reportDraft(); // A new pick shows as no item until its preview shows it can be selected.
 }
@@ -784,10 +858,41 @@ function constructEncodingText(previewConfig: PreviewConfig): string | undefined
 // detection, so each is taken only while it was not chosen.
 function recordDetectedValues(previewConfig: PreviewConfig): void {
     if (selectedDataFormatId.value == null) detectedDataFormatId.value = previewConfig.dataFormatId;
-    if (selectedParserId.value == null) detectedParserId.value = previewConfig.parserId;
+    if (selectedValueDelimiterId.value == null) detectedValueDelimiterId.value = previewConfig.valueDelimiterId;
     if (selectedEncodingId.value != null) return;
     detectedEncodingId.value = previewConfig.encodingId;
     detectedEncodingIsAssumed.value = previewConfig.encodingConfidenceLevel == null;
+}
+
+// One decimal place, with more only for a time too short to show in one, so a quick preview does not read as 0.
+function constructDurationText(milliseconds: number): string {
+    const secondsFormat = new Intl.NumberFormat(localeId.value, {
+        style: 'unit',
+        unit: 'second',
+        maximumFractionDigits: 1,
+        maximumSignificantDigits: 1,
+        minimumFractionDigits: 1,
+        minimumSignificantDigits: 1,
+        roundingPriority: 'morePrecision'
+    });
+    return secondsFormat.format(milliseconds / 1000);
+}
+
+// Headers and delimiters only apply to delimited text. There they always show, and a parse that found none says so.
+function constructHeadersText({ dataFormatId, hasHeaders }: PreviewConfig): string | undefined {
+    if (dataFormatId !== 'dtv') return;
+    if (hasHeaders == null) return t(TEXT, 'detail.notDetected.text');
+    return t(TEXT, hasHeaders ? 'hasHeaders.yes.label' : 'hasHeaders.no.label');
+}
+
+function constructRecordDelimiterText({ dataFormatId, recordDelimiterId }: PreviewConfig): string | undefined {
+    if (dataFormatId !== 'dtv') return;
+    return t(TEXT, recordDelimiterId == null ? 'detail.notDetected.text' : RECORD_DELIMITER_LABEL_KEYS[recordDelimiterId]);
+}
+
+function constructValueDelimiterText({ dataFormatId, valueDelimiterId }: PreviewConfig): string | undefined {
+    if (dataFormatId !== 'dtv') return;
+    return t(TEXT, valueDelimiterId == null ? 'detail.notDetected.text' : VALUE_DELIMITER_LABEL_KEYS[valueDelimiterId]);
 }
 
 // Auto, naming what detection found once it is known. The value comes first, so a select short of room cuts '(auto)'
@@ -1029,75 +1134,6 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
         <template #detail="{ item }">
             <ErrorNotice v-if="itemFailure" :failures="[itemFailure]" @retry="handleRetryItem" />
-            <!-- Read Choices ─ A row of their own, because the selects need room to show their values. Above the amount and
-                 the tabs, so the tabs stay next to what they switch between. -->
-            <div v-if="itemFailure == null && previewFormatText" class="flex h-9.25 flex-none items-center gap-x-3 border-b border-separator px-page text-xs text-muted">
-                <!-- Format, Encoding and Parser ─ Choosing any of them reads the item again that way. A binary file has no
-                     encoding to choose, and the parser is offered only when more than one reads the format. -->
-                <SelectInput
-                    v-if="previewFormatText"
-                    v-model="previewDataFormatId"
-                    :is-default="selectedDataFormatId == null"
-                    class="min-w-0"
-                    :description="previewFormatSupport ? t(TEXT, previewFormatSupport.ariaKey) : undefined"
-                    :disabled="previewIsPending"
-                    is-compact
-                    :label="t(TEXT, 'format.label')"
-                    label-hidden
-                    :options="dataFormatOptions"
-                >
-                    <!-- One icon: the format's own for a format the app can read or plans to, greyed out while it has no reader,
-                         and otherwise why it cannot be read. -->
-                    <template #icon>
-                        <ConfigIcon
-                            v-if="(previewFormatSupport?.id === 'supported' || previewFormatSupport?.id === 'planned') && previewFormatIconConfig"
-                            class="size-[1.25em] flex-none"
-                            :class="{ 'opacity-60 grayscale': previewFormatSupport.id === 'planned' }"
-                            :icon="previewFormatIconConfig.icon"
-                            :icon-dark="previewFormatIconConfig.iconDark"
-                        />
-                        <component
-                            :is="previewFormatSupport.icon"
-                            v-else-if="previewFormatSupport?.icon && previewFormatSupport.id !== 'supported'"
-                            aria-hidden="true"
-                            class="size-[1.25em] flex-none"
-                            :class="previewFormatSupport.colorClass"
-                            :stroke-width="2.5"
-                        />
-                    </template>
-                </SelectInput>
-                <SelectInput
-                    v-if="activePreviewConfig?.encodingId != null"
-                    v-model="previewEncodingId"
-                    :is-default="selectedEncodingId == null"
-                    class="min-w-0"
-                    :disabled="previewIsPending"
-                    is-compact
-                    :label="t(TEXT, 'encoding.label')"
-                    label-hidden
-                    :options="encodingOptions"
-                >
-                    <template #icon><LanguagesIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
-                </SelectInput>
-                <SelectInput
-                    v-if="parserIsChoosable"
-                    v-model="previewParserId"
-                    :is-default="selectedParserId == null"
-                    class="min-w-0"
-                    :disabled="previewIsPending"
-                    is-compact
-                    :label="t(TEXT, 'parser.label')"
-                    label-hidden
-                    :options="parserOptions"
-                >
-                    <template #icon><ScanTextIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
-                </SelectInput>
-                <!-- Has Headers ─ Changes how the records already read are shown, so the item is not read again. -->
-                <label v-if="previewHeadersAreChoosable" class="flex flex-none items-center gap-x-1.5">
-                    <input v-model="previewHasHeaders" class="size-3.5 rounded accent-accent" :disabled="previewIsPending" type="checkbox" />
-                    {{ t(TEXT, 'hasHeaders.label') }}
-                </label>
-            </div>
             <!-- Preview Toolbar ─ Sits over the preview only, so the breadcrumbs keep the whole header row. -->
             <div v-if="itemFailure == null" class="relative flex h-9.25 flex-none items-center gap-x-3 border-b border-separator px-page text-xs text-muted">
                 <!-- Preview Meter ─ Along the top edge, clear of the selected tab's underline at the bottom. Only when the
@@ -1204,6 +1240,88 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     </div>
                 </div>
             </div>
+            <!-- Read Choices ─ A row of their own, because the selects need room to show their values. -->
+            <div v-if="itemFailure == null && previewFormatText" class="flex h-9.25 flex-none items-center gap-x-3 border-b border-separator px-page text-xs text-muted">
+                <!-- Format, Encoding, Parser and Value Delimiter ─ Choosing any of them reads the item again that way. A binary
+                     file has no encoding to choose, the parser is offered only when more than one reads the format, and only
+                     delimited text has a value delimiter. -->
+                <!-- '-ml-1.75' cancels the select's own padding and border, so its icon lines up with the page edge. -->
+                <SelectInput
+                    v-if="previewFormatText"
+                    v-model="previewDataFormatId"
+                    :is-default="selectedDataFormatId == null"
+                    class="-ml-1.75 min-w-0"
+                    :description="previewFormatSupport ? t(TEXT, previewFormatSupport.ariaKey) : undefined"
+                    :disabled="previewIsPending"
+                    is-compact
+                    :label="t(TEXT, 'format.label')"
+                    label-hidden
+                    :options="dataFormatOptions"
+                >
+                    <!-- One icon: the format's own for a format the app can read or plans to, greyed out while it has no reader,
+                         and otherwise why it cannot be read. -->
+                    <template #icon>
+                        <ConfigIcon
+                            v-if="(previewFormatSupport?.id === 'supported' || previewFormatSupport?.id === 'planned') && previewFormatIconConfig"
+                            class="size-[1.25em] flex-none"
+                            :class="{ 'opacity-60 grayscale': previewFormatSupport.id === 'planned' }"
+                            :icon="previewFormatIconConfig.icon"
+                            :icon-dark="previewFormatIconConfig.iconDark"
+                        />
+                        <component
+                            :is="previewFormatSupport.icon"
+                            v-else-if="previewFormatSupport?.icon && previewFormatSupport.id !== 'supported'"
+                            aria-hidden="true"
+                            class="size-[1.25em] flex-none"
+                            :class="previewFormatSupport.colorClass"
+                            :stroke-width="2.5"
+                        />
+                    </template>
+                </SelectInput>
+                <SelectInput
+                    v-if="activePreviewConfig?.encodingId != null"
+                    v-model="previewEncodingId"
+                    :is-default="selectedEncodingId == null"
+                    class="min-w-0"
+                    :disabled="previewIsPending"
+                    is-compact
+                    :label="t(TEXT, 'encoding.label')"
+                    label-hidden
+                    :options="encodingOptions"
+                >
+                    <template #icon><LanguagesIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
+                </SelectInput>
+                <SelectInput
+                    v-if="parserIsChoosable"
+                    v-model="previewParserId"
+                    class="min-w-0"
+                    :disabled="previewIsPending"
+                    is-compact
+                    :label="t(TEXT, 'parser.label')"
+                    label-hidden
+                    :options="parserOptions"
+                >
+                    <template #icon><ScanTextIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
+                </SelectInput>
+                <SelectInput
+                    v-if="valueDelimiterIsChoosable"
+                    v-model="previewValueDelimiterId"
+                    :is-default="selectedValueDelimiterId == null"
+                    class="min-w-0"
+                    :disabled="previewIsPending"
+                    is-compact
+                    :label="t(TEXT, 'valueDelimiter.label')"
+                    label-hidden
+                    :options="valueDelimiterOptions"
+                >
+                    <template #icon><SeparatorVerticalIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
+                </SelectInput>
+                <!-- Has Headers ─ Changes how the records already read are shown, so the item is not read again. -->
+                <label v-if="previewHeadersAreChoosable" class="flex flex-none items-center gap-x-1.5">
+                    <input v-model="previewHasHeaders" class="size-3.5 rounded accent-accent" :disabled="previewIsPending" type="checkbox" />
+                    {{ t(TEXT, 'hasHeaders.label') }}
+                </label>
+            </div>
             <!-- Preview Issues ─ Between the toolbar and the tabs, so they show on every tab without hiding the text or details.
                  A long list scrolls rather than pushing the preview out of view. -->
             <div
@@ -1267,14 +1385,26 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     v-show="currentPreviewTabId === 'details' && activePreviewConfig != null"
                     class="flex-1"
                     scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)"
+                    scroll-area-padding-left="var(--spacing-page)"
                 >
-                    <p v-if="previewIsUnsupported" class="px-page pt-3 text-sm" role="status">{{ previewUnsupportedText }}</p>
-                    <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 px-page py-3 text-sm">
-                        <template v-for="detail in itemDetails" :key="detail.labelKey">
-                            <dt class="text-muted">{{ t(TEXT, detail.labelKey) }}</dt>
-                            <dd class="wrap-break-word">{{ detail.value }}</dd>
-                        </template>
-                    </dl>
+                    <!-- Details Document ─ Laid out as the data view document's lists are, with a line under every row except
+                         the last in a section. Read-only, because the toolbar changes how the item is read. -->
+                    <StudioDocumentPanel :overline="backLabel" :title="item.label" @close="handleReturnToList">
+                        <p v-if="previewIsUnsupported" role="status">{{ previewUnsupportedText }}</p>
+                        <StudioDocumentSection v-for="detailGroup in itemDetailGroups" :key="detailGroup.id" :title="detailGroup.title">
+                            <dl
+                                class="grid grid-cols-[minmax(7.5rem,max-content)_1fr] text-sm *:border-b *:border-separator *:py-1 [&:is(:last-child,:has(+section))>:nth-last-child(-n+2)]:border-b-0 [&>dt]:pr-4"
+                            >
+                                <template v-for="detail in detailGroup.details" :key="detail.labelKey">
+                                    <dt class="text-muted">{{ t(TEXT, detail.labelKey) }}</dt>
+                                    <dd class="m-0 min-w-0 wrap-break-word">{{ detail.value }}</dd>
+                                </template>
+                            </dl>
+                        </StudioDocumentSection>
+                        <StudioDocumentSection v-if="activePreviewConfig && activePreviewConfig.columnConfigs.length > 0" :title="t(TEXT, 'detail.columns.title')">
+                            <PreviewColumnTable :preview-config="activePreviewConfig" />
+                        </StudioDocumentSection>
+                    </StudioDocumentPanel>
                 </ScrollArea>
             </div>
         </template>

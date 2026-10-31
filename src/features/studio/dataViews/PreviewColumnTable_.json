@@ -1,0 +1,29 @@
+{
+    "TEXT": {
+        "column.dataSubtype.label": { "en": "Subtype", "es": "Subtipo" },
+        "column.dataSubtype.none.text": { "en": "None", "es": "Ninguno" },
+        "column.dataType.label": { "en": "Data type", "es": "Tipo de dato" },
+        "column.label": { "en": "Name", "es": "Nombre" },
+        "column.match.label": { "en": "Match", "es": "Coincidencia" },
+        "column.match.text": { "en": "{percent} ({count} of {total})", "es": "{percent} ({count} de {total})" },
+        "columnTable.title": { "en": "Columns", "es": "Columnas" },
+        "dataSubtype.bigint.label": { "en": "Big integer", "es": "Entero grande" },
+        "dataSubtype.date.label": { "en": "Date", "es": "Fecha" },
+        "dataSubtype.dateTime.label": { "en": "Date and time", "es": "Fecha y hora" },
+        "dataSubtype.decimal.label": { "en": "Decimal", "es": "Decimal" },
+        "dataSubtype.email.label": { "en": "Email", "es": "Correo electrónico" },
+        "dataSubtype.integer.label": { "en": "Integer", "es": "Entero" },
+        "dataSubtype.ipv4.label": { "en": "IPv4 address", "es": "Dirección IPv4" },
+        "dataSubtype.ipv6.label": { "en": "IPv6 address", "es": "Dirección IPv6" },
+        "dataSubtype.plain.label": { "en": "Plain", "es": "Sin formato" },
+        "dataSubtype.time.label": { "en": "Time", "es": "Hora" },
+        "dataSubtype.ulid.label": { "en": "ULID", "es": "ULID" },
+        "dataSubtype.url.label": { "en": "URL", "es": "URL" },
+        "dataSubtype.uuid.label": { "en": "UUID", "es": "UUID" },
+        "dataType.boolean.label": { "en": "Boolean", "es": "Booleano" },
+        "dataType.numeric.label": { "en": "Number", "es": "Número" },
+        "dataType.string.label": { "en": "Text", "es": "Texto" },
+        "dataType.temporal.label": { "en": "Date and time", "es": "Fecha y hora" },
+        "dataType.unknown.label": { "en": "Unknown", "es": "Desconocido" }
+    }
+}

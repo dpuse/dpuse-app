@@ -27,7 +27,8 @@ export async function executePreviewConnectorItem(arguments_: unknown): Promise<
             extension: undefined,
             mimeType: undefined,
             parserId: undefined,
-            path
+            path,
+            valueDelimiterId: undefined
         }; // The assistant names only a path, so the extension decides the format and the first tool that reads it parses it.
         const previewConfig = (await engine.processRequest('previewObject', connection, options)) as PreviewConfig;
 

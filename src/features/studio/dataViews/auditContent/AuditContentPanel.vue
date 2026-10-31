@@ -71,7 +71,16 @@ const auditDetails = computed((): AuditDetail[] => {
     if (auditConfig == null) return [];
     const numberFormat = new Intl.NumberFormat(localeId.value);
     const formatCount = (count: number | undefined): string | undefined => (count == null ? undefined : numberFormat.format(count));
-    const secondsFormat = new Intl.NumberFormat(localeId.value, { style: 'unit', unit: 'second', maximumFractionDigits: 1 });
+    // One decimal place, with more only for a time too short to show in one, so a quick audit does not read as 0.
+    const secondsFormat = new Intl.NumberFormat(localeId.value, {
+        style: 'unit',
+        unit: 'second',
+        maximumFractionDigits: 1,
+        maximumSignificantDigits: 1,
+        minimumFractionDigits: 1,
+        minimumSignificantDigits: 1,
+        roundingPriority: 'morePrecision'
+    });
     const formatSeconds = (milliseconds: number | undefined): string | undefined => (milliseconds == null ? undefined : secondsFormat.format(milliseconds / 1000));
     const details: AuditDetail[] = [
         { id: 'records', labelKey: 'detail.records.label', value: formatCount(auditConfig.recordCount) },
