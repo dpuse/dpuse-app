@@ -84,6 +84,7 @@
     --color-warning-active: var(--warning-active);
     --color-warning-press: var(--warning-press); /* A pressed button, one step past hover */
     --color-warning-text: var(--warning-text);
+    --color-warning-mark: var(--warning-mark); /* A small shape such as a dot, brighter than text can be */
     --color-warning-ring: var(--warning-ring);
     --color-warning-border: var(--warning-border); /* Edge of a guarded button or warning tag */
 
@@ -152,7 +153,8 @@
     --warning-active: var(--color-amber-200);
     --warning-press: var(--warning-active); /* Light mode presses one step past hover already. */
     --warning-text: var(--color-amber-800);
-    --warning-ring: var(--color-amber-600);
+    --warning-mark: var(--color-amber-600);
+    --warning-ring: var(--color-amber-500);
     --warning-border: var(--color-amber-200);
 
     --danger: var(--color-red-50);
@@ -213,6 +215,7 @@
     --warning-active: color-mix(in srgb, var(--color-amber-400) 30%, transparent);
     --warning-press: color-mix(in srgb, var(--color-amber-400) 40%, transparent); /* Buttons rest at 20% and hover at 30% in dark mode. */
     --warning-text: var(--color-amber-400);
+    --warning-mark: var(--color-amber-400);
     --warning-ring: color-mix(in srgb, var(--color-amber-400) 20%, transparent);
     --warning-border: var(--color-amber-900);
 

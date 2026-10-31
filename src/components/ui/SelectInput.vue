@@ -23,6 +23,7 @@ interface SelectOptionGroup {
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const TONE_CLASSES = { info: 'border-info-border bg-info', warning: 'border-warning-border bg-warning' };
+const TONE_DOT_CLASSES = { info: 'bg-muted', warning: 'bg-warning-mark' };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -43,7 +44,7 @@ const {
     label: string;
     labelHidden?: boolean;
     options?: SelectOption[];
-    tone?: 'info' | 'warning'; // Tints the control: 'info' for a value the user chose over a default, 'warning' for a value in doubt. The value's text must say so too, because colour alone does not.
+    tone?: 'info' | 'warning'; // Marks the value: 'info' for a value the user chose over a default, 'warning' for a value in doubt. A full-size select is tinted, and a compact one has a dot on its icon. The value's text must say so too, because colour alone does not.
 }>();
 
 defineSlots<{
@@ -121,10 +122,14 @@ const toneClass = computed(() => (tone ? TONE_CLASSES[tone] : undefined));
             <span
                 v-if="isCompact"
                 aria-hidden="true"
-                class="flex h-7 max-w-full items-center gap-x-1 rounded-md border pr-6 pl-1.5 text-xs leading-6.5 transition-[color,background-color,border-color,opacity] peer-focus-visible:outline-2 peer-focus-visible:outline-focus-ring peer-hover:peer-enabled:state-hover peer-disabled:opacity-50 peer-disabled:delay-200"
-                :class="toneClass ?? 'border-transparent'"
+                class="flex h-7 max-w-full items-center gap-x-1 rounded-md border border-transparent pr-6 pl-1.5 text-xs leading-6.5 transition-[color,background-color,border-color,opacity] peer-focus-visible:outline-2 peer-focus-visible:outline-focus-ring peer-hover:peer-enabled:state-hover peer-disabled:opacity-50 peer-disabled:delay-200"
             >
-                <slot name="icon" />
+                <!-- A dot rather than a tint, so a row of compact selects stays quiet. It sits outside the layout, so a
+                     select keeps its width when the dot appears. -->
+                <span class="relative flex flex-none">
+                    <slot name="icon" />
+                    <span v-if="tone" aria-hidden="true" class="absolute -top-0.5 -right-0.5 size-2 rounded-full" :class="TONE_DOT_CLASSES[tone]" />
+                </span>
                 <!-- '-mr-0.5 pr-0.5' widens what 'truncate' clips but not the layout, because italic letters lean past
                      their measured width. -->
                 <span class="-mr-0.5 truncate pr-0.5" :class="isDefault ? 'text-muted italic' : 'text-content'">{{ selectedOptionLabel }}</span>

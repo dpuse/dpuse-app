@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ref } from 'vue';
-import { PlusIcon, StarIcon } from '@lucide/vue';
+import { HashIcon, LanguagesIcon, PlusIcon, SeparatorVerticalIcon, StarIcon, TypeIcon } from '@lucide/vue';
+import { markRaw, ref } from 'vue';
 
 // ── Local Framework
 import { t } from '@/state/locale';
@@ -14,6 +14,7 @@ import Dialog from '@/components/ui/dialog/Dialog.vue';
 import IconButton from '@/components/ui/action/IconButton.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
+import SelectInput from '@/components/ui/SelectInput.vue';
 import Tag from '@/components/ui/Tag.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -26,6 +27,20 @@ const TAG_COLORS = [
     { id: 'warning', color: 'warning' },
     { id: 'danger', color: 'danger' }
 ] as const;
+
+// Each state of a compact select, drawn on several icons because a mark can run into an icon's lines.
+const MARK_STATES = [
+    { id: 'automatic', isDefault: true, labelKey: 'markState.automatic.label', tone: undefined },
+    { id: 'chosen', isDefault: false, labelKey: 'markState.chosen.label', tone: 'info' },
+    { id: 'assumed', isDefault: true, labelKey: 'markState.assumed.label', tone: 'warning' }
+] as const;
+
+const MARK_ICONS = [
+    { icon: markRaw(LanguagesIcon), id: 'languages' },
+    { icon: markRaw(SeparatorVerticalIcon), id: 'separator' },
+    { icon: markRaw(TypeIcon), id: 'type' },
+    { icon: markRaw(HashIcon), id: 'hash' }
+];
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -60,6 +75,23 @@ function handleCloseDialog(): void {
         <!-- Tags -->
         <div class="flex flex-wrap items-center gap-2">
             <Tag v-for="tag in TAG_COLORS" :key="tag.id" :color="tag.color" :text="tag.id" />
+        </div>
+
+        <!-- Compact Selects ─ Unmarked when automatic, then a grey dot when chosen and an amber dot when assumed. -->
+        <div v-for="markState in MARK_STATES" :key="markState.id" class="flex flex-wrap gap-2">
+            <SelectInput
+                v-for="markIcon in MARK_ICONS"
+                :key="markIcon.id"
+                is-compact
+                :is-default="markState.isDefault"
+                :label="t(TEXT, markState.labelKey)"
+                label-hidden
+                :model-value="markState.id"
+                :options="[{ id: markState.id, label: t(TEXT, markState.labelKey) }]"
+                :tone="markState.tone"
+            >
+                <template #icon><component :is="markIcon.icon" aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
+            </SelectInput>
         </div>
 
         <!-- Pill Button ─ Positioned absolutely, because it normally floats over the page, so it needs a positioned box of
