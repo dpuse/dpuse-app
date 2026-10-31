@@ -55,6 +55,7 @@ import type {
 } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { applyPreviewHeaders } from './_previewHeaders';
 import { assertDefined } from '@/utilities/index.ts';
 import { constructItemPath } from '../dataViewSummary';
 import type { DataSource } from '@/composables/useDataWindow';
@@ -207,6 +208,7 @@ const pickedItemConfig = shallowRef<ConnectionNodeConfig>(); // The item the use
 const selectedDataFormatId = ref<DataFormatId>();
 const selectedEncodingId = ref<string>();
 const selectedParserId = ref<string>(); // The config id of the tool chosen to read the item.
+const selectedHasHeaders = ref<boolean>();
 const detectedDataFormatId = ref<DataFormatId>();
 const detectedEncodingId = ref<string>();
 const detectedParserId = ref<string>();
@@ -359,6 +361,7 @@ const parserOptions = computed<SelectOption[]>(() => {
     return [constructAutoOption(detectedLabel), ...options];
 });
 const parserIsChoosable = computed(() => parserOptions.value.length > 2); // Auto, and more than one parser.
+const previewHeadersAreChoosable = computed(() => activePreviewConfig.value?.dataFormatId === 'dtv' && activePreviewConfig.value.parsedRecords.length > 0);
 
 // The value each select shows: the user's choice, or else what the preview detected. Choosing reads the item again. A
 // new format clears the chosen parser, which may not read it.
@@ -367,6 +370,15 @@ const previewDataFormatId = computed({
     set: (dataFormatId: string) => {
         selectedDataFormatId.value = dataFormatId === AUTO_OPTION_ID ? undefined : (dataFormatId as DataFormatId); // The other options are all format ids.
         selectedParserId.value = undefined;
+    }
+});
+const previewHasHeaders = computed({
+    get: () => activePreviewConfig.value?.hasHeaders === true,
+    set: (hasHeaders: boolean) => {
+        selectedHasHeaders.value = hasHeaders;
+        if (activePreviewConfig.value == null) return;
+        activePreviewConfig.value = applyPreviewHeaders(activePreviewConfig.value, hasHeaders);
+        showPreviewTable(activePreviewConfig.value);
     }
 });
 const previewEncodingId = computed({
@@ -532,7 +544,7 @@ watch(
             const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewConfig;
             if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
 
-            applyPreviewConfig(previewConfig);
+            applyPreviewConfig(applyHeaderChoice(previewConfig, newActiveItem));
             recordDetectedValues(previewConfig);
             hasLastPreviewSucceeded.value = true;
         } catch (error) {
@@ -718,6 +730,7 @@ function pickItem(connectionNodeConfig?: ConnectionNodeConfig): void {
     selectedDataFormatId.value = undefined;
     selectedEncodingId.value = undefined;
     selectedParserId.value = undefined;
+    selectedHasHeaders.value = undefined;
     reportDraft(); // A new pick shows as no item until its preview shows it can be selected.
 }
 
@@ -875,11 +888,24 @@ function resetPreviewState(): void {
     text.value = undefined;
 }
 
+// A preview detects headers afresh, so the user's choice for this item, or the one saved with it, is put back. Otherwise
+// reopening a saved item would change how it reads and lose its audit.
+function applyHeaderChoice(previewConfig: PreviewConfig, connectionNodeConfig: ConnectionNodeConfig): PreviewConfig {
+    const savedNodeConfig = dataViewConfig.value?.connectionNodeConfig;
+    const savedHasHeaders =
+        savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig) ? dataViewConfig.value?.previewConfig?.hasHeaders : undefined;
+    const hasHeaders = selectedHasHeaders.value ?? savedHasHeaders;
+    return hasHeaders == null || previewConfig.dataFormatId !== 'dtv' ? previewConfig : applyPreviewHeaders(previewConfig, hasHeaders);
+}
+
 function applyPreviewConfig(previewConfig: PreviewConfig): void {
     activePreviewConfig.value = previewConfig;
     currentPreviewTabId.value = establishFirstPreviewTabId(previewConfig);
     text.value = previewConfig.text;
+    showPreviewTable(previewConfig);
+}
 
+function showPreviewTable(previewConfig: PreviewConfig): void {
     const previewColumnLabels = previewConfig.columnConfigs.map((config, index) => config.label.en ?? String(index));
 
     // Columns are keyed by position, not header text. TanStack reads a dot in an 'accessorKey' as a nested path, and two
@@ -889,7 +915,7 @@ function applyPreviewConfig(previewConfig: PreviewConfig): void {
         header: label
     }));
 
-    const dataOffset = 1;
+    const dataOffset = previewConfig.hasHeaders === true ? 1 : 0;
     const previewRows = previewConfig.parsedRecords
         .slice(dataOffset)
         .map((record) => Object.fromEntries(record.map((cell, index) => [String(index), cell.value])) as Record<string, string | null>);
@@ -1003,42 +1029,9 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
         <template #detail="{ item }">
             <ErrorNotice v-if="itemFailure" :failures="[itemFailure]" @retry="handleRetryItem" />
-            <!-- Preview Toolbar ─ Sits over the preview only, so the breadcrumbs keep the whole header row. -->
-            <div v-else class="relative flex h-9.25 flex-none items-center gap-x-3 border-b border-separator px-page text-xs text-muted">
-                <!-- Preview Meter ─ Along the top edge, clear of the selected tab's underline at the bottom. Only when the
-                     item's size is known. Green when the whole item was read. The grey track shows how much was not. Any
-                     amount read keeps a minimum width, so a sliver read from a large item is still visible rather than
-                     looking like nothing. A meter rather than a progress bar, because it shows a settled amount, not
-                     work under way. -->
-                <div
-                    v-if="previewAmount?.percentage != null"
-                    :aria-label="t(TEXT, 'preview.aria')"
-                    aria-valuemax="100"
-                    aria-valuemin="0"
-                    :aria-valuenow="Math.round(previewAmount.percentage)"
-                    :aria-valuetext="previewAmount.text"
-                    class="absolute inset-x-0 top-0 h-0.75 bg-separator/50"
-                    role="meter"
-                >
-                    <div
-                        class="h-full"
-                        :class="[
-                            previewAmount.isComplete
-                                ? 'bg-[color-mix(in_srgb,var(--color-success-text)_40%,var(--color-card))]'
-                                : 'bg-[color-mix(in_srgb,var(--color-accent)_40%,var(--color-card))]',
-                            { 'min-w-0.75': previewAmount.percentage > 0 }
-                        ]"
-                        :style="{ width: `${previewAmount.percentage}%` }"
-                    />
-                </div>
-                <!-- Hidden from screen readers when the meter already reads it out. Sized to its text, and the selects give
-                     way first, so the amount always shows. 'mr-auto' pushes the rest of the toolbar to the right. -->
-                <p v-if="previewAmount" :aria-hidden="previewAmount.percentage != null" class="mr-auto flex-none">
-                    <span aria-hidden="true">{{ previewAmount.shortText }}</span>
-                    <span class="sr-only">{{ previewAmount.text }}</span>
-                </p>
-                <span v-else class="flex-1" />
-
+            <!-- Read Choices ─ A row of their own, because the selects need room to show their values. Above the amount and
+                 the tabs, so the tabs stay next to what they switch between. -->
+            <div v-if="itemFailure == null && previewFormatText" class="flex h-9.25 flex-none items-center gap-x-3 border-b border-separator px-page text-xs text-muted">
                 <!-- Format, Encoding and Parser ─ Choosing any of them reads the item again that way. A binary file has no
                      encoding to choose, and the parser is offered only when more than one reads the format. -->
                 <SelectInput
@@ -1099,6 +1092,47 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 >
                     <template #icon><ScanTextIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
                 </SelectInput>
+                <!-- Has Headers ─ Changes how the records already read are shown, so the item is not read again. -->
+                <label v-if="previewHeadersAreChoosable" class="flex flex-none items-center gap-x-1.5">
+                    <input v-model="previewHasHeaders" class="size-3.5 rounded accent-accent" :disabled="previewIsPending" type="checkbox" />
+                    {{ t(TEXT, 'hasHeaders.label') }}
+                </label>
+            </div>
+            <!-- Preview Toolbar ─ Sits over the preview only, so the breadcrumbs keep the whole header row. -->
+            <div v-if="itemFailure == null" class="relative flex h-9.25 flex-none items-center gap-x-3 border-b border-separator px-page text-xs text-muted">
+                <!-- Preview Meter ─ Along the top edge, clear of the selected tab's underline at the bottom. Only when the
+                     item's size is known. Green when the whole item was read. The grey track shows how much was not. Any
+                     amount read keeps a minimum width, so a sliver read from a large item is still visible rather than
+                     looking like nothing. A meter rather than a progress bar, because it shows a settled amount, not
+                     work under way. -->
+                <div
+                    v-if="previewAmount?.percentage != null"
+                    :aria-label="t(TEXT, 'preview.aria')"
+                    aria-valuemax="100"
+                    aria-valuemin="0"
+                    :aria-valuenow="Math.round(previewAmount.percentage)"
+                    :aria-valuetext="previewAmount.text"
+                    class="absolute inset-x-0 top-0 h-0.75 bg-separator/50"
+                    role="meter"
+                >
+                    <div
+                        class="h-full"
+                        :class="[
+                            previewAmount.isComplete
+                                ? 'bg-[color-mix(in_srgb,var(--color-success-text)_40%,var(--color-card))]'
+                                : 'bg-[color-mix(in_srgb,var(--color-accent)_40%,var(--color-card))]',
+                            { 'min-w-0.75': previewAmount.percentage > 0 }
+                        ]"
+                        :style="{ width: `${previewAmount.percentage}%` }"
+                    />
+                </div>
+                <!-- Hidden from screen readers when the meter already reads it out. Sized to its text, and the selects give
+                     way first, so the amount always shows. 'mr-auto' pushes the rest of the toolbar to the right. -->
+                <p v-if="previewAmount" :aria-hidden="previewAmount.percentage != null" class="mr-auto flex-none">
+                    <span aria-hidden="true">{{ previewAmount.shortText }}</span>
+                    <span class="sr-only">{{ previewAmount.text }}</span>
+                </p>
+                <span v-else class="flex-1" />
 
                 <!-- Preview Tabs ─ Icons rather than words, to leave the toolbar room. '-mr-1.5' centres the last icon 30px
                      from the edge, under the assistant toggle. -->
