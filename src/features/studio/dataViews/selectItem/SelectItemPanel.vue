@@ -52,11 +52,13 @@ import type {
     ListNodesOptions,
     ListNodesResult,
     LocalisedConfig,
+    ObjectColumnConfig,
     PreviewConfig,
     PreviewIssue,
     PreviewIssueSeverityId,
     PreviewObjectOptions,
     RecordDelimiterId,
+    RecountPreviewColumnsOptions,
     ValueDelimiterId
 } from '@dpuse/dpuse-shared';
 
@@ -65,13 +67,21 @@ import { applyPreviewHeaders } from './_previewHeaders';
 import { assertDefined } from '@/utilities/index.ts';
 import type { DataSource } from '@/composables/useDataWindow';
 import { establishEngineWorker } from '@/services/engine';
+import { getColumnTypeIcon } from '../_columnTypeIcons';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { renderMarkdown } from '@/services/useMarkedTool';
 import { TEXT } from './SelectItemPanel_.json';
 import { viewportIsWide } from '@/state/device';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
-import { applyPreviewColumnType, type DetectedColumnType } from './_previewColumnTypes';
-import { constructDataTypeLabel, constructPreviewColumnHeaders, constructPreviewColumnRows, PREVIEW_COLUMN_KEYS, type PreviewColumnRow } from '../_previewColumnRows';
+import { applyPreviewColumnType, applyPreviewColumnTypes, type DetectedColumnType } from './_previewColumnTypes';
+import {
+    constructDataTypeLabel,
+    constructPreviewColumnHeaders,
+    constructPreviewColumnIcons,
+    constructPreviewColumnRows,
+    PREVIEW_COLUMN_KEYS,
+    type PreviewColumnRow
+} from '../_previewColumnRows';
 import { constructDataViewConnection, constructItemPath } from '../dataViewSummary';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
 import { localeId, t } from '@/state/locale';
@@ -404,6 +414,12 @@ const parserOptions = computed<SelectOption[]>(() => {
 });
 const parserIsChoosable = computed(() => parserOptions.value.length > 1);
 
+// A chosen encoding is the user's call. Left on Auto, an encoding the preview only assumed is the one value in doubt.
+const encodingSelectTone = computed(() => {
+    if (selectedEncodingId.value != null) return 'info';
+    return detectedEncodingIsAssumed.value ? 'warning' : undefined;
+});
+
 // Delimited text is the only format split by a value delimiter. Auto names the one detected.
 const valueDelimiterOptions = computed<SelectOption[]>(() => {
     const detectedId = detectedValueDelimiterId.value;
@@ -430,6 +446,7 @@ const previewHasHeaders = computed({
         if (activePreviewConfig.value == null) return;
         activePreviewConfig.value = applyPreviewHeaders(activePreviewConfig.value, hasHeaders);
         showPreviewTable(activePreviewConfig.value);
+        void recountActivePreview(hasHeaders);
     }
 });
 const previewValueDelimiterId = computed({
@@ -566,6 +583,7 @@ const previewColumnTableColumnDefinitions = computed<ColumnDef<TableFeatureSet, 
     const headers = constructPreviewColumnHeaders();
     return PREVIEW_COLUMN_KEYS.map((key) => ({ accessorKey: key, header: headers[key] }));
 });
+const previewColumnIcons = computed(() => (activePreviewConfig.value == null ? [] : constructPreviewColumnIcons(activePreviewConfig.value)));
 const previewColumnTableDataSource = computed<DataSource<PreviewColumnRow>>(() => {
     const rows = activePreviewConfig.value == null ? [] : constructPreviewColumnRows(activePreviewConfig.value);
     return { rowCount: rows.length, getRows: (start: number, end: number): Promise<{ rows: PreviewColumnRow[] }> => Promise.resolve({ rows: rows.slice(start, end) }) };
@@ -650,10 +668,12 @@ watch(
             const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewConfig;
             if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
 
+            const headedPreviewConfig = await applyHeaderChoice(previewConfig, newActiveItem);
+            if (currentRequestId !== previewRequestId.value) return;
+
             const wereColumnTypesChosen = Object.values(selectedColumnDataTypeIds.value).some((dataTypeId) => dataTypeId != null);
             selectedColumnDataTypeIds.value = {};
-            detectedColumnTypes.value = previewConfig.columnConfigs.map(({ dataSubtypeId, dataTypeId }) => ({ dataSubtypeId, dataTypeId }));
-            const headedPreviewConfig = applyHeaderChoice(previewConfig, newActiveItem);
+            detectedColumnTypes.value = constructDetectedColumnTypes(headedPreviewConfig);
             applyPreviewConfig(isNewReadChoice && wereColumnTypesChosen ? addColumnTypesResetIssue(headedPreviewConfig) : headedPreviewConfig, isNewReadChoice);
             recordDetectedValues(previewConfig);
             hasLastPreviewSucceeded.value = true;
@@ -949,17 +969,30 @@ function constructColumnTypeOptions(columnId: string): SelectOption[] {
     return [constructAutoOption(detectedColumnType == null ? undefined : constructDataTypeLabel(detectedColumnType.dataTypeId)), ...options];
 }
 
+// The icon for a column's type select. Undefined until the preview holds the column.
+function constructColumnTypeIcon(columnId: string): Component | undefined {
+    const columnConfig = activePreviewConfig.value?.columnConfigs.at(Number(columnId));
+    return columnConfig == null ? undefined : getColumnTypeIcon(columnConfig);
+}
+
+// The Columns tab's type and subtype cells carry their icon. Other cells have none.
+function constructPreviewColumnCellIcon(columnId: string, rowIndex: number): Component | undefined {
+    const columnIcons = previewColumnIcons.value.at(rowIndex);
+    if (columnId === 'dataTypeLabel') return columnIcons?.dataTypeIcon;
+    return columnId === 'dataSubtypeLabel' ? columnIcons?.dataSubtypeIcon : undefined;
+}
+
 function addColumnTypesResetIssue(previewConfig: PreviewConfig): PreviewConfig {
     const issue: PreviewIssue = { id: COLUMN_TYPES_RESET_ISSUE_ID, lineNumber: undefined, message: 'The column types were reset by the new reading.', severityId: 'info' };
     return { ...previewConfig, issues: [...(previewConfig.issues ?? []), issue] };
 }
 
-// Auto, naming what detection found once it is known. The value comes first, so a select short of room cuts '(auto)'
-// and keeps the value. The line after it sets it apart from the values it chooses between.
+// Auto, naming what detection found once it is known. A closed select shows only the value, to save room, and its muted
+// italics say it is a default. The line after it sets it apart from the values it chooses between.
 function constructAutoOption(detectedText?: string, isAssumed = false): SelectOption {
     let label = t(TEXT, 'readOption.auto.label');
     if (detectedText != null) label = t(TEXT, isAssumed ? 'readOption.autoAssumed.label' : 'readOption.autoDetected.label', { value: detectedText });
-    return { hasSeparatorAfter: true, id: AUTO_OPTION_ID, label };
+    return { closedLabel: detectedText, hasSeparatorAfter: true, id: AUTO_OPTION_ID, label };
 }
 
 // A file recognised as something other than data, such as a PDF or an image, has no format, so the type the preview
@@ -1054,12 +1087,46 @@ function resetPreviewState(): void {
 
 // A preview detects headers afresh, so the user's choice for this item, or the one saved with it, is put back. Otherwise
 // reopening a saved item would change how it reads and lose its audit.
-function applyHeaderChoice(previewConfig: PreviewConfig, connectionNodeConfig: ConnectionNodeConfig): PreviewConfig {
+async function applyHeaderChoice(previewConfig: PreviewConfig, connectionNodeConfig: ConnectionNodeConfig): Promise<PreviewConfig> {
     const savedNodeConfig = dataViewConfig.value?.connectionNodeConfig;
     const savedHasHeaders =
         savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig) ? dataViewConfig.value?.previewConfig?.hasHeaders : undefined;
     const hasHeaders = selectedHasHeaders.value ?? savedHasHeaders;
-    return hasHeaders == null || previewConfig.dataFormatId !== 'dtv' ? previewConfig : applyPreviewHeaders(previewConfig, hasHeaders);
+    if (hasHeaders == null || previewConfig.dataFormatId !== 'dtv') return previewConfig;
+    return hasHeaders === previewConfig.hasHeaders ? applyPreviewHeaders(previewConfig, hasHeaders) : recountPreviewColumns(previewConfig, hasHeaders);
+}
+
+// The first record moves between the columns' names and their data, so every count changes. It runs in the engine, which
+// does all the counting, and the records already read are enough.
+async function recountPreviewColumns(previewConfig: PreviewConfig, hasHeaders: boolean): Promise<PreviewConfig> {
+    if (!activeConnectionConfig.value) return applyPreviewHeaders(previewConfig, hasHeaders);
+    const { processRequest } = await establishEngineWorker();
+    const options: RecountPreviewColumnsOptions = { hasHeaders, parsedRecords: previewConfig.parsedRecords };
+    const columnConfigs = (await processRequest('recountPreviewColumns', activeConnectionConfig.value, options)) as ObjectColumnConfig[];
+    return applyPreviewHeaders({ ...previewConfig, columnConfigs }, hasHeaders);
+}
+
+// The labels already show the new choice, so the table stays as it is while the counts catch up. The types the user
+// chose are kept, because the records have not changed.
+async function recountActivePreview(hasHeaders: boolean): Promise<void> {
+    const previewConfig = activePreviewConfig.value;
+    if (previewConfig == null) return;
+    const currentRequestId = ++previewRequestId.value;
+    try {
+        const recountedPreviewConfig = await recountPreviewColumns(previewConfig, hasHeaders);
+        if (currentRequestId !== previewRequestId.value) return; // A newer choice owns the panel now.
+        detectedColumnTypes.value = constructDetectedColumnTypes(recountedPreviewConfig);
+        activePreviewConfig.value = applyPreviewColumnTypes(recountedPreviewConfig, selectedColumnDataTypeIds.value, detectedColumnTypes.value);
+    } catch (error) {
+        if (currentRequestId !== previewRequestId.value) return; // A newer choice owns the panel now.
+        itemFailure.value = raiseFailure(
+            new AppError('Failed to recount the preview columns.', 'dpuse-app.SelectItemPanel.recountActivePreview', { typeId: 'handled' }, { cause: error })
+        );
+    }
+}
+
+function constructDetectedColumnTypes({ columnConfigs }: PreviewConfig): DetectedColumnType[] {
+    return columnConfigs.map(({ dataSubtypeId, dataTypeId }) => ({ dataSubtypeId, dataTypeId }));
 }
 
 // A new read choice stays on the current tab, so the user can compare the readings, unless the new reading disables it.
@@ -1300,87 +1367,100 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     </div>
                 </div>
             </div>
-            <!-- Read Choices ─ A row of their own, because the selects need room to show their values. -->
-            <div v-if="itemFailure == null && previewFormatText" class="flex h-9.25 flex-none items-center gap-x-3 border-b border-separator px-page text-xs text-muted">
-                <!-- Format, Encoding, Parser and Value Delimiter ─ Choosing any of them reads the item again that way. A binary
-                     file has no encoding to choose, the parser is offered only when more than one reads the format, and only
-                     delimited text has a value delimiter. -->
-                <!-- '-ml-1.75' cancels the select's own padding and border, so its icon lines up with the page edge. -->
-                <SelectInput
-                    v-if="previewFormatText"
-                    v-model="previewDataFormatId"
-                    :is-default="selectedDataFormatId == null"
-                    class="-ml-1.75 min-w-0"
-                    :description="previewFormatSupport ? t(TEXT, previewFormatSupport.ariaKey) : undefined"
-                    :disabled="previewIsPending"
-                    is-compact
-                    :label="t(TEXT, 'format.label')"
-                    label-hidden
-                    :options="dataFormatOptions"
-                >
-                    <!-- One icon: the format's own for a format the app can read or plans to, greyed out while it has no reader,
-                         and otherwise why it cannot be read. -->
-                    <template #icon>
-                        <ConfigIcon
-                            v-if="(previewFormatSupport?.id === 'supported' || previewFormatSupport?.id === 'planned') && previewFormatIconConfig"
-                            class="size-[1.25em] flex-none"
-                            :class="{ 'opacity-60 grayscale': previewFormatSupport.id === 'planned' }"
-                            :icon="previewFormatIconConfig.icon"
-                            :icon-dark="previewFormatIconConfig.iconDark"
-                        />
-                        <component
-                            :is="previewFormatSupport.icon"
-                            v-else-if="previewFormatSupport?.icon && previewFormatSupport.id !== 'supported'"
-                            aria-hidden="true"
-                            class="size-[1.25em] flex-none"
-                            :class="previewFormatSupport.colorClass"
-                            :stroke-width="2.5"
-                        />
-                    </template>
-                </SelectInput>
-                <SelectInput
-                    v-if="activePreviewConfig?.encodingId != null"
-                    v-model="previewEncodingId"
-                    :is-default="selectedEncodingId == null"
-                    class="min-w-0"
-                    :disabled="previewIsPending"
-                    is-compact
-                    :label="t(TEXT, 'encoding.label')"
-                    label-hidden
-                    :options="encodingOptions"
-                >
-                    <template #icon><LanguagesIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
-                </SelectInput>
-                <SelectInput
-                    v-if="parserIsChoosable"
-                    v-model="previewParserId"
-                    class="min-w-0"
-                    :disabled="previewIsPending"
-                    is-compact
-                    :label="t(TEXT, 'parser.label')"
-                    label-hidden
-                    :options="parserOptions"
-                >
-                    <template #icon><ScanTextIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
-                </SelectInput>
-                <SelectInput
-                    v-if="valueDelimiterIsChoosable"
-                    v-model="previewValueDelimiterId"
-                    :is-default="selectedValueDelimiterId == null"
-                    class="min-w-0"
-                    :disabled="previewIsPending"
-                    is-compact
-                    :label="t(TEXT, 'valueDelimiter.label')"
-                    label-hidden
-                    :options="valueDelimiterOptions"
-                >
-                    <template #icon><SeparatorVerticalIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
-                </SelectInput>
-                <!-- Has Headers ─ Changes how the records already read are shown, so the item is not read again. -->
-                <label v-if="previewHeadersAreChoosable" class="flex flex-none items-center gap-x-1.5">
-                    <input v-model="previewHasHeaders" class="size-3.5 rounded accent-accent" :disabled="previewIsPending" type="checkbox" />
-                    {{ t(TEXT, 'hasHeaders.label') }}
-                </label>
+            <!-- Read Choices ─ A row of their own, because the selects need room to show their values. '@container'
+                 measures the row itself, because the panel beside the list can be narrow on any screen. Each select
+                 stops at 'min-w-12.75', the width of its icon and arrow, so its value truncates and then disappears,
+                 and the arrow never covers the icon. Headers wraps onto a second line only below the width all of them
+                 need, because a plain 'flex-wrap' would wrap before any value truncated. -->
+            <div v-if="itemFailure == null && previewFormatText" class="@container flex-none">
+                <div class="flex min-h-9.25 flex-wrap items-center gap-x-1 border-b border-separator px-page py-1 text-xs text-muted @[21.5rem]:flex-nowrap @md:gap-x-3">
+                    <div class="flex min-w-0 basis-full items-center gap-x-1 @[21.5rem]:basis-auto @md:gap-x-3">
+                        <!-- Format, Encoding, Parser and Value Delimiter ─ Choosing any of them reads the item again
+                             that way. A binary file has no encoding to choose, the parser is offered only when more
+                             than one reads the format, and only delimited text has a value delimiter. -->
+                        <!-- '-ml-1.75' cancels the select's own padding and border, so its icon lines up with the page
+                             edge. -->
+                        <SelectInput
+                            v-if="previewFormatText"
+                            v-model="previewDataFormatId"
+                            :is-default="selectedDataFormatId == null"
+                            class="-ml-1.75 min-w-12.75"
+                            :description="previewFormatSupport ? t(TEXT, previewFormatSupport.ariaKey) : undefined"
+                            :disabled="previewIsPending"
+                            is-compact
+                            :label="t(TEXT, 'format.label')"
+                            label-hidden
+                            :options="dataFormatOptions"
+                            :tone="selectedDataFormatId == null ? undefined : 'info'"
+                        >
+                            <!-- One icon: the format's own for a format the app can read or plans to, greyed out while
+                                 it has no reader, and otherwise why it cannot be read. -->
+                            <template #icon>
+                                <ConfigIcon
+                                    v-if="(previewFormatSupport?.id === 'supported' || previewFormatSupport?.id === 'planned') && previewFormatIconConfig"
+                                    class="size-[1.25em] flex-none"
+                                    :class="{ 'opacity-60 grayscale': previewFormatSupport.id === 'planned' }"
+                                    :icon="previewFormatIconConfig.icon"
+                                    :icon-dark="previewFormatIconConfig.iconDark"
+                                />
+                                <component
+                                    :is="previewFormatSupport.icon"
+                                    v-else-if="previewFormatSupport?.icon && previewFormatSupport.id !== 'supported'"
+                                    aria-hidden="true"
+                                    class="size-[1.25em] flex-none"
+                                    :class="previewFormatSupport.colorClass"
+                                    :stroke-width="2.5"
+                                />
+                            </template>
+                        </SelectInput>
+                        <SelectInput
+                            v-if="activePreviewConfig?.encodingId != null"
+                            v-model="previewEncodingId"
+                            :is-default="selectedEncodingId == null"
+                            class="min-w-12.75"
+                            :disabled="previewIsPending"
+                            is-compact
+                            :label="t(TEXT, 'encoding.label')"
+                            label-hidden
+                            :options="encodingOptions"
+                            :tone="encodingSelectTone"
+                        >
+                            <template #icon><LanguagesIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
+                        </SelectInput>
+                        <SelectInput
+                            v-if="parserIsChoosable"
+                            v-model="previewParserId"
+                            class="min-w-12.75"
+                            :disabled="previewIsPending"
+                            is-compact
+                            :label="t(TEXT, 'parser.label')"
+                            label-hidden
+                            :options="parserOptions"
+                        >
+                            <template #icon><ScanTextIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
+                        </SelectInput>
+                        <SelectInput
+                            v-if="valueDelimiterIsChoosable"
+                            v-model="previewValueDelimiterId"
+                            :is-default="selectedValueDelimiterId == null"
+                            class="min-w-12.75"
+                            :disabled="previewIsPending"
+                            is-compact
+                            :label="t(TEXT, 'valueDelimiter.label')"
+                            label-hidden
+                            :options="valueDelimiterOptions"
+                            :tone="selectedValueDelimiterId == null ? undefined : 'info'"
+                        >
+                            <template #icon><SeparatorVerticalIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
+                        </SelectInput>
+                    </div>
+                    <!-- Headers ─ Changes how the records already read are shown and counted, so the item is not read
+                         again. -->
+                    <label v-if="previewHeadersAreChoosable" class="flex h-7 flex-none items-center gap-x-1.5">
+                        <input v-model="previewHasHeaders" class="size-3.5 rounded accent-accent" :disabled="previewIsPending" type="checkbox" />
+                        {{ t(TEXT, 'hasHeaders.label') }}
+                    </label>
+                </div>
             </div>
             <!-- Preview Issues ─ Between the toolbar and the tabs, so they show on every tab without hiding the text or details.
                  A long list scrolls rather than pushing the preview out of view. -->
@@ -1420,7 +1500,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 class="relative flex min-h-0 flex-1 flex-col"
                 :role="viewportIsWide ? 'tabpanel' : undefined"
             >
-                <BusyBar v-if="previewIsPending" class="mx-page" />
+                <!-- Busy Bar ─ Over the content, because taking up height would nudge the preview down on every read. -->
+                <BusyBar v-if="previewIsPending" class="absolute inset-x-0 top-0 z-10 mx-page" />
                 <Table
                     v-show="currentPreviewTabId === 'table' && activePreviewConfig != null"
                     class="flex-1"
@@ -1431,10 +1512,11 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 >
                     <!-- Column Type ─ Below the label, so a type can be changed beside the values it describes. Choosing one
                          changes how the column is read, not the records, so nothing is read again. '-ml-1.75' cancels the
-                         select's own padding and border, so its text lines up with the label. -->
+                         select's own padding and border, so its icon lines up with the label. 'min-w-12.75' is the width of the
+                         icon and arrow, so the arrow never covers the icon. -->
                     <template #header-detail="{ columnId }">
                         <SelectInput
-                            class="-ml-1.75 min-w-0"
+                            class="-ml-1.75 min-w-12.75"
                             :disabled="previewIsPending"
                             is-compact
                             :is-default="selectedColumnDataTypeIds[columnId] == null"
@@ -1442,8 +1524,11 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             label-hidden
                             :model-value="selectedColumnDataTypeIds[columnId] ?? AUTO_OPTION_ID"
                             :options="constructColumnTypeOptions(columnId)"
+                            :tone="selectedColumnDataTypeIds[columnId] == null ? undefined : 'info'"
                             @update:model-value="handleSelectColumnDataType(columnId, $event)"
-                        />
+                        >
+                            <template #icon><component :is="constructColumnTypeIcon(columnId)" aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
+                        </SelectInput>
                     </template>
                 </Table>
                 <!-- 'v-if', so the table measures its space when it opens rather than while hidden. -->
@@ -1454,7 +1539,11 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     :data-source="previewColumnTableDataSource"
                     is-column-menu-hidden
                     is-column-picker-hidden
-                />
+                >
+                    <template #cell-icon="{ columnId, rowIndex }">
+                        <component :is="constructPreviewColumnCellIcon(columnId, rowIndex)" aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
+                    </template>
+                </Table>
                 <TextViewer
                     v-show="currentPreviewTabId === 'text' && activePreviewConfig != null && !previewIsMarkdown"
                     ref="textViewer"

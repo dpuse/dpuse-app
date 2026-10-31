@@ -8,7 +8,7 @@ import type { PreviewConfig } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { t } from '@/state/locale';
 import { TEXT } from './PreviewColumnTable_.json';
-import { constructPreviewColumnHeaders, constructPreviewColumnRows } from './_previewColumnRows';
+import { constructPreviewColumnHeaders, constructPreviewColumnIcons, constructPreviewColumnRows } from './_previewColumnRows';
 
 // ── Static Components
 import ScrollRegion from '@/components/ui/scroll/ScrollRegion.vue';
@@ -24,6 +24,7 @@ const { isLabelShown, previewConfig, rowLimit } = defineProps<{
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const columnHeaders = computed(() => constructPreviewColumnHeaders());
+const columnIcons = computed(() => constructPreviewColumnIcons(previewConfig));
 const columnRows = computed(() => constructPreviewColumnRows(previewConfig));
 const shownColumnRows = computed(() => (rowLimit == null ? columnRows.value : columnRows.value.slice(0, rowLimit)));
 </script>
@@ -44,11 +45,21 @@ const shownColumnRows = computed(() => (rowLimit == null ? columnRows.value : co
             <tbody>
                 <tr v-for="(columnRow, index) in shownColumnRows" :key="index">
                     <td class="py-1 pr-4">{{ columnRow.label }}</td>
-                    <td class="py-1 pr-4">{{ columnRow.dataTypeLabel }}</td>
+                    <td class="py-1 pr-4">
+                        <span class="flex items-center gap-x-1.5">
+                            <component :is="columnIcons[index]?.dataTypeIcon" aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
+                            {{ columnRow.dataTypeLabel }}
+                        </span>
+                    </td>
                     <!-- A column with no subtype is left blank on screen, and screen readers hear 'None', because a blank cell
                          alone does not say why it is empty. 'relative' keeps the hidden text inside the scroller, or iOS
                          Safari scrolls the whole page sideways. -->
-                    <td v-if="columnRow.dataSubtypeLabel" class="py-1 pr-4">{{ columnRow.dataSubtypeLabel }}</td>
+                    <td v-if="columnRow.dataSubtypeLabel" class="py-1 pr-4">
+                        <span class="flex items-center gap-x-1.5">
+                            <component :is="columnIcons[index]?.dataSubtypeIcon" aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
+                            {{ columnRow.dataSubtypeLabel }}
+                        </span>
+                    </td>
                     <td v-else class="relative py-1 pr-4">
                         <span class="sr-only">{{ t(TEXT, 'column.dataSubtype.none.text') }}</span>
                     </td>

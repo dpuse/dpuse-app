@@ -1,13 +1,22 @@
+// ── External Dependencies & Registrations
+import type { Component } from 'vue';
+
 // ── DPUse Framework
 import type { DataSubtypeId, DataTypeId, ObjectColumnConfig, PreviewConfig, StorageTypeId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { TEXT } from './_previewColumnRows_.json';
+import { DATA_SUBTYPE_ICONS, DATA_TYPE_ICONS } from './_columnTypeIcons';
 import { localeId, t } from '@/state/locale';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export type PreviewColumnRow = Record<(typeof PREVIEW_COLUMN_KEYS)[number], string>;
+
+export interface PreviewColumnIcons {
+    dataSubtypeIcon: Component | undefined; // Undefined when the subtype has no label.
+    dataTypeIcon: Component;
+}
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -160,6 +169,14 @@ export function constructPreviewColumnRows(previewConfig: PreviewConfig): Previe
             invalidSampleText: formatSamples(columnConfig.invalidValues)
         };
     });
+}
+
+// The icons beside a row's type and subtype labels, kept apart from the rows because the table's cells hold only text.
+export function constructPreviewColumnIcons(previewConfig: PreviewConfig): PreviewColumnIcons[] {
+    return previewConfig.columnConfigs.map(({ dataSubtypeId, dataTypeId }) => ({
+        dataSubtypeIcon: dataSubtypeId === undefined || dataSubtypeId === 'plain' ? undefined : DATA_SUBTYPE_ICONS[dataSubtypeId],
+        dataTypeIcon: DATA_TYPE_ICONS[dataTypeId]
+    }));
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -6,7 +6,8 @@
 import { describe, expect, it } from 'vitest';
 
 // Framework dependencies.
-import { constructPreviewColumnHeaders, constructPreviewColumnRows, PREVIEW_COLUMN_KEYS } from '@/features/studio/dataViews/_previewColumnRows';
+import { constructPreviewColumnHeaders, constructPreviewColumnIcons, constructPreviewColumnRows, PREVIEW_COLUMN_KEYS } from '@/features/studio/dataViews/_previewColumnRows';
+import { DATA_SUBTYPE_ICONS, DATA_TYPE_ICONS, getColumnTypeIcon } from '@/features/studio/dataViews/_columnTypeIcons';
 import type { ObjectColumnConfig, PreviewConfig } from '@dpuse/dpuse-shared';
 
 function constructPreviewConfig(hasHeaders: boolean, columnConfig: Partial<ObjectColumnConfig>): PreviewConfig {
@@ -19,6 +20,27 @@ describe('constructPreviewColumnHeaders', () => {
         const headerKeys = Object.keys(constructPreviewColumnHeaders());
 
         expect(new Set(headerKeys)).toEqual(new Set(PREVIEW_COLUMN_KEYS));
+    });
+});
+
+describe('constructPreviewColumnIcons', () => {
+    it('gives a column its type and subtype icons', () => {
+        const previewConfig = constructPreviewConfig(false, { dataSubtypeId: 'integer', dataTypeId: 'numeric' });
+
+        expect(constructPreviewColumnIcons(previewConfig)[0]).toEqual({ dataSubtypeIcon: DATA_SUBTYPE_ICONS.integer, dataTypeIcon: DATA_TYPE_ICONS.numeric });
+    });
+
+    it('shows no subtype icon for plain text, which has no subtype label', () => {
+        const previewConfig = constructPreviewConfig(false, { dataSubtypeId: 'plain' });
+
+        expect(constructPreviewColumnIcons(previewConfig)[0]).toEqual({ dataSubtypeIcon: undefined, dataTypeIcon: DATA_TYPE_ICONS.string });
+    });
+});
+
+describe('getColumnTypeIcon', () => {
+    it('uses the subtype icon, or the type icon when there is no subtype', () => {
+        expect(getColumnTypeIcon({ dataSubtypeId: 'email', dataTypeId: 'string' })).toBe(DATA_SUBTYPE_ICONS.email);
+        expect(getColumnTypeIcon({ dataSubtypeId: undefined, dataTypeId: 'boolean' })).toBe(DATA_TYPE_ICONS.boolean);
     });
 });
 
@@ -88,7 +110,13 @@ describe('constructPreviewColumnRows', () => {
             validValueCount: 3
         });
 
-        expect(constructPreviewColumnRows(previewConfig)[0]).toMatchObject({ blankValueText: '1', invalidValueText: '0', matchText: '100%', missingValueText: '2', validValueText: '4' });
+        expect(constructPreviewColumnRows(previewConfig)[0]).toMatchObject({
+            blankValueText: '1',
+            invalidValueText: '0',
+            matchText: '100%',
+            missingValueText: '2',
+            validValueText: '4'
+        });
     });
 
     it('says when a column held too many values to count, and leaves a preview read before counting blank', () => {

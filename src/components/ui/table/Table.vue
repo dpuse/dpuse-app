@@ -12,6 +12,7 @@ import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 import TableCell from './TableRowCell.vue';
 import TableColumnPicker from './TableColumnPicker.vue';
 import TableHeaderCell from './TableHeaderCell.vue';
+import TableResizeLine from './TableResizeLine.vue';
 import ScrollThumb, { SCROLL_THUMB_CROSS_INSET } from '../scroll/ScrollThumb.vue';
 import { type TableFeatureSet, tableFeatureSet } from './tableFeatures.ts';
 
@@ -45,6 +46,7 @@ const {
 } = defineProps<Properties>();
 
 defineSlots<{
+    'cell-icon'?(properties: { columnId: string; rowIndex: number }): unknown; // Rendered before a cell's value.
     'header-detail'?(properties: { columnId: string }): unknown; // Rendered below each column's label, in a taller header.
 }>();
 
@@ -281,7 +283,9 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                     :loading="visibleRowData[i] === undefined"
                                     class="sticky shrink-0 border-r border-boundary bg-surface group-hover:bg-card"
                                     :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 1 }"
-                                />
+                                >
+                                    <template v-if="$slots['cell-icon']" #icon><slot name="cell-icon" :column-id="leftLeafHeader.column.id" :row-index="vRow.index" /></template>
+                                </TableCell>
 
                                 <!-- Center cells: flat when below threshold, virtualised when above -->
                                 <template v-if="!columnVirtualisationIsRequired">
@@ -292,7 +296,11 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                         :loading="visibleRowData[i] === undefined"
                                         class="shrink-0"
                                         :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
-                                    />
+                                    >
+                                        <template v-if="$slots['cell-icon']" #icon
+                                            ><slot name="cell-icon" :column-id="centerLeafHeader.column.id" :row-index="vRow.index"
+                                        /></template>
+                                    </TableCell>
                                 </template>
 
                                 <div v-else class="relative shrink-0 group-hover:bg-card" :style="{ width: totalCenterWidth + 'px' }">
@@ -303,7 +311,11 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                         :loading="visibleRowData[i] === undefined"
                                         class="absolute top-0 h-full"
                                         :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
-                                    />
+                                    >
+                                        <template v-if="$slots['cell-icon']" #icon
+                                            ><slot name="cell-icon" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" :row-index="vRow.index"
+                                        /></template>
+                                    </TableCell>
                                 </div>
 
                                 <!-- Right pinned cells -->
@@ -314,7 +326,9 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                     :loading="visibleRowData[i] === undefined"
                                     class="sticky shrink-0 border-l border-boundary bg-surface group-hover:bg-card"
                                     :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 1 }"
-                                />
+                                >
+                                    <template v-if="$slots['cell-icon']" #icon><slot name="cell-icon" :column-id="rightLeafHeader.column.id" :row-index="vRow.index" /></template>
+                                </TableCell>
 
                                 <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
                             </div>
@@ -338,5 +352,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                 :cross-inset-end="verticalThumb?.visible ? SCROLL_THUMB_CROSS_INSET : 0"
             />
         </div>
+
+        <TableResizeLine :header-viewport-element="headerViewport" :table="table" />
     </div>
 </template>

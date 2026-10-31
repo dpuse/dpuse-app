@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import type { PreviewConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { applyPreviewColumnType } from '@/features/studio/dataViews/selectItem/_previewColumnTypes';
+import { applyPreviewColumnType, applyPreviewColumnTypes } from '@/features/studio/dataViews/selectItem/_previewColumnTypes';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -35,5 +35,16 @@ describe('applyPreviewColumnType', () => {
 
     it('keeps the detected subtype when the detected type is chosen', () => {
         expect(applyPreviewColumnType(PREVIEW_CONFIG, 0, 'numeric', DETECTED_COLUMN_TYPE).columnConfigs[0]).toMatchObject(DETECTED_COLUMN_TYPE);
+    });
+});
+
+describe('applyPreviewColumnTypes', () => {
+    it('puts back the chosen types, and leaves the other columns as detected', () => {
+        const detectedColumnTypes = [DETECTED_COLUMN_TYPE, { dataSubtypeId: 'plain', dataTypeId: 'string' } as const];
+
+        const previewConfig = applyPreviewColumnTypes(PREVIEW_CONFIG, { 0: 'string' }, detectedColumnTypes);
+
+        expect(previewConfig.columnConfigs[0]).toMatchObject({ dataSubtypeId: undefined, dataTypeId: 'string' });
+        expect(previewConfig.columnConfigs[1]).toMatchObject({ dataSubtypeId: 'plain', dataTypeId: 'string' });
     });
 });

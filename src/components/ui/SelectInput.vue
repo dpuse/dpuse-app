@@ -6,6 +6,7 @@ import { computed, useId } from 'vue';
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface SelectOption {
+    closedLabel?: string; // Shown instead of the label once chosen, in a compact select only, because a native select shows only its option's text.
     groupLabel?: string; // Options next to each other with the same group label are listed under it.
     hasSeparatorAfter?: boolean; // Draws a line after the option in the open list, e.g. to set a default apart. Seen only, not read out.
     id: string;
@@ -19,6 +20,10 @@ interface SelectOptionGroup {
     options: SelectOption[];
 }
 
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const TONE_CLASSES = { info: 'border-info-border bg-info', warning: 'border-warning-border bg-warning' };
+
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const {
@@ -28,7 +33,8 @@ const {
     isDefault,
     label,
     labelHidden,
-    options = []
+    options = [],
+    tone
 } = defineProps<{
     description?: string; // Read out after the value, for what the value alone does not say.
     disabled?: boolean;
@@ -37,6 +43,7 @@ const {
     label: string;
     labelHidden?: boolean;
     options?: SelectOption[];
+    tone?: 'info' | 'warning'; // Tints the control: 'info' for a value the user chose over a default, 'warning' for a value in doubt. The value's text must say so too, because colour alone does not.
 }>();
 
 defineSlots<{
@@ -62,7 +69,9 @@ const optionGroups = computed(() => {
     return groups;
 });
 
-const selectedOptionLabel = computed(() => options.find((option) => option.id === selectedOptionId.value)?.label ?? '');
+const selectedOption = computed(() => options.find((option) => option.id === selectedOptionId.value));
+const selectedOptionLabel = computed(() => selectedOption.value?.closedLabel ?? selectedOption.value?.label ?? '');
+const toneClass = computed(() => (tone ? TONE_CLASSES[tone] : undefined));
 </script>
 
 <template>
@@ -75,7 +84,8 @@ const selectedOptionLabel = computed(() => options.find((option) => option.id ==
              Compact ─ iOS Safari zooms into a form field whose text is under 16px, so 'main.css' sets every field to 16px
              there. A compact select shows its value in a span at the toolbar's small size instead, and lies over it
              unseen at full size, so a tap still opens the select and nothing zooms. The span also sizes it to its value.
-             It takes the select's hover, focus ring and disabled look through 'peer-*'.
+             It takes the select's hover, focus ring and disabled look through 'peer-*'. The disabled look waits 200ms, so
+             a read that finishes quickly does not blink the whole toolbar.
              TODO: Review 'appearance: base-select' later. The open list is drawn by the browser, and on macOS Chrome and
              Safari it ignores CSS, so group labels and options cannot be styled (verified on Chrome 155). 'base-select'
              makes the list and its options styleable through '::picker(select)'. It needs Chrome and Edge 135, and
@@ -91,7 +101,8 @@ const selectedOptionLabel = computed(() => options.find((option) => option.id ==
                     isCompact
                         ? 'peer absolute inset-0 size-full opacity-0'
                         : [
-                              'h-9 w-full max-w-full min-w-0 truncate rounded-md border border-boundary bg-surface pr-8 pl-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring disabled:opacity-50',
+                              'h-9 w-full max-w-full min-w-0 truncate rounded-md border pr-8 pl-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring disabled:opacity-50',
+                              toneClass ?? 'border-boundary bg-surface',
                               isDefault ? 'text-muted italic' : 'text-content'
                           ]
                 "
@@ -110,10 +121,13 @@ const selectedOptionLabel = computed(() => options.find((option) => option.id ==
             <span
                 v-if="isCompact"
                 aria-hidden="true"
-                class="flex h-7 max-w-full items-center gap-x-1 rounded-md border border-transparent pr-6 pl-1.5 text-xs leading-6.5 transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-focus-ring peer-hover:peer-enabled:state-hover peer-disabled:opacity-50"
+                class="flex h-7 max-w-full items-center gap-x-1 rounded-md border pr-6 pl-1.5 text-xs leading-6.5 transition-[color,background-color,border-color,opacity] peer-focus-visible:outline-2 peer-focus-visible:outline-focus-ring peer-hover:peer-enabled:state-hover peer-disabled:opacity-50 peer-disabled:delay-200"
+                :class="toneClass ?? 'border-transparent'"
             >
                 <slot name="icon" />
-                <span class="truncate" :class="isDefault ? 'text-muted italic' : 'text-content'">{{ selectedOptionLabel }}</span>
+                <!-- '-mr-0.5 pr-0.5' widens what 'truncate' clips but not the layout, because italic letters lean past
+                     their measured width. -->
+                <span class="-mr-0.5 truncate pr-0.5" :class="isDefault ? 'text-muted italic' : 'text-content'">{{ selectedOptionLabel }}</span>
             </span>
             <ChevronDownIcon
                 aria-hidden="true"

@@ -9,6 +9,7 @@ import { AppError } from '@dpuse/dpuse-shared';
 import type { DataTypeId, DataViewConfig, LocalisedConfig, ObjectColumnConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { getColumnTypeIcon } from '@/features/studio/dataViews/_columnTypeIcons';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { TEXT } from './AuditContentPanel_.json';
 import { abortDataViewContentAudit, auditDataViewContent, resolveDataViewIdParameter, useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
@@ -99,6 +100,7 @@ const auditColumnRows = computed(() => {
     const numberFormat = new Intl.NumberFormat(localeId.value);
     return (contentAuditConfig.value?.columns ?? []).map((columnConfig, index) => ({
         label: columnConfig.label[localeId.value] ?? columnConfig.label.en ?? String(index + 1),
+        dataTypeIcon: getColumnTypeIcon(columnConfig),
         dataTypeLabel: t(TEXT, DATA_TYPE_LABEL_KEYS[columnConfig.dataTypeId]),
         formatText: Object.entries(columnConfig.formats)
             .toSorted((left, right) => right[1] - left[1])
@@ -226,7 +228,12 @@ async function auditContent(): Promise<void> {
                             <tbody>
                                 <tr v-for="(columnRow, index) in auditColumnRows" :key="index">
                                     <td class="py-1 pr-4">{{ columnRow.label }}</td>
-                                    <td class="py-1 pr-4">{{ columnRow.dataTypeLabel }}</td>
+                                    <td class="py-1 pr-4">
+                                        <span class="flex items-center gap-x-1.5">
+                                            <component :is="columnRow.dataTypeIcon" aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
+                                            {{ columnRow.dataTypeLabel }}
+                                        </span>
+                                    </td>
                                     <td class="py-1 pr-4">{{ columnRow.validValueText }}</td>
                                     <td class="py-1 pr-4">{{ columnRow.invalidValueText }}</td>
                                     <td class="py-1 pr-4">{{ columnRow.blankValueText }}</td>

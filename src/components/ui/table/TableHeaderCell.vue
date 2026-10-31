@@ -1,9 +1,9 @@
 <script setup lang="ts" generic="T extends RowData">
 // ── External Dependencies & Registrations
 import { ChevronDown } from '@lucide/vue';
+import { computed, ref, useTemplateRef } from 'vue';
 import type { Header, RowData } from '@tanstack/vue-table';
 import { onClickOutside, useEventListener } from '@vueuse/core';
-import { ref, useTemplateRef } from 'vue';
 
 import { t } from '@/state/locale';
 import { TEXT } from './TableHeaderCell_.json';
@@ -30,6 +30,11 @@ const menuPanelElement = useTemplateRef<HTMLDivElement>('menuPanel');
 
 const menuOpen = ref(false);
 const menuPosition = ref({ right: 0, top: 0 });
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A 'computed' because the drag updates the resize state on every frame, and a header only re-renders when this changes.
+const columnIsResizing = computed(() => header.column.getIsResizing());
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -64,7 +69,7 @@ function handleToggleMenu(): void {
 </script>
 
 <template>
-    <div class="relative flex h-full items-center select-none" data-region="TableHeaderCell">
+    <div class="relative flex h-full items-center pr-2 select-none pointer-coarse:pr-5" data-region="TableHeaderCell">
         <div class="flex min-w-0 flex-1 flex-col justify-center px-3">
             <span class="truncate text-sm font-medium text-muted">{{ String(header.column.columnDef.header) }}</span>
             <slot name="detail" />
@@ -128,15 +133,24 @@ function handleToggleMenu(): void {
             </Teleport>
         </div>
 
-        <!-- Resize Handle ─ 'touch-none' prevents scroll interference on mobile -->
+        <!-- Resize Handle ─ 'touch-none' prevents scroll interference on mobile. The short line stays visible so the
+             edge reads as draggable, and grows to the header's height on hover and during a drag. The wider area around
+             it is invisible and only makes it easier to grab. It doubles on touch screens, where a fingertip needs
+             more. -->
         <div
             v-if="header.column.getCanResize()"
-            class="absolute top-0 right-0 h-full w-1 cursor-col-resize touch-none select-none hover:bg-zinc-300 dark:hover:bg-zinc-600"
-            :class="header.column.getIsResizing() ? 'bg-zinc-400 dark:bg-zinc-500' : ''"
+            class="group/resize absolute top-0 right-0 flex h-full w-3 cursor-col-resize touch-none items-center justify-end select-none pointer-coarse:w-6"
             role="button"
             tabIndex="0"
             @mousedown.stop="header.getResizeHandler()($event)"
             @touchstart.stop.passive="header.getResizeHandler()($event)"
-        />
+        >
+            <div
+                class="w-0.5 rounded-full transition-all"
+                :class="columnIsResizing ? 'h-full bg-muted' : 'h-4 bg-subtle group-hover/resize:h-full group-hover/resize:bg-muted'"
+                :data-column-id="header.column.id"
+                data-region="TableResizeHandle"
+            />
+        </div>
     </div>
 </template>
