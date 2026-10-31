@@ -30,6 +30,7 @@ interface Properties {
     dataSource: DataSource<T>;
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
+    isColumnMenuHidden?: boolean; // Leaves out each column's pin and hide menu, for a table that must show every column as it is.
     isColumnPickerHidden?: boolean; // Leaves out the toolbar that shows and hides columns, for a table that only previews data.
     scrollAreaPaddingBottom?: string; // Room after the last row, as a grid's scroll area has. Less where the table already ends above a status bar.
 }
@@ -38,9 +39,14 @@ const {
     dataSource,
     cacheBlockSize = 100,
     maxBlocksInCache = 10,
+    isColumnMenuHidden,
     isColumnPickerHidden,
     scrollAreaPaddingBottom = 'var(--vertical-scroll-bottom-screen-inset)'
 } = defineProps<Properties>();
+
+defineSlots<{
+    'header-detail'?(properties: { columnId: string }): unknown; // Rendered below each column's label, in a taller header.
+}>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 // Outer scrolls vertically only (drives the row virtualizer), inner scrolls horizontally only (drives the column
@@ -186,17 +192,19 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
              ancestor, and inside the body below that would be the horizontal-only inner scroller, which never scrolls
              vertically, so a sticky header nested in there would just scroll away with the rows instead of pinning. -->
         <div ref="headerViewport" class="overflow-hidden" @wheel.passive="handleHeaderWheel">
-            <div class="flex h-10 border-b border-boundary bg-card" :style="{ minWidth: totalWidth + 'px' }">
+            <div class="flex border-b border-boundary bg-backdrop" :class="$slots['header-detail'] ? 'h-14' : 'h-10'" :style="{ minWidth: totalWidth + 'px' }">
                 <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
 
                 <!-- Left pinned headers -->
                 <div
                     v-for="leftLeafHeader in leftLeafHeaders"
                     :key="leftLeafHeader.id"
-                    class="sticky shrink-0 border-r border-boundary bg-card"
+                    class="sticky shrink-0 border-r border-boundary bg-backdrop"
                     :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                 >
-                    <TableHeaderCell :header="leftLeafHeader" />
+                    <TableHeaderCell :header="leftLeafHeader" :is-menu-hidden="isColumnMenuHidden">
+                        <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="leftLeafHeader.column.id" /></template>
+                    </TableHeaderCell>
                 </div>
 
                 <!-- Center headers: flat when below threshold, virtualised when above -->
@@ -207,7 +215,9 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                         class="h-full shrink-0"
                         :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
                     >
-                        <TableHeaderCell :header="centerLeafHeader" />
+                        <TableHeaderCell :header="centerLeafHeader" :is-menu-hidden="isColumnMenuHidden">
+                            <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="centerLeafHeader.column.id" /></template>
+                        </TableHeaderCell>
                     </div>
                 </template>
 
@@ -218,7 +228,9 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                         class="absolute top-0 h-full"
                         :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
                     >
-                        <TableHeaderCell :header="centerLeafHeaders[virtualColumn.index]!" />
+                        <TableHeaderCell :header="centerLeafHeaders[virtualColumn.index]!" :is-menu-hidden="isColumnMenuHidden">
+                            <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" /></template>
+                        </TableHeaderCell>
                     </div>
                 </div>
 
@@ -226,10 +238,12 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                 <div
                     v-for="rightLeafHeader in rightLeafHeaders"
                     :key="rightLeafHeader.id"
-                    class="sticky shrink-0 border-l border-boundary bg-card"
+                    class="sticky shrink-0 border-l border-boundary bg-backdrop"
                     :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                 >
-                    <TableHeaderCell :header="rightLeafHeader" />
+                    <TableHeaderCell :header="rightLeafHeader" :is-menu-hidden="isColumnMenuHidden">
+                        <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="rightLeafHeader.column.id" /></template>
+                    </TableHeaderCell>
                 </div>
 
                 <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />

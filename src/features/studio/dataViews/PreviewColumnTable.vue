@@ -3,40 +3,15 @@
 import { computed } from 'vue';
 
 // ── DPUse Framework
-import type { DataSubtypeId, DataTypeId, PreviewConfig } from '@dpuse/dpuse-shared';
+import type { PreviewConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { t } from '@/state/locale';
 import { TEXT } from './PreviewColumnTable_.json';
-import { localeId, t } from '@/state/locale';
+import { constructPreviewColumnHeaders, constructPreviewColumnRows } from './_previewColumnRows';
 
 // ── Static Components
 import ScrollRegion from '@/components/ui/scroll/ScrollRegion.vue';
-
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const DATA_TYPE_LABEL_KEYS: Record<DataTypeId, keyof typeof TEXT> = {
-    boolean: 'dataType.boolean.label',
-    numeric: 'dataType.numeric.label',
-    string: 'dataType.string.label',
-    temporal: 'dataType.temporal.label',
-    unknown: 'dataType.unknown.label'
-};
-
-const DATA_SUBTYPE_LABEL_KEYS: Record<DataSubtypeId, keyof typeof TEXT> = {
-    bigint: 'dataSubtype.bigint.label',
-    date: 'dataSubtype.date.label',
-    dateTime: 'dataSubtype.dateTime.label',
-    decimal: 'dataSubtype.decimal.label',
-    email: 'dataSubtype.email.label',
-    integer: 'dataSubtype.integer.label',
-    ipv4: 'dataSubtype.ipv4.label',
-    ipv6: 'dataSubtype.ipv6.label',
-    plain: 'dataSubtype.plain.label',
-    time: 'dataSubtype.time.label',
-    ulid: 'dataSubtype.ulid.label',
-    url: 'dataSubtype.url.label',
-    uuid: 'dataSubtype.uuid.label'
-};
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -48,44 +23,9 @@ const { isLabelShown, previewConfig, rowLimit } = defineProps<{
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The match is the share of sampled values, the header excluded, that fitted the column's type, as the engine counts it
-// when it chooses.
-const columnRows = computed(() => {
-    const percentFormat = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 });
-    return previewConfig.columnConfigs.map((columnConfig, index) => {
-        const sampleCounts = Object.entries(columnConfig.inferenceCounts).map(([inferenceTypeId, count]) => ({
-            inferenceTypeId,
-            count: previewConfig.hasHeaders === true ? count - (columnConfig.leadingInferenceCounts[inferenceTypeId] ?? 0) : count
-        }));
-        const total = sampleCounts.reduce((sum, sampleCount) => sum + sampleCount.count, 0);
-        const count = countColumnMatches(columnConfig.dataTypeId, sampleCounts, total);
-        return {
-            label: columnConfig.label[localeId.value] ?? columnConfig.label.en ?? String(index + 1),
-            dataTypeLabel: t(TEXT, DATA_TYPE_LABEL_KEYS[columnConfig.dataTypeId]),
-            dataSubtypeLabel:
-                columnConfig.dataSubtypeId === undefined || columnConfig.dataSubtypeId === 'plain' ? '' : t(TEXT, DATA_SUBTYPE_LABEL_KEYS[columnConfig.dataSubtypeId]), // Plain text has no special format, so it gets no subtype label and real subtypes stand out.
-            matchText: formatMatchText(count, total, percentFormat)
-        };
-    });
-});
+const columnHeaders = computed(() => constructPreviewColumnHeaders());
+const columnRows = computed(() => constructPreviewColumnRows(previewConfig));
 const shownColumnRows = computed(() => (rowLimit == null ? columnRows.value : columnRows.value.slice(0, rowLimit)));
-
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// A full match is just '100%'. The counts are only added below that, so a weak guess stands out.
-// A column takes its main type, so every subtype of that type matches. Text fits any value.
-function countColumnMatches(dataTypeId: DataTypeId, sampleCounts: { count: number; inferenceTypeId: string }[], total: number): number {
-    if (dataTypeId === 'string') return total;
-    let matchCount = 0;
-    for (const { count, inferenceTypeId } of sampleCounts) if (inferenceTypeId === dataTypeId || inferenceTypeId.startsWith(`${dataTypeId}.`)) matchCount += count;
-    return matchCount;
-}
-
-function formatMatchText(count: number, total: number, percentFormat: Intl.NumberFormat): string {
-    if (total === 0) return '';
-    const percent = percentFormat.format(count / total);
-    return count === total ? percent : t(TEXT, 'column.match.text', { percent, count, total });
-}
 </script>
 
 <template>
@@ -95,10 +35,10 @@ function formatMatchText(count: number, total: number, percentFormat: Intl.Numbe
         <table :aria-labelledby="labelId" class="text-sm whitespace-nowrap">
             <thead>
                 <tr class="text-left">
-                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.label') }}</th>
-                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.dataType.label') }}</th>
-                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.dataSubtype.label') }}</th>
-                    <th class="py-1 font-normal text-muted">{{ t(TEXT, 'column.match.label') }}</th>
+                    <th class="py-1 pr-4 font-normal text-muted">{{ columnHeaders.label }}</th>
+                    <th class="py-1 pr-4 font-normal text-muted">{{ columnHeaders.dataTypeLabel }}</th>
+                    <th class="py-1 pr-4 font-normal text-muted">{{ columnHeaders.dataSubtypeLabel }}</th>
+                    <th class="py-1 font-normal text-muted">{{ columnHeaders.matchText }}</th>
                 </tr>
             </thead>
             <tbody>

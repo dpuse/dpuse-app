@@ -15,6 +15,7 @@ import {
     ChevronDownIcon,
     CircleAlertIcon,
     CircleOffIcon,
+    Columns3CogIcon,
     FileIcon,
     FolderIcon,
     InfoIcon,
@@ -44,6 +45,7 @@ import type {
     ConnectionConfig,
     ConnectionNodeConfig,
     DataFormatId,
+    DataTypeId,
     DataViewConfig,
     GetInfoOptions,
     GetInfoResult,
@@ -61,7 +63,6 @@ import type {
 // ── Local Framework
 import { applyPreviewHeaders } from './_previewHeaders';
 import { assertDefined } from '@/utilities/index.ts';
-import { constructItemPath } from '../dataViewSummary';
 import type { DataSource } from '@/composables/useDataWindow';
 import { establishEngineWorker } from '@/services/engine';
 import { ignoreReportedNavigationFailure } from '@/router';
@@ -69,6 +70,9 @@ import { renderMarkdown } from '@/services/useMarkedTool';
 import { TEXT } from './SelectItemPanel_.json';
 import { viewportIsWide } from '@/state/device';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
+import { applyPreviewColumnType, type DetectedColumnType } from './_previewColumnTypes';
+import { constructDataTypeLabel, constructPreviewColumnHeaders, constructPreviewColumnRows, PREVIEW_COLUMN_KEYS, type PreviewColumnRow } from '../_previewColumnRows';
+import { constructDataViewConnection, constructItemPath } from '../dataViewSummary';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
 import { localeId, t } from '@/state/locale';
 import { resolveDataViewIdParameter, useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
@@ -79,6 +83,7 @@ import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
+import DataViewSource from '../DataViewSource.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import HouseIcon from '@/components/icons/HouseIcon.vue';
@@ -86,6 +91,7 @@ import ItemButton from '@/components/ui/action/ItemButton.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
 import PreviewColumnTable from '../PreviewColumnTable.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
+import ScrollEndButtons from '@/components/ui/scroll/ScrollEndButtons.vue';
 import SelectInput from '@/components/ui/SelectInput.vue';
 import type { SelectOption } from '@/components/ui/SelectInput.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
@@ -104,7 +110,7 @@ interface PreviewTab {
     labelKey: keyof typeof TEXT;
 }
 
-type PreviewTabId = 'table' | 'text' | 'details';
+type PreviewTabId = 'table' | 'columns' | 'text' | 'details';
 
 interface FormatSupport {
     ariaKey: keyof typeof TEXT;
@@ -117,9 +123,10 @@ type FormatSupportId = 'supported' | 'planned' | 'unsupported';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// ── Preview Tabs ─ Ways to show the item. Only delimited text has a table to show.
+// ── Preview Tabs ─ Ways to show the item. Only delimited text has a table of records and of columns to show.
 const PREVIEW_TABS: PreviewTab[] = [
     { icon: markRaw(SheetIcon), id: 'table', labelKey: 'tab.table.label' },
+    { icon: markRaw(Columns3CogIcon), id: 'columns', labelKey: 'tab.columns.label' },
     { icon: markRaw(TextIcon), id: 'text', labelKey: 'tab.text.label' },
     { icon: markRaw(InfoIcon), id: 'details', labelKey: 'tab.details.label' }
 ];
@@ -141,10 +148,12 @@ const FORMAT_SUPPORTS: FormatSupport[] = [
 
 // ── Preview Issues ─ The app's own wording for the issues it knows, by the parser's code. Any other issue shows the
 // parser's message, which is in English. Each severity has its own icon and colour, as status tags do.
+const COLUMN_TYPES_RESET_ISSUE_ID = 'columnTypesReset'; // The app's own issue, because a new reading can change the columns the user's choices were for.
 const PREVIEW_ISSUE_TEXT_KEYS: Partial<Record<string, keyof typeof TEXT>> = {
     CSV_INVALID_CLOSING_QUOTE: 'issue.invalidClosingQuote.text',
     CSV_NON_TRIMABLE_CHAR_AFTER_CLOSING_QUOTE: 'issue.charAfterClosingQuote.text',
     CSV_QUOTE_NOT_CLOSED: 'issue.quoteNotClosed.text',
+    [COLUMN_TYPES_RESET_ISSUE_ID]: 'issue.columnTypesReset.text',
     empty: 'issue.empty.text',
     INVALID_OPENING_QUOTE: 'issue.invalidOpeningQuote.text'
 };
@@ -155,6 +164,7 @@ const PREVIEW_ISSUE_SEVERITIES: Record<PreviewIssueSeverityId, { bandClass: stri
 };
 const PREVIEW_ISSUE_SEVERITY_IDS: PreviewIssueSeverityId[] = ['error', 'warning', 'info']; // Most serious first.
 
+const CHOOSABLE_DATA_TYPE_IDS: DataTypeId[] = ['string', 'numeric', 'temporal', 'boolean']; // A column's main types. 'unknown' is only ever detected, so it is not offered.
 const AUTO_OPTION_ID = 'auto'; // The selects' value for 'read it as detected'. No format, encoding or value delimiter has this id.
 const CONTAINER_FILE_TYPE_EXTENSIONS = new Set(['cfb']); // Detected types that only name a container, e.g. a legacy Excel or Word file, so the item's own extension names it better.
 const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
@@ -240,6 +250,11 @@ const detectedEncodingId = ref<string>();
 const detectedEncodingIsAssumed = ref(false);
 const detectedValueDelimiterId = ref<ValueDelimiterId>();
 
+// ── Column Types ─ The type the user chose for a column, by its id in the table, which is its position. Cleared by every
+// new reading. What was detected is kept apart, so Auto can return to it.
+const selectedColumnDataTypeIds = ref<Partial<Record<string, DataTypeId>>>({});
+const detectedColumnTypes = shallowRef<DetectedColumnType[]>([]);
+
 // ── Preview Tabs ─ Tabs and their panel reference each other by id, which must be unique on the page. Below 'md' the
 // tabs fold into a menu.
 const elementIdPrefix = useId();
@@ -265,6 +280,9 @@ const { isPending: dataViewIsSaving, mutateAsync: updateDataView } = useUpdateDa
 
 const text = ref<string | undefined>();
 
+// ── Scrolling
+const documentScrollElement = shallowRef<HTMLElement>();
+
 // TODO: Fix this icon data type compatibility issue.
 const homeBreadcrumb = { id: 'home', icon: markRaw(HouseIcon), label: 'Home' } as unknown as ConnectionNodeConfig;
 
@@ -273,6 +291,7 @@ const homeBreadcrumb = { id: 'home', icon: markRaw(HouseIcon), label: 'Home' } a
 // The saved connection, which this step lists the items of. Looked up again from the list, so it follows a change of
 // language.
 const activeConnectionConfig = computed(() => findConnectionLocalisedConfig(dataViewConfig.value?.connectionId));
+const activeDataViewConnection = computed(() => (activeConnectionConfig.value ? constructDataViewConnection(activeConnectionConfig.value, localeId.value) : undefined));
 const itemSubject = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId ?? 'item'); // Wording names the connector's kind of item, e.g. 'File', and falls back to 'item' for a connector released before it said which.
 
 // Every item shows the icon for the connector's kind of item, as the summary row does. A file's real format is only
@@ -500,7 +519,11 @@ const itemDetailGroups = computed(() => {
             id: 'item',
             title: t(TEXT, `${itemSubject.value}.label`),
             details: [
-                { labelKey: 'detail.path.label', value: constructItemPath(connectionNodeConfig) },
+                { labelKey: 'detail.folder.label', value: connectionNodeConfig.folderPath === '' ? '/' : connectionNodeConfig.folderPath }, // An item at the top of its connection has an empty folder path, shown as the top folder.
+                {
+                    labelKey: 'detail.name.label',
+                    value: connectionNodeConfig.extension == null ? connectionNodeConfig.name : `${connectionNodeConfig.name}.${connectionNodeConfig.extension}`
+                },
                 { labelKey: 'detail.fileType.label', value: previewConfig.fileType?.mime ?? connectionNodeConfig.mimeType },
                 { labelKey: 'detail.size.label', value: formatNumberAsStorageSize(connectionNodeConfig.size) },
                 {
@@ -527,15 +550,25 @@ const itemDetailGroups = computed(() => {
             details: [
                 { labelKey: 'parser.label', value: parserOptions.value.find((option) => option.id === previewConfig.parserId)?.label },
                 { labelKey: 'detail.previewed.label', value: previewedText },
-                { labelKey: 'hasHeaders.label', value: constructHeadersText(previewConfig) },
                 { labelKey: 'recordDelimiter.label', value: constructRecordDelimiterText(previewConfig) },
-                { labelKey: 'valueDelimiter.label', value: constructValueDelimiterText(previewConfig) }
+                { labelKey: 'valueDelimiter.label', value: constructValueDelimiterText(previewConfig) },
+                { labelKey: 'hasHeaders.label', value: constructHeadersText(previewConfig) }
             ]
         }
     ];
     return detailGroups
         .map((detailGroup) => ({ ...detailGroup, details: detailGroup.details.filter((detail) => detail.value != null && detail.value !== '') }))
         .filter((detailGroup) => detailGroup.details.length > 0);
+});
+
+// ── Columns Tab ─ Read-only for now. The same 'Table' as the records, so the two tabs look and scroll alike.
+const previewColumnTableColumnDefinitions = computed<ColumnDef<TableFeatureSet, PreviewColumnRow>[]>(() => {
+    const headers = constructPreviewColumnHeaders();
+    return PREVIEW_COLUMN_KEYS.map((key) => ({ accessorKey: key, header: headers[key] }));
+});
+const previewColumnTableDataSource = computed<DataSource<PreviewColumnRow>>(() => {
+    const rows = activePreviewConfig.value == null ? [] : constructPreviewColumnRows(activePreviewConfig.value);
+    return { rowCount: rows.length, getRows: (start: number, end: number): Promise<{ rows: PreviewColumnRow[] }> => Promise.resolve({ rows: rows.slice(start, end) }) };
 });
 
 const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionNodeConfig>>>(() => {
@@ -617,7 +650,11 @@ watch(
             const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewConfig;
             if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
 
-            applyPreviewConfig(applyHeaderChoice(previewConfig, newActiveItem));
+            const wereColumnTypesChosen = Object.values(selectedColumnDataTypeIds.value).some((dataTypeId) => dataTypeId != null);
+            selectedColumnDataTypeIds.value = {};
+            detectedColumnTypes.value = previewConfig.columnConfigs.map(({ dataSubtypeId, dataTypeId }) => ({ dataSubtypeId, dataTypeId }));
+            const headedPreviewConfig = applyHeaderChoice(previewConfig, newActiveItem);
+            applyPreviewConfig(isNewReadChoice && wereColumnTypesChosen ? addColumnTypesResetIssue(headedPreviewConfig) : headedPreviewConfig, isNewReadChoice);
             recordDetectedValues(previewConfig);
             hasLastPreviewSucceeded.value = true;
         } catch (error) {
@@ -653,6 +690,16 @@ onClickOutside(previewTabMenuElement, () => {
 function handleRetryList(): void {
     listFailure.value = undefined;
     listAttempt.value++;
+}
+
+// A change of type keeps the records, so nothing is read again and the table stays as it is.
+function handleSelectColumnDataType(columnId: string, dataTypeId: string): void {
+    const columnIndex = Number(columnId);
+    const detectedColumnType = detectedColumnTypes.value.at(columnIndex);
+    if (detectedColumnType == null || activePreviewConfig.value == null) return;
+    const chosenDataTypeId = dataTypeId === AUTO_OPTION_ID ? undefined : (dataTypeId as DataTypeId); // The other options are all data type ids.
+    selectedColumnDataTypeIds.value[columnId] = chosenDataTypeId;
+    activePreviewConfig.value = applyPreviewColumnType(activePreviewConfig.value, columnIndex, chosenDataTypeId, detectedColumnType);
 }
 
 function handleRetryItem(): void {
@@ -895,6 +942,18 @@ function constructValueDelimiterText({ dataFormatId, valueDelimiterId }: Preview
     return t(TEXT, valueDelimiterId == null ? 'detail.notDetected.text' : VALUE_DELIMITER_LABEL_KEYS[valueDelimiterId]);
 }
 
+// A column's Auto names the type detected for it.
+function constructColumnTypeOptions(columnId: string): SelectOption[] {
+    const detectedColumnType = detectedColumnTypes.value.at(Number(columnId));
+    const options: SelectOption[] = CHOOSABLE_DATA_TYPE_IDS.map((id) => ({ id, label: constructDataTypeLabel(id) }));
+    return [constructAutoOption(detectedColumnType == null ? undefined : constructDataTypeLabel(detectedColumnType.dataTypeId)), ...options];
+}
+
+function addColumnTypesResetIssue(previewConfig: PreviewConfig): PreviewConfig {
+    const issue: PreviewIssue = { id: COLUMN_TYPES_RESET_ISSUE_ID, lineNumber: undefined, message: 'The column types were reset by the new reading.', severityId: 'info' };
+    return { ...previewConfig, issues: [...(previewConfig.issues ?? []), issue] };
+}
+
 // Auto, naming what detection found once it is known. The value comes first, so a select short of room cuts '(auto)'
 // and keeps the value. The line after it sets it apart from the values it chooses between.
 function constructAutoOption(detectedText?: string, isAssumed = false): SelectOption {
@@ -934,13 +993,13 @@ function focusPreviewTabMenuItem(previewTabIndex: number): void {
     previewTabMenuElement.value?.querySelectorAll<HTMLElement>('[role="menuitemradio"]')[previewTabIndex]?.focus();
 }
 
-// Only a format the app can read as data has a table to show, and only when something was parsed without an error.
+// Only a format the app can read as data has tables to show, and only when something was parsed without an error.
 // Markdown, a format not supported yet and one that never will be all show as text. The table stays enabled while
 // there is no preview, so the tabs do not flicker as it loads.
 function isPreviewTabDisabled(previewTabId: PreviewTabId): boolean {
     const previewConfig = activePreviewConfig.value;
     return (
-        previewTabId === 'table' &&
+        (previewTabId === 'table' || previewTabId === 'columns') &&
         previewConfig != null &&
         (previewHasErrorIssue.value || previewConfig.parsedRecords.length === 0 || !READABLE_DATA_FORMAT_IDS.has(previewConfig.dataFormatId))
     );
@@ -1003,9 +1062,10 @@ function applyHeaderChoice(previewConfig: PreviewConfig, connectionNodeConfig: C
     return hasHeaders == null || previewConfig.dataFormatId !== 'dtv' ? previewConfig : applyPreviewHeaders(previewConfig, hasHeaders);
 }
 
-function applyPreviewConfig(previewConfig: PreviewConfig): void {
+// A new read choice stays on the current tab, so the user can compare the readings, unless the new reading disables it.
+function applyPreviewConfig(previewConfig: PreviewConfig, isNewReadChoice: boolean): void {
     activePreviewConfig.value = previewConfig;
-    currentPreviewTabId.value = establishFirstPreviewTabId(previewConfig);
+    if (!isNewReadChoice || isPreviewTabDisabled(currentPreviewTabId.value)) currentPreviewTabId.value = establishFirstPreviewTabId(previewConfig);
     text.value = previewConfig.text;
     showPreviewTable(previewConfig);
 }
@@ -1366,6 +1426,33 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     class="flex-1"
                     :column-definitions="previewTableColumnDefinitions"
                     :data-source="previewTableDataSource"
+                    is-column-menu-hidden
+                    is-column-picker-hidden
+                >
+                    <!-- Column Type ─ Below the label, so a type can be changed beside the values it describes. Choosing one
+                         changes how the column is read, not the records, so nothing is read again. '-ml-1.75' cancels the
+                         select's own padding and border, so its text lines up with the label. -->
+                    <template #header-detail="{ columnId }">
+                        <SelectInput
+                            class="-ml-1.75 min-w-0"
+                            :disabled="previewIsPending"
+                            is-compact
+                            :is-default="selectedColumnDataTypeIds[columnId] == null"
+                            :label="t(TEXT, 'columnType.aria', { label: String(previewTableColumnDefinitions[Number(columnId)]?.header) })"
+                            label-hidden
+                            :model-value="selectedColumnDataTypeIds[columnId] ?? AUTO_OPTION_ID"
+                            :options="constructColumnTypeOptions(columnId)"
+                            @update:model-value="handleSelectColumnDataType(columnId, $event)"
+                        />
+                    </template>
+                </Table>
+                <!-- 'v-if', so the table measures its space when it opens rather than while hidden. -->
+                <Table
+                    v-if="currentPreviewTabId === 'columns' && activePreviewConfig != null"
+                    class="flex-1"
+                    :column-definitions="previewColumnTableColumnDefinitions"
+                    :data-source="previewColumnTableDataSource"
+                    is-column-menu-hidden
                     is-column-picker-hidden
                 />
                 <TextViewer
@@ -1386,10 +1473,20 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     class="flex-1"
                     scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)"
                     scroll-area-padding-left="var(--spacing-page)"
+                    @initialised="documentScrollElement = $event"
                 >
                     <!-- Details Document ─ Laid out as the data view document's lists are, with a line under every row except
                          the last in a section. Read-only, because the toolbar changes how the item is read. -->
-                    <StudioDocumentPanel :overline="backLabel" :title="item.label" @close="handleReturnToList">
+                    <StudioDocumentPanel :title="t(TEXT, 'detail.title')" @close="handleReturnToList">
+                        <!-- Source ─ Names the connection and the item, so the document stands alone. -->
+                        <DataViewSource
+                            class="mt-1 mb-4 text-sm"
+                            :connection-id="dataViewConfig?.connectionId"
+                            :connection-node-config="activeConnectionObjectConfig"
+                            :data-format-id="activePreviewConfig?.dataFormatId"
+                            :data-view-connection="activeDataViewConnection"
+                            :item-type-id="activeDataViewConnection?.itemTypeId"
+                        />
                         <p v-if="previewIsUnsupported" role="status">{{ previewUnsupportedText }}</p>
                         <StudioDocumentSection v-for="detailGroup in itemDetailGroups" :key="detailGroup.id" :title="detailGroup.title">
                             <dl
@@ -1406,6 +1503,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         </StudioDocumentSection>
                     </StudioDocumentPanel>
                 </ScrollArea>
+                <!-- Scroll End Buttons ─ To the left of the Audit button, as in the data view document. -->
+                <ScrollEndButtons v-if="currentPreviewTabId === 'details'" class="absolute right-30 bottom-(--safe-bottom-offset)" :scroll-element="documentScrollElement" />
             </div>
         </template>
 

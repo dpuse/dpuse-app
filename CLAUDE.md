@@ -188,6 +188,9 @@ The key is `subject.role`, in lowerCamel segments, quoted, alphabetical. Rules:
   down: name the contract, not the content, because the content is the part that changes. A key reading
   `Select_a_connection_to_configure_the_data_view_before_continuing` outlived the sentence it was named for.
 
+English casing follows the role: `title` strings are Title Case (`Content Audit`, `Used By`), and every other role is
+sentence case (`Last modified`, `Record delimiter`).
+
 Using the strings:
 
 - **Whole phrases.** A phrase containing a name is one entry with a placeholder (`"{label} Website"`), used as

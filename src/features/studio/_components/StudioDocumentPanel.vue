@@ -42,6 +42,7 @@ const headerMarginRight = computed(() => `${String(Math.max(36, actionsWidth.val
             <ActionWrapper class="group block w-full min-w-0 cursor-pointer text-left" :class="{ 'pointer-events-none': panesAreSplit }" @click="$emit('close')">
                 <!-- Overline with optional back icon. -->
                 <div
+                    v-if="overline"
                     class="flex min-w-0 items-center gap-x-0.5 text-sm leading-tight"
                     :class="
                         panesAreSplit
