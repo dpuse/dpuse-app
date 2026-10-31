@@ -78,6 +78,19 @@ describe('constructPreviewColumnRows', () => {
         });
     });
 
+    it('keeps the counts in step with a type the user chose', () => {
+        const previewConfig = constructPreviewConfig(false, {
+            blankValueCount: 1,
+            dataTypeId: 'string',
+            inferenceCounts: { 'numeric.integer': 3, 'string.plain': 1 },
+            invalidValueCount: 1,
+            missingValueCount: 2,
+            validValueCount: 3
+        });
+
+        expect(constructPreviewColumnRows(previewConfig)[0]).toMatchObject({ blankValueText: '1', invalidValueText: '0', matchText: '100%', missingValueText: '2', validValueText: '4' });
+    });
+
     it('says when a column held too many values to count, and leaves a preview read before counting blank', () => {
         const measuredConfig = constructPreviewConfig(false, { quotedValueCount: 0 });
 

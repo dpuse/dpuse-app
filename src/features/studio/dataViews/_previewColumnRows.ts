@@ -17,8 +17,9 @@ export const PREVIEW_COLUMN_KEYS = [
     'dataSubtypeLabel',
     'matchText',
     'validValueText',
-    'voidValueText',
     'invalidValueText',
+    'blankValueText',
+    'missingValueText',
     'requiredText',
     'uniqueText',
     'distinctValueText',
@@ -90,6 +91,7 @@ export function constructDataTypeLabel(dataTypeId: DataTypeId): string {
 
 export function constructPreviewColumnHeaders(): PreviewColumnRow {
     return {
+        blankValueText: t(TEXT, 'column.blankValues.label'),
         dataSubtypeLabel: t(TEXT, 'column.dataSubtype.label'),
         dataTypeLabel: t(TEXT, 'column.dataType.label'),
         decimalText: t(TEXT, 'column.decimals.label'),
@@ -102,6 +104,7 @@ export function constructPreviewColumnHeaders(): PreviewColumnRow {
         matchText: t(TEXT, 'column.match.label'),
         maxValueText: t(TEXT, 'column.maxValue.label'),
         minValueText: t(TEXT, 'column.minValue.label'),
+        missingValueText: t(TEXT, 'column.missingValues.label'),
         paddedValueText: t(TEXT, 'column.paddedValues.label'),
         quotedValueText: t(TEXT, 'column.quotedValues.label'),
         readingText: t(TEXT, 'column.reading.label'),
@@ -112,7 +115,6 @@ export function constructPreviewColumnHeaders(): PreviewColumnRow {
         uniqueText: t(TEXT, 'column.unique.label'),
         validSampleText: t(TEXT, 'column.validSamples.label'),
         validValueText: t(TEXT, 'column.validValues.label'),
-        voidValueText: t(TEXT, 'column.voidValues.label'),
         wholeDigitText: t(TEXT, 'column.wholeDigits.label')
     };
 }
@@ -135,9 +137,10 @@ export function constructPreviewColumnRows(previewConfig: PreviewConfig): Previe
             dataSubtypeLabel:
                 columnConfig.dataSubtypeId === undefined || columnConfig.dataSubtypeId === 'plain' ? '' : t(TEXT, DATA_SUBTYPE_LABEL_KEYS[columnConfig.dataSubtypeId]), // Plain text has no special format, so it gets no subtype label and real subtypes stand out.
             matchText: formatMatchText(count, total, percentFormat),
-            validValueText: formatCount(columnConfig.validValueCount, numberFormat),
-            voidValueText: formatCount(columnConfig.voidValueCount, numberFormat),
-            invalidValueText: formatCount(columnConfig.invalidValueCount, numberFormat),
+            validValueText: formatCount(count, numberFormat), // From the column's current type, so it follows a type the user chose, as the match does.
+            invalidValueText: formatCount(total - count, numberFormat),
+            blankValueText: formatCount(columnConfig.blankValueCount, numberFormat),
+            missingValueText: formatCount(columnConfig.missingValueCount, numberFormat),
             requiredText: formatYesNo(columnConfig.isRequired),
             uniqueText: formatYesNo(columnConfig.isUnique),
             distinctValueText: formatDistinctValues(columnConfig, numberFormat),

@@ -104,9 +104,11 @@ const auditColumnRows = computed(() => {
             .toSorted((left, right) => right[1] - left[1])
             .map(([formatId, count]) => `${formatId} (${numberFormat.format(count)})`)
             .join(', '),
+        blankValueText: columnConfig.blankValueCount == null ? '' : numberFormat.format(columnConfig.blankValueCount),
         invalidValueText: columnConfig.invalidValueCount == null ? '' : numberFormat.format(columnConfig.invalidValueCount),
+        missingValueText: columnConfig.missingValueCount == null ? '' : numberFormat.format(columnConfig.missingValueCount),
         readingText: constructReadingText(columnConfig),
-        voidValueText: columnConfig.voidValueCount == null ? '' : numberFormat.format(columnConfig.voidValueCount)
+        validValueText: columnConfig.validValueCount == null ? '' : numberFormat.format(columnConfig.validValueCount)
     }));
 });
 
@@ -213,8 +215,10 @@ async function auditContent(): Promise<void> {
                                 <tr class="text-left">
                                     <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.label') }}</th>
                                     <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.dataType.label') }}</th>
-                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.voidValues.label') }}</th>
+                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.validValues.label') }}</th>
                                     <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.invalidValues.label') }}</th>
+                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.blankValues.label') }}</th>
+                                    <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.missingValues.label') }}</th>
                                     <th class="py-1 pr-4 font-normal text-muted">{{ t(TEXT, 'column.reading.label') }}</th>
                                     <th class="py-1 font-normal text-muted">{{ t(TEXT, 'column.formats.label') }}</th>
                                 </tr>
@@ -223,8 +227,10 @@ async function auditContent(): Promise<void> {
                                 <tr v-for="(columnRow, index) in auditColumnRows" :key="index">
                                     <td class="py-1 pr-4">{{ columnRow.label }}</td>
                                     <td class="py-1 pr-4">{{ columnRow.dataTypeLabel }}</td>
-                                    <td class="py-1 pr-4">{{ columnRow.voidValueText }}</td>
+                                    <td class="py-1 pr-4">{{ columnRow.validValueText }}</td>
                                     <td class="py-1 pr-4">{{ columnRow.invalidValueText }}</td>
+                                    <td class="py-1 pr-4">{{ columnRow.blankValueText }}</td>
+                                    <td class="py-1 pr-4">{{ columnRow.missingValueText }}</td>
                                     <td class="py-1 pr-4">{{ columnRow.readingText }}</td>
                                     <td class="py-1">{{ columnRow.formatText }}</td>
                                 </tr>
