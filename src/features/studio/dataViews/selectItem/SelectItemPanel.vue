@@ -469,23 +469,42 @@ const previewParserId = computed({
 });
 
 // How much of the item the preview read. A percentage whenever the item's size is known, so the meter shows a whole
-// item as complete as well as how little of a large one was read. The toolbar shows the short text, and screen readers
-// get the full one.
+// item as complete as well as how little of a large one was read. The toolbar shows the labelled text where there is
+// room and the short text where there is not, and screen readers get the full one.
 const previewAmount = computed(() => {
     const previewConfig = activePreviewConfig.value;
     if (previewConfig == null) return;
     const previewSize = previewConfig.size ?? 0;
     const itemSize = activeConnectionObjectConfig.value?.size ?? 0;
     const size = formatNumberAsStorageSize(previewSize);
-    if (itemSize === 0) return { isComplete: false, percentage: undefined, shortText: size, text: t(TEXT, 'preview.sizeUnknown.text', { size }) };
-    if (previewSize === itemSize) return { isComplete: true, percentage: 100, shortText: size, text: t(TEXT, 'preview.entireItem.text', { size }) }; // The green meter and text already say it is all of it.
+    if (itemSize === 0) {
+        return {
+            isComplete: false,
+            labelledText: t(TEXT, 'preview.amount.text', { amount: size }),
+            percentage: undefined,
+            shortText: size,
+            text: t(TEXT, 'preview.sizeUnknown.text', { size })
+        };
+    }
+    if (previewSize === itemSize) {
+        const shortText = t(TEXT, 'preview.entireItem.short.text', { size });
+        return {
+            isComplete: true,
+            labelledText: t(TEXT, 'preview.amount.text', { amount: shortText }),
+            percentage: 100,
+            shortText,
+            text: t(TEXT, 'preview.entireItem.text', { size })
+        };
+    }
     const percentage = (previewSize / itemSize) * 100;
     const total = formatNumberAsStorageSize(itemSize);
-    const percentageText = formatNumberAsDecimalNumber(percentage, 1, 0);
+    const percentageText = constructPreviewPercentageText(percentage);
+    const shortText = t(TEXT, 'preview.partial.short.text', { percentage: percentageText, size, total });
     return {
         isComplete: false,
+        labelledText: t(TEXT, 'preview.amount.text', { amount: shortText }),
         percentage,
-        shortText: t(TEXT, 'preview.partial.short.text', { percentage: percentageText, size, total }),
+        shortText,
         text: t(TEXT, 'preview.partial.text', { percentage: percentageText, size, total })
     };
 });
@@ -524,10 +543,8 @@ const itemDetailGroups = computed(() => {
     const connectionNodeConfig = activeConnectionObjectConfig.value;
     const previewConfig = activePreviewConfig.value;
     if (connectionNodeConfig == null || previewConfig == null) return [];
-    const previewedAmountText =
-        previewAmount.value?.isComplete === true ? t(TEXT, 'detail.previewed.entire.text', { size: previewAmount.value.shortText }) : previewAmount.value?.shortText;
     const previewedText = t(TEXT, 'detail.previewed.text', {
-        amount: previewedAmountText ?? '',
+        amount: previewAmount.value?.shortText ?? '',
         at: new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(previewConfig.asAt),
         duration: constructDurationText(previewConfig.duration)
     });
@@ -857,6 +874,15 @@ async function handleCommitDetail(): Promise<void> {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Up to two decimal places, rounded down so a part of an item never reads as all of it. An amount too small to show
+// reads as under 0.01 rather than 0, because some of the item was read.
+function constructPreviewPercentageText(percentage: number): string {
+    const shownPercentage = Math.floor(percentage * 100) / 100;
+    const isTooSmallToShow = percentage > 0 && shownPercentage === 0;
+    const percentageText = formatNumberAsDecimalNumber(isTooSmallToShow ? 0.01 : shownPercentage, 2, 0, localeId.value);
+    return isTooSmallToShow ? `<${percentageText}` : percentageText;
+}
+
 // Read again after waiting rather than taken from 'until', which resolves on the timeout too.
 async function waitForActiveConnectionConfig(): Promise<LocalisedConfig<ConnectionConfig>> {
     await until(activeConnectionConfig).toBeTruthy({ timeout: ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS });
@@ -931,7 +957,8 @@ function recordDetectedValues(previewConfig: PreviewConfig): void {
     detectedEncodingIsAssumed.value = previewConfig.encodingConfidenceLevel == null;
 }
 
-// One decimal place, with more only for a time too short to show in one, so a quick preview does not read as 0.
+// One decimal place, with more only for a time too short to show in one, so a quick preview does not read as 0. A time
+// under 0.01 seconds reads as under that limit, as a preview percentage does.
 function constructDurationText(milliseconds: number): string {
     const secondsFormat = new Intl.NumberFormat(localeId.value, {
         style: 'unit',
@@ -942,7 +969,8 @@ function constructDurationText(milliseconds: number): string {
         minimumSignificantDigits: 1,
         roundingPriority: 'morePrecision'
     });
-    return secondsFormat.format(milliseconds / 1000);
+    const seconds = milliseconds / 1000;
+    return seconds < 0.01 ? `<${secondsFormat.format(0.01)}` : secondsFormat.format(seconds);
 }
 
 // Headers and delimiters only apply to delimited text. There they always show, and a parse that found none says so.
@@ -1292,7 +1320,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <!-- Hidden from screen readers when the meter already reads it out. Sized to its text, and the selects give
                      way first, so the amount always shows. 'mr-auto' pushes the rest of the toolbar to the right. -->
                 <p v-if="previewAmount" :aria-hidden="previewAmount.percentage != null" class="mr-auto flex-none">
-                    <span aria-hidden="true">{{ previewAmount.shortText }}</span>
+                    <span aria-hidden="true" class="hidden @[21.5rem]:inline">{{ previewAmount.labelledText }}</span>
+                    <span aria-hidden="true" class="@[21.5rem]:hidden">{{ previewAmount.shortText }}</span>
                     <span class="sr-only">{{ previewAmount.text }}</span>
                 </p>
                 <span v-else class="flex-1" />

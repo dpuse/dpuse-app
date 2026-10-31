@@ -232,8 +232,7 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
 
         <!-- Summary ─ What the data view is built from so far, under its name as on its card. The row is always there,
              even when empty, so the first choice does not push the panel down. Screen readers skip it, because they hear
-             each saved choice with its task. '-my-1' pulls it up into the empty space at the bottom of the header, and the
-             task bar up by the same amount into its own bottom padding. -->
+             each saved choice with its task. -->
         <!-- Summary and Task Bar ─ Fade in with the first task's panel, and go at once when the list comes back, so the
              list never sits below them. The current task follows the route, so between tasks it moves on the click. While
              they wait for the data view after a reload, 'invisible' keeps their space, so nothing below them moves when
@@ -242,7 +241,7 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
             <div v-if="taskIdOnScreen" class="flex flex-none flex-col transition-opacity duration-250 ease-[ease]" :class="{ 'invisible opacity-0': summaryAndTaskBarArePending }">
                 <DataViewSource
                     aria-hidden="true"
-                    class="-my-1 h-7 flex-none px-page pb-2 text-sm"
+                    class="h-7 flex-none px-page pb-2 text-sm"
                     is-single-line
                     :connection-id="summaryDataViewConfig?.connectionId"
                     :connection-is-draft="summaryConnectionIsDraft"
