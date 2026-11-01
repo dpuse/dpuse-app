@@ -10,12 +10,12 @@ import { findConnectionLocalisedConfig } from '@/state/configs';
 import {
     findDataViewStoreLabel,
     forgetDataViewLoads,
-    forgetWorkingCopyLoad,
+    forgetDraftLoad,
     INVESTIGATE_STORE_CONNECTOR_ID,
     isDataViewLoaded,
     loadDataViewRecords,
     openDataViewStore,
-    promoteWorkingCopyLoad,
+    promoteDraftLoad,
     queryDataViewRecords,
     resolveDataViewTablePath
 } from '@/features/studio/dataViews/_dataViewStore';
@@ -130,13 +130,13 @@ describe('_dataViewStore', () => {
         expect(resolveDataViewTablePath('dataView5', false)).toBe('dataView5');
     });
 
-    it('makes the working copy’s table the saved one on Save, and drops the old table when the store next opens', async () => {
+    it('makes the draft’s table the saved one on Save, and drops the old table when the store next opens', async () => {
         const editedDataView = { ...DATA_VIEW, id: 'dataView6' };
         processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
         await loadDataViewRecords(editedDataView, true, vi.fn());
         const tablePath = resolveDataViewTablePath('dataView6', true);
 
-        promoteWorkingCopyLoad('dataView6');
+        promoteDraftLoad('dataView6');
 
         expect(resolveDataViewTablePath('dataView6', false)).toBe(tablePath);
         expect(isDataViewLoaded(editedDataView, false)).toBe(true);
@@ -148,13 +148,13 @@ describe('_dataViewStore', () => {
         expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: 'dataView6' });
     });
 
-    it('drops only the working copy’s table on Discard', async () => {
+    it('drops only the draft’s table on Discard', async () => {
         const editedDataView = { ...DATA_VIEW, id: 'dataView7' };
         processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
         await loadDataViewRecords(editedDataView, true, vi.fn());
         const tablePath = resolveDataViewTablePath('dataView7', true);
 
-        forgetWorkingCopyLoad('dataView7');
+        forgetDraftLoad('dataView7');
 
         expect(resolveDataViewTablePath('dataView7', false)).toBe('dataView7');
         processRequest.mockResolvedValueOnce({ storeStateId: 'ready' });
@@ -162,6 +162,24 @@ describe('_dataViewStore', () => {
         await openDataViewStore();
         expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: tablePath });
         expect(processRequest).not.toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: 'dataView7' });
+    });
+
+    it('drops the table of a draft lost to a reload or crash, but keeps the open draft’s', async () => {
+        const abandonedDataView = { ...DATA_VIEW, id: 'dataView10' };
+        const openDataView = { ...DATA_VIEW, id: 'dataView11' };
+        processRequest.mockResolvedValue({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
+        await loadDataViewRecords(abandonedDataView, true, vi.fn());
+        await loadDataViewRecords(openDataView, true, vi.fn());
+        const abandonedTablePath = resolveDataViewTablePath('dataView10', true);
+        const openTablePath = resolveDataViewTablePath('dataView11', true);
+
+        processRequest.mockResolvedValueOnce({ storeStateId: 'ready' });
+        processRequest.mockResolvedValue(undefined);
+        await openDataViewStore('dataView11');
+
+        expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: abandonedTablePath });
+        expect(processRequest).not.toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: openTablePath });
+        expect(isDataViewLoaded(openDataView, true)).toBe(true);
     });
 
     it('drops a deleted data view’s table when the store next opens', async () => {

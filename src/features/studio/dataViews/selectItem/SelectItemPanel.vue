@@ -68,6 +68,7 @@ import type {
 // ── Local Framework
 import { applyPreviewHeaders } from './_previewHeaders';
 import { assertDefined } from '@/utilities/index.ts';
+import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
 import type { DataSource } from '@/composables/useDataWindow';
 import { establishEngineWorker } from '@/services/engine';
 import { getColumnTypeIcon } from '../_columnTypeIcons';
@@ -76,7 +77,7 @@ import { renderMarkdown } from '@/services/useMarkedTool';
 import { TEXT } from './SelectItemPanel_.json';
 import { useItemAudit } from './useItemAudit';
 import { viewportIsWide } from '@/state/device';
-import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
+import { type AppFailure, raiseFailure } from '@/state/errors';
 import {
     applyChosenColumnDataTypes,
     constructAuditColumnSetConfig,
@@ -95,9 +96,9 @@ import {
     type PreviewColumnRow
 } from '../_previewColumnRows';
 import { constructDataViewConnection, constructItemPath } from '../dataViewSummary';
+import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
 import { localeId, t } from '@/state/locale';
-import { resolveDataViewIdParameter, useUpdateDataView, useUpdateWorkingDataView, useWorkingDataView } from '@/features/studio/dataViews/_dataViews';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -111,7 +112,7 @@ import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import HouseIcon from '@/components/icons/HouseIcon.vue';
 import ItemButton from '@/components/ui/action/ItemButton.vue';
-import PillButton from '@/components/ui/action/PillButton.vue';
+import PillSegment from '@/components/ui/action/PillSegment.vue';
 import PreviewColumnTable from '../PreviewColumnTable.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import ScrollEndButtons from '@/components/ui/scroll/ScrollEndButtons.vue';
@@ -239,7 +240,6 @@ const COLUMN_NAME_WIDTH_PX = 220; // The table's pinned names. 'w-57' on the tab
 const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
 const emit = defineEmits<{
-    'draft-changed': [draftDataViewConfig: DataViewConfig | undefined]; // The data view as the pick would leave it, shown above the step until it is saved.
     'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>];
 }>();
 
@@ -263,8 +263,8 @@ const selectedColumnIndex = ref<number>(); // The column whose detail is showing
 const columnsPaneElement = useTemplateRef<HTMLDivElement>('columnsPane');
 const { width: columnsPaneWidth } = useElementSize(columnsPaneElement);
 const activePreviewIsAudited = ref(false); // The preview's columns came from an audit, so they describe the whole item.
-const activePreviewConfig = shallowRef<PreviewConfig>(); // Kept so the commit can save it with the item.
-const pickedItemConfig = shallowRef<ConnectionNodeConfig>(); // The item the user last picked, whose preview is reported with it. A saved item restored on opening is not one.
+const activePreviewConfig = shallowRef<PreviewConfig>(); // Goes into the draft with the item.
+const readingIsChanged = ref(false); // The user changed the item or how it is read. Opening the step, or a preview arriving, does not count.
 
 // ── Read Choices ─ How the user chose to read the item, in place of what the preview detected. Cleared for each item.
 // What was detected is kept apart, because a preview read the user's way reports their choice, and the selects' Auto
@@ -303,10 +303,8 @@ const previewTableDataSource = shallowRef<DataSource<Record<string, string | nul
 const route = useRoute();
 const router = useRouter();
 
-// ── Data View ─ 'isPending' stops a second commit while the first is still saving.
-const { data: dataViewConfig, savedData: savedDataViewConfig, workingCopy } = useWorkingDataView(() => resolveDataViewIdParameter(route.params.dataViewId));
-const { isPending: dataViewIsSaving, mutateAsync: updateDataView } = useUpdateWorkingDataView();
-const { mutateAsync: saveDataView } = useUpdateDataView();
+// ── Data View
+const { data: dataViewConfig } = useCurrentDataView(() => route.params.dataViewId);
 
 // ── Audit
 const { auditedRecordCount, auditIsRunning, startAudit, stopAudit } = useItemAudit(constructEditedDataViewConfig, handleItemAudited);
@@ -457,6 +455,7 @@ const previewHeadersAreChoosable = computed(() => activePreviewConfig.value?.dat
 const previewDataFormatId = computed({
     get: () => selectedDataFormatId.value ?? AUTO_OPTION_ID,
     set: (dataFormatId: string) => {
+        readingIsChanged.value = true;
         selectedDataFormatId.value = dataFormatId === AUTO_OPTION_ID ? undefined : (dataFormatId as DataFormatId); // The other options are all format ids.
         selectedParserId.value = undefined;
         selectedValueDelimiterId.value = undefined;
@@ -465,6 +464,7 @@ const previewDataFormatId = computed({
 const previewHasHeaders = computed({
     get: () => activePreviewConfig.value?.hasHeaders === true,
     set: (hasHeaders: boolean) => {
+        readingIsChanged.value = true;
         selectedHasHeaders.value = hasHeaders;
         if (activePreviewConfig.value == null) return;
         activePreviewConfig.value = applyPreviewHeaders(activePreviewConfig.value, hasHeaders);
@@ -475,18 +475,21 @@ const previewHasHeaders = computed({
 const previewValueDelimiterId = computed({
     get: () => selectedValueDelimiterId.value ?? AUTO_OPTION_ID,
     set: (valueDelimiterId: string) => {
+        readingIsChanged.value = true;
         selectedValueDelimiterId.value = valueDelimiterId === AUTO_OPTION_ID ? undefined : (valueDelimiterId as ValueDelimiterId); // The other options are all value delimiter ids.
     }
 });
 const previewEncodingId = computed({
     get: () => selectedEncodingId.value ?? AUTO_OPTION_ID,
     set: (encodingId: string) => {
+        readingIsChanged.value = true;
         selectedEncodingId.value = encodingId === AUTO_OPTION_ID ? undefined : encodingId;
     }
 });
 const previewParserId = computed({
     get: () => selectedParserId.value ?? activePreviewConfig.value?.parserId, // No choice yet shows the parser that read the preview.
     set: (parserId: string | undefined) => {
+        readingIsChanged.value = true;
         selectedParserId.value = parserId;
     }
 });
@@ -709,16 +712,7 @@ watch(
             const { processRequest } = await establishEngineWorker();
             if (!activeConnectionConfig.value) return;
 
-            const options: PreviewObjectOptions = {
-                chunkSize: undefined,
-                dataFormatId: selectedDataFormatId.value,
-                encodingId: selectedEncodingId.value,
-                extension: undefined,
-                mimeType: newActiveItem.mimeType,
-                parserId: selectedParserId.value,
-                path: constructItemPath(newActiveItem),
-                valueDelimiterId: selectedValueDelimiterId.value
-            };
+            const options = constructPreviewOptions(newActiveItem, isNewReadChoice);
             const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewConfig;
             if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
 
@@ -748,14 +742,12 @@ watch(
     { immediate: true }
 );
 
-// The picked item is reported once its preview shows it can be selected, with the preview, so the summary above the
-// step shows its format. Until then, and while it cannot be selected, it is reported as no item. Opening a markdown
-// file as a table can make it selectable without a new preview.
-watch([activePreviewConfig, previewIsSelectable], ([previewConfig, isSelectable]) => {
-    const pickedItem = pickedItemConfig.value;
-    if (pickedItem == null || previewConfig == null) return; // 'pickItem' has already reported no item.
-    if (isSelectable) reportDraft(pickedItem, previewConfig);
-    else reportDraft();
+// Each change of the item, its reading or a column's type goes into the draft once the preview shows it. A reading that
+// cannot be selected leaves the draft with no item, so it cannot be saved. Opening a markdown file as a table can make
+// it selectable without a new preview.
+watch([activePreviewConfig, previewIsSelectable], ([previewConfig]) => {
+    if (previewConfig == null || !readingIsChanged.value) return;
+    changeDataView(constructEditedDataViewConfig() ?? constructItemlessDataViewConfig());
 });
 
 onClickOutside(previewTabMenuElement, () => {
@@ -776,6 +768,7 @@ function handleSelectColumnDataType(columnId: string, dataTypeId: string): void 
     const columnIndex = Number(columnId);
     const detectedColumnType = detectedColumnTypes.value.at(columnIndex);
     if (detectedColumnType == null || activePreviewConfig.value == null) return;
+    readingIsChanged.value = true;
     const chosenDataTypeId = dataTypeId === AUTO_OPTION_ID ? undefined : (dataTypeId as DataTypeId); // The other options are all data type ids.
     selectedColumnDataTypeIds.value[columnId] = chosenDataTypeId;
     activePreviewConfig.value = applyPreviewColumnType(activePreviewConfig.value, columnIndex, chosenDataTypeId, detectedColumnType);
@@ -887,38 +880,25 @@ function handleSelectPreviewTab(previewTabId: PreviewTabId): void {
     closePreviewTabMenu();
 }
 
-// Kept before moving on, so a reload restores the item, and the data view document can show its structure and data. The
-// pill asks for the data, so Explore loads it straight away.
-async function handleCommitDetail(): Promise<void> {
-    const editedDataViewConfig = constructEditedDataViewConfig();
-    if (editedDataViewConfig == null || dataViewIsSaving.value || auditIsRunning.value) return;
+// The pill asks for the data, so Explore loads it straight away.
+function handleMoveToExploreStep(): void {
+    if (constructEditedDataViewConfig() == null || auditIsRunning.value) return;
 
-    try {
-        const savedDataViewConfig = await updateDataView(editedDataViewConfig);
-        emit('task-completed', taskLocalisedConfig);
-        void ignoreReportedNavigationFailure(router.push({ name: 'data', params: { dataViewId: savedDataViewConfig.id }, query: route.query, state: { loadIsRequested: true } }));
-    } catch (error) {
-        // Announced rather than shown in the panel: the save did not happen, so the item is still here to commit again.
-        raiseAppFailure(new AppError('Failed to save data view.', 'dpuse-app.SelectItemPanel.handleCommitDetail', { typeId: 'handled' }, { cause: error }));
-    }
+    emit('task-completed', taskLocalisedConfig);
+    void ignoreReportedNavigationFailure(router.push({ name: 'data', params: { dataViewId: route.params.dataViewId }, query: route.query, state: { loadIsRequested: true } }));
 }
 
 function handleStartAudit(): void {
     void startAudit();
 }
 
-// Facts about an item the saved data view already reads this way are not a choice to save or discard, so they save at
-// once. Any other audit belongs with the edits it describes.
-async function handleItemAudited(editedDataViewConfig: DataViewConfig, contentAuditConfig: ContentAuditConfig): Promise<void> {
+function handleItemAudited(editedDataViewConfig: DataViewConfig, contentAuditConfig: ContentAuditConfig): void {
     const auditedDataViewConfig: DataViewConfig = {
         ...editedDataViewConfig,
         columnSetConfig: constructAuditColumnSetConfig(contentAuditConfig, editedDataViewConfig.columnSetConfig),
         auditSummaryConfig: constructAuditSummaryConfig(contentAuditConfig)
     };
-    const savedConfig = savedDataViewConfig.value;
-    const { connectionNodeConfig, previewConfig } = editedDataViewConfig;
-    const isSavedReading = savedConfig != null && connectionNodeConfig != null && previewConfig != null && isSameAsSavedItem(savedConfig, connectionNodeConfig, previewConfig);
-    await (isSavedReading && workingCopy.value == null ? saveDataView(auditedDataViewConfig) : updateDataView(auditedDataViewConfig));
+    changeDataView(auditedDataViewConfig);
     if (activePreviewConfig.value) showColumnsOfDataView(activePreviewConfig.value, auditedDataViewConfig);
 }
 
@@ -968,32 +948,54 @@ async function waitForActiveConnectionConfig(): Promise<LocalisedConfig<Connecti
     return activeConnectionConfig.value;
 }
 
+// What the user chose first. The data view's own item then opens the way the data view reads it, not as detection would
+// read it afresh.
+function constructPreviewOptions(connectionNodeConfig: ConnectionNodeConfig, isNewReadChoice: boolean): PreviewObjectOptions {
+    const dataViewReading = isNewReadChoice || !isDataViewItem(connectionNodeConfig) ? undefined : dataViewConfig.value?.previewConfig;
+    return {
+        chunkSize: undefined,
+        dataFormatId: selectedDataFormatId.value ?? dataViewReading?.dataFormatId,
+        encodingId: selectedEncodingId.value ?? dataViewReading?.encodingId,
+        extension: undefined,
+        mimeType: connectionNodeConfig.mimeType,
+        parserId: selectedParserId.value ?? dataViewReading?.parserId,
+        path: constructItemPath(connectionNodeConfig),
+        valueDelimiterId: selectedValueDelimiterId.value ?? dataViewReading?.valueDelimiterId
+    };
+}
+
+// Only picking a different item changes the data view. Browsing folders, or clearing the selection, leaves it as it is.
 function pickItem(connectionNodeConfig?: ConnectionNodeConfig): void {
     stopAudit(); // An audit reads one item, so it ends when the user moves to another.
     selectedColumnIndex.value = undefined;
     activePreviewIsAudited.value = false;
     activeConnectionObjectConfig.value = connectionNodeConfig;
-    pickedItemConfig.value = connectionNodeConfig;
     selectedDataFormatId.value = undefined;
     selectedEncodingId.value = undefined;
     selectedParserId.value = undefined;
     selectedValueDelimiterId.value = undefined;
     selectedHasHeaders.value = undefined;
-    reportDraft(); // A new pick shows as no item until its preview shows it can be selected.
+    if (connectionNodeConfig == null || isDataViewItem(connectionNodeConfig)) return;
+
+    readingIsChanged.value = true;
+    changeDataView(constructItemlessDataViewConfig());
 }
 
-// The pick is saved only when it is committed. It is reported before then, so the summary above the step shows it. The
-// later steps are cleared in what is reported, because they were worked out from the item it replaces.
-function reportDraft(connectionNodeConfig?: ConnectionNodeConfig, previewConfig?: PreviewConfig): void {
-    if (dataViewConfig.value == null) return;
-    emit('draft-changed', {
-        ...dataViewConfig.value,
-        connectionNodeConfig: connectionNodeConfig ? constructStorableNodeConfig(connectionNodeConfig) : undefined,
-        previewConfig: previewConfig ? constructStoredPreviewConfig(previewConfig) : undefined,
+// The later steps are cleared, because they were worked out from the item being replaced.
+function constructItemlessDataViewConfig(): DataViewConfig {
+    return {
+        ...assertDefined(dataViewConfig.value, 'No data view to change.'),
+        connectionNodeConfig: undefined,
+        previewConfig: undefined,
         columnSetConfig: undefined,
         auditSummaryConfig: undefined,
         relationshipsAuditConfig: undefined
-    });
+    };
+}
+
+function isDataViewItem(connectionNodeConfig: ConnectionNodeConfig): boolean {
+    const itemConfig = dataViewConfig.value?.connectionNodeConfig;
+    return itemConfig != null && constructItemPath(itemConfig) === constructItemPath(connectionNodeConfig);
 }
 
 // The breadcrumb trail down to a folder, rebuilt from its path because only the item itself is saved. Each crumb's
@@ -1166,7 +1168,7 @@ function constructStorableNodeConfig(connectionNodeConfig: ConnectionNodeConfig)
     return { ...connectionNodeConfig, childNodes: [], handle: undefined };
 }
 
-// Whether the item committed is the one saved, unchanged since, and read the same way, so its saved audit still applies.
+// Whether the item is the data view's own, unchanged since, and read the same way, so the data view's audit still applies.
 function isSameAsSavedItem(dataViewConfig: DataViewConfig, connectionNodeConfig: ConnectionNodeConfig, previewConfig: StoredPreviewConfig): boolean {
     const savedNodeConfig = dataViewConfig.connectionNodeConfig;
     const savedPreviewConfig = dataViewConfig.previewConfig;
@@ -1812,23 +1814,29 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         </StudioDocumentSection>
                     </StudioDocumentPanel>
                 </ScrollArea>
-                <!-- Scroll End Buttons ─ To the left of the Explore button, as in the data view document. -->
-                <ScrollEndButtons v-if="currentPreviewTabId === 'details'" class="absolute right-30 bottom-(--safe-bottom-offset)" :scroll-element="documentScrollElement" />
+                <!-- Scroll End Buttons ─ To the left of the pill, as in the data view document. -->
+                <Teleport defer :to="`#${DATA_VIEW_SCROLL_ACTIONS_ID}`">
+                    <ScrollEndButtons v-if="currentPreviewTabId === 'details'" :scroll-element="documentScrollElement" />
+                </Teleport>
             </div>
         </template>
 
         <template #detail-action>
-            <!-- Shown once a preview arrives, because the preview is what the commit saves with the item. A first
+            <!-- Shown once a preview arrives, because the preview is what the draft holds with the item. A first
                  preview that fails therefore never shows the button. Moving on from an item that previewed keeps the
                  button in place while the next one loads, rather than making it blink. Disabled while the preview is
                  not data, or while saving. -->
-            <PillButton
-                v-if="itemFailure == null && (activePreviewConfig != null || (previewIsPending && hasLastPreviewSucceeded))"
-                :disabled="!previewIsSelectable || dataViewIsSaving || auditIsRunning"
-                :icon="ArrowRightIcon"
-                :label="t(TEXT, 'explore.label')"
-                @click="handleCommitDetail"
-            />
+            <Teleport defer :to="`#${DATA_VIEW_STEP_ACTION_ID}`">
+                <PillSegment
+                    v-if="itemFailure == null && (activePreviewConfig != null || (previewIsPending && hasLastPreviewSucceeded))"
+                    :disabled="!previewIsSelectable || auditIsRunning"
+                    :icon="ArrowRightIcon"
+                    is-separated
+                    is-step-action
+                    :label="t(TEXT, 'explore.label')"
+                    @click="handleMoveToExploreStep"
+                />
+            </Teleport>
         </template>
 
         <template #no-selection>

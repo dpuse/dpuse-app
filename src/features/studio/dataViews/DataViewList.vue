@@ -11,7 +11,6 @@ import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { DataSource } from '@/composables/useDataWindow';
-import type { DataViewWorkingCopy } from './_dataViewWorkingCopy';
 import { defineLazyComponent } from '@/utilities/index.ts';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import { ignoreReportedNavigationFailure } from '@/router';
@@ -19,7 +18,7 @@ import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './DataViewList_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
 import { useQueryFailure } from '@/services/queryClient';
-import { cancelDataViewRetrieval, NEW_DATA_VIEW_ID, useDataViews, useDataViewWorkingCopies, useDeleteDataView } from '@/features/studio/dataViews/_dataViews';
+import { cancelDataViewRetrieval, NEW_DATA_VIEW_ID, useDataViews, useDeleteDataView } from '@/features/studio/dataViews/_dataViews';
 import { constructDataViewConnection, type DataViewConnection, resolveCurrentDataViewStepId } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
 
@@ -58,7 +57,6 @@ const {
     refetch: refetchDataViews
 } = useDataViews();
 const { isPending: dataViewIsDeleting, mutateAsync: deleteDataView } = useDeleteDataView();
-const { data: dataViewWorkingCopies } = useDataViewWorkingCopies();
 
 // ── Slow Retrieval ─ A load that takes a while says so and offers Cancel and Retry, so a stuck read never leaves the
 // user watching a busy bar with no way out.
@@ -154,10 +152,9 @@ function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewC
     else updateDataViewIdParameter(dataViewLocalisedConfig.id);
 }
 
-// Opens the data view at the last task it has finished, or at Explore Data once every other task is done. A working copy
-// is resumed where its edits have got to.
+// Opens the data view at the last task it has finished, or at Explore Data once every other task is done.
 function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
-    const routeName = resolveCurrentDataViewStepId(findWorkingCopy(dataViewLocalisedConfig.id) ?? dataViewLocalisedConfig);
+    const routeName = resolveCurrentDataViewStepId(dataViewLocalisedConfig);
     void ignoreReportedNavigationFailure(router.push({ name: routeName, params: { dataViewId: dataViewLocalisedConfig.id }, query: route.query }));
 }
 
@@ -189,10 +186,6 @@ function handleFilterByCategory(): void {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function findWorkingCopy(dataViewId: string): DataViewWorkingCopy | undefined {
-    return dataViewWorkingCopies.value?.find((workingCopy) => workingCopy.id === dataViewId);
-}
 
 function findDataViewConnection(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): DataViewConnection | undefined {
     const connectionLocalisedConfig = findConnectionLocalisedConfig(dataViewLocalisedConfig.connectionId);
@@ -256,7 +249,6 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                 <DataViewCard
                     :data-view-connection="dataViewConnectionsById.get(item.id)"
                     :data-view-localised-config="item"
-                    :has-unsaved-changes="findWorkingCopy(item.id) != null"
                     :is-inert="isSplit && item.id === selectedDataViewLocalisedConfig?.id"
                     :selected="item.id === selectedDataViewLocalisedConfig?.id"
                     @category-click="handleFilterByCategory"
@@ -269,7 +261,6 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                 <DataViewPanel
                     :data-view-connection="dataViewConnectionsById.get(item.id)"
                     :data-view-localised-config="item"
-                    :has-unsaved-changes="findWorkingCopy(item.id) != null"
                     :is-deleting="dataViewIsDeleting"
                     @close="close"
                     @delete="handleDeleteDataView(item)"

@@ -10,6 +10,7 @@
 // ── External Dependencies & Registrations
 import { ref } from 'vue';
 
+import { DATA_VIEW_SIDE_ACTION_ID } from '@/features/studio/dataViews/_dataViews';
 import { t } from '@/state/locale';
 import { TEXT } from './ExploreDataPanel_.json';
 
@@ -44,7 +45,7 @@ const activeOptionId = ref<'transform' | 'investigate'>('investigate');
         <InvestigateDataPanel v-if="activeOptionId === 'investigate'" />
 
         <!-- Option Selector -->
-        <div class="fixed right-(--safe-right-offset) bottom-(--safe-bottom-offset)">
+        <Teleport defer :to="`#${DATA_VIEW_SIDE_ACTION_ID}`">
             <span class="isolate inline-flex h-10 rounded-full shadow-md">
                 <!-- View mode buttons -->
                 <button
@@ -75,6 +76,6 @@ const activeOptionId = ref<'transform' | 'investigate'>('investigate');
                     {{ t(TEXT, 'investigate.label') }}
                 </button>
             </span>
-        </div>
+        </Teleport>
     </div>
 </template>

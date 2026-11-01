@@ -1,5 +1,4 @@
-// The workspace store holds the user's own work, one table for each kind of config (data views and their unsaved working
-// copies so far). TanStack
+// The workspace store holds the user's own work, one table for each kind of config (data views so far). TanStack
 // Query's cache holds the app's only copy: these functions read and write the store, and the keys place each result in
 // the cache.
 //
@@ -25,7 +24,7 @@ import { assertDefined, shareLoad } from '@/utilities/index.ts';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export type WorkspaceStoreTableId = 'dataViews' | 'dataViewWorkingCopies';
+export type WorkspaceStoreTableId = 'dataViews';
 
 type WorkspaceStoreListKey = readonly ['workspaceStore', WorkspaceStoreTableId, 'list'];
 type WorkspaceStoreRecordKey = readonly ['workspaceStore', WorkspaceStoreTableId, 'record', string | undefined];
@@ -42,9 +41,9 @@ const CONFIG_CELL_ID = 'config'; // Each config is one cell holding the whole ob
 const GUEST_META_STORE_ID = 'dpuMetaStore'; // The Dexie database guest work was saved in before the workspace store. Each account's was this name, a hyphen and the account id.
 const GUEST_WORKSPACE_STORE_ID = 'dpuseWorkspaceStore';
 const META_STORE_IS_MOVED_VALUE_ID = 'metaStoreIsMoved';
+const OLDER_DRAFT_TABLE_ID = 'dataViewWorkingCopies';
 const WORKSPACE_STORE_QUERY_KEY = ['workspaceStore'] as const;
-const WORKSPACE_STORE_TABLE_IDS: WorkspaceStoreTableId[] = ['dataViews', 'dataViewWorkingCopies'];
-const WORK_TABLE_IDS: WorkspaceStoreTableId[] = ['dataViews']; // What counts as a piece of work. A working copy belongs to its data view, so it is not counted again.
+const WORKSPACE_STORE_TABLE_IDS: WorkspaceStoreTableId[] = ['dataViews'];
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -117,7 +116,7 @@ export async function removeWorkspaceStoreRecord(tableId: WorkspaceStoreTableId,
 // ── Guest Work ─ Work saved while signed out stays in the guest store. Once signed in, the user can move it into their
 // account, which also takes it out of reach of the next person to use this browser signed out.
 export async function countGuestWorkspaceStoreRecords(): Promise<number> {
-    return readStore(GUEST_WORKSPACE_STORE_ID, (store) => WORK_TABLE_IDS.reduce((count, tableId) => count + store.getRowCount(tableId), 0));
+    return readStore(GUEST_WORKSPACE_STORE_ID, (store) => WORKSPACE_STORE_TABLE_IDS.reduce((count, tableId) => count + store.getRowCount(tableId), 0));
 }
 
 // Copied before it is removed, so a failure part way leaves the work in at least one store.
@@ -241,8 +240,16 @@ async function constructWorkspaceStore(storeId: string): Promise<WorkspaceStore>
     });
     const workspaceStore = { persistenceErrors, persister, store };
     await loadWorkspaceStore(workspaceStore);
+    await removeStoredDrafts(workspaceStore);
     await moveMetaStoreRecords(workspaceStore, `${GUEST_META_STORE_ID}${storeId.slice(GUEST_WORKSPACE_STORE_ID.length)}`);
     return workspaceStore;
+}
+
+// An older build stored unsaved changes. Changes are now held only in memory until Save, so any left behind are removed.
+async function removeStoredDrafts(workspaceStore: WorkspaceStore): Promise<void> {
+    if (!workspaceStore.store.hasTable(OLDER_DRAFT_TABLE_ID)) return;
+    workspaceStore.store.delTable(OLDER_DRAFT_TABLE_ID);
+    await saveWorkspaceStore(workspaceStore);
 }
 
 // A store that has never been saved has no TinyBase tables in its database, which IndexedDB reports as 'NotFoundError'.

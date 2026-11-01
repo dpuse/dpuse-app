@@ -19,7 +19,7 @@ vi.mock('@/features/studio/dataViews/_dataViews', async (importOriginal) => {
     return {
         // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
         ...(await importOriginal<typeof import('@/features/studio/dataViews/_dataViews')>()),
-        useWorkingDataView: (): { data: unknown; workingCopy: unknown } => ({ data: computed(() => dataView.config), workingCopy: computed(() => null) })
+        useCurrentDataView: (): { data: unknown; draftIsCurrent: unknown } => ({ data: computed(() => dataView.config), draftIsCurrent: computed(() => false) })
     };
 });
 vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({

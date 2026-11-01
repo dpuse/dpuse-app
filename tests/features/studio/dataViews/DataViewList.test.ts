@@ -38,7 +38,6 @@ vi.mock('@/features/studio/dataViews/_dataViews', async () => {
             isSuccess: ref(true),
             refetch: vi.fn()
         }),
-        useDataViewWorkingCopies: (): object => ({ data: { value: [] } }),
         useDeleteDataView: (): object => ({ isPending: state.deleteIsPending, mutateAsync: state.deleteDataView }),
         stateForTest: state
     };

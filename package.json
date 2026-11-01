@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "1.0.242",
+    "version": "1.0.243",
     "private": false,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -92,7 +92,7 @@
         "@dpuse/dpuse-development": "^1.0.141",
         "@dpuse/dpuse-tool-d3-visualiser": "^1.0.118",
         "@dpuse/dpuse-tool-marked-markdown-parser": "^1.0.106",
-        "@dpuse/eslint-config-dpuse": "^1.0.145",
+        "@dpuse/eslint-config-dpuse": "^1.0.148",
         "@eslint/css": "^2.0.1",
         "@eslint/js": "^10.0.1",
         "@eslint/json": "^2.1.1",

@@ -17,17 +17,16 @@ import {
     abortDataViewContentAudit,
     auditDataViewContent,
     cancelDataViewRetrieval,
+    constructNewDataViewConfig,
     NEW_DATA_VIEW_ID,
     resolveDataViewIdParameter,
-    useCreateDataView,
+    useCurrentDataView,
     useDataView,
     useDataViews,
     useDeleteDataView,
-    useDiscardDataViewWorkingCopy,
-    useSaveWorkingDataView,
-    useUpdateDataView,
-    useUpdateWorkingDataView
+    useUpdateDataView
 } from '@/features/studio/dataViews/_dataViews';
+import { changeDataView, draftDataViewConfig } from '@/features/studio/dataViews/_dataViewDraft';
 import {
     constructWorkspaceStoreListKey,
     constructWorkspaceStoreRecordKey,
@@ -193,9 +192,9 @@ describe('data views', () => {
     describe('mutations', () => {
         it('saves a new data view with its connection and adds it to a loaded list', async () => {
             await runInComponent(() => useDataViews());
-            const { mutateAsync } = await runInComponent(() => useCreateDataView());
+            const { mutateAsync } = await runInComponent(() => useUpdateDataView());
 
-            const created = await mutateAsync('connection-1');
+            const created = await mutateAsync(constructNewDataViewConfig('connection-1'));
 
             expect(upsertWorkspaceStoreRecord).toHaveBeenCalledOnce();
             expect(created.connectionId).toBe('connection-1');
@@ -212,9 +211,9 @@ describe('data views', () => {
         });
 
         it('leaves a list that has not loaded alone, so loading it later picks the change up', async () => {
-            const { mutateAsync } = await runInComponent(() => useCreateDataView());
+            const { mutateAsync } = await runInComponent(() => useUpdateDataView());
 
-            const created = await mutateAsync('connection-1');
+            const created = await mutateAsync(constructNewDataViewConfig('connection-1'));
 
             expect(cachedList()).toBeUndefined();
             expect(queryClient.getQueryData(constructWorkspaceStoreRecordKey('dataViews', created.id))).toStrictEqual(created);
@@ -262,46 +261,48 @@ describe('data views', () => {
         });
     });
 
-    describe('working copies', () => {
-        const savedDataView = { ...buildDataView('a', 'Sales'), connectionId: 'one', previewConfig: undefined } as DataViewConfig;
-
-        it('keeps a change apart from the saved data view', async () => {
-            vi.mocked(getWorkspaceStoreRecord).mockResolvedValue(savedDataView);
-            const { mutateAsync } = await runInComponent(() => useUpdateWorkingDataView());
-
-            await mutateAsync({ ...savedDataView, connectionId: 'two' });
-
-            expect(vi.mocked(upsertWorkspaceStoreRecord).mock.calls[0]?.[0]).toBe('dataViewWorkingCopies');
-            expect(vi.mocked(upsertWorkspaceStoreRecord).mock.calls[0]?.[1]).toMatchObject({ connectionId: 'two', id: 'a' });
-            expect(vi.mocked(upsertWorkspaceStoreRecord).mock.calls[0]?.[1]).not.toHaveProperty('label');
+    describe('useCurrentDataView', () => {
+        afterEach(() => {
+            draftDataViewConfig.value = undefined;
         });
 
-        it('leaves no working copy when the definition is unchanged', async () => {
-            vi.mocked(getWorkspaceStoreRecord).mockResolvedValue(savedDataView);
-            const { mutateAsync } = await runInComponent(() => useUpdateWorkingDataView());
+        it('shows the saved data view while there is no draft', async () => {
+            await runInComponent(() => useDataViews());
+            const { data, draftIsCurrent } = await runInComponent(() => useCurrentDataView('a'));
 
-            await mutateAsync(savedDataView);
+            expect(data.value?.label).toStrictEqual({ en: 'Sales' });
+            expect(draftIsCurrent.value).toBe(false);
+        });
 
+        it('shows the draft over the saved data view, and stores nothing', async () => {
+            await runInComponent(() => useDataViews());
+            const { data, draftIsCurrent, savedData } = await runInComponent(() => useCurrentDataView('a'));
+
+            changeDataView({ ...buildDataView('a', 'Sales'), connectionId: 'two' });
+
+            expect(data.value?.connectionId).toBe('two');
+            expect(draftIsCurrent.value).toBe(true);
+            expect(savedData.value?.connectionId).not.toBe('two');
             expect(upsertWorkspaceStoreRecord).not.toHaveBeenCalled();
-            expect(removeWorkspaceStoreRecord).toHaveBeenCalledWith('dataViewWorkingCopies', 'a');
         });
 
-        it('saves the data view and then removes its working copy', async () => {
-            const { mutateAsync } = await runInComponent(() => useSaveWorkingDataView());
+        it('leaves another data view alone', async () => {
+            await runInComponent(() => useDataViews());
+            const { data } = await runInComponent(() => useCurrentDataView('b'));
 
-            await mutateAsync({ ...savedDataView, connectionId: 'two' });
+            changeDataView({ ...buildDataView('a', 'Sales'), connectionId: 'two' });
 
-            expect(vi.mocked(upsertWorkspaceStoreRecord).mock.calls[0]?.[0]).toBe('dataViews');
-            expect(removeWorkspaceStoreRecord).toHaveBeenCalledWith('dataViewWorkingCopies', 'a');
+            expect(data.value?.id).toBe('b');
         });
 
-        it('discards a working copy and leaves the saved data view alone', async () => {
-            const { mutateAsync } = await runInComponent(() => useDiscardDataViewWorkingCopy());
+        it('gives a data view being added its draft, and stores nothing', async () => {
+            const { data } = await runInComponent(() => useCurrentDataView(NEW_DATA_VIEW_ID));
+            const draft = constructNewDataViewConfig('connection-1');
 
-            await mutateAsync('a');
+            changeDataView(draft);
 
-            expect(removeWorkspaceStoreRecord).toHaveBeenCalledTimes(1);
-            expect(removeWorkspaceStoreRecord).toHaveBeenCalledWith('dataViewWorkingCopies', 'a');
+            expect(data.value).toBe(draft);
+            expect(upsertWorkspaceStoreRecord).not.toHaveBeenCalled();
         });
     });
 

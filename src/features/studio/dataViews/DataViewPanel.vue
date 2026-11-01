@@ -171,7 +171,7 @@ const shownPreviewRows = computed(() => (dataTableIsExpanded.value ? previewRows
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-useUnsavedWork(editDialogIsOpen); // The edits are only saved when the dialog closes, so a reload while it is open loses them.
+useUnsavedWork(editDialogIsOpen); // The edits are only saved by the dialog's Save, so a reload while it is open loses them.
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -182,7 +182,11 @@ function handleEditDataView(): void {
     editDialogIsOpen.value = true;
 }
 
-async function handleCloseEditDialog(): Promise<void> {
+function handleCloseEditDialog(): void {
+    editDialogIsOpen.value = false;
+}
+
+async function handleSaveEdits(): Promise<void> {
     editDialogIsOpen.value = false;
 
     const label = editedLabel.value.trim();
@@ -200,7 +204,7 @@ async function handleCloseEditDialog(): Promise<void> {
         });
     } catch (error) {
         // Announced rather than shown in the panel: the panel still shows the saved data view, which is still correct.
-        raiseAppFailure(new AppError('Failed to save data view.', 'dpuse-app.DataViewPanel.handleCloseEditDialog', { typeId: 'handled' }, { cause: error }));
+        raiseAppFailure(new AppError('Failed to save data view.', 'dpuse-app.DataViewPanel.handleSaveEdits', { typeId: 'handled' }, { cause: error }));
     }
 }
 
@@ -406,6 +410,9 @@ function formatDateTime(timestamp: number): string {
             @close="handleCloseEditDialog"
         >
             <StudioDescriptorsPanel v-model:label="editedLabel" v-model:description="editedDescription" />
+            <div class="flex flex-none justify-end p-4">
+                <RectangleButton variant="primary" @click="handleSaveEdits">{{ t(TEXT, 'edit.save.label') }}</RectangleButton>
+            </div>
         </Dialog>
     </StudioDetailLayout>
 </template>

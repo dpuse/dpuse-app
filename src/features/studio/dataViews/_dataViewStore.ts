@@ -33,6 +33,8 @@ export type DataViewRecordQuery = Pick<QueryRecordsOptions, 'aggregates' | 'filt
 export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-sqlite-wasm';
 //export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-duckdb-wasm';
 
+const DRAFT_LOAD_SUFFIX = '|draft';
+const OLDER_DRAFT_LOAD_SUFFIX = '|working'; // Left by a build that stored drafts.
 const LOAD_FORMAT_VERSION = 2; // Raised when stored values change meaning, so that what is already loaded is loaded again. 2 stores dates in UTC, as true dates and times.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -41,8 +43,8 @@ const LOAD_FORMAT_VERSION = 2; // Raised when stored values change meaning, so t
 // data view whose columns have changed since is loaded again.
 const loadedColumnSetVersions = useLocalStorage<Partial<Record<string, number | string>>>('dpuse-investigate-loads', {});
 
-// The table each load went into. A saved data view with no entry is in the table named by its id. A working copy has a
-// table of its own, so loading it leaves the saved data view's records alone. Save makes that table the saved one.
+// The table each load went into. A saved data view with no entry is in the table named by its id. A draft has a table
+// of its own, so loading it leaves the saved data view's records alone. Save makes that table the saved one.
 const loadTablePaths = useLocalStorage<Partial<Record<string, string>>>('dpuse-investigate-tables', {});
 
 // Tables no longer needed, by store. Opening a store only to drop a table would download its engine, so they wait until
@@ -51,11 +53,15 @@ const unwantedTablePaths = useLocalStorage<Partial<Record<string, string[]>>>('d
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Only one tab can open the store, so a tab that cannot have it is told so rather than kept waiting.
-export async function openDataViewStore(): Promise<StoreStateId> {
+// Only one tab can open the store, so a tab that cannot have it is told so rather than kept waiting. A draft lives only
+// in the page's memory, so a load for any draft but the open one was left by a reload or crash, and its table goes.
+export async function openDataViewStore(openDraftDataViewId?: string): Promise<StoreStateId> {
     const { processRequest } = await establishEngineWorker();
     const { storeStateId } = (await processRequest('openStore', findStoreConnectionLocalisedConfig(), {})) as OpenStoreResult;
-    if (storeStateId === 'ready') await dropUnwantedTables();
+    if (storeStateId === 'ready') {
+        forgetAbandonedDraftLoads(openDraftDataViewId);
+        await dropUnwantedTables();
+    }
     return storeStateId;
 }
 
@@ -65,25 +71,25 @@ export async function closeDataViewStore(): Promise<void> {
     await processRequest('closeStore', findStoreConnectionLocalisedConfig(), {});
 }
 
-export function isDataViewLoaded(dataViewConfig: DataViewConfig, isWorkingCopy: boolean): boolean {
+export function isDataViewLoaded(dataViewConfig: DataViewConfig, isDraft: boolean): boolean {
     const columnSetVersion = constructColumnSetVersion(dataViewConfig.columnSetConfig);
-    return columnSetVersion != null && loadedColumnSetVersions.value[constructLoadKey(dataViewConfig.id, isWorkingCopy)] === columnSetVersion;
+    return columnSetVersion != null && loadedColumnSetVersions.value[constructLoadKey(dataViewConfig.id, isDraft)] === columnSetVersion;
 }
 
 // Reads the data view from its source again, the way its preview read it, and stores each value as its column's type.
 // The records go from the source connector to the store inside the engine, never through the app. An item whose columns
 // have moved since the preview loads nothing, so the earlier load stays.
-export async function loadDataViewRecords(dataViewConfig: DataViewConfig, isWorkingCopy: boolean, onProgress: (recordCount: number) => void): Promise<EngineLoadObjectRecordsResult> {
+export async function loadDataViewRecords(dataViewConfig: DataViewConfig, isDraft: boolean, onProgress: (recordCount: number) => void): Promise<EngineLoadObjectRecordsResult> {
     const columnSetVersion = assertDefined(constructColumnSetVersion(dataViewConfig.columnSetConfig), 'No columns for this data view.');
     const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
     const previewConfig = assertDefined(dataViewConfig.previewConfig, 'No preview for this data view.');
     const sourceConnectionConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
-    const loadKey = constructLoadKey(dataViewConfig.id, isWorkingCopy);
+    const loadKey = constructLoadKey(dataViewConfig.id, isDraft);
     const options: EngineLoadObjectRecordsOptions = {
         columnConfigs: constructLoadColumnConfigs(dataViewConfig.columnSetConfig),
         hasHeaders: previewConfig.hasHeaders === true,
         headerValues: previewConfig.hasHeaders === true ? previewConfig.parsedRecords[0]?.map((parsingValue) => parsingValue.value) : undefined,
-        path: establishTablePath(dataViewConfig.id, isWorkingCopy),
+        path: establishTablePath(dataViewConfig.id, isDraft),
         sourceConnectionConfig,
         sourceOptions: {
             chunkSize: undefined,
@@ -116,36 +122,36 @@ export async function queryDataViewRecords(tablePath: string, query: DataViewRec
     return (await processRequest('queryRecords', findStoreConnectionLocalisedConfig(), options)) as QueryRecordsResult;
 }
 
-export function hasDataViewLoad(dataViewId: string, isWorkingCopy: boolean): boolean {
-    return loadedColumnSetVersions.value[constructLoadKey(dataViewId, isWorkingCopy)] != null;
+export function hasDataViewLoad(dataViewId: string, isDraft: boolean): boolean {
+    return loadedColumnSetVersions.value[constructLoadKey(dataViewId, isDraft)] != null;
 }
 
-export function resolveDataViewTablePath(dataViewId: string, isWorkingCopy: boolean): string {
-    return loadTablePaths.value[constructLoadKey(dataViewId, isWorkingCopy)] ?? dataViewId;
+export function resolveDataViewTablePath(dataViewId: string, isDraft: boolean): string {
+    return loadTablePaths.value[constructLoadKey(dataViewId, isDraft)] ?? dataViewId;
 }
 
-// Save: the working copy's load, if it has one, becomes the saved data view's load, and the saved table goes.
-export function promoteWorkingCopyLoad(dataViewId: string): void {
-    const workingKey = constructLoadKey(dataViewId, true);
-    const workingTablePath = loadTablePaths.value[workingKey];
-    if (workingTablePath == null) return;
+// Save: the draft's load, if it has one, becomes the saved data view's load, and the saved table goes.
+export function promoteDraftLoad(dataViewId: string): void {
+    const draftKey = constructLoadKey(dataViewId, true);
+    const draftTablePath = loadTablePaths.value[draftKey];
+    if (draftTablePath == null) return;
 
     const savedKey = constructLoadKey(dataViewId, false);
     addUnwantedTablePaths([resolveDataViewTablePath(dataViewId, false)]);
-    const workingVersion = loadedColumnSetVersions.value[workingKey];
-    const { [savedKey]: _savedVersion, [workingKey]: _workingVersion, ...otherVersions } = loadedColumnSetVersions.value;
-    loadedColumnSetVersions.value = workingVersion == null ? otherVersions : { ...otherVersions, [savedKey]: workingVersion };
-    const { [workingKey]: _workingTablePath, ...otherTablePaths } = loadTablePaths.value;
-    loadTablePaths.value = { ...otherTablePaths, [savedKey]: workingTablePath };
+    const draftVersion = loadedColumnSetVersions.value[draftKey];
+    const { [savedKey]: _savedVersion, [draftKey]: _draftVersion, ...otherVersions } = loadedColumnSetVersions.value;
+    loadedColumnSetVersions.value = draftVersion == null ? otherVersions : { ...otherVersions, [savedKey]: draftVersion };
+    const { [draftKey]: _draftTablePath, ...otherTablePaths } = loadTablePaths.value;
+    loadTablePaths.value = { ...otherTablePaths, [savedKey]: draftTablePath };
 }
 
 // Discard: the saved data view's load is untouched.
-export function forgetWorkingCopyLoad(dataViewId: string): void {
+export function forgetDraftLoad(dataViewId: string): void {
     forgetLoad(constructLoadKey(dataViewId, true));
 }
 
 export function forgetDataViewLoads(dataViewId: string): void {
-    forgetWorkingCopyLoad(dataViewId);
+    forgetDraftLoad(dataViewId);
     const savedKey = constructLoadKey(dataViewId, false);
     addUnwantedTablePaths([resolveDataViewTablePath(dataViewId, false)]);
     forgetLoad(savedKey);
@@ -157,18 +163,25 @@ export function findDataViewStoreLabel(): string {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function constructLoadKey(dataViewId: string, isWorkingCopy: boolean): string {
-    return `${INVESTIGATE_STORE_CONNECTOR_ID}|${String(LOAD_FORMAT_VERSION)}|${dataViewId}${isWorkingCopy ? '|working' : ''}`;
+function constructLoadKey(dataViewId: string, isDraft: boolean): string {
+    return `${INVESTIGATE_STORE_CONNECTOR_ID}|${String(LOAD_FORMAT_VERSION)}|${dataViewId}${isDraft ? DRAFT_LOAD_SUFFIX : ''}`;
 }
 
-function establishTablePath(dataViewId: string, isWorkingCopy: boolean): string {
-    const loadKey = constructLoadKey(dataViewId, isWorkingCopy);
+function establishTablePath(dataViewId: string, isDraft: boolean): string {
+    const loadKey = constructLoadKey(dataViewId, isDraft);
     const tablePath = loadTablePaths.value[loadKey];
-    if (tablePath != null || !isWorkingCopy) return tablePath ?? dataViewId;
+    if (tablePath != null || !isDraft) return tablePath ?? dataViewId;
 
     const newTablePath = `${dataViewId}-${crypto.randomUUID()}`;
     loadTablePaths.value = { ...loadTablePaths.value, [loadKey]: newTablePath };
     return newTablePath;
+}
+
+function forgetAbandonedDraftLoads(openDraftDataViewId: string | undefined): void {
+    const openLoadKey = openDraftDataViewId == null ? undefined : constructLoadKey(openDraftDataViewId, true);
+    for (const loadKey of Object.keys(loadTablePaths.value)) {
+        if (loadKey !== openLoadKey && (loadKey.endsWith(DRAFT_LOAD_SUFFIX) || loadKey.endsWith(OLDER_DRAFT_LOAD_SUFFIX))) forgetLoad(loadKey);
+    }
 }
 
 function forgetLoad(loadKey: string): void {

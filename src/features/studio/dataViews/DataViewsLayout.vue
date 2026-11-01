@@ -1,40 +1,42 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, ref, shallowRef, watch } from 'vue';
-import { useBroadcastChannel, useConfirmDialog } from '@vueuse/core';
-import { useRoute, useRouter } from 'vue-router';
+import { useConfirmDialog } from '@vueuse/core';
+import { computed, ref, watch } from 'vue';
+import { isNavigationFailure, NavigationFailureType, onBeforeRouteLeave, onBeforeRouteUpdate, type RouteLocationNormalized, useRoute, useRouter } from 'vue-router';
+import { SaveIcon, Undo2Icon } from '@lucide/vue';
 
 // ── DPUse Framework
+import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 import { AppError, localiseConfig, localiseConfigs } from '@dpuse/dpuse-shared';
-import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { PILL_CLASSES } from '@/components/ui/action/action';
 import { raiseAppFailure } from '@/state/errors';
 import { sessionIsAuthenticated } from '@/state/session';
 import { useQueryFailure } from '@/services/queryClient';
 import { useUnsavedWork } from '@/state/unsavedWork';
 import { workspaceStoreId } from '@/services/workspaceStore';
 import { accountConfigStatus, configStatus, connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
+import { completeDataViewDraft, dataViewCanBeSaved, dataViewHasChanges, discardDataViewDraft } from './_dataViewDraft';
 import { constructItemPath, resolveCurrentDataViewStepId } from './dataViewSummary';
+import {
+    DATA_VIEW_SCROLL_ACTIONS_ID,
+    DATA_VIEW_SIDE_ACTION_ID,
+    DATA_VIEW_STEP_ACTION_ID,
+    NEW_DATA_VIEW_ID,
+    resolveDataViewIdParameter,
+    useCurrentDataView,
+    useUpdateDataView
+} from '@/features/studio/dataViews/_dataViews';
 import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
 import { localeId, t } from '@/state/locale';
-import {
-    NEW_DATA_VIEW_ID,
-    refreshDataViewWorkingCopies,
-    resolveDataViewIdParameter,
-    useDeleteDataView,
-    useDiscardDataViewWorkingCopy,
-    useSaveWorkingDataView,
-    useWorkingDataView,
-    workingCopyChangeCount
-} from '@/features/studio/dataViews/_dataViews';
 import { TASK_CONFIGS, TEXT } from './DataViewsLayout_.json';
 
 // ── Static Components
-import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import DataViewSource from './DataViewSource.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
+import PillSegment from '@/components/ui/action/PillSegment.vue';
 import RetrievalGate from '@/components/ui/RetrievalGate.vue';
 import RouterViewTransition from '@/components/ui/RouterViewTransition.vue';
 import StudioHeader from '@/features/studio/_components/StudioHeader.vue';
@@ -53,19 +55,11 @@ const unlockedUpToTaskNumber = ref(0);
 // list has faded out, so nothing below them jumps while it fades. Undefined while the list is on screen.
 const taskIdOnScreen = ref(constructTaskIdOnScreen());
 
-// ── Draft ─ The data view as the current task's unsaved changes would leave it, reported by that task. The summary
-// shows it, dimmed, until the task saves it. It is cleared when the user moves to another task.
-const draftDataViewConfig = shallowRef<DataViewConfig>();
-
-// ── Save and Discard ─ A data view that has never had a preview saved is still being added, so Discard removes it.
-const { isPending: dataViewIsSaving, mutateAsync: saveWorkingDataView } = useSaveWorkingDataView();
-const { isPending: workingCopyIsDiscarding, mutateAsync: discardDataViewWorkingCopy } = useDiscardDataViewWorkingCopy();
-const { mutateAsync: deleteDataView } = useDeleteDataView();
+// ── Save and Discard
+const { isPending: dataViewIsSaving, mutateAsync: saveDataView } = useUpdateDataView();
 const { cancel: cancelDiscard, confirm: confirmDiscard, isRevealed: discardConfirmIsOpen, reveal: revealDiscardConfirm } = useConfirmDialog();
-
-// ── Other Tabs ─ Working copies are shared by every tab, so the last save wins. Each tab is told of the other's changes.
-const workingCopyChangedElsewhere = ref(false);
-const { data: otherTabMessage, post: postWorkingCopyChange } = useBroadcastChannel<number, number>({ name: 'dpuse-data-view-working-copies' });
+const discardIsForLeaving = ref(false); // Asked on the way out, so the safe answer is to stay.
+const stepResetCount = ref(0); // Bumped by Discard, which rebuilds the step, because it holds its own picks and preview.
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -77,9 +71,8 @@ const {
     data: dataViewConfig,
     error: dataViewError,
     refetch: refetchDataView,
-    savedData: savedDataViewConfig,
-    workingCopy: dataViewWorkingCopy
-} = useWorkingDataView(currentDataViewId);
+    savedData: savedDataViewConfig
+} = useCurrentDataView(() => (routeIsTask.value ? route.params.dataViewId : undefined));
 const dataViewFailure = useQueryFailure(dataViewError); // Shown in place of the task, which has nothing to work on without its data view.
 
 // The data view's connection is looked up again from the list, so it follows a change of language. Undefined when none
@@ -98,7 +91,9 @@ const taskLocalisedConfigs = computed((): (LocalisedConfig<TaskConfig> & { disab
     localiseConfigs<TaskConfig>(TASK_CONFIGS, localeId.value).map((taskLocalisedConfig) => ({
         ...taskLocalisedConfig,
         ...constructItemTaskLabels(taskLocalisedConfig.id),
-        disabled: taskLocalisedConfig.number > Math.max(unlockedUpToTaskNumber.value, progressUnlockedUpToTaskNumber.value)
+        disabled:
+            taskLocalisedConfig.number > Math.max(unlockedUpToTaskNumber.value, progressUnlockedUpToTaskNumber.value) ||
+            (taskLocalisedConfig.id === 'data' && dataViewConfig.value?.previewConfig == null) // A new connection or item has nothing to explore until it is previewed.
     }))
 );
 const currentTaskLocalisedConfig = computed(() => taskLocalisedConfigs.value.find((config) => config.id === route.name));
@@ -120,13 +115,7 @@ const headerBackRoute = computed(() =>
         : { name: 'dataViews', params: { dataViewId: currentDataViewId.value }, query: route.query, state: { detailIsClosed: true } }
 ); // From a task, back to the list with this data view's card still selected, but on a narrow screen its detail closed, as the link names the list.
 
-// ── Save and Discard
-const dataViewIsBeingAdded = computed(() => savedDataViewConfig.value != null && savedDataViewConfig.value.previewConfig == null);
-const saveBarIsShown = computed(() => routeIsTask.value && dataViewConfig.value != null && (dataViewWorkingCopy.value != null || dataViewIsBeingAdded.value));
-const dataViewCanBeSaved = computed(() => dataViewWorkingCopy.value != null && dataViewConfig.value?.previewConfig != null);
-
-// ── Task Bar ─ Each task's saved choice, which screen readers hear with the task. A draft is left out, because the
-// current task already shows it.
+// ── Task Bar ─ Each task's choice, which screen readers hear with the task.
 const taskDetails = computed((): Record<string, string | undefined> => {
     const itemConfig = dataViewConfig.value?.connectionNodeConfig;
     return {
@@ -142,17 +131,14 @@ const taskBarLocalisedItems = computed(() =>
     }))
 );
 
-// ── Summary ─ Shows the current task's draft when there is one, otherwise what was saved. Any part the draft changed
-// is dimmed until it is saved.
-const summaryDataViewConfig = computed(() => draftDataViewConfig.value ?? dataViewConfig.value);
-const summaryConnectionLocalisedConfig = computed(() => findConnectionLocalisedConfig(summaryDataViewConfig.value?.connectionId));
-const summaryConnectionIsDraft = computed(() => summaryDataViewConfig.value?.connectionId !== dataViewConfig.value?.connectionId);
-const summaryItemConfig = computed(() => summaryDataViewConfig.value?.connectionNodeConfig);
+// ── Summary ─ Any part the user has changed is dimmed until it is saved.
+const summaryConnectionIsDraft = computed(() => dataViewConfig.value?.connectionId !== savedDataViewConfig.value?.connectionId);
+const summaryItemConfig = computed(() => dataViewConfig.value?.connectionNodeConfig);
 const summaryItemPath = computed(() => (summaryItemConfig.value ? constructItemPath(summaryItemConfig.value) : undefined));
-const savedItemConfig = computed(() => dataViewConfig.value?.connectionNodeConfig);
+const savedItemConfig = computed(() => savedDataViewConfig.value?.connectionNodeConfig);
 const savedItemPath = computed(() => (savedItemConfig.value ? constructItemPath(savedItemConfig.value) : undefined)); // Compared by the engine's path, which tells two items apart even where their labels match.
 const summaryItemIsDraft = computed(() => summaryItemPath.value !== savedItemPath.value);
-const summaryItemTypeId = computed(() => summaryConnectionLocalisedConfig.value?.connectorConfig.itemTypeId);
+const summaryItemTypeId = computed(() => dataViewConnectionLocalisedConfig.value?.connectorConfig.itemTypeId);
 
 // ── Summary and Task Bar ─ After a reload, both stay hidden until the data view and the connection list have loaded,
 // then fade in together. Otherwise the summary first reads 'No connection' and step 2 'Select Item', and both change
@@ -167,16 +153,11 @@ const taskPanelIsLoading = computed(() => navigationPendingDepth.value === 1);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-useUnsavedWork(() => draftDataViewConfig.value != null); // A draft is lost by a reload, because only the task's save keeps it.
+useUnsavedWork(dataViewHasChanges); // A draft is lost by a reload, because only Save stores it.
 
-// Tells other tabs of a change here, and refreshes from a change there.
-watch(workingCopyChangeCount, (changeCount) => {
-    postWorkingCopyChange(changeCount);
-});
-watch(otherTabMessage, () => {
-    workingCopyChangedElsewhere.value = true;
-    void refreshDataViewWorkingCopies();
-});
+// Leaving a data view settles its changes, so the list never holds unsaved work. Moving between its steps keeps them.
+onBeforeRouteUpdate(canLeaveDataView);
+onBeforeRouteLeave(canLeaveDataView);
 
 // Opening a task, including straight from a link or after a page reload, unlocks the task bar up to that task. Tasks
 // that are already unlocked stay unlocked when the user goes back to an earlier one, but not into another data view,
@@ -186,20 +167,16 @@ watch(
     ([newRouteName, newCurrentDataViewId], oldValues) => {
         const routeEnableUpTo = TASK_CONFIGS.find((config) => config.id === newRouteName)?.enableUpTo ?? 0;
         unlockedUpToTaskNumber.value = newCurrentDataViewId === oldValues[1] ? Math.max(unlockedUpToTaskNumber.value, routeEnableUpTo) : routeEnableUpTo;
-        draftDataViewConfig.value = undefined; // The draft belonged to the task being left.
-        workingCopyChangedElsewhere.value = false;
     },
     { immediate: true }
 );
 
-// A data view still being added has no connection yet, so it can only be worked on from the connection task, and any
-// later task sends it there. A saved data view always has a connection, because it is only saved once one is chosen.
+// A data view being added exists only as a draft, so a later task reached by a reload has nothing to work on. It goes
+// back to the list. A saved data view always has a connection.
 watch(
-    [dataViewIsNew, (): unknown => route.name],
-    ([newDataViewIsNew, newRouteName]) => {
-        if (newRouteName === 'connection' || !newDataViewIsNew) return;
-
-        void ignoreReportedNavigationFailure(router.replace({ name: 'connection', query: route.query }));
+    [dataViewIsNew, dataViewHasChanges, (): unknown => route.name],
+    () => {
+        void returnAbandonedDataViewToList();
     },
     { immediate: true }
 );
@@ -221,6 +198,7 @@ watch(
         )
             return;
 
+        discardDataViewDraft(); // The connection has gone, so there is nothing left to ask about.
         void ignoreReportedNavigationFailure(router.replace({ name: 'dataViews', params: { dataViewId: currentDataViewId.value }, query: route.query }));
     },
     { immediate: true }
@@ -231,6 +209,7 @@ watch(
 watch(workspaceStoreId, (_newWorkspaceStoreId, oldWorkspaceStoreId) => {
     if (oldWorkspaceStoreId == null || (route.name === 'dataViews' && route.params.dataViewId === '')) return;
 
+    discardDataViewDraft(); // The draft belongs to the account just left.
     void ignoreReportedNavigationFailure(router.replace({ name: 'dataViews', params: { dataViewId: undefined }, query: route.query }));
 });
 
@@ -246,36 +225,37 @@ function handleRetryDataView(): void {
     void refetchDataView();
 }
 
-function handleDraftChanged(newDraftDataViewConfig: DataViewConfig | undefined): void {
-    draftDataViewConfig.value = newDraftDataViewConfig;
-}
-
 async function handleSaveDataView(): Promise<void> {
-    if (dataViewConfig.value == null || dataViewIsSaving.value) return;
+    const draftDataViewConfig = dataViewConfig.value;
+    if (draftDataViewConfig == null || !dataViewCanBeSaved.value || dataViewIsSaving.value) return;
 
     try {
-        await saveWorkingDataView(dataViewConfig.value);
+        await saveDataView(draftDataViewConfig);
+        if (dataViewIsNew.value) {
+            await ignoreReportedNavigationFailure(router.replace({ params: { dataViewId: draftDataViewConfig.id }, query: route.query })); // It has a real id now, so a reload can restore it.
+        }
+        completeDataViewDraft();
     } catch (error) {
-        // Announced rather than shown in the task: the working copy is untouched, so nothing is lost by trying again.
+        // Announced rather than shown in the task: the draft is untouched, so nothing is lost by trying again.
         raiseAppFailure(new AppError('Failed to save data view.', 'dpuse-app.DataViewsLayout.handleSaveDataView', { typeId: 'handled' }, { cause: error }));
     }
 }
 
 async function handleDiscardDataView(): Promise<void> {
-    const dataViewId = currentDataViewId.value;
-    if (dataViewId == null || workingCopyIsDiscarding.value) return;
+    if (!dataViewHasChanges.value) return;
 
+    discardIsForLeaving.value = false;
     const { isCanceled } = await revealDiscardConfirm();
     if (isCanceled) return;
 
-    try {
-        if (dataViewIsBeingAdded.value) {
-            await deleteDataView(dataViewId);
-            void ignoreReportedNavigationFailure(router.replace({ name: 'dataViews', params: { dataViewId: undefined }, query: route.query }));
-        } else await discardDataViewWorkingCopy(dataViewId);
-    } catch (error) {
-        raiseAppFailure(new AppError('Failed to discard the changes.', 'dpuse-app.DataViewsLayout.handleDiscardDataView', { typeId: 'handled' }, { cause: error }));
+    const wasNew = dataViewIsNew.value;
+    discardDataViewDraft();
+    if (wasNew) {
+        void ignoreReportedNavigationFailure(router.replace({ name: 'dataViews', params: { dataViewId: undefined }, query: route.query }));
+        return;
     }
+    await refetchDataView(); // Another tab may have saved since, and Discard returns to what is saved now.
+    stepResetCount.value++;
 }
 
 function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): void {
@@ -283,6 +263,31 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Saving a new data view moves from 'new' to its real id, which is still the same data view.
+async function canLeaveDataView(to: RouteLocationNormalized): Promise<boolean> {
+    const isSameDataView = String(to.params.dataViewId) === String(route.params.dataViewId) || String(to.params.dataViewId) === dataViewConfig.value?.id;
+    if (!dataViewHasChanges.value || (isSameDataView && TASK_CONFIGS.some((config) => config.id === to.name))) return true;
+
+    discardIsForLeaving.value = true;
+    const { isCanceled } = await revealDiscardConfirm();
+    if (isCanceled) return false;
+
+    discardDataViewDraft();
+    return true;
+}
+
+// The app's own change to the query at startup cancels a navigation made at the same moment, so a cancelled one tries again.
+async function returnAbandonedDataViewToList(): Promise<void> {
+    if (route.name === 'connection' || !dataViewIsNew.value || dataViewHasChanges.value) return;
+
+    try {
+        const failure = await router.replace({ name: 'dataViews', params: { dataViewId: undefined }, query: route.query });
+        if (isNavigationFailure(failure, NavigationFailureType.cancelled)) await returnAbandonedDataViewToList();
+    } catch {
+        // Already reported by 'router.onError'.
+    }
+}
 
 function constructTaskIdOnScreen(): string | undefined {
     return typeof route.name === 'string' && TASK_CONFIGS.some((config) => config.id === route.name) ? route.name : undefined;
@@ -297,7 +302,7 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
 </script>
 
 <template>
-    <StudioLayout>
+    <StudioLayout class="relative">
         <!-- Header -->
         <StudioHeader class="flex-none px-page" :overline="headerOverline" :title="headerTitle" :title-is-pending="headerTitleIsPending" :to="headerBackRoute" />
 
@@ -315,24 +320,14 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
                         aria-hidden="true"
                         class="min-w-0 flex-1"
                         is-single-line
-                        :connection-id="summaryDataViewConfig?.connectionId"
+                        :connection-id="dataViewConfig?.connectionId"
                         :connection-is-draft="summaryConnectionIsDraft"
                         :connection-node-config="summaryItemConfig"
-                        :data-format-id="summaryDataViewConfig?.previewConfig?.dataFormatId"
-                        :data-view-connection="summaryConnectionLocalisedConfig"
+                        :data-format-id="dataViewConfig?.previewConfig?.dataFormatId"
+                        :data-view-connection="dataViewConnectionLocalisedConfig"
                         :item-is-draft="summaryItemIsDraft"
                         :item-type-id="summaryItemTypeId"
                     />
-                    <!-- Save Bar ─ In the summary row, which is always there, so nothing moves when it appears. -->
-                    <div v-if="saveBarIsShown" class="flex flex-none items-center gap-x-3">
-                        <span class="hidden text-muted sm:inline" role="status">{{ t(TEXT, workingCopyChangedElsewhere ? 'otherTab.text' : 'unsaved.text') }}</span>
-                        <ActionWrapper class="text-accent hover:underline" :disabled="workingCopyIsDiscarding" @click="handleDiscardDataView">{{
-                            t(TEXT, 'discard.label')
-                        }}</ActionWrapper>
-                        <ActionWrapper v-if="dataViewCanBeSaved" class="font-medium text-accent hover:underline" :disabled="dataViewIsSaving" @click="handleSaveDataView">{{
-                            t(TEXT, 'save.label')
-                        }}</ActionWrapper>
-                    </div>
                 </div>
 
                 <!-- Task Bar -->
@@ -352,20 +347,38 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
                 <component
                     :is="component"
                     v-else
-                    :key="route.name"
+                    :key="`${String(route.name)}-${stepResetCount}`"
                     class="min-h-0 flex-1"
                     :task-localised-config="currentTaskLocalisedConfig"
-                    @draft-changed="handleDraftChanged"
                     @task-completed="handleTaskCompleted"
                     @vue:mounted="handleViewMounted"
                 />
             </RouterViewTransition>
         </RetrievalGate>
 
+        <!-- Actions ─ One row along the bottom on every step: the step's scroll buttons, the pill holding Discard, Save and
+             the step's own action, then any control of the step's own. Steps place theirs here with 'Teleport', so each
+             moves with the width of the others, and the row is always in the page for them to find. Labels depend on
+             the pane's width, not the screen's, because the splitter resizes the pane. -->
+        <div
+            v-show="routeIsTask"
+            class="@container pointer-events-none absolute inset-x-0 bottom-(--safe-bottom-offset) flex items-center justify-end gap-x-2 pr-6"
+            data-region="DataViewActions"
+        >
+            <div :id="DATA_VIEW_SCROLL_ACTIONS_ID" class="pointer-events-auto contents" />
+            <div class="pointer-events-auto flex h-10 overflow-hidden shadow-md" :class="PILL_CLASSES" data-region="DataViewPill">
+                <PillSegment :disabled="!dataViewHasChanges" :icon="Undo2Icon" :label="t(TEXT, 'discard.label')" @click="handleDiscardDataView" />
+                <PillSegment :disabled="!dataViewCanBeSaved || dataViewIsSaving" :icon="SaveIcon" is-separated :label="t(TEXT, 'save.label')" @click="handleSaveDataView" />
+                <div :id="DATA_VIEW_STEP_ACTION_ID" class="contents" />
+            </div>
+            <div :id="DATA_VIEW_SIDE_ACTION_ID" class="pointer-events-auto contents" />
+        </div>
+
         <ConfirmDialog
+            :cancel-label="discardIsForLeaving ? t(TEXT, 'discard.stay.label') : undefined"
             :confirm-label="t(TEXT, 'discard.label')"
             :is-open="discardConfirmIsOpen"
-            :message="t(TEXT, dataViewIsBeingAdded ? 'discard.new.text' : 'discard.text')"
+            :message="t(TEXT, dataViewIsNew ? 'discard.new.text' : 'discard.text')"
             :title="t(TEXT, 'discard.title')"
             @cancel="cancelDiscard"
             @confirm="confirmDiscard"

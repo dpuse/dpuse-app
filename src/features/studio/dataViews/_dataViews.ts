@@ -1,5 +1,5 @@
 // ── External Dependencies & Registrations
-import { computed, type ComputedRef, type MaybeRefOrGetter, ref, toValue } from 'vue';
+import { computed, type ComputedRef, type MaybeRefOrGetter, toValue } from 'vue';
 import { useMutation, type UseMutationReturnType, useQuery, type UseQueryReturnType } from '@tanstack/vue-query';
 
 // ── DPUse Framework
@@ -9,11 +9,12 @@ import type { AuditObjectContentOptions, AuditObjectContentResult, ContentAuditC
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
 import { constructItemPath } from './dataViewSummary';
+import { draftDataViewConfig } from './_dataViewDraft';
 import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
+import { forgetDataViewLoads } from './_dataViewStore';
 import { queryClient } from '@/services/queryClient';
 import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
-import { applyDataViewWorkingCopy, constructDataViewWorkingCopy, type DataViewWorkingCopy, isSameDataViewDefinition } from './_dataViewWorkingCopy';
 import { constructAuditColumnSetConfig, constructAuditSummaryConfig, constructStoredPreviewConfig } from './_dataViewColumns';
 import {
     constructWorkspaceStoreListKey,
@@ -24,7 +25,6 @@ import {
     upsertWorkspaceStoreRecord,
     workspaceStoreId
 } from '@/services/workspaceStore';
-import { forgetDataViewLoads, forgetWorkingCopyLoad, promoteWorkingCopyLoad } from './_dataViewStore';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -39,13 +39,11 @@ type StoredDataViewConfig = Omit<DataViewConfig, 'auditSummaryConfig' | 'columnS
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DATA_VIEW_LIST_KEY = constructWorkspaceStoreListKey('dataViews');
-const DATA_VIEW_WORKING_COPY_LIST_KEY = constructWorkspaceStoreListKey('dataViewWorkingCopies');
+export const DATA_VIEW_SCROLL_ACTIONS_ID = 'dpuse-data-view-scroll-actions'; // Where a step places its scroll buttons, left of the pill.
+export const DATA_VIEW_SIDE_ACTION_ID = 'dpuse-data-view-side-action'; // Where a step places a control of its own, right of the pill.
+export const DATA_VIEW_STEP_ACTION_ID = 'dpuse-data-view-step-action'; // Where a step places its action, at the end of the pill.
 export const NEW_DATA_VIEW_ID = 'new'; // Stands in the URL for the id of a data view being added, which has none until it is saved.
 const UNTITLED_DATA_VIEW_LABEL = { en: 'Untitled Data View', es: 'Vista de datos sin título' }; // Stored with the record, so it carries every language rather than reading the current one.
-
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-export const workingCopyChangeCount = ref(0); // Counts this tab's changes to working copies, so another tab can be told.
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -76,60 +74,25 @@ export function useDataView(dataViewId: MaybeRefOrGetter<string | undefined>): U
     });
 }
 
-// Saved once its connection is chosen, because a data view can do nothing without one, and an add the user backs out
-// of leaves no empty record behind. From then on every step's URL holds a real id and a reload has a record to restore.
-// Every working copy, read once and then kept current by the working copy mutations, so the list's cards and an open
-// data view share one read.
-export function useDataViewWorkingCopies(): UseQueryReturnType<DataViewWorkingCopy[], Error> {
-    return useQuery({
-        queryKey: DATA_VIEW_WORKING_COPY_LIST_KEY,
-        queryFn: () => retrieveWorkspaceStoreRecords<DataViewWorkingCopy>('dataViewWorkingCopies'),
-        staleTime: Infinity
-    });
-}
-
-// The data view the steps work on: the saved one with any working copy over it. Undefined until both have been read, so
-// a step never starts from the saved data view and then jumps to the user's edits.
-export function useWorkingDataView(dataViewId: MaybeRefOrGetter<string | undefined>): {
+// The data view the steps work on: the user's draft when it is the one open, otherwise the saved one. A data view being
+// added has only a draft, with 'new' in the URL until Save.
+export function useCurrentDataView(dataViewIdParameter: MaybeRefOrGetter<unknown>): {
     data: ComputedRef<DataViewConfig | undefined>;
-    error: ComputedRef<Error | null>;
-    refetch: () => Promise<void>;
+    draftIsCurrent: ComputedRef<boolean>;
+    error: UseQueryReturnType<DataViewConfig, Error>['error'];
+    refetch: UseQueryReturnType<DataViewConfig, Error>['refetch'];
     savedData: UseQueryReturnType<DataViewConfig, Error>['data'];
-    workingCopy: ComputedRef<DataViewWorkingCopy | undefined>;
 } {
-    const { data: savedData, error: savedError, refetch: refetchSaved } = useDataView(dataViewId);
-    const { data: workingCopies, error: workingCopyError, refetch: refetchWorkingCopies } = useDataViewWorkingCopies();
-    const workingCopy = computed(() => workingCopies.value?.find((candidate) => candidate.id === toValue(dataViewId)));
-    return {
-        data: computed(() => (savedData.value == null || workingCopies.value == null ? undefined : applyDataViewWorkingCopy(savedData.value, workingCopy.value))),
-        error: computed(() => savedError.value ?? workingCopyError.value),
-        refetch: async (): Promise<void> => {
-            await Promise.all([refetchSaved(), refetchWorkingCopies()]);
-        },
-        savedData,
-        workingCopy
-    };
-}
-
-export function useCreateDataView(): UseMutationReturnType<DataViewConfig, Error, string, unknown> {
-    return useMutation({ mutationFn: createDataViewConfig });
+    const { data: savedData, error, refetch } = useDataView(() => resolveDataViewIdParameter(toValue(dataViewIdParameter)));
+    const draftIsCurrent = computed(() => {
+        const parameter = toValue(dataViewIdParameter);
+        return draftDataViewConfig.value != null && (parameter === NEW_DATA_VIEW_ID || parameter === draftDataViewConfig.value.id);
+    });
+    return { data: computed(() => (draftIsCurrent.value ? draftDataViewConfig.value : savedData.value)), draftIsCurrent, error, refetch, savedData };
 }
 
 export function useUpdateDataView(): UseMutationReturnType<DataViewConfig, Error, DataViewConfig, unknown> {
     return useMutation({ mutationFn: saveDataViewConfig });
-}
-
-// Keeps a step's change out of the saved data view until Save.
-export function useUpdateWorkingDataView(): UseMutationReturnType<DataViewConfig, Error, DataViewConfig, unknown> {
-    return useMutation({ mutationFn: saveDataViewWorkingCopy });
-}
-
-export function useSaveWorkingDataView(): UseMutationReturnType<DataViewConfig, Error, DataViewConfig, unknown> {
-    return useMutation({ mutationFn: commitDataViewWorkingCopy });
-}
-
-export function useDiscardDataViewWorkingCopy(): UseMutationReturnType<void, Error, string, unknown> {
-    return useMutation({ mutationFn: removeDataViewWorkingCopy });
 }
 
 export function useDeleteDataView(): UseMutationReturnType<void, Error, string, unknown> {
@@ -152,8 +115,7 @@ export async function cancelDataViewRetrieval(): Promise<void> {
     await queryClient.cancelQueries({ queryKey: DATA_VIEW_LIST_KEY });
 }
 
-// A data view with its connection chosen but not saved yet. The connection step shows it as the user's pick while a data
-// view is added, and saving it creates the data view.
+// A data view with its connection chosen but not saved yet. It stays a draft until Save creates the data view.
 export function constructNewDataViewConfig(connectionId: string): DataViewConfig {
     return {
         id: crypto.randomUUID(),
@@ -210,11 +172,6 @@ export async function abortDataViewContentAudit(connectionId: string): Promise<v
     await processRequest('abort', connectionLocalisedConfig, {});
 }
 
-// Another tab changed a working copy, so the next read of each is taken from the store.
-export async function refreshDataViewWorkingCopies(): Promise<void> {
-    await queryClient.invalidateQueries({ queryKey: DATA_VIEW_WORKING_COPY_LIST_KEY });
-}
-
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function retrieveDataViewConfigs(signal: AbortSignal): Promise<DataViewConfig[]> {
@@ -255,10 +212,6 @@ function restoreDataViewConfig(storedDataViewConfig: StoredDataViewConfig): Data
     };
 }
 
-function createDataViewConfig(connectionId: string): Promise<DataViewConfig> {
-    return saveDataViewConfig(constructNewDataViewConfig(connectionId));
-}
-
 // The cache is written here rather than in 'onSuccess', because only here is the store the change went to known.
 async function saveDataViewConfig(dataViewConfig: DataViewConfig): Promise<DataViewConfig> {
     try {
@@ -275,49 +228,10 @@ async function removeDataViewConfig(id: string): Promise<void> {
     try {
         const storeId = await removeWorkspaceStoreRecord('dataViews', id);
         if (storeId === workspaceStoreId.value) removeDataViewConfigFromCache(id); // As for a save.
-        await removeDataViewWorkingCopy(id);
         forgetDataViewLoads(id);
     } catch (error) {
         throw new AppError('Failed to remove data view.', 'dpuse-app.dataViews.removeDataViewConfig', { typeId: 'handled' }, { cause: error });
     }
-}
-
-// A change that leaves the definition as saved removes the working copy, so stepping through a data view without changing
-// anything leaves no unsaved changes.
-async function saveDataViewWorkingCopy(dataViewConfig: DataViewConfig): Promise<DataViewConfig> {
-    try {
-        if (isSameDataViewDefinition(await getDataViewConfig(dataViewConfig.id), dataViewConfig)) {
-            await removeDataViewWorkingCopy(dataViewConfig.id);
-            return dataViewConfig;
-        }
-        const workingCopy = constructDataViewWorkingCopy(dataViewConfig);
-        const storeId = await upsertWorkspaceStoreRecord('dataViewWorkingCopies', workingCopy);
-        if (storeId === workspaceStoreId.value) writeDataViewWorkingCopyToCache(workingCopy);
-        workingCopyChangeCount.value++;
-        return dataViewConfig;
-    } catch (error) {
-        throw new AppError('Failed to keep your changes.', 'dpuse-app.dataViews.saveDataViewWorkingCopy', { typeId: 'handled' }, { cause: error });
-    }
-}
-
-async function commitDataViewWorkingCopy(dataViewConfig: DataViewConfig): Promise<DataViewConfig> {
-    const savedDataViewConfig = await saveDataViewConfig(dataViewConfig);
-    promoteWorkingCopyLoad(dataViewConfig.id);
-    await removeDataViewWorkingCopy(dataViewConfig.id);
-    return savedDataViewConfig;
-}
-
-async function removeDataViewWorkingCopy(id: string): Promise<void> {
-    const storeId = await removeWorkspaceStoreRecord('dataViewWorkingCopies', id);
-    forgetWorkingCopyLoad(id);
-    if (storeId === workspaceStoreId.value) queryClient.setQueryData<DataViewWorkingCopy[]>(DATA_VIEW_WORKING_COPY_LIST_KEY, (workingCopies) => workingCopies?.filter((copy) => copy.id !== id));
-    workingCopyChangeCount.value++;
-}
-
-function writeDataViewWorkingCopyToCache(workingCopy: DataViewWorkingCopy): void {
-    queryClient.setQueryData<DataViewWorkingCopy[]>(DATA_VIEW_WORKING_COPY_LIST_KEY, (workingCopies) => {
-        return workingCopies == null ? workingCopies : [...workingCopies.filter((copy) => copy.id !== workingCopy.id), workingCopy];
-    });
 }
 
 // A list not loaded yet is left alone. Loading it later picks up the change.

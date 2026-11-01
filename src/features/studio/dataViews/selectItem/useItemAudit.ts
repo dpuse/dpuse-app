@@ -16,7 +16,7 @@ import { abortDataViewContentAudit, auditDataViewContent } from '@/features/stud
 // the audit rather than letting it run on unseen.
 export function useItemAudit(
     constructDataViewConfig: () => DataViewConfig | undefined,
-    handleAudited: (dataViewConfig: DataViewConfig, contentAuditConfig: ContentAuditConfig) => Promise<void>
+    handleAudited: (dataViewConfig: DataViewConfig, contentAuditConfig: ContentAuditConfig) => void
 ): { auditedRecordCount: Ref<number>; auditIsRunning: Ref<boolean>; startAudit: () => Promise<void>; stopAudit: () => void } {
     const auditIsRunning = ref(false);
     const auditIsStopped = ref(false);
@@ -36,7 +36,7 @@ export function useItemAudit(
             const contentAuditConfig = await auditDataViewContent(dataViewConfig, (recordCount) => {
                 auditedRecordCount.value = recordCount;
             });
-            if (!wasAuditStopped()) await handleAudited(dataViewConfig, contentAuditConfig);
+            if (!wasAuditStopped()) handleAudited(dataViewConfig, contentAuditConfig);
         } catch (error) {
             if (wasAuditStopped()) return;
             raiseAppFailure(new AppError('Failed to audit this item.', 'dpuse-app.useItemAudit.startAudit', { typeId: 'handled' }, { cause: error }));

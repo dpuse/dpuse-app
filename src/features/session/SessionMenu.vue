@@ -12,6 +12,7 @@ import { appearance } from '@/state/appearance';
 import { raiseAppFailure } from '@/state/errors';
 import { removeAccountWorkspaceStoreRecords } from '@/services/workspaceStore';
 import { signOut } from '@/services/auth';
+import { unsavedWorkIsPresent } from '@/state/unsavedWork';
 import { useDialogs } from '@/state/dialogs';
 import { expiresIn, lifetime, sessionIsAuthenticated, setSessionExpiryTimer } from '@/state/session';
 import { isPWA, viewportIsWide } from '@/state/device';
@@ -41,6 +42,8 @@ const TEXT = {
     'manageAccount.label': { en: 'Manage account', es: 'Administrar cuenta' },
     'reload.label': { en: 'Reload', es: 'Recargar' },
     'signInRegister.label': { en: 'Sign in / Register', es: 'Iniciar sesión / Registrarse' },
+    'signOut.confirm.text': { en: 'Your unsaved changes will be lost.', es: 'Tus cambios sin guardar se perderán.' },
+    'signOut.confirm.title': { en: 'Sign Out?', es: '¿Desconectar?' },
     'signOut.label': { en: 'Sign out', es: 'Desconectar' },
     'signOutAndRemove.confirm.label': { en: 'Remove and sign out', es: 'Eliminar y desconectar' },
     'signOutAndRemove.confirm.text': {
@@ -63,6 +66,9 @@ const isFullScreenSupported = document.fullscreenEnabled; // Stricter than 'useF
 const { openDialog } = useDialogs();
 const { store: currentAppearance } = appearance;
 const { isFullscreen: screenIsFullscreen, toggle: toggleFullscreen } = useFullscreen();
+
+// ── Sign Out Confirmation ─ Signing out moves to another store, so unsaved work cannot come along.
+const { cancel: cancelSignOut, confirm: confirmSignOut, isRevealed: signOutConfirmIsOpen, reveal: revealSignOutConfirm } = useConfirmDialog();
 
 // ── Sign Out and Remove Confirmation
 const { cancel: cancelSignOutAndRemove, confirm: confirmSignOutAndRemove, isRevealed: signOutAndRemoveConfirmIsOpen, reveal: revealSignOutAndRemoveConfirm } = useConfirmDialog();
@@ -137,6 +143,10 @@ async function handleSignInRegister(): Promise<void> {
 }
 
 async function handleSignOut(): Promise<void> {
+    if (unsavedWorkIsPresent.value) {
+        const { isCanceled } = await revealSignOutConfirm();
+        if (isCanceled) return;
+    }
     await signOut();
     emit('continue');
 }
@@ -300,6 +310,14 @@ async function handleToggleWindowExpansion(): Promise<void> {
             </div>
         </ScrollAreaFit>
 
+        <ConfirmDialog
+            :confirm-label="t(TEXT, 'signOut.label')"
+            :is-open="signOutConfirmIsOpen"
+            :message="t(TEXT, 'signOut.confirm.text')"
+            :title="t(TEXT, 'signOut.confirm.title')"
+            @cancel="cancelSignOut"
+            @confirm="confirmSignOut"
+        />
         <ConfirmDialog
             :confirm-label="t(TEXT, 'signOutAndRemove.confirm.label')"
             :is-open="signOutAndRemoveConfirmIsOpen"

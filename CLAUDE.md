@@ -224,6 +224,22 @@ close path) and none of the look.
 Floating notices sit above the bottom row of controls (the session button and the pill actions), never over it:
 `bottom-[calc(var(--safe-bottom-offset)+2.5rem+0.75rem)]`.
 
+### Saving
+
+A config in the workspace store changes only when the user clicks Save. It is the user's own work and may sync to the
+cloud, so nothing the user is still deciding reaches it.
+
+- **Changes live in memory.** A screen holds its changes in page memory until Save, never in the workspace store or
+  browser storage. A reload or crash loses them, and the config opens as last saved.
+- **One indicator.** A change sets it. Save stores the change and clears it. Discard returns to the saved values and
+  clears it. With nothing to save there is nothing to discard, so both are dimmed.
+- **Every change counts**, including results such as an audit. Opening a screen, browsing, or a preview arriving does
+  not.
+- **Leaving settles the changes.** Every way out asks "Discard changes?" with Stay and Discard, so a list never holds
+  unsaved work. Moving between the steps of one item keeps them.
+- **A dialog that edits a config** has a Save button. Its ✕ cancels.
+- **Loaded records are not configs.** A load for unsaved changes goes in its own temporary table, which Save promotes.
+
 ### Updates and unsaved work
 
 - **Never swap loaded code in place.** A browser cannot unload a module, and two versions side by side disagree. The

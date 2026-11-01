@@ -7,6 +7,7 @@ import { AppError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { raiseAppFailure } from '@/state/errors';
+import { unsavedWorkIsPresent } from '@/state/unsavedWork';
 import { addDevelopmentFaults, type AsyncPanelSimulation, VISIBLE_DELAY_MS } from '@/utilities/index.ts';
 import { canReloadForNewAppVersion, reloadForNewAppVersion } from '@/state/appVersion';
 
@@ -117,9 +118,10 @@ export function createAppRouter(): Router {
     if (import.meta.env.DEV) assertViewDepths(APP_ROUTES);
 
     // Once a newer version is deployed, moving to another screen loads it as a fresh page instead, so the user arrives
-    // on the new version. A change to the query alone, such as opening a pane or dialog, is left alone.
+    // on the new version. A change to the query alone, such as opening a pane or dialog, is left alone, and so is a move
+    // while there is unsaved work, which the reload would lose.
     router.beforeEach((to, from) => {
-        if (to.path === from.path || !canReloadForNewAppVersion()) return true;
+        if (to.path === from.path || unsavedWorkIsPresent.value || !canReloadForNewAppVersion()) return true;
         reloadForNewAppVersion(to.fullPath);
         return false;
     });

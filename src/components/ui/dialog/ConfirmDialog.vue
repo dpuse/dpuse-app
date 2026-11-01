@@ -21,12 +21,13 @@ import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 // and only needs care, such as hiding something that can be shown again. Opening and closing are the caller's, which
 // pairs with VueUse's 'useConfirmDialog': 'isRevealed' in, 'confirm' and 'cancel' out.
 const {
+    cancelLabel,
     confirmLabel,
     confirmVariant = 'destructive',
     isOpen,
     message,
     title
-} = defineProps<{ confirmLabel: string; confirmVariant?: 'destructive' | 'guarded'; isOpen: boolean; message: string; title: string }>();
+} = defineProps<{ cancelLabel?: string; confirmLabel: string; confirmVariant?: 'destructive' | 'guarded'; isOpen: boolean; message: string; title: string }>();
 const emit = defineEmits<{ cancel: []; confirm: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -69,7 +70,7 @@ function handleConfirm(): void {
         <!-- Cancel comes first so it, not the confirm button, takes focus when the dialog opens. The bottom padding
              clears the home indicator on phones, where the sheet sits against the bottom edge. -->
         <div class="flex justify-end gap-x-2 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] md:pb-4">
-            <RectangleButton @click="handleCancel">{{ t(TEXT, 'cancel.label') }}</RectangleButton>
+            <RectangleButton @click="handleCancel">{{ cancelLabel ?? t(TEXT, 'cancel.label') }}</RectangleButton>
             <RectangleButton :variant="confirmVariant" @click="handleConfirm">{{ confirmLabel }}</RectangleButton>
         </div>
     </DialogBase>

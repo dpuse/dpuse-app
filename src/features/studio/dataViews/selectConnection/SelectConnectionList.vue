@@ -6,34 +6,26 @@ import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError, constructConnectorCategoryConfig } from '@dpuse/dpuse-shared';
+import { constructConnectorCategoryConfig } from '@dpuse/dpuse-shared';
 import type { ConnectionConfig, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
 import type { DataSource } from '@/composables/useDataWindow';
 import { defineLazyComponent } from '@/utilities/index.ts';
 import { ignoreReportedNavigationFailure } from '@/router';
-import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './SelectConnectionList_.json';
 import { useDialogs } from '@/state/dialogs';
 import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
 import { connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
-import {
-    constructNewDataViewConfig,
-    NEW_DATA_VIEW_ID,
-    resolveDataViewIdParameter,
-    useCreateDataView,
-    useDataViews,
-    useUpdateWorkingDataView,
-    useWorkingDataView
-} from '@/features/studio/dataViews/_dataViews';
+import { constructNewDataViewConfig, DATA_VIEW_STEP_ACTION_ID, NEW_DATA_VIEW_ID, useCurrentDataView, useDataViews } from '@/features/studio/dataViews/_dataViews';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
-import PillButton from '@/components/ui/action/PillButton.vue';
+import PillSegment from '@/components/ui/action/PillSegment.vue';
 import SelectConnectionPanel from './SelectConnectionPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
@@ -47,10 +39,9 @@ const ACTION_CONFIGS: Action<ConnectionConfig>[] = [{ typeId: 'open', onClick: h
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
+const { taskLocalisedConfig } = defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
 const emit = defineEmits<{
-    'draft-changed': [draftDataViewConfig?: DataViewConfig]; // The data view as the pick would leave it, shown above the step until it is saved.
     'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>];
 }>();
 
@@ -61,13 +52,10 @@ const router = useRouter();
 
 const { openDialog } = useDialogs();
 
-// ── Data View ─ 'isPending' stops a second commit while the first is still saving. A data view being added is not
-// saved until its connection is committed.
-const { data: dataViewConfig } = useWorkingDataView(() => resolveDataViewIdParameter(route.params.dataViewId));
-const { isPending: dataViewIsCreating, mutateAsync: createDataView } = useCreateDataView();
-const { isPending: dataViewIsSaving, mutateAsync: updateDataView } = useUpdateWorkingDataView();
+// ── Data View
+const { data: dataViewConfig, savedData: savedDataViewConfig } = useCurrentDataView(() => route.params.dataViewId);
 
-// ── Choice ─ The connection picked in this step, saved only when it is committed. Starts as the saved one.
+// ── Choice ─ The connection picked in this step. Starts as the data view's own.
 const pickedConnectionId = ref<string>();
 
 // ── Removal Confirmation ─ One dialog for deleting and hiding, because a connection offers one or the other.
@@ -110,7 +98,7 @@ const connectionLocalisedConfigsDataSource = computed<DataSource<LocalisedConfig
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Taken from the data view once it arrives, so a reload or a return to this step shows the saved connection picked.
+// Taken from the data view once it arrives, so a reload or a return to this step shows its connection picked.
 watch(
     () => dataViewConfig.value?.id,
     () => {
@@ -125,29 +113,11 @@ function handleAddConnection(): void {
     void openDialog('connection');
 }
 
-// Saved before moving on, so a reload on the next step restores the connection from the store. The saved connection
-// picked again is not saved, so the data view keeps the later steps worked out from it. A data view being added is
-// created here, and the URL is replaced rather than added to, so Back returns to the list rather than to an add that
-// was never saved.
-async function handleCommitDetail(): Promise<void> {
-    if (pickedConnectionId.value == null || dataViewIsCreating.value || dataViewIsSaving.value) return;
+function handleMoveToItemStep(): void {
+    if (pickedConnectionId.value == null) return;
 
-    try {
-        if (dataViewIsNew.value) {
-            const createdDataViewConfig = await createDataView(pickedConnectionId.value);
-            void ignoreReportedNavigationFailure(router.replace({ name: 'item', params: { dataViewId: createdDataViewConfig.id }, query: route.query }));
-            return;
-        }
-        if (dataViewConfig.value == null) return; // Still loading, so there is nothing yet to save the pick to.
-        const draftDataViewConfig = constructDraftDataViewConfig(dataViewConfig.value, pickedConnectionId.value);
-        if (draftDataViewConfig !== dataViewConfig.value) await updateDataView(draftDataViewConfig);
-        void ignoreReportedNavigationFailure(router.push({ name: 'item', params: { dataViewId: draftDataViewConfig.id }, query: route.query }));
-    } catch (error) {
-        // Announced rather than shown in the list: the save did not happen, so the selection is still here to commit
-        // again, and there is no space here this failure has taken.
-        const message = dataViewIsNew.value ? 'Failed to add data view.' : 'Failed to save data view.';
-        raiseAppFailure(new AppError(message, 'dpuse-app.SelectConnectionList.handleCommitDetail', { typeId: 'handled' }, { cause: error }));
-    }
+    emit('task-completed', taskLocalisedConfig);
+    void ignoreReportedNavigationFailure(router.push({ name: 'item', params: { dataViewId: route.params.dataViewId }, query: route.query }));
 }
 
 async function handleDeleteConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): Promise<void> {
@@ -167,7 +137,7 @@ async function handleHideConnection(connectionLocalisedConfig: LocalisedConfig<C
 // Opening never deselects.
 function handleOpenConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>): void {
     pickConnection(connectionLocalisedConfig.id);
-    void handleCommitDetail();
+    handleMoveToItemStep();
 }
 
 // A card stays picked when tapped again, as in a select. On a narrow screen, coming back to the list hides the picked
@@ -179,12 +149,13 @@ function handleSelectConnection(connectionLocalisedConfig: LocalisedConfig<Conne
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The saved data view itself when the connection is unchanged. A different one clears the later steps, because they were
-// worked out from the connection it replaces.
-function constructDraftDataViewConfig(savedDataViewConfig: DataViewConfig, connectionId: string): DataViewConfig {
-    if (connectionId === savedDataViewConfig.connectionId) return savedDataViewConfig;
+// A different connection clears the later steps, because they were worked out from the connection it replaces. Going
+// back to the saved connection brings its later steps back too.
+function constructDraftDataViewConfig(connectionId: string): DataViewConfig {
+    if (savedDataViewConfig.value?.connectionId === connectionId) return savedDataViewConfig.value;
+    if (dataViewConfig.value == null) return constructNewDataViewConfig(connectionId);
     return {
-        ...savedDataViewConfig,
+        ...dataViewConfig.value,
         connectionId,
         connectionNodeConfig: undefined,
         previewConfig: undefined,
@@ -194,15 +165,12 @@ function constructDraftDataViewConfig(savedDataViewConfig: DataViewConfig, conne
     };
 }
 
-// Does nothing while a saved data view is still loading, because the pick is a choice for that data view. With nothing
-// picked there is no draft, so the step shows the data view as it was. A data view being added starts from new.
-function pickConnection(connectionId: string | undefined): void {
-    const savedDataViewConfig = dataViewConfig.value;
-    if (savedDataViewConfig == null && !dataViewIsNew.value) return;
+// Does nothing while a saved data view is still loading, because the pick is a choice for that data view.
+function pickConnection(connectionId: string): void {
+    if (dataViewConfig.value == null && !dataViewIsNew.value) return;
+
     pickedConnectionId.value = connectionId;
-    if (connectionId == null) emit('draft-changed');
-    else if (savedDataViewConfig == null) emit('draft-changed', constructNewDataViewConfig(connectionId));
-    else emit('draft-changed', constructDraftDataViewConfig(savedDataViewConfig, connectionId));
+    if (connectionId !== dataViewConfig.value?.connectionId) changeDataView(constructDraftDataViewConfig(connectionId));
 }
 </script>
 
@@ -246,7 +214,9 @@ function pickConnection(connectionId: string | undefined): void {
         </template>
 
         <template #detail-action>
-            <PillButton :icon="ArrowRightIcon" :label="t(TEXT, 'detail.select.label')" @click="handleCommitDetail" />
+            <Teleport defer :to="`#${DATA_VIEW_STEP_ACTION_ID}`">
+                <PillSegment :icon="ArrowRightIcon" is-separated is-step-action :label="t(TEXT, 'detail.select.label')" @click="handleMoveToItemStep" />
+            </Teleport>
         </template>
 
         <template #no-items>

@@ -93,6 +93,21 @@ describe('workspace store', () => {
         await expect(app.workspaceStore.getWorkspaceStoreRecord('dataViews', 'a')).rejects.toThrow("No record 'a' in 'dataViews'.");
     });
 
+    it('removes changes an older build stored before Save, and leaves saved work alone', async () => {
+        const database = 'dpuseWorkspaceStore';
+        const olderApp = await importApp();
+        await signIn(olderApp, undefined);
+        await olderApp.workspaceStore.upsertWorkspaceStoreRecord('dataViews', { id: 'a' });
+        await olderApp.workspaceStore.upsertWorkspaceStoreRecord('dataViewWorkingCopies' as 'dataViews', { id: 'a' });
+
+        const app = await importApp();
+        await signIn(app, undefined);
+
+        expect(await listIds(app)).toStrictEqual(['a']);
+        expect(await app.workspaceStore.retrieveWorkspaceStoreRecords('dataViewWorkingCopies' as 'dataViews')).toStrictEqual([]);
+        expect(database).toBe(await app.workspaceStore.upsertWorkspaceStoreRecord('dataViews', { id: 'b' }));
+    });
+
     it('waits for the session check before choosing a store', async () => {
         const app = await importApp();
         const saving = app.workspaceStore.upsertWorkspaceStoreRecord('dataViews', { id: 'a' });

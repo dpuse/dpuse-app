@@ -13,6 +13,7 @@ import type { DataSubtypeId, ObjectColumnConfig, StoreRecord, StoreValue } from 
 import { assertDefined } from '@/utilities/index.ts';
 import type { DataSource } from '@/composables/useDataWindow';
 import { TEXT } from './InvestigateDataPanel_.json';
+import { useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import {
     abortDataViewRecordLoad,
     closeDataViewStore,
@@ -27,7 +28,6 @@ import {
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 import { constructColumnSetVersion, constructLoadColumnConfigs } from '@/features/studio/dataViews/_dataViewColumns';
 import { localeId, t } from '@/state/locale';
-import { resolveDataViewIdParameter, useWorkingDataView } from '@/features/studio/dataViews/_dataViews';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -78,8 +78,7 @@ const MESSAGE_KEYS: Partial<Record<InvestigateState['typeId'], keyof typeof TEXT
 const route = useRoute();
 
 // ── Data View
-const { data: dataViewConfig, workingCopy } = useWorkingDataView(() => resolveDataViewIdParameter(route.params.dataViewId));
-const isWorkingCopy = computed(() => workingCopy.value != null);
+const { data: dataViewConfig, draftIsCurrent } = useCurrentDataView(() => route.params.dataViewId);
 const columnSetIsFromPreview = computed(() => dataViewConfig.value?.columnSetConfig?.sourceId === 'preview');
 const columnConfigs = computed(() => constructLoadColumnConfigs(dataViewConfig.value?.columnSetConfig));
 
@@ -97,7 +96,7 @@ const invalidValueCounts = shallowRef<number[]>([]); // From this panel's last f
 const messageKey = computed(() => {
     return investigateState.value.typeId === 'notLoaded' && hasEarlierLoad.value ? 'load.changed.text' : MESSAGE_KEYS[investigateState.value.typeId];
 });
-const hasEarlierLoad = computed(() => dataViewConfig.value != null && hasDataViewLoad(dataViewConfig.value.id, isWorkingCopy.value));
+const hasEarlierLoad = computed(() => dataViewConfig.value != null && hasDataViewLoad(dataViewConfig.value.id, draftIsCurrent.value));
 const messageActionKey = computed(() => {
     if (investigateState.value.typeId !== 'notLoaded') return 'retry.label';
     return hasEarlierLoad.value ? 'load.again.label' : 'load.data.label';
@@ -142,7 +141,7 @@ const columnDefinitions = computed<ColumnDef<TableFeatureSet, DisplayRow>[]>(() 
 // The records are read a block at a time as the table scrolls.
 const dataSource = computed<DataSource<DisplayRow>>(() => {
     const dataViewId = dataViewConfig.value?.id;
-    const tablePath = dataViewId == null ? undefined : resolveDataViewTablePath(dataViewId, isWorkingCopy.value);
+    const tablePath = dataViewId == null ? undefined : resolveDataViewTablePath(dataViewId, draftIsCurrent.value);
     return {
         id: `${tablePath ?? ''}|${String(loadVersion.value)}`,
         rowCount: undefined,
@@ -167,7 +166,7 @@ watch(
     () => constructColumnSetVersion(dataViewConfig.value?.columnSetConfig),
     (columnSetVersion) => {
         if (columnSetVersion == null) investigateState.value = { typeId: 'columnsRequired' };
-        else if (wasLoadRequested() || isDataViewLoaded(assertDefined(dataViewConfig.value), isWorkingCopy.value)) void openAndLoad(false);
+        else if (wasLoadRequested() || isDataViewLoaded(assertDefined(dataViewConfig.value), draftIsCurrent.value)) void openAndLoad(false);
         else investigateState.value = { typeId: 'notLoaded' };
     },
     { immediate: true }
@@ -223,18 +222,18 @@ async function openAndLoad(isReloaded: boolean): Promise<void> {
     if (openedDataViewConfig == null || investigateState.value.typeId === 'loading') return;
     investigateState.value = { typeId: 'opening' };
     try {
-        const storeStateId = await openDataViewStore();
+        const storeStateId = await openDataViewStore(draftIsCurrent.value ? openedDataViewConfig.id : undefined);
         if (storeStateId !== 'ready') {
             investigateState.value = { typeId: storeStateId };
             return;
         }
-        if (isReloaded || !isDataViewLoaded(openedDataViewConfig, isWorkingCopy.value)) {
+        if (isReloaded || !isDataViewLoaded(openedDataViewConfig, draftIsCurrent.value)) {
             investigateState.value = { typeId: 'loading' };
             loadDuration.value = undefined;
             loadedRecordCount.value = 0;
             loadIsStopped.value = false;
             const loadStartTime = performance.now();
-            const { columnsHaveChanged, invalidValueCounts: newInvalidValueCounts } = await loadDataViewRecords(openedDataViewConfig, isWorkingCopy.value, (recordCount) => {
+            const { columnsHaveChanged, invalidValueCounts: newInvalidValueCounts } = await loadDataViewRecords(openedDataViewConfig, draftIsCurrent.value, (recordCount) => {
                 loadedRecordCount.value = recordCount;
             });
             if (columnsHaveChanged) {

@@ -35,4 +35,29 @@ test.describe('Data views', () => {
         await expect(page.locator('[data-region="ConfigCard"]')).toHaveCount(0);
         await expect(page.getByText('“Untitled Data View” deleted.')).toBeFocused();
     });
+
+    test('stores nothing until Save, and asks before leaving unsaved changes', async ({ browserName, page }) => {
+        // eslint-disable-next-line playwright/no-skipped-test, sonarjs/no-skipped-tests -- Firefox and WebKit fail to load the page at random, as the test above says.
+        test.skip(browserName !== 'chromium', 'Firefox and WebKit fail to load the page at random.');
+
+        await page.goto('/dataViews');
+        await page.locator('[data-region="PillButton"]').getByText('Data View', { exact: true }).click();
+        await expect(page).toHaveURL(/\/dataViews\/new\/connections/);
+        const pill = page.locator('[data-region="DataViewPill"]');
+        await expect(pill.getByRole('button', { name: 'Discard' })).toBeDisabled();
+
+        await page.getByRole('button', { name: 'Application Emulator', exact: true }).click();
+        await expect(pill.getByRole('button', { name: 'Discard' })).toBeEnabled();
+        await expect(pill.getByRole('button', { name: 'Save' })).toBeDisabled(); // A connection alone is not a whole data view.
+
+        await page.getByRole('link', { name: 'Establish Data Views' }).last().click();
+        const question = page.getByRole('alertdialog', { name: 'Discard Changes?' });
+        await question.getByRole('button', { name: 'Stay' }).click();
+        await expect(page).toHaveURL(/\/dataViews\/new\/connections/);
+
+        await page.getByRole('link', { name: 'Establish Data Views' }).last().click();
+        await question.getByRole('button', { name: 'Discard' }).click();
+        await expect(page).toHaveURL(/\/dataViews(\?|$)/);
+        await expect(page.locator('[data-region="ConfigCard"]')).toHaveCount(0);
+    });
 });
