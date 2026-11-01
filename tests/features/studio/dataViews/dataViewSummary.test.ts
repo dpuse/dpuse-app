@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 
 // ── DPUse Framework
-import type { ConnectionNodeConfig, ContentAuditConfig } from '@dpuse/dpuse-shared';
+import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { constructDataViewSteps, constructItemPath, resolveCurrentDataViewStepId } from '@/features/studio/dataViews/dataViewSummary';
@@ -27,27 +27,22 @@ describe('constructItemPath', () => {
 
 describe('constructDataViewSteps', () => {
     it('marks each step done once its part of the data view is set', () => {
-        const steps = constructDataViewSteps({ connectionNodeConfig: buildNode('csv'), contentAuditConfig: undefined });
+        const steps = constructDataViewSteps({ connectionNodeConfig: buildNode('csv') });
 
         expect(steps).toStrictEqual([
             { id: 'connection', state: 'done' },
-            { id: 'item', state: 'done' },
-            { id: 'content', state: 'pending' }
+            { id: 'item', state: 'done' }
         ]);
     });
 });
 
 describe('resolveCurrentDataViewStepId', () => {
     it('opens on the connection when no item is saved', () => {
-        expect(resolveCurrentDataViewStepId({ connectionNodeConfig: undefined, contentAuditConfig: undefined })).toBe('connection');
+        expect(resolveCurrentDataViewStepId({ connectionNodeConfig: undefined })).toBe('connection');
     });
 
-    it('opens on the item when it is saved but not audited, so the audit only starts from a commit', () => {
-        expect(resolveCurrentDataViewStepId({ connectionNodeConfig: buildNode('csv'), contentAuditConfig: undefined })).toBe('item');
-    });
-
-    it('opens on exploring once every step is done, since exploring is never finished', () => {
-        const dataView = { connectionNodeConfig: buildNode('csv'), contentAuditConfig: {} as ContentAuditConfig };
+    it('opens on exploring once an item is saved, because an audit is optional', () => {
+        const dataView = { connectionNodeConfig: buildNode('csv') };
 
         expect(resolveCurrentDataViewStepId(dataView)).toBe('data');
     });

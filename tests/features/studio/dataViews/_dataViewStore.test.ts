@@ -9,11 +9,15 @@ import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import {
     findDataViewStoreLabel,
+    forgetDataViewLoads,
+    forgetWorkingCopyLoad,
     INVESTIGATE_STORE_CONNECTOR_ID,
     isDataViewLoaded,
     loadDataViewRecords,
     openDataViewStore,
-    queryDataViewRecords
+    promoteWorkingCopyLoad,
+    queryDataViewRecords,
+    resolveDataViewTablePath
 } from '@/features/studio/dataViews/_dataViewStore';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -32,9 +36,9 @@ const processRequest = vi.fn<EngineWorker['processRequest']>();
 const DATA_VIEW = {
     connectionId: 'source1',
     connectionNodeConfig: { folderPath: '/data', id: 'sales.csv', label: 'sales.csv', name: 'sales.csv', typeId: 'object' },
-    contentAuditConfig: { asAt: 5, columns: [{ dataTypeId: 'string', label: { en: 'Name' } }] },
+    columnSetConfig: { asAt: 5, columnConfigs: [{ dataTypeId: 'string', label: { en: 'Name' } }], sourceId: 'audit' },
     id: 'dataView1',
-    previewConfig: { dataFormatId: 'dsv', encodingId: 'utf-8', hasHeaders: true, parserId: 'parser1', valueDelimiterId: ',' }
+    previewConfig: { dataFormatId: 'dsv', encodingId: 'utf-8', hasHeaders: true, parsedRecords: [[{ value: 'Name', valueWasQuoted: false }]], parserId: 'parser1', valueDelimiterId: ',' }
 } as unknown as DataViewConfig;
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -63,35 +67,111 @@ describe('_dataViewStore', () => {
         expect(processRequest).toHaveBeenCalledWith('openStore', { id: INVESTIGATE_STORE_CONNECTOR_ID }, {});
     });
 
-    it('loads from the source the way the audit read it, reports progress, and remembers the audit it loaded', async () => {
+    it('loads from the source the way its preview read it, reports progress, and remembers the columns it loaded', async () => {
         processRequest.mockImplementationOnce((_id, _config, _options, callback) => {
             callback?.({ properties: { recordCount: 10 }, typeId: 'progress' });
-            return Promise.resolve({ recordCount: 10 });
+            return Promise.resolve({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 10 });
         });
         const onProgress = vi.fn();
 
-        expect(isDataViewLoaded(DATA_VIEW)).toBe(false);
-        await loadDataViewRecords(DATA_VIEW, onProgress);
+        expect(isDataViewLoaded(DATA_VIEW, false)).toBe(false);
+        await loadDataViewRecords(DATA_VIEW, false, onProgress);
 
         expect(processRequest.mock.calls[0]?.[0]).toBe('loadObjectRecords');
         expect(processRequest.mock.calls[0]?.[2]).toMatchObject({
-            columnConfigs: DATA_VIEW.contentAuditConfig?.columns,
+            columnConfigs: DATA_VIEW.columnSetConfig?.columnConfigs,
             hasHeaders: true,
+            headerValues: ['Name'],
             path: 'dataView1',
             sourceConnectionConfig: { id: 'source1' },
             sourceOptions: { dataFormatId: 'dsv', encodingId: 'utf-8', parserId: 'parser1', valueDelimiterId: ',' }
         });
         expect(onProgress).toHaveBeenCalledWith(10);
-        expect(isDataViewLoaded(DATA_VIEW)).toBe(true);
-        expect(isDataViewLoaded({ ...DATA_VIEW, contentAuditConfig: { ...DATA_VIEW.contentAuditConfig, asAt: 6 } } as DataViewConfig)).toBe(false);
+        expect(isDataViewLoaded(DATA_VIEW, false)).toBe(true);
+        expect(isDataViewLoaded({ ...DATA_VIEW, columnSetConfig: { ...DATA_VIEW.columnSetConfig, asAt: 6 } } as DataViewConfig, false)).toBe(false);
+    });
+
+    it('does not count a data view as loaded when a chosen type changes after its load', async () => {
+        const typedDataView = { ...DATA_VIEW, id: 'dataView3' };
+        processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
+        await loadDataViewRecords(typedDataView, false, vi.fn());
+
+        const columnConfigs = [{ chosenDataTypeId: 'numeric', dataTypeId: 'string', label: { en: 'Name' } }];
+        expect(isDataViewLoaded({ ...typedDataView, columnSetConfig: { asAt: 5, columnConfigs, sourceId: 'audit' } } as DataViewConfig, false)).toBe(false);
+    });
+
+    it('keeps the earlier load when the columns have moved', async () => {
+        const movedDataView = { ...DATA_VIEW, id: 'dataView4' };
+        processRequest.mockResolvedValueOnce({ columnsHaveChanged: true, invalidValueCounts: [], recordCount: 0 });
+
+        await expect(loadDataViewRecords(movedDataView, false, vi.fn())).resolves.toMatchObject({ columnsHaveChanged: true });
+        expect(isDataViewLoaded(movedDataView, false)).toBe(false);
     });
 
     it('does not count a data view as loaded when its load fails', async () => {
         const failedDataView = { ...DATA_VIEW, id: 'dataView2' }; // The loaded record is kept for the session, so another id starts clean.
         processRequest.mockRejectedValueOnce(new Error('Source failed.'));
 
-        await expect(loadDataViewRecords(failedDataView, vi.fn())).rejects.toThrow('Source failed.');
-        expect(isDataViewLoaded(failedDataView)).toBe(false);
+        await expect(loadDataViewRecords(failedDataView, false, vi.fn())).rejects.toThrow('Source failed.');
+        expect(isDataViewLoaded(failedDataView, false)).toBe(false);
+    });
+
+    it('loads a working copy into its own table, leaving the saved data view unloaded', async () => {
+        const editedDataView = { ...DATA_VIEW, id: 'dataView5' };
+        processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
+
+        await loadDataViewRecords(editedDataView, true, vi.fn());
+
+        const tablePath = resolveDataViewTablePath('dataView5', true);
+        expect(tablePath).toMatch(/^dataView5-/u);
+        expect(processRequest.mock.calls[0]?.[2]).toMatchObject({ path: tablePath });
+        expect(isDataViewLoaded(editedDataView, true)).toBe(true);
+        expect(isDataViewLoaded(editedDataView, false)).toBe(false);
+        expect(resolveDataViewTablePath('dataView5', false)).toBe('dataView5');
+    });
+
+    it('makes the working copy’s table the saved one on Save, and drops the old table when the store next opens', async () => {
+        const editedDataView = { ...DATA_VIEW, id: 'dataView6' };
+        processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
+        await loadDataViewRecords(editedDataView, true, vi.fn());
+        const tablePath = resolveDataViewTablePath('dataView6', true);
+
+        promoteWorkingCopyLoad('dataView6');
+
+        expect(resolveDataViewTablePath('dataView6', false)).toBe(tablePath);
+        expect(isDataViewLoaded(editedDataView, false)).toBe(true);
+        expect(isDataViewLoaded(editedDataView, true)).toBe(false);
+
+        processRequest.mockResolvedValueOnce({ storeStateId: 'ready' });
+        processRequest.mockResolvedValue(undefined);
+        await openDataViewStore();
+        expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: 'dataView6' });
+    });
+
+    it('drops only the working copy’s table on Discard', async () => {
+        const editedDataView = { ...DATA_VIEW, id: 'dataView7' };
+        processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
+        await loadDataViewRecords(editedDataView, true, vi.fn());
+        const tablePath = resolveDataViewTablePath('dataView7', true);
+
+        forgetWorkingCopyLoad('dataView7');
+
+        expect(resolveDataViewTablePath('dataView7', false)).toBe('dataView7');
+        processRequest.mockResolvedValueOnce({ storeStateId: 'ready' });
+        processRequest.mockResolvedValue(undefined);
+        await openDataViewStore();
+        expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: tablePath });
+        expect(processRequest).not.toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: 'dataView7' });
+    });
+
+    it('drops a deleted data view’s table when the store next opens', async () => {
+        forgetDataViewLoads('dataView8');
+
+        processRequest.mockResolvedValueOnce({ storeStateId: 'ready' });
+        processRequest.mockResolvedValue(undefined);
+        await openDataViewStore();
+
+        expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: 'dataView8' });
     });
 
     it('queries a page of the data view by its id', async () => {

@@ -23,7 +23,10 @@ import {
     useDataView,
     useDataViews,
     useDeleteDataView,
-    useUpdateDataView
+    useDiscardDataViewWorkingCopy,
+    useSaveWorkingDataView,
+    useUpdateDataView,
+    useUpdateWorkingDataView
 } from '@/features/studio/dataViews/_dataViews';
 import {
     constructWorkspaceStoreListKey,
@@ -117,6 +120,36 @@ describe('data views', () => {
 
             expect(data.value?.map((config) => config.id)).toStrictEqual(['a', 'b']);
             expect(data.value?.every((config) => config.icon != null)).toBe(true);
+        });
+
+        it('moves a record from an older build to one column set, taken from its audit', async () => {
+            const auditColumn = { label: { en: 'Audited' } };
+            const olderDataView = {
+                ...buildDataView('a', 'Sales'),
+                contentAuditConfig: { asAt: 7, columns: [auditColumn], recordCount: 2 },
+                previewConfig: { asAt: 3, columnConfigs: [{ label: { en: 'Previewed' } }], hasHeaders: true }
+            };
+            vi.mocked(retrieveWorkspaceStoreRecords).mockResolvedValueOnce([olderDataView]);
+            const { data } = await runInComponent(() => useDataViews());
+
+            const dataView = data.value?.[0];
+            expect(dataView?.columnSetConfig).toMatchObject({ asAt: 7, columnConfigs: [auditColumn], sourceId: 'audit' });
+            expect(dataView?.auditSummaryConfig).toStrictEqual({ asAt: 7, recordCount: 2 });
+            expect(dataView?.previewConfig).toStrictEqual({ asAt: 3, hasHeaders: true });
+            expect(dataView).not.toHaveProperty('contentAuditConfig');
+        });
+
+        it('takes an older record’s columns from its preview when its audit has none', async () => {
+            const previewColumn = { label: { en: 'Previewed' } };
+            const olderDataView = {
+                ...buildDataView('a', 'Sales'),
+                contentAuditConfig: { asAt: 7, columns: [], recordCount: 2 },
+                previewConfig: { asAt: 3, columnConfigs: [previewColumn] }
+            };
+            vi.mocked(retrieveWorkspaceStoreRecords).mockResolvedValueOnce([olderDataView]);
+            const { data } = await runInComponent(() => useDataViews());
+
+            expect(data.value?.[0]?.columnSetConfig).toStrictEqual({ asAt: 3, columnConfigs: [previewColumn], sourceId: 'preview' });
         });
 
         it('names the failure in the user’s terms when the store cannot be read', async () => {
@@ -226,6 +259,49 @@ describe('data views', () => {
             await mutateAsync('a');
 
             expect(cachedList()?.map((config) => config.id)).toStrictEqual(['a', 'b']);
+        });
+    });
+
+    describe('working copies', () => {
+        const savedDataView = { ...buildDataView('a', 'Sales'), connectionId: 'one', previewConfig: undefined } as DataViewConfig;
+
+        it('keeps a change apart from the saved data view', async () => {
+            vi.mocked(getWorkspaceStoreRecord).mockResolvedValue(savedDataView);
+            const { mutateAsync } = await runInComponent(() => useUpdateWorkingDataView());
+
+            await mutateAsync({ ...savedDataView, connectionId: 'two' });
+
+            expect(vi.mocked(upsertWorkspaceStoreRecord).mock.calls[0]?.[0]).toBe('dataViewWorkingCopies');
+            expect(vi.mocked(upsertWorkspaceStoreRecord).mock.calls[0]?.[1]).toMatchObject({ connectionId: 'two', id: 'a' });
+            expect(vi.mocked(upsertWorkspaceStoreRecord).mock.calls[0]?.[1]).not.toHaveProperty('label');
+        });
+
+        it('leaves no working copy when the definition is unchanged', async () => {
+            vi.mocked(getWorkspaceStoreRecord).mockResolvedValue(savedDataView);
+            const { mutateAsync } = await runInComponent(() => useUpdateWorkingDataView());
+
+            await mutateAsync(savedDataView);
+
+            expect(upsertWorkspaceStoreRecord).not.toHaveBeenCalled();
+            expect(removeWorkspaceStoreRecord).toHaveBeenCalledWith('dataViewWorkingCopies', 'a');
+        });
+
+        it('saves the data view and then removes its working copy', async () => {
+            const { mutateAsync } = await runInComponent(() => useSaveWorkingDataView());
+
+            await mutateAsync({ ...savedDataView, connectionId: 'two' });
+
+            expect(vi.mocked(upsertWorkspaceStoreRecord).mock.calls[0]?.[0]).toBe('dataViews');
+            expect(removeWorkspaceStoreRecord).toHaveBeenCalledWith('dataViewWorkingCopies', 'a');
+        });
+
+        it('discards a working copy and leaves the saved data view alone', async () => {
+            const { mutateAsync } = await runInComponent(() => useDiscardDataViewWorkingCopy());
+
+            await mutateAsync('a');
+
+            expect(removeWorkspaceStoreRecord).toHaveBeenCalledTimes(1);
+            expect(removeWorkspaceStoreRecord).toHaveBeenCalledWith('dataViewWorkingCopies', 'a');
         });
     });
 

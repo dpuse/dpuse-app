@@ -1,5 +1,5 @@
 {
-  "version": "1.0.240",
+  "version": "1.0.241",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -175,7 +175,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261031.1"
+              "version": "5.20261101.1"
             },
             "blake3-wasm": {
               "version": "2.1.5"
@@ -212,8 +212,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261031.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261031.1.tgz",
+      "version": "5.20261101.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261101.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -222,7 +222,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.169"
+          "version": "1.0.170"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1370,8 +1370,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.169",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.169.tgz",
+      "version": "1.0.170",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.170.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1457,7 +1457,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.169"
+          "version": "1.0.170"
         },
         "@tanstack/charts": {
           "version": "1.1.0",
@@ -3522,8 +3522,8 @@
           }
         },
         "eslint-plugin-regexp": {
-          "version": "3.3.2",
-          "resolved": "https://registry.npmjs.org/eslint-plugin-regexp/-/eslint-plugin-regexp-3.3.2.tgz",
+          "version": "3.3.3",
+          "resolved": "https://registry.npmjs.org/eslint-plugin-regexp/-/eslint-plugin-regexp-3.3.3.tgz",
           "overridden": false,
           "dependencies": {
             "@eslint-community/eslint-utils": {
@@ -4519,8 +4519,8 @@
       }
     },
     "@tanstack/vue-query": {
-      "version": "5.105.0",
-      "resolved": "https://registry.npmjs.org/@tanstack/vue-query/-/vue-query-5.105.0.tgz",
+      "version": "5.105.1",
+      "resolved": "https://registry.npmjs.org/@tanstack/vue-query/-/vue-query-5.105.1.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/match-sorter-utils": {
@@ -4536,8 +4536,8 @@
           }
         },
         "@tanstack/query-core": {
-          "version": "5.105.0",
-          "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.105.0.tgz",
+          "version": "5.105.1",
+          "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.105.1.tgz",
           "overridden": false
         },
         "@vue/composition-api": {},
@@ -4586,13 +4586,13 @@
       }
     },
     "@tanstack/vue-virtual": {
-      "version": "3.13.50",
-      "resolved": "https://registry.npmjs.org/@tanstack/vue-virtual/-/vue-virtual-3.13.50.tgz",
+      "version": "3.13.51",
+      "resolved": "https://registry.npmjs.org/@tanstack/vue-virtual/-/vue-virtual-3.13.51.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/virtual-core": {
-          "version": "3.19.9",
-          "resolved": "https://registry.npmjs.org/@tanstack/virtual-core/-/virtual-core-3.19.9.tgz",
+          "version": "3.19.10",
+          "resolved": "https://registry.npmjs.org/@tanstack/virtual-core/-/virtual-core-3.19.10.tgz",
           "overridden": false
         },
         "vue": {
@@ -6864,7 +6864,7 @@
         "@automerge/automerge-repo": {},
         "@capacitor-community/sqlite": {},
         "@cloudflare/workers-types": {
-          "version": "5.20261031.1"
+          "version": "5.20261101.1"
         },
         "@electric-sql/pglite": {},
         "@libsql/client": {},
@@ -7758,7 +7758,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261031.1"
+          "version": "5.20261101.1"
         },
         "blake3-wasm": {
           "version": "2.1.5",

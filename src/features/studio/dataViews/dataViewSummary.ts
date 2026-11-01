@@ -7,14 +7,14 @@ import { constructConnectorCategoryConfig, constructConnectorItemTypeConfig, get
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-type DataViewProgress = Pick<DataViewConfig, 'connectionNodeConfig' | 'contentAuditConfig'>;
+type DataViewProgress = Pick<DataViewConfig, 'connectionNodeConfig'>;
 
 export interface DataViewStep {
     id: DataViewStepId;
     state: 'done' | 'pending';
 }
 
-export type DataViewStepId = 'connection' | 'content' | 'data' | 'item'; // Each id is also the route name of its step.
+export type DataViewStepId = 'connection' | 'data' | 'item'; // Each id is also the route name of its step.
 
 // A data view's connection, already localised. A connector such as Dropbox can have several connections ('Personal',
 // 'Work'), so the connection's own name leads, and the connector's details describe what kind of connection it is.
@@ -56,19 +56,17 @@ export function constructDataViewConnection(connectionLocalisedConfig: Localised
     };
 }
 
-// Exploring is left out: it never has to be finished, so it is never outstanding. The connection is always done, because
+// Exploring is left out: it never has to be finished, so it is never outstanding. The audit is optional. The connection is always done, because
 // a data view is only saved once its connection is chosen.
 export function constructDataViewSteps(dataViewConfig: DataViewProgress): DataViewStep[] {
     return [
         { id: 'connection', state: 'done' },
-        { id: 'item', state: dataViewConfig.connectionNodeConfig == null ? 'pending' : 'done' },
-        { id: 'content', state: dataViewConfig.contentAuditConfig == null ? 'pending' : 'done' }
+        { id: 'item', state: dataViewConfig.connectionNodeConfig == null ? 'pending' : 'done' }
     ];
 }
 
-// The last step done, or exploring once every step is done. A data view opens on the last step done rather than the
-// next one, because the audit is long-running and only starts when the user commits an item. Reopening an item that
-// was never audited therefore lets the user check or change it first.
+// The last step done, or exploring once every step is done. A preview is enough to work with a data view, so an audit is
+// not a step.
 export function resolveCurrentDataViewStepId(dataViewConfig: DataViewProgress): DataViewStepId {
     const steps = constructDataViewSteps(dataViewConfig);
     return steps.every((step) => step.state === 'done') ? 'data' : (steps.findLast((step) => step.state === 'done')?.id ?? 'connection');

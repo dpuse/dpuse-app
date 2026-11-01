@@ -12,6 +12,7 @@ import type { DataFormatId, DataViewConfig, LocalisedConfig, RecordDelimiterId, 
 import { defineLazyComponent } from '@/utilities/index.ts';
 import { raiseAppFailure } from '@/state/errors';
 import { renderMarkdown } from '@/services/useMarkedTool';
+import { restorePreviewConfig } from './_dataViewColumns';
 import { TEXT } from './DataViewPanel_.json';
 import { useUnsavedWork } from '@/state/unsavedWork';
 import type { DataViewConnection, DataViewStepId } from './dataViewSummary';
@@ -159,9 +160,8 @@ const itemIsFile = computed(() => dataViewConnection?.itemTypeId === 'file');
 const itemSubject = computed(() => dataViewConnection?.itemTypeId ?? 'item'); // Messages name the connector's kind of item, e.g. 'No file selected yet', and fall back to 'item' for a connector released before it said which.
 
 // ── Columns
-const previewColumnLabels = computed(
-    () => dataViewLocalisedConfig.previewConfig?.columnConfigs.map((config, index) => config.label[localeId.value] ?? config.label.en ?? String(index + 1)) ?? []
-);
+const columnTablePreviewConfig = computed(() => restorePreviewConfig(dataViewLocalisedConfig));
+const previewColumnLabels = computed(() => columnTablePreviewConfig.value?.columnConfigs.map((config, index) => config.label[localeId.value] ?? config.label.en ?? String(index + 1)) ?? []);
 
 // ── Data ─ The rows of the preview saved with the item. Its first record is the header row, as SelectItemPanel treats it.
 const previewRows = computed(() => dataViewLocalisedConfig.previewConfig?.parsedRecords.slice(1) ?? []);
@@ -313,10 +313,10 @@ function formatDateTime(timestamp: number): string {
                     </dl>
                     <p v-else class="text-muted">{{ t(TEXT, `${itemSubject}.pending.text`) }}</p>
                     <PreviewColumnTable
-                        v-if="dataViewLocalisedConfig.previewConfig && previewColumnLabels.length > 0"
+                        v-if="columnTablePreviewConfig && previewColumnLabels.length > 0"
                         class="mt-4"
                         is-label-shown
-                        :preview-config="dataViewLocalisedConfig.previewConfig"
+                        :preview-config="columnTablePreviewConfig"
                         :row-limit="columnTableIsExpanded ? undefined : COLLAPSED_TABLE_ROW_COUNT"
                     />
                     <!-- Show All and Change Item ─ Two columns: showing the rest of the table on the left, under the table it
@@ -363,7 +363,7 @@ function formatDateTime(timestamp: number): string {
                     </template>
                     <p v-else class="text-muted">{{ t(TEXT, `data.pending.${itemSubject}.text`) }}</p>
                     <!-- Show All and Explore Data ─ As in the item section: showing the rest of the table on the left, and the
-                         next step on the right once the audit is done. -->
+                         next step on the right once there is a preview. -->
                     <div class="mt-2 grid grid-cols-[1fr_auto] items-start gap-x-4 px-3 text-sm">
                         <ActionWrapper
                             v-if="previewRows.length > COLLAPSED_TABLE_ROW_COUNT"
@@ -374,7 +374,7 @@ function formatDateTime(timestamp: number): string {
                             {{ dataTableIsExpanded ? t(TEXT, 'data.showFewer.label') : t(TEXT, 'data.showAll.label', { count: previewRows.length }) }}
                         </ActionWrapper>
                         <RouterLink
-                            v-if="dataViewLocalisedConfig.connectionNodeConfig && dataViewLocalisedConfig.contentAuditConfig"
+                            v-if="dataViewLocalisedConfig.connectionNodeConfig && dataViewLocalisedConfig.previewConfig"
                             class="col-start-2 justify-self-end text-right"
                             :to="constructStepRoute('data')"
                             >{{ t(TEXT, 'data.open.label') }}</RouterLink

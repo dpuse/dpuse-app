@@ -22,7 +22,6 @@ const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/f
 const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/features/studio/dataViews/DataViewList.vue'));
 const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/features/studio/dataViews/selectConnection/SelectConnectionList.vue'));
 const SelectItemPanel = defineLazyLoader('SelectItemPanel', 1, () => import('@/features/studio/dataViews/selectItem/SelectItemPanel.vue'));
-const AuditContentPanel = defineLazyLoader('AuditContentPanel', 1, () => import('@/features/studio/dataViews/auditContent/AuditContentPanel.vue'));
 const ExploreDataPanel = defineLazyLoader('ExploreDataPanel', 1, () => import('@/features/studio/dataViews/exploreData/ExploreDataPanel.vue'));
 const EventQueriesPanel = defineLazyLoader('EventQueriesPanel', 0, () => import('@/features/studio/eventQueries/EventQueriesPanel.vue'));
 const PresentationsPanel = defineLazyLoader('PresentationsPanel', 0, () => import('@/features/studio/presentations/PresentationsPanel.vue'));
@@ -52,7 +51,7 @@ interface QueryUpdate {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const APP_ROUTES = [
+export const APP_ROUTES: RouteRecordRaw[] = [
     {
         path: '/',
         children: [
@@ -67,7 +66,7 @@ export const APP_ROUTES = [
                         children: [
                             { name: 'connection', path: 'connections', component: SelectConnectionList },
                             { name: 'item', path: 'items', component: SelectItemPanel },
-                            { name: 'content', path: 'content', component: AuditContentPanel },
+                            { path: 'content', redirect: (to) => ({ name: 'item', params: to.params, query: to.query }) }, // The audit moved into the item step, so an old link lands there.
                             { name: 'data', path: 'data', component: ExploreDataPanel }
                         ]
                     }

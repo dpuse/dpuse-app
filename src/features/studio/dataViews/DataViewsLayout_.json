@@ -19,28 +19,23 @@
             "enableUpTo": 2
         },
         {
-            "id": "content",
-            "number": 3,
-            "label": { "en": "Audit Content", "es": "Auditar contenido" },
-            "labelLine1": { "en": "Audit", "es": "Auditar" },
-            "labelLine2": { "en": "Content", "es": "contenido" },
-            "description": {},
-            "enableUpTo": 3
-        },
-        {
             "id": "data",
-            "number": 4,
+            "number": 3,
             "label": { "en": "Explore Data", "es": "Explorar datos" },
             "labelLine1": { "en": "Explore", "es": "Explorar" },
             "labelLine2": { "en": "Data", "es": "datos" },
             "description": {},
-            "enableUpTo": 4
+            "enableUpTo": 3
         }
     ],
     "TEXT": {
         "dataView.failed.title": { "en": "Data View Unavailable", "es": "Vista de datos no disponible" },
         "dataView.new.title": { "en": "New Data View", "es": "Nueva vista de datos" },
         "dataView.pending.title": { "en": "Loading…", "es": "Cargando…" },
+        "discard.label": { "en": "Discard", "es": "Descartar" },
+        "discard.new.text": { "en": "This data view has never been saved, so it will be deleted.", "es": "Esta vista de datos nunca se ha guardado, así que se eliminará." },
+        "discard.text": { "en": "Your changes will be lost, and the saved data view stays as it was.", "es": "Tus cambios se perderán y la vista de datos guardada quedará como estaba." },
+        "discard.title": { "en": "Discard Changes?", "es": "¿Descartar los cambios?" },
         "establishDataViews.title": { "en": "Establish Data Views", "es": "Establecer vistas de datos" },
         "itemTask.apiEndpoint.label": { "en": "Select API Endpoint", "es": "Seleccionar endpoint de API" },
         "itemTask.apiEndpoint.short.label": { "en": "API Endpoint", "es": "endpoint de API" },
@@ -48,6 +43,9 @@
         "itemTask.file.short.label": { "en": "File", "es": "archivo" },
         "itemTask.table.label": { "en": "Select Table", "es": "Seleccionar tabla" },
         "itemTask.table.short.label": { "en": "Table", "es": "tabla" },
-        "studio.label": { "en": "Studio", "es": "Estudio" }
+        "otherTab.text": { "en": "Changed in another tab", "es": "Modificado en otra pestaña" },
+        "save.label": { "en": "Save", "es": "Guardar" },
+        "studio.label": { "en": "Studio", "es": "Estudio" },
+        "unsaved.text": { "en": "Unsaved changes", "es": "Cambios sin guardar" }
     }
 }

@@ -48,6 +48,9 @@ export const PREVIEW_COLUMN_KEYS = [
     'invalidSampleText'
 ] as const;
 
+// What the Columns tab's table shows, for scanning for problems. The rest is in a column's detail.
+export const PREVIEW_COLUMN_SUMMARY_KEYS = ['label', 'dataTypeLabel', 'matchText', 'invalidValueText', 'blankValueText', 'distinctValueText', 'readingText'] as const;
+
 const DATA_TYPE_LABEL_KEYS: Record<DataTypeId, keyof typeof TEXT> = {
     boolean: 'dataType.boolean.label',
     numeric: 'dataType.numeric.label',

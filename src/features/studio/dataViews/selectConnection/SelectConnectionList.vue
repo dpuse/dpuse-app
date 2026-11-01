@@ -23,9 +23,9 @@ import {
     NEW_DATA_VIEW_ID,
     resolveDataViewIdParameter,
     useCreateDataView,
-    useDataView,
     useDataViews,
-    useUpdateDataView
+    useUpdateWorkingDataView,
+    useWorkingDataView
 } from '@/features/studio/dataViews/_dataViews';
 import { localeId, t } from '@/state/locale';
 
@@ -63,9 +63,9 @@ const { openDialog } = useDialogs();
 
 // ── Data View ─ 'isPending' stops a second commit while the first is still saving. A data view being added is not
 // saved until its connection is committed.
-const { data: dataViewConfig } = useDataView(() => resolveDataViewIdParameter(route.params.dataViewId));
+const { data: dataViewConfig } = useWorkingDataView(() => resolveDataViewIdParameter(route.params.dataViewId));
 const { isPending: dataViewIsCreating, mutateAsync: createDataView } = useCreateDataView();
-const { isPending: dataViewIsSaving, mutateAsync: updateDataView } = useUpdateDataView();
+const { isPending: dataViewIsSaving, mutateAsync: updateDataView } = useUpdateWorkingDataView();
 
 // ── Choice ─ The connection picked in this step, saved only when it is committed. Starts as the saved one.
 const pickedConnectionId = ref<string>();
@@ -188,7 +188,8 @@ function constructDraftDataViewConfig(savedDataViewConfig: DataViewConfig, conne
         connectionId,
         connectionNodeConfig: undefined,
         previewConfig: undefined,
-        contentAuditConfig: undefined,
+        columnSetConfig: undefined,
+        auditSummaryConfig: undefined,
         relationshipsAuditConfig: undefined
     };
 }

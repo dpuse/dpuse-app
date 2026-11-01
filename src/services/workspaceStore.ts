@@ -1,4 +1,5 @@
-// The workspace store holds the user's own work, one table for each kind of config (only data views so far). TanStack
+// The workspace store holds the user's own work, one table for each kind of config (data views and their unsaved working
+// copies so far). TanStack
 // Query's cache holds the app's only copy: these functions read and write the store, and the keys place each result in
 // the cache.
 //
@@ -24,7 +25,7 @@ import { assertDefined, shareLoad } from '@/utilities/index.ts';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export type WorkspaceStoreTableId = 'dataViews';
+export type WorkspaceStoreTableId = 'dataViews' | 'dataViewWorkingCopies';
 
 type WorkspaceStoreListKey = readonly ['workspaceStore', WorkspaceStoreTableId, 'list'];
 type WorkspaceStoreRecordKey = readonly ['workspaceStore', WorkspaceStoreTableId, 'record', string | undefined];
@@ -42,7 +43,8 @@ const GUEST_META_STORE_ID = 'dpuMetaStore'; // The Dexie database guest work was
 const GUEST_WORKSPACE_STORE_ID = 'dpuseWorkspaceStore';
 const META_STORE_IS_MOVED_VALUE_ID = 'metaStoreIsMoved';
 const WORKSPACE_STORE_QUERY_KEY = ['workspaceStore'] as const;
-const WORKSPACE_STORE_TABLE_IDS: WorkspaceStoreTableId[] = ['dataViews'];
+const WORKSPACE_STORE_TABLE_IDS: WorkspaceStoreTableId[] = ['dataViews', 'dataViewWorkingCopies'];
+const WORK_TABLE_IDS: WorkspaceStoreTableId[] = ['dataViews']; // What counts as a piece of work. A working copy belongs to its data view, so it is not counted again.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -115,7 +117,7 @@ export async function removeWorkspaceStoreRecord(tableId: WorkspaceStoreTableId,
 // ── Guest Work ─ Work saved while signed out stays in the guest store. Once signed in, the user can move it into their
 // account, which also takes it out of reach of the next person to use this browser signed out.
 export async function countGuestWorkspaceStoreRecords(): Promise<number> {
-    return readStore(GUEST_WORKSPACE_STORE_ID, (store) => WORKSPACE_STORE_TABLE_IDS.reduce((count, tableId) => count + store.getRowCount(tableId), 0));
+    return readStore(GUEST_WORKSPACE_STORE_ID, (store) => WORK_TABLE_IDS.reduce((count, tableId) => count + store.getRowCount(tableId), 0));
 }
 
 // Copied before it is removed, so a failure part way leaves the work in at least one store.

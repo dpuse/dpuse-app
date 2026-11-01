@@ -17,9 +17,10 @@ import DataViewSource from './DataViewSource.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { dataViewConnection, dataViewLocalisedConfig } = defineProps<{
+const { dataViewConnection, dataViewLocalisedConfig, hasUnsavedChanges } = defineProps<{
     dataViewConnection: DataViewConnection | undefined; // Undefined until a connection is chosen.
     dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>;
+    hasUnsavedChanges?: boolean; // A working copy is waiting for Save or Discard.
 }>();
 const emit = defineEmits<{ open: [] }>();
 
@@ -61,6 +62,8 @@ const actions = computed((): Action<DataViewConfig>[] => [
         </template>
 
         <!-- Audit ─ The connection and item lines show the first two steps, so only the audit is left to show. -->
-        <template v-if="dataViewLocalisedConfig.contentAuditConfig == null" #note>{{ t(TEXT, 'audit.pending.text') }}</template>
+        <template v-if="hasUnsavedChanges || dataViewLocalisedConfig.auditSummaryConfig == null" #note>{{
+            t(TEXT, hasUnsavedChanges ? 'unsaved.text' : 'audit.pending.text')
+        }}</template>
     </ConfigCard>
 </template>
