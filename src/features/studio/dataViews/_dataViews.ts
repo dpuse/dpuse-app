@@ -4,7 +4,15 @@ import { useMutation, type UseMutationReturnType, useQuery, type UseQueryReturnT
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
-import type { AuditObjectContentOptions, AuditObjectContentResult, ContentAuditConfig, DataViewConfig, PreviewConfig } from '@dpuse/dpuse-shared';
+import type {
+    AuditObjectContentOptions,
+    AuditObjectContentResult,
+    ContentAuditConfig,
+    DataViewConfig,
+    PreviewConfig,
+    ReadConfig,
+    StoredContentAuditConfig
+} from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
@@ -15,7 +23,7 @@ import { findConnectionLocalisedConfig } from '@/state/configs';
 import { forgetDataViewLoads } from './_dataViewStore';
 import { queryClient } from '@/services/queryClient';
 import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
-import { constructAuditColumnSetConfig, constructAuditSummaryConfig, constructStoredPreviewConfig } from './_dataViewColumns';
+import { constructAuditColumnSetConfig, constructPreviewContentAuditConfig } from './_dataViewColumns';
 import {
     constructWorkspaceStoreListKey,
     constructWorkspaceStoreRecordKey,
@@ -28,12 +36,15 @@ import {
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A record saved by an older build can lack its label and description, and can hold its columns in its preview and its
-// audit rather than in a column set.
-type StoredDataViewConfig = Omit<DataViewConfig, 'auditSummaryConfig' | 'columnSetConfig' | 'description' | 'label' | 'previewConfig'> &
-    Partial<Pick<DataViewConfig, 'auditSummaryConfig' | 'columnSetConfig' | 'description' | 'label'>> & {
-        contentAuditConfig?: ContentAuditConfig;
-        previewConfig: DataViewConfig['previewConfig'] | PreviewConfig;
+// A record saved by an older build can lack its label and description. It can also hold how it is read and its columns in
+// its preview, and its audit under 'auditSummaryConfig' or with its columns, because a preview and an audit were once apart.
+type OlderPreviewConfig = Omit<PreviewConfig, 'size'> & ReadConfig & { asAt: number; columnConfigs?: ContentAuditConfig['columns']; duration: number; size: number | undefined };
+type OlderContentAuditConfig = Omit<StoredContentAuditConfig, 'byteCount' | 'isComplete'> & { columns?: ContentAuditConfig['columns'] };
+type StoredDataViewConfig = Omit<DataViewConfig, 'columnSetConfig' | 'contentAuditConfig' | 'description' | 'label' | 'previewConfig' | 'readConfig'> &
+    Partial<Pick<DataViewConfig, 'columnSetConfig' | 'description' | 'label' | 'readConfig'>> & {
+        auditSummaryConfig?: OlderContentAuditConfig;
+        contentAuditConfig?: OlderContentAuditConfig | StoredContentAuditConfig;
+        previewConfig: OlderPreviewConfig | PreviewConfig | undefined;
     };
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -126,9 +137,10 @@ export function constructNewDataViewConfig(connectionId: string): DataViewConfig
         typeId: 'dataView',
         connectionId,
         connectionNodeConfig: undefined,
+        readConfig: undefined,
         previewConfig: undefined,
+        contentAuditConfig: undefined,
         columnSetConfig: undefined,
-        auditSummaryConfig: undefined,
         relationshipsAuditConfig: undefined,
         status: null,
         statusId: null,
@@ -142,26 +154,40 @@ export function resolveDataViewIdParameter(dataViewIdParameter: unknown): string
     return typeof dataViewIdParameter === 'string' && dataViewIdParameter !== NEW_DATA_VIEW_ID ? dataViewIdParameter : undefined;
 }
 
-// Reads the whole item the way its saved preview read it, so it can take minutes. 'onProgress' receives the number of
-// records audited so far. Nothing is stored: the result describes each column, ready for loading the records later.
-export async function auditDataViewContent(dataViewConfig: DataViewConfig, onProgress: (recordCount: number) => void): Promise<ContentAuditConfig> {
+// Reads the item the way the data view reads it, from its start, so a whole item can take minutes. 'onProgress' receives
+// the records and bytes audited so far. Nothing is stored: the result describes each column, ready for loading the records
+// later. Undefined 'byteLimit' reads the whole item.
+export async function auditDataViewContent(
+    dataViewConfig: DataViewConfig,
+    byteLimit: number | undefined,
+    onProgress: (recordCount: number, byteCount: number) => void
+): Promise<ContentAuditConfig> {
     const connectionLocalisedConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
     const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
-    const previewConfig = assertDefined(dataViewConfig.previewConfig, 'No preview for this data view.');
-    const options: Omit<AuditObjectContentOptions, 'supportsTransferableStreams'> = {
+    const readConfig = assertDefined(dataViewConfig.readConfig, 'No read configuration for this data view.');
+    const options: Omit<AuditObjectContentOptions, 'stopSignal' | 'supportsTransferableStreams'> = {
+        byteLimit,
         chunkSize: undefined,
-        dataFormatId: previewConfig.dataFormatId,
-        encodingId: assertDefined(previewConfig.encodingId, 'No encoding in the preview.'),
-        hasHeaders: previewConfig.hasHeaders === true,
-        parserId: previewConfig.parserId, // The tool that read the preview, so the audit reads the item the same way.
+        dataFormatId: readConfig.dataFormatId,
+        encodingId: assertDefined(readConfig.encodingId, 'No encoding in the read configuration.'),
+        hasHeaders: readConfig.hasHeaders === true,
+        parserId: readConfig.parserId, // The tool that read the item first, so the audit reads it the same way.
         path: constructItemPath(connectionNodeConfig),
-        valueDelimiterId: assertDefined(previewConfig.valueDelimiterId, 'No value delimiter in the preview.')
-    }; // The engine adds 'supportsTransferableStreams', because only the worker can test for it.
+        valueDelimiterId: assertDefined(readConfig.valueDelimiterId, 'No value delimiter in the read configuration.')
+    }; // The engine adds 'stopSignal' and 'supportsTransferableStreams', because they only exist in the worker.
     const { processRequest } = await establishEngineWorker();
     const { contentAuditConfig } = (await processRequest('auditObjectContent', connectionLocalisedConfig, options, (callbackData) => {
-        if (callbackData.typeId === 'progress') onProgress(Number(callbackData.properties.recordCount));
+        if (callbackData.typeId === 'progress') onProgress(Number(callbackData.properties.recordCount), Number(callbackData.properties.byteCount));
     })) as AuditObjectContentResult;
     return contentAuditConfig;
+}
+
+// Ends the audit at the next record, and the audit still returns what it read.
+export async function stopDataViewContentAudit(connectionId: string): Promise<void> {
+    const connectionLocalisedConfig = findConnectionLocalisedConfig(connectionId);
+    if (connectionLocalisedConfig == null) return;
+    const { processRequest } = await establishEngineWorker();
+    await processRequest('stopAudit', connectionLocalisedConfig, {});
 }
 
 // A connector keeps one abort controller, so this stops whichever operation it started last.
@@ -194,22 +220,50 @@ async function getDataViewConfig(id: string): Promise<DataViewConfig> {
 }
 
 // A stored record gets back the icon, which is not stored, and a label and description if an older build saved it
-// without them, because the list cannot show a data view that has none. A record from an older build also moves to one
-// column set, from its audit if that has columns, otherwise from its preview.
+// without them, because the list cannot show a data view that has none. A record from an older build also moves to the
+// current layout.
 function restoreDataViewConfig(storedDataViewConfig: StoredDataViewConfig): DataViewConfig {
-    const { contentAuditConfig, previewConfig, ...dataViewConfig } = storedDataViewConfig;
-    const olderPreviewConfig = previewConfig != null && 'columnConfigs' in previewConfig ? previewConfig : undefined;
-    const previewColumnSetConfig = olderPreviewConfig ? { asAt: olderPreviewConfig.asAt, columnConfigs: olderPreviewConfig.columnConfigs, sourceId: 'preview' as const } : undefined;
-    const auditHasColumns = contentAuditConfig != null && contentAuditConfig.columns.length > 0;
+    const { auditSummaryConfig: _auditSummaryConfig, contentAuditConfig: _contentAuditConfig, previewConfig, ...dataViewConfig } = storedDataViewConfig;
     return {
         ...dataViewConfig,
-        previewConfig: olderPreviewConfig ? constructStoredPreviewConfig(olderPreviewConfig) : previewConfig,
-        columnSetConfig: dataViewConfig.columnSetConfig ?? (auditHasColumns ? constructAuditColumnSetConfig(contentAuditConfig, undefined) : previewColumnSetConfig),
-        auditSummaryConfig: dataViewConfig.auditSummaryConfig ?? (contentAuditConfig ? constructAuditSummaryConfig(contentAuditConfig) : undefined),
+        ...(previewConfig != null && 'dataFormatId' in previewConfig ? restoreOlderReading(storedDataViewConfig, previewConfig) : restoreCurrentReading(storedDataViewConfig)),
         label: storedDataViewConfig.label ?? UNTITLED_DATA_VIEW_LABEL,
         description: storedDataViewConfig.description ?? {},
         icon: dataViewIcon
     };
+}
+
+function restoreCurrentReading({
+    columnSetConfig,
+    contentAuditConfig,
+    previewConfig,
+    readConfig
+}: StoredDataViewConfig): Pick<DataViewConfig, 'columnSetConfig' | 'contentAuditConfig' | 'previewConfig' | 'readConfig'> {
+    return {
+        columnSetConfig,
+        contentAuditConfig: contentAuditConfig as StoredContentAuditConfig | undefined,
+        previewConfig,
+        readConfig
+    };
+}
+
+// An older audit always read the whole item. Without one, the record's figures are those of its preview. A column set from
+// an older build keeps its extra 'sourceId', which nothing reads.
+function restoreOlderReading(
+    storedDataViewConfig: StoredDataViewConfig,
+    olderPreviewConfig: OlderPreviewConfig
+): Pick<DataViewConfig, 'columnSetConfig' | 'contentAuditConfig' | 'previewConfig' | 'readConfig'> {
+    const { asAt, columnConfigs, duration, errorMessage: _errorMessage, issues, parsedRecords, size, text, ...readConfig } = olderPreviewConfig;
+    const previewConfig: PreviewConfig = { ...(issues != null && { issues }), parsedRecords, size, text };
+    const { columns, ...olderContentAuditConfig } = (storedDataViewConfig.contentAuditConfig ?? storedDataViewConfig.auditSummaryConfig ?? {}) as Partial<OlderContentAuditConfig>;
+    const itemSize = storedDataViewConfig.connectionNodeConfig?.size;
+    const contentAuditConfig: StoredContentAuditConfig =
+        'asAt' in olderContentAuditConfig
+            ? { byteCount: itemSize ?? 0, ...(olderContentAuditConfig as OlderContentAuditConfig), isComplete: true }
+            : { ...constructPreviewContentAuditConfig({ hasHeaders: readConfig.hasHeaders, parsedRecords, size }, asAt, size != null && size === itemSize), duration };
+    const auditColumns = columns != null && columns.length > 0 ? constructAuditColumnSetConfig({ ...contentAuditConfig, columns }, undefined) : undefined;
+    const previewColumnSetConfig = columnConfigs == null ? undefined : { asAt, columnConfigs };
+    return { columnSetConfig: storedDataViewConfig.columnSetConfig ?? auditColumns ?? previewColumnSetConfig, contentAuditConfig, previewConfig, readConfig };
 }
 
 // The cache is written here rather than in 'onSuccess', because only here is the store the change went to known.

@@ -5,7 +5,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { DataViewConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { changeDataView, completeDataViewDraft, dataViewCanBeSaved, dataViewHasChanges, discardDataViewDraft, draftDataViewConfig } from '@/features/studio/dataViews/_dataViewDraft';
+import {
+    changeDataView,
+    completeDataViewDraft,
+    dataViewCanBeSaved,
+    dataViewHasChanges,
+    discardDataViewDraft,
+    draftDataViewConfig
+} from '@/features/studio/dataViews/_dataViewDraft';
 import { forgetDraftLoad, promoteDraftLoad } from '@/features/studio/dataViews/_dataViewStore';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -15,7 +22,7 @@ vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({ forgetDraftLoad: 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const INCOMPLETE_DATA_VIEW = { connectionId: 'one', id: 'a' } as DataViewConfig;
-const COMPLETE_DATA_VIEW = { ...INCOMPLETE_DATA_VIEW, connectionNodeConfig: { name: 'sales' }, previewConfig: { dataFormatId: 'dtv' } } as DataViewConfig;
+const COMPLETE_DATA_VIEW = { ...INCOMPLETE_DATA_VIEW, connectionNodeConfig: { name: 'sales' }, previewConfig: { parsedRecords: [] } } as unknown as DataViewConfig;
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

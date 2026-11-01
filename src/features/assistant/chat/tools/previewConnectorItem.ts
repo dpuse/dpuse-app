@@ -5,7 +5,7 @@ import { AppError, serialiseError } from '@dpuse/dpuse-shared';
 import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import { raiseFailure } from '@/state/errors';
-import type { PreviewConfig, PreviewObjectOptions } from '@dpuse/dpuse-shared';
+import type { PreviewObjectOptions, PreviewObjectResult } from '@dpuse/dpuse-shared';
 
 // ── Tools ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -30,19 +30,19 @@ export async function executePreviewConnectorItem(arguments_: unknown): Promise<
             path,
             valueDelimiterId: undefined
         }; // The assistant names only a path, so the extension decides the format and the first tool that reads it parses it.
-        const previewConfig = (await engine.processRequest('previewObject', connection, options)) as PreviewConfig;
+        const { contentAuditConfig, previewConfig, readConfig } = (await engine.processRequest('previewObject', connection, options)) as PreviewObjectResult;
 
         if (previewConfig.errorMessage != null) return { error: previewConfig.errorMessage };
 
-        const columnNames = previewConfig.columnConfigs.map((col, index) => col.label.en ?? col.label.es ?? String(index));
+        const columnNames = contentAuditConfig.columns.map((col, index) => col.label.en ?? col.label.es ?? String(index));
 
-        const dataOffset = (previewConfig.hasHeaders ?? false) ? 1 : 0;
+        const dataOffset = (readConfig.hasHeaders ?? false) ? 1 : 0;
         const sampleRows = previewConfig.parsedRecords
             .slice(dataOffset, dataOffset + 10)
             .map((record) => Object.fromEntries(record.map((cell, index) => [columnNames[index] ?? String(index), cell.value])));
 
         return {
-            dataFormatId: previewConfig.dataFormatId,
+            dataFormatId: readConfig.dataFormatId,
             size: previewConfig.size,
             columns: columnNames,
             rows: sampleRows,

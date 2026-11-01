@@ -126,16 +126,26 @@ describe('data views', () => {
             const olderDataView = {
                 ...buildDataView('a', 'Sales'),
                 contentAuditConfig: { asAt: 7, columns: [auditColumn], recordCount: 2 },
-                previewConfig: { asAt: 3, columnConfigs: [{ label: { en: 'Previewed' } }], hasHeaders: true }
+                previewConfig: {
+                    asAt: 3,
+                    columnConfigs: [{ label: { en: 'Previewed' } }],
+                    dataFormatId: 'dtv',
+                    duration: 1,
+                    hasHeaders: true,
+                    parsedRecords: [],
+                    size: 10,
+                    text: undefined
+                }
             };
             vi.mocked(retrieveWorkspaceStoreRecords).mockResolvedValueOnce([olderDataView]);
             const { data } = await runInComponent(() => useDataViews());
 
             const dataView = data.value?.[0];
-            expect(dataView?.columnSetConfig).toMatchObject({ asAt: 7, columnConfigs: [auditColumn], sourceId: 'audit' });
-            expect(dataView?.auditSummaryConfig).toStrictEqual({ asAt: 7, recordCount: 2 });
-            expect(dataView?.previewConfig).toStrictEqual({ asAt: 3, hasHeaders: true });
-            expect(dataView).not.toHaveProperty('contentAuditConfig');
+            expect(dataView?.columnSetConfig).toMatchObject({ asAt: 7, columnConfigs: [auditColumn] });
+            expect(dataView?.contentAuditConfig).toStrictEqual({ asAt: 7, byteCount: 0, isComplete: true, recordCount: 2 });
+            expect(dataView?.previewConfig).toStrictEqual({ parsedRecords: [], size: 10, text: undefined });
+            expect(dataView?.readConfig).toStrictEqual({ dataFormatId: 'dtv', hasHeaders: true });
+            expect(dataView).not.toHaveProperty('auditSummaryConfig');
         });
 
         it('takes an older record’s columns from its preview when its audit has none', async () => {
@@ -143,12 +153,12 @@ describe('data views', () => {
             const olderDataView = {
                 ...buildDataView('a', 'Sales'),
                 contentAuditConfig: { asAt: 7, columns: [], recordCount: 2 },
-                previewConfig: { asAt: 3, columnConfigs: [previewColumn] }
+                previewConfig: { asAt: 3, columnConfigs: [previewColumn], dataFormatId: 'dtv', duration: 1, parsedRecords: [], size: 10, text: undefined }
             };
             vi.mocked(retrieveWorkspaceStoreRecords).mockResolvedValueOnce([olderDataView]);
             const { data } = await runInComponent(() => useDataViews());
 
-            expect(data.value?.[0]?.columnSetConfig).toStrictEqual({ asAt: 3, columnConfigs: [previewColumn], sourceId: 'preview' });
+            expect(data.value?.[0]?.columnSetConfig).toStrictEqual({ asAt: 3, columnConfigs: [previewColumn] });
         });
 
         it('names the failure in the user’s terms when the store cannot be read', async () => {
@@ -307,11 +317,11 @@ describe('data views', () => {
     });
 
     describe('auditDataViewContent', () => {
-        it('audits the item the way its saved preview read it, passing on progress', async () => {
+        it('audits the item the way the data view reads it, passing on progress', async () => {
             const connectionConfig = { id: 'connection-a' };
             const contentAuditConfig = { recordCount: 2 };
             const processRequest = vi.fn((_id: string, _config: unknown, _options: unknown, callback: (callbackData: unknown) => void) => {
-                callback({ typeId: 'progress', properties: { recordCount: 2 } });
+                callback({ typeId: 'progress', properties: { byteCount: 90, recordCount: 2 } });
                 return Promise.resolve({ contentAuditConfig });
             });
             vi.mocked(findConnectionLocalisedConfig).mockReturnValue(connectionConfig as never);
@@ -320,15 +330,16 @@ describe('data views', () => {
                 ...buildDataView('a', 'Sales'),
                 connectionId: 'connection-a',
                 connectionNodeConfig: { extension: 'csv', folderPath: '/reports', name: 'sales' },
-                previewConfig: { dataFormatId: 'dtv', encodingId: 'utf-8', hasHeaders: true, parserId: 'dpuse-tool-adaltas-csv-parser', valueDelimiterId: ';' }
+                readConfig: { dataFormatId: 'dtv', encodingId: 'utf-8', hasHeaders: true, parserId: 'dpuse-tool-adaltas-csv-parser', valueDelimiterId: ';' }
             } as DataViewConfig;
             const onProgress = vi.fn();
 
-            expect(await auditDataViewContent(dataViewConfig, onProgress)).toBe(contentAuditConfig);
+            expect(await auditDataViewContent(dataViewConfig, 2048, onProgress)).toBe(contentAuditConfig);
             expect(processRequest).toHaveBeenCalledWith(
                 'auditObjectContent',
                 connectionConfig,
                 {
+                    byteLimit: 2048,
                     chunkSize: undefined,
                     dataFormatId: 'dtv',
                     encodingId: 'utf-8',
@@ -339,7 +350,7 @@ describe('data views', () => {
                 },
                 expect.any(Function)
             );
-            expect(onProgress).toHaveBeenCalledWith(2);
+            expect(onProgress).toHaveBeenCalledWith(2, 90);
         });
     });
 

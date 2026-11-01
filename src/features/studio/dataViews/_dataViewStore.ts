@@ -82,22 +82,22 @@ export function isDataViewLoaded(dataViewConfig: DataViewConfig, isDraft: boolea
 export async function loadDataViewRecords(dataViewConfig: DataViewConfig, isDraft: boolean, onProgress: (recordCount: number) => void): Promise<EngineLoadObjectRecordsResult> {
     const columnSetVersion = assertDefined(constructColumnSetVersion(dataViewConfig.columnSetConfig), 'No columns for this data view.');
     const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
-    const previewConfig = assertDefined(dataViewConfig.previewConfig, 'No preview for this data view.');
+    const readConfig = assertDefined(dataViewConfig.readConfig, 'No read configuration for this data view.');
     const sourceConnectionConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
     const loadKey = constructLoadKey(dataViewConfig.id, isDraft);
     const options: EngineLoadObjectRecordsOptions = {
-        columnConfigs: constructLoadColumnConfigs(dataViewConfig.columnSetConfig),
-        hasHeaders: previewConfig.hasHeaders === true,
-        headerValues: previewConfig.hasHeaders === true ? previewConfig.parsedRecords[0]?.map((parsingValue) => parsingValue.value) : undefined,
+        columnConfigs: constructLoadColumnConfigs(dataViewConfig),
+        hasHeaders: readConfig.hasHeaders === true,
+        headerValues: readConfig.hasHeaders === true ? dataViewConfig.previewConfig?.parsedRecords[0]?.map((parsingValue) => parsingValue.value) : undefined,
         path: establishTablePath(dataViewConfig.id, isDraft),
         sourceConnectionConfig,
         sourceOptions: {
             chunkSize: undefined,
-            dataFormatId: previewConfig.dataFormatId,
-            encodingId: assertDefined(previewConfig.encodingId, 'No encoding in the preview.'),
-            parserId: previewConfig.parserId,
+            dataFormatId: readConfig.dataFormatId,
+            encodingId: assertDefined(readConfig.encodingId, 'No encoding in the read configuration.'),
+            parserId: readConfig.parserId,
             path: constructItemPath(connectionNodeConfig),
-            valueDelimiterId: assertDefined(previewConfig.valueDelimiterId, 'No value delimiter in the preview.')
+            valueDelimiterId: assertDefined(readConfig.valueDelimiterId, 'No value delimiter in the read configuration.')
         }
     };
     const { processRequest } = await establishEngineWorker();

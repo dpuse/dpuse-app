@@ -4,9 +4,10 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
-import type { DataTypeId, ObjectColumnConfig, PreviewConfig } from '@dpuse/dpuse-shared';
+import type { DataTypeId, ObjectColumnConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import type { ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
 import { TEXT } from './ColumnDetailPanel_.json';
 import { constructDataTypeLabel, constructPreviewColumnHeaders, constructPreviewColumnRows, type PreviewColumnRow } from '@/features/studio/dataViews/_previewColumnRows';
 import { localeId, t } from '@/state/locale';
@@ -27,13 +28,13 @@ const COLLAPSED_LIST_ROW_COUNT = 10; // Rows a long list shows until the user as
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { canStepColumns, columnIndex, detectedDataTypeId, isTypeDisabled, previewConfig, sourceText, typeOptions, typeValue } = defineProps<{
+const { canStepColumns, columnIndex, detectedDataTypeId, isTypeDisabled, itemReading, sourceText, typeOptions, typeValue } = defineProps<{
     canStepColumns?: boolean; // Filling the space hides the table, so Previous and Next take its place.
     columnIndex: number;
     detectedDataTypeId: DataTypeId | undefined;
     isTypeDisabled?: boolean;
-    previewConfig: PreviewConfig;
-    sourceText: string; // What the figures describe: every record, or the part the preview read.
+    itemReading: ItemReading;
+    sourceText: string; // What the figures describe: how much of the item was audited.
     typeOptions: SelectOption[];
     typeValue: string;
 }>();
@@ -48,8 +49,8 @@ const tabListElement = useTemplateRef<HTMLDivElement>('tabList');
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // ── Column
-const columnConfig = computed((): ObjectColumnConfig | undefined => previewConfig.columnConfigs[columnIndex]);
-const columnRow = computed((): PreviewColumnRow | undefined => constructPreviewColumnRows(previewConfig)[columnIndex]);
+const columnConfig = computed((): ObjectColumnConfig | undefined => itemReading.columnConfigs[columnIndex]);
+const columnRow = computed((): PreviewColumnRow | undefined => constructPreviewColumnRows(itemReading)[columnIndex]);
 const headers = computed(() => constructPreviewColumnHeaders());
 const summaryText = computed(() => [columnRow.value?.dataTypeLabel, columnRow.value?.dataSubtypeLabel, sourceText].filter(Boolean).join(' · '));
 
@@ -172,7 +173,7 @@ function constructCountRows(counts: Record<string, number> | undefined): { count
                     <ActionWrapper
                         :aria-label="t(TEXT, 'next.aria')"
                         class="rounded-md p-1 enabled:hover:state-hover"
-                        :disabled="columnIndex === previewConfig.columnConfigs.length - 1"
+                        :disabled="columnIndex === itemReading.columnConfigs.length - 1"
                         @click="emit('step', columnIndex + 1)"
                     >
                         <ChevronRightIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />

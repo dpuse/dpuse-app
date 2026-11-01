@@ -36,9 +36,10 @@ const processRequest = vi.fn<EngineWorker['processRequest']>();
 const DATA_VIEW = {
     connectionId: 'source1',
     connectionNodeConfig: { folderPath: '/data', id: 'sales.csv', label: 'sales.csv', name: 'sales.csv', typeId: 'object' },
-    columnSetConfig: { asAt: 5, columnConfigs: [{ dataTypeId: 'string', label: { en: 'Name' } }], sourceId: 'audit' },
+    columnSetConfig: { asAt: 5, columnConfigs: [{ dataTypeId: 'string', label: { en: 'Name' } }] },
     id: 'dataView1',
-    previewConfig: { dataFormatId: 'dsv', encodingId: 'utf-8', hasHeaders: true, parsedRecords: [[{ value: 'Name', valueWasQuoted: false }]], parserId: 'parser1', valueDelimiterId: ',' }
+    previewConfig: { parsedRecords: [[{ value: 'Name', valueWasQuoted: false }]] },
+    readConfig: { dataFormatId: 'dsv', encodingId: 'utf-8', hasHeaders: true, parserId: 'parser1', valueDelimiterId: ',' }
 } as unknown as DataViewConfig;
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -67,7 +68,7 @@ describe('_dataViewStore', () => {
         expect(processRequest).toHaveBeenCalledWith('openStore', { id: INVESTIGATE_STORE_CONNECTOR_ID }, {});
     });
 
-    it('loads from the source the way its preview read it, reports progress, and remembers the columns it loaded', async () => {
+    it('loads from the source the way the data view reads it, reports progress, and remembers the columns it loaded', async () => {
         processRequest.mockImplementationOnce((_id, _config, _options, callback) => {
             callback?.({ properties: { recordCount: 10 }, typeId: 'progress' });
             return Promise.resolve({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 10 });
@@ -97,7 +98,7 @@ describe('_dataViewStore', () => {
         await loadDataViewRecords(typedDataView, false, vi.fn());
 
         const columnConfigs = [{ chosenDataTypeId: 'numeric', dataTypeId: 'string', label: { en: 'Name' } }];
-        expect(isDataViewLoaded({ ...typedDataView, columnSetConfig: { asAt: 5, columnConfigs, sourceId: 'audit' } } as DataViewConfig, false)).toBe(false);
+        expect(isDataViewLoaded({ ...typedDataView, columnSetConfig: { asAt: 5, columnConfigs } } as DataViewConfig, false)).toBe(false);
     });
 
     it('keeps the earlier load when the columns have moved', async () => {

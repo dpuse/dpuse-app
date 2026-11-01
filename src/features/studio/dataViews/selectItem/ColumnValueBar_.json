@@ -1,0 +1,10 @@
+{
+    "TEXT": {
+        "counts.text": {
+            "en": "{label}: {valid} valid, {invalid} invalid, {blank} blank and {missing} missing, of {records}. Show details",
+            "es": "{label}: {valid} válidos, {invalid} no válidos, {blank} en blanco y {missing} ausentes, de {records}. Mostrar detalles"
+        },
+        "record.one.text": { "en": "{count} audited record", "es": "{count} registro auditado" },
+        "record.other.text": { "en": "{count} audited records", "es": "{count} registros auditados" }
+    }
+}

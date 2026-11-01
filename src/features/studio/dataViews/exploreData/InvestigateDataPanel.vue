@@ -79,8 +79,10 @@ const route = useRoute();
 
 // ── Data View
 const { data: dataViewConfig, draftIsCurrent } = useCurrentDataView(() => route.params.dataViewId);
-const columnSetIsFromPreview = computed(() => dataViewConfig.value?.columnSetConfig?.sourceId === 'preview');
-const columnConfigs = computed(() => constructLoadColumnConfigs(dataViewConfig.value?.columnSetConfig));
+const columnsAreFromPartialAudit = computed(() => dataViewConfig.value?.contentAuditConfig?.isComplete === false);
+const columnConfigs = computed(() =>
+    constructLoadColumnConfigs({ columnSetConfig: dataViewConfig.value?.columnSetConfig, contentAuditConfig: dataViewConfig.value?.contentAuditConfig })
+);
 
 // ── Store
 const investigateState = shallowRef<InvestigateState>({ typeId: 'opening' });
@@ -292,7 +294,7 @@ function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig): 
                 v-if="investigateState.typeId === 'ready' || investigateState.typeId === 'loading'"
                 class="flex h-9.25 flex-none items-center justify-end gap-x-3 border-b border-separator px-page text-xs"
             >
-                <span v-if="investigateState.typeId === 'ready' && columnSetIsFromPreview" class="mr-auto text-muted">{{ t(TEXT, 'load.previewTypes.text') }}</span>
+                <span v-if="investigateState.typeId === 'ready' && columnsAreFromPartialAudit" class="mr-auto text-muted">{{ t(TEXT, 'load.partialAuditTypes.text') }}</span>
                 <span v-if="investigateState.typeId === 'ready' && loadDurationText" class="text-muted">{{ loadDurationText }}</span>
                 <ActionWrapper v-if="investigateState.typeId === 'loading'" class="text-accent hover:underline" @click="handleStopLoad">{{
                     t(TEXT, 'load.stop.label')

@@ -12,7 +12,7 @@ import type { DataFormatId, DataViewConfig, LocalisedConfig, RecordDelimiterId, 
 import { defineLazyComponent } from '@/utilities/index.ts';
 import { raiseAppFailure } from '@/state/errors';
 import { renderMarkdown } from '@/services/useMarkedTool';
-import { restorePreviewConfig } from './_dataViewColumns';
+import { restoreItemReading } from './_dataViewColumns';
 import { TEXT } from './DataViewPanel_.json';
 import { useUnsavedWork } from '@/state/unsavedWork';
 import type { DataViewConnection, DataViewStepId } from './dataViewSummary';
@@ -132,11 +132,11 @@ const itemDescription = computed(() => {
 // The encoding the preview detected, with how sure the detection was. Without a confidence level nothing was detected and
 // the preview fell back to UTF-8, so the encoding is marked as assumed.
 const itemEncodingText = computed(() => {
-    const previewConfig = dataViewLocalisedConfig.previewConfig;
-    if (previewConfig?.encodingId == null) return;
-    const encoding = previewConfig.encodingId;
-    if (previewConfig.encodingConfidenceLevel == null) return t(TEXT, 'item.encoding.assumed.text', { encoding });
-    const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(previewConfig.encodingConfidenceLevel);
+    const readConfig = dataViewLocalisedConfig.readConfig;
+    if (readConfig?.encodingId == null) return;
+    const encoding = readConfig.encodingId;
+    if (readConfig.encodingConfidenceLevel == null) return t(TEXT, 'item.encoding.assumed.text', { encoding });
+    const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(readConfig.encodingConfidenceLevel);
     return t(TEXT, 'item.encoding.text', { confidence, encoding });
 });
 
@@ -144,14 +144,14 @@ const itemEncodingText = computed(() => {
 // shows whichever of its parts there are.
 const itemTypeText = computed(() => formatListOfParts([dataViewLocalisedConfig.connectionNodeConfig?.mimeType, itemEncodingText.value]));
 const itemDataFormatText = computed(() => {
-    const previewConfig = dataViewLocalisedConfig.previewConfig;
-    if (!previewConfig) return;
+    const readConfig = dataViewLocalisedConfig.readConfig;
+    if (!readConfig) return;
     let headerRowText: string | undefined;
-    if (previewConfig.hasHeaders != null) headerRowText = t(TEXT, previewConfig.hasHeaders ? 'item.headerRow.text' : 'item.noHeaderRow.text');
+    if (readConfig.hasHeaders != null) headerRowText = t(TEXT, readConfig.hasHeaders ? 'item.headerRow.text' : 'item.noHeaderRow.text');
     return formatListOfParts([
-        t(TEXT, DATA_FORMAT_LABEL_KEYS[previewConfig.dataFormatId]),
-        previewConfig.valueDelimiterId == null ? undefined : t(TEXT, VALUE_DELIMITER_LABEL_KEYS[previewConfig.valueDelimiterId]),
-        previewConfig.recordDelimiterId == null ? undefined : t(TEXT, RECORD_DELIMITER_LABEL_KEYS[previewConfig.recordDelimiterId]),
+        t(TEXT, DATA_FORMAT_LABEL_KEYS[readConfig.dataFormatId]),
+        readConfig.valueDelimiterId == null ? undefined : t(TEXT, VALUE_DELIMITER_LABEL_KEYS[readConfig.valueDelimiterId]),
+        readConfig.recordDelimiterId == null ? undefined : t(TEXT, RECORD_DELIMITER_LABEL_KEYS[readConfig.recordDelimiterId]),
         headerRowText
     ]);
 });
@@ -160,8 +160,10 @@ const itemIsFile = computed(() => dataViewConnection?.itemTypeId === 'file');
 const itemSubject = computed(() => dataViewConnection?.itemTypeId ?? 'item'); // Messages name the connector's kind of item, e.g. 'No file selected yet', and fall back to 'item' for a connector released before it said which.
 
 // ── Columns
-const columnTablePreviewConfig = computed(() => restorePreviewConfig(dataViewLocalisedConfig));
-const previewColumnLabels = computed(() => columnTablePreviewConfig.value?.columnConfigs.map((config, index) => config.label[localeId.value] ?? config.label.en ?? String(index + 1)) ?? []);
+const columnTableItemReading = computed(() => restoreItemReading(dataViewLocalisedConfig));
+const previewColumnLabels = computed(
+    () => columnTableItemReading.value?.columnConfigs.map((config, index) => config.label[localeId.value] ?? config.label.en ?? String(index + 1)) ?? []
+);
 
 // ── Data ─ The rows of the preview saved with the item. Its first record is the header row, as SelectItemPanel treats it.
 const previewRows = computed(() => dataViewLocalisedConfig.previewConfig?.parsedRecords.slice(1) ?? []);
@@ -247,7 +249,7 @@ function formatDateTime(timestamp: number): string {
                     class="mt-1 mb-4 text-sm"
                     :connection-id="dataViewLocalisedConfig.connectionId"
                     :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig"
-                    :data-format-id="dataViewLocalisedConfig.previewConfig?.dataFormatId"
+                    :data-format-id="dataViewLocalisedConfig.readConfig?.dataFormatId"
                     :data-view-connection="dataViewConnection"
                     :item-type-id="dataViewConnection?.itemTypeId"
                 />
@@ -317,10 +319,10 @@ function formatDateTime(timestamp: number): string {
                     </dl>
                     <p v-else class="text-muted">{{ t(TEXT, `${itemSubject}.pending.text`) }}</p>
                     <PreviewColumnTable
-                        v-if="columnTablePreviewConfig && previewColumnLabels.length > 0"
+                        v-if="columnTableItemReading && previewColumnLabels.length > 0"
                         class="mt-4"
                         is-label-shown
-                        :preview-config="columnTablePreviewConfig"
+                        :item-reading="columnTableItemReading"
                         :row-limit="columnTableIsExpanded ? undefined : COLLAPSED_TABLE_ROW_COUNT"
                     />
                     <!-- Show All and Change Item ─ Two columns: showing the rest of the table on the left, under the table it

@@ -54,13 +54,13 @@ const actions = computed((): Action<DataViewConfig>[] => [
             <DataViewSource
                 :connection-id="dataViewLocalisedConfig.connectionId"
                 :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig"
-                :data-format-id="dataViewLocalisedConfig.previewConfig?.dataFormatId"
+                :data-format-id="dataViewLocalisedConfig.readConfig?.dataFormatId"
                 :data-view-connection="dataViewConnection"
                 :item-type-id="dataViewConnection?.itemTypeId"
             />
         </template>
 
         <!-- Audit ─ The connection and item lines show the first two steps, so only the audit is left to show. -->
-        <template v-if="dataViewLocalisedConfig.auditSummaryConfig == null" #note>{{ t(TEXT, 'audit.pending.text') }}</template>
+        <template v-if="dataViewLocalisedConfig.contentAuditConfig?.isComplete !== true" #note>{{ t(TEXT, 'audit.pending.text') }}</template>
     </ConfigCard>
 </template>

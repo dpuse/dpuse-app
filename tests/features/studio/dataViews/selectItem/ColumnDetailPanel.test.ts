@@ -3,10 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { mount, type VueWrapper } from '@vue/test-utils';
 
 // ── DPUse Framework
-import type { ObjectColumnConfig, PreviewConfig } from '@dpuse/dpuse-shared';
+import type { ObjectColumnConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import ColumnDetailPanel from '@/features/studio/dataViews/selectItem/ColumnDetailPanel.vue';
+import type { ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
 import { t } from '@/state/locale';
 import { TEXT } from '@/features/studio/dataViews/selectItem/ColumnDetailPanel_.json';
 
@@ -32,7 +33,7 @@ function mountPanel(columnConfigs: ObjectColumnConfig[], properties: object = {}
         props: {
             columnIndex: 0,
             detectedDataTypeId: 'numeric',
-            previewConfig: { columnConfigs, hasHeaders: true } as unknown as PreviewConfig,
+            itemReading: { columnConfigs, hasHeaders: true } as unknown as ItemReading,
             sourceText: 'All records',
             typeOptions: [],
             typeValue: 'auto',

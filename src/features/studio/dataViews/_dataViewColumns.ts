@@ -1,6 +1,5 @@
 // ── DPUse Framework
 import type {
-    AuditSummaryConfig,
     ColumnSetConfig,
     ContentAuditConfig,
     DataTypeId,
@@ -8,39 +7,74 @@ import type {
     DataViewConfig,
     ObjectColumnConfig,
     PreviewConfig,
-    StoredPreviewConfig
+    PreviewObjectResult,
+    ReadConfig,
+    StoredContentAuditConfig
 } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// An item as it shows on screen: how it is read, its preview and its columns, kept together so a change of one stays in
+// step with the others.
+export type ItemReading = PreviewConfig & ReadConfig & { columnConfigs: ObjectColumnConfig[] };
 
 type ChosenColumnDataTypeIds = Partial<Record<string, DataTypeId>>; // Keyed by the column's position, as a string.
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export function constructStoredPreviewConfig(previewConfig: PreviewConfig): StoredPreviewConfig {
-    const { columnConfigs: _columnConfigs, ...storedPreviewConfig } = previewConfig;
-    return storedPreviewConfig;
+export function constructItemReading({ contentAuditConfig, previewConfig, readConfig }: PreviewObjectResult): ItemReading {
+    return { ...readConfig, ...previewConfig, columnConfigs: contentAuditConfig.columns };
 }
 
-export function constructAuditSummaryConfig(contentAuditConfig: ContentAuditConfig): AuditSummaryConfig {
-    const { columns: _columns, ...auditSummaryConfig } = contentAuditConfig;
-    return auditSummaryConfig;
+export function constructReadConfig(itemReading: ItemReading): ReadConfig {
+    const { columnConfigs: _columnConfigs, errorMessage: _errorMessage, issues: _issues, parsedRecords: _parsedRecords, size: _size, text: _text, ...readConfig } = itemReading;
+    return readConfig;
 }
 
-// The preview's columns hold any chosen type in place of the detected one, so the detected types are passed in.
-export function constructPreviewColumnSetConfig(
-    previewConfig: PreviewConfig,
+// The raw text is the same block as the parsed records, so it is not kept.
+export function constructStoredPreviewConfig({ issues, parsedRecords, size }: ItemReading): PreviewConfig {
+    return { ...(issues != null && { issues }), parsedRecords, size, text: undefined };
+}
+
+export function constructStoredContentAuditConfig(contentAuditConfig: ContentAuditConfig): StoredContentAuditConfig {
+    const { columns: _columns, ...storedContentAuditConfig } = contentAuditConfig;
+    return storedContentAuditConfig;
+}
+
+// What the preview's records alone show, for when the columns have to be counted again from them.
+export function constructPreviewContentAuditConfig(
+    itemReading: Pick<ItemReading, 'hasHeaders' | 'parsedRecords' | 'size'>,
+    asAt: number,
+    isComplete: boolean
+): StoredContentAuditConfig {
+    return {
+        asAt,
+        byteCount: itemReading.size ?? 0,
+        commentLineCount: undefined,
+        duration: 0,
+        emptyLineCount: undefined,
+        invalidFieldLengthCount: undefined,
+        isComplete,
+        lineCount: undefined,
+        recordCount: Math.max(0, itemReading.parsedRecords.length - (itemReading.hasHeaders === true ? 1 : 0)),
+        sourceWaitDuration: undefined
+    };
+}
+
+// The item's columns hold any chosen type in place of the detected one, so the detected types are passed in.
+export function constructItemColumnSetConfig(
+    itemReading: ItemReading,
+    asAt: number,
     detectedColumnTypes: Pick<ObjectColumnConfig, 'dataSubtypeId' | 'dataTypeId'>[],
     chosenColumnDataTypeIds: ChosenColumnDataTypeIds
 ): ColumnSetConfig {
     return {
-        asAt: previewConfig.asAt,
-        columnConfigs: previewConfig.columnConfigs.map((columnConfig, index) => ({
+        asAt,
+        columnConfigs: itemReading.columnConfigs.map((columnConfig, index) => ({
             ...columnConfig,
             ...detectedColumnTypes[index],
             chosenDataTypeId: chosenColumnDataTypeIds[String(index)]
-        })),
-        sourceId: 'preview'
+        }))
     };
 }
 
@@ -48,8 +82,7 @@ export function constructPreviewColumnSetConfig(
 export function constructAuditColumnSetConfig(contentAuditConfig: ContentAuditConfig, columnSetConfig: ColumnSetConfig | undefined): ColumnSetConfig {
     return {
         asAt: contentAuditConfig.asAt,
-        columnConfigs: contentAuditConfig.columns.map((columnConfig, index) => ({ ...columnConfig, chosenDataTypeId: columnSetConfig?.columnConfigs[index]?.chosenDataTypeId })),
-        sourceId: 'audit'
+        columnConfigs: contentAuditConfig.columns.map((columnConfig, index) => ({ ...columnConfig, chosenDataTypeId: columnSetConfig?.columnConfigs[index]?.chosenDataTypeId }))
     };
 }
 
@@ -69,15 +102,17 @@ export function constructChosenColumnDataTypeIds(columnSetConfig: ColumnSetConfi
 // detection's type, so a different type has none.
 export function resolveColumnConfig(columnConfig: DataViewColumnConfig): ObjectColumnConfig {
     const { chosenDataTypeId, ...detectedColumnConfig } = columnConfig;
-    return chosenDataTypeId == null || chosenDataTypeId === columnConfig.dataTypeId ? detectedColumnConfig : { ...detectedColumnConfig, dataSubtypeId: undefined, dataTypeId: chosenDataTypeId };
+    return chosenDataTypeId == null || chosenDataTypeId === columnConfig.dataTypeId
+        ? detectedColumnConfig
+        : { ...detectedColumnConfig, dataSubtypeId: undefined, dataTypeId: chosenDataTypeId };
 }
 
-// A preview's 'unknown' column may only be blank in the sample, and an unknown column loads as nothing, so it loads as
-// text. An audit's 'unknown' column has been read in full and really is empty.
-export function constructLoadColumnConfigs(columnSetConfig: ColumnSetConfig | undefined): ObjectColumnConfig[] {
+// An 'unknown' column may only be blank in the part audited, and an unknown column loads as nothing, so it loads as text.
+// An audit that reached the end of the item has read the column in full, so an 'unknown' column there really is empty.
+export function constructLoadColumnConfigs({ columnSetConfig, contentAuditConfig }: Pick<DataViewConfig, 'columnSetConfig' | 'contentAuditConfig'>): ObjectColumnConfig[] {
     return (columnSetConfig?.columnConfigs ?? []).map((columnConfig) => {
         const resolvedColumnConfig = resolveColumnConfig(columnConfig);
-        return columnSetConfig?.sourceId === 'preview' && resolvedColumnConfig.dataTypeId === 'unknown' ? { ...resolvedColumnConfig, dataTypeId: 'string' } : resolvedColumnConfig;
+        return contentAuditConfig?.isComplete !== true && resolvedColumnConfig.dataTypeId === 'unknown' ? { ...resolvedColumnConfig, dataTypeId: 'string' } : resolvedColumnConfig;
     });
 }
 
@@ -89,8 +124,12 @@ export function constructColumnSetVersion(columnSetConfig: ColumnSetConfig | und
     return Object.keys(chosenColumnDataTypeIds).length === 0 ? columnSetConfig.asAt : `${String(columnSetConfig.asAt)}|${JSON.stringify(chosenColumnDataTypeIds)}`;
 }
 
-// The preview with its columns put back, for what shows a preview, each column as the user wants it read.
-export function restorePreviewConfig({ columnSetConfig, previewConfig }: Pick<DataViewConfig, 'columnSetConfig' | 'previewConfig'>): PreviewConfig | undefined {
-    if (previewConfig == null) return;
-    return { ...previewConfig, columnConfigs: (columnSetConfig?.columnConfigs ?? []).map((columnConfig) => resolveColumnConfig(columnConfig)) };
+// The saved item with its columns put back, for what shows an item, each column as the user wants it read.
+export function restoreItemReading({
+    columnSetConfig,
+    previewConfig,
+    readConfig
+}: Pick<DataViewConfig, 'columnSetConfig' | 'previewConfig' | 'readConfig'>): ItemReading | undefined {
+    if (previewConfig == null || readConfig == null) return;
+    return { ...readConfig, ...previewConfig, columnConfigs: (columnSetConfig?.columnConfigs ?? []).map((columnConfig) => resolveColumnConfig(columnConfig)) };
 }

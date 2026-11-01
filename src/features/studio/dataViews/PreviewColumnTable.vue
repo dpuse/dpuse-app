@@ -2,10 +2,8 @@
 // ── External Dependencies & Registrations
 import { computed } from 'vue';
 
-// ── DPUse Framework
-import type { PreviewConfig } from '@dpuse/dpuse-shared';
-
 // ── Local Framework
+import type { ItemReading } from './_dataViewColumns';
 import { t } from '@/state/locale';
 import { TEXT } from './PreviewColumnTable_.json';
 import { constructPreviewColumnHeaders, constructPreviewColumnIcons, constructPreviewColumnRows } from './_previewColumnRows';
@@ -15,17 +13,17 @@ import ScrollRegion from '@/components/ui/scroll/ScrollRegion.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { isLabelShown, previewConfig, rowLimit } = defineProps<{
+const { isLabelShown, itemReading, rowLimit } = defineProps<{
     isLabelShown?: boolean; // Shows the table's title above it. Leave it off where a heading already names the table.
-    previewConfig: PreviewConfig;
+    itemReading: ItemReading;
     rowLimit?: number; // The first rows to show. Every row when undefined.
 }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const columnHeaders = computed(() => constructPreviewColumnHeaders());
-const columnIcons = computed(() => constructPreviewColumnIcons(previewConfig));
-const columnRows = computed(() => constructPreviewColumnRows(previewConfig));
+const columnIcons = computed(() => constructPreviewColumnIcons(itemReading));
+const columnRows = computed(() => constructPreviewColumnRows(itemReading));
 const shownColumnRows = computed(() => (rowLimit == null ? columnRows.value : columnRows.value.slice(0, rowLimit)));
 </script>
 

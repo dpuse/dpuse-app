@@ -19,6 +19,7 @@ import {
     FileIcon,
     FolderIcon,
     InfoIcon,
+    KeyRoundIcon,
     LanguagesIcon,
     ScanTextIcon,
     SeparatorVerticalIcon,
@@ -42,7 +43,7 @@ import {
     ORDERED_VALUE_DELIMITER_IDS
 } from '@dpuse/dpuse-shared';
 import type {
-    AuditSummaryConfig,
+    ClassifyPreviewValuesOptions,
     ConnectionConfig,
     ConnectionNodeConfig,
     ContentAuditConfig,
@@ -55,20 +56,26 @@ import type {
     ListNodesResult,
     LocalisedConfig,
     ObjectColumnConfig,
-    PreviewConfig,
     PreviewIssue,
     PreviewIssueSeverityId,
     PreviewObjectOptions,
+    PreviewObjectResult,
+    PreviewValueStateId,
+    ReadConfig,
     RecordDelimiterId,
     RecountPreviewColumnsOptions,
-    StoredPreviewConfig,
+    StoredContentAuditConfig,
     ValueDelimiterId
 } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { applyPreviewHeaders } from './_previewHeaders';
 import { assertDefined } from '@/utilities/index.ts';
+import type { AuditChoice } from './AuditMenu.vue';
+import AuditMenu from './AuditMenu.vue';
 import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
+import ColumnValueBar from './ColumnValueBar.vue';
+import ColumnValueSpread from './ColumnValueSpread.vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import { establishEngineWorker } from '@/services/engine';
 import { getColumnTypeIcon } from '../_columnTypeIcons';
@@ -78,16 +85,19 @@ import { TEXT } from './SelectItemPanel_.json';
 import { useItemAudit } from './useItemAudit';
 import { viewportIsWide } from '@/state/device';
 import { type AppFailure, raiseFailure } from '@/state/errors';
-import {
-    applyChosenColumnDataTypes,
-    constructAuditColumnSetConfig,
-    constructAuditSummaryConfig,
-    constructChosenColumnDataTypeIds,
-    constructPreviewColumnSetConfig,
-    constructStoredPreviewConfig
-} from '../_dataViewColumns';
 import { applyPreviewColumnType, applyPreviewColumnTypes, type DetectedColumnType } from './_previewColumnTypes';
 import {
+    constructChosenColumnDataTypeIds,
+    constructItemColumnSetConfig,
+    constructItemReading,
+    constructPreviewContentAuditConfig,
+    constructReadConfig,
+    constructStoredContentAuditConfig,
+    constructStoredPreviewConfig,
+    type ItemReading
+} from '../_dataViewColumns';
+import {
+    constructColumnValueCounts,
     constructDataTypeLabel,
     constructPreviewColumnHeaders,
     constructPreviewColumnIcons,
@@ -233,6 +243,11 @@ const VALUE_DELIMITER_LABEL_KEYS: Record<ValueDelimiterId, keyof typeof TEXT> = 
 // needs a generous timeout as a last-resort bail-out for the case where neither ever happens.
 const ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS = 20_000;
 const COLUMN_DETAIL_SIDE_BY_SIDE_WIDTH_PX = 560; // Below this, a column's detail fills the space, because the names leave it too little.
+// The preview grows with the audit up to this size, because it is held in memory and saved with the data view. Anything
+// beyond it is only audited.
+const PREVIEW_BYTE_LIMIT = 65_536;
+const AUDIT_BYTE_LIMITS = [PREVIEW_BYTE_LIMIT, 1_048_576, 10_485_760, 104_857_600];
+const AUDIT_CHOICE_LIMIT = 2; // The next sizes offered, as well as all of the item, because the toolbar has little room.
 const COLUMN_NAME_WIDTH_PX = 220; // The table's pinned names. 'w-57' on the table in the template is this and the table's edges.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -259,11 +274,12 @@ const currentFolderNodes = shallowRef<ConnectionNodeConfig[]>([]);
 const currentFolderPath = ref('');
 
 const previewRequestId = ref(0);
+const valueStateRequestId = ref(0);
 const selectedColumnIndex = ref<number>(); // The column whose detail is showing in the Columns tab.
 const columnsPaneElement = useTemplateRef<HTMLDivElement>('columnsPane');
 const { width: columnsPaneWidth } = useElementSize(columnsPaneElement);
-const activePreviewIsAudited = ref(false); // The preview's columns came from an audit, so they describe the whole item.
-const activePreviewConfig = shallowRef<PreviewConfig>(); // Goes into the draft with the item.
+const activeItemReading = shallowRef<ItemReading>(); // Goes into the draft with the item.
+const activeContentAuditConfig = shallowRef<StoredContentAuditConfig>(); // How much of the item has been audited, starting from what opening it read.
 const readingIsChanged = ref(false); // The user changed the item or how it is read. Opening the step, or a preview arriving, does not count.
 
 // ── Read Choices ─ How the user chose to read the item, in place of what the preview detected. Cleared for each item.
@@ -307,7 +323,10 @@ const router = useRouter();
 const { data: dataViewConfig } = useCurrentDataView(() => route.params.dataViewId);
 
 // ── Audit
-const { auditedRecordCount, auditIsRunning, startAudit, stopAudit } = useItemAudit(constructEditedDataViewConfig, handleItemAudited);
+const { abortAudit, auditedByteCount, auditedRecordCount, auditElapsedDuration, auditIsRunning, startAudit, stopAudit } = useItemAudit(
+    constructEditedDataViewConfig,
+    handleItemAudited
+);
 
 const text = ref<string | undefined>();
 
@@ -337,16 +356,16 @@ const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...c
 const backLabel = computed(() => currentFolderNodes.value.at(-1)?.label ?? t(TEXT, 'home.label')); // Names the folder the back button returns to.
 
 // ── Preview ─ A file the preview could not read as text says so on the details tab.
-const previewIsUnsupported = computed(() => activePreviewConfig.value != null && !TEXT_DATA_FORMAT_IDS.has(activePreviewConfig.value.dataFormatId));
-const previewIsMarkdown = computed(() => activePreviewConfig.value?.dataFormatId === 'markdown'); // The text tab shows markdown rendered rather than as source.
+const previewIsUnsupported = computed(() => activeItemReading.value != null && !TEXT_DATA_FORMAT_IDS.has(activeItemReading.value.dataFormatId));
+const previewIsMarkdown = computed(() => activeItemReading.value?.dataFormatId === 'markdown'); // The text tab shows markdown rendered rather than as source.
 
-const previewFormatText = computed(() => (activePreviewConfig.value == null ? undefined : constructDataFormatText(activePreviewConfig.value.dataFormatId)));
+const previewFormatText = computed(() => (activeItemReading.value == null ? undefined : constructDataFormatText(activeItemReading.value.dataFormatId)));
 const previewFormatIconConfig = computed(() => {
-    const dataFormatId = activePreviewConfig.value?.dataFormatId;
+    const dataFormatId = activeItemReading.value?.dataFormatId;
     return dataFormatId == null || dataFormatId === 'unknown' ? undefined : DATA_FORMAT_ICON_CONFIGS[dataFormatId]; // A file the app cannot place shows no data, so it has no format icon.
 });
 const previewFormatSupport = computed(() => {
-    const dataFormatId = activePreviewConfig.value?.dataFormatId;
+    const dataFormatId = activeItemReading.value?.dataFormatId;
     if (dataFormatId == null || dataFormatId === 'markdown') return; // Markdown is a document, not data, so it is not marked either way.
     let id: FormatSupportId = 'unsupported';
     if (READABLE_DATA_FORMAT_IDS.has(dataFormatId)) id = 'supported';
@@ -360,7 +379,7 @@ const previewFormatSupport = computed(() => {
 // ── Preview Issues ─ Not failures: the preview still holds what was read, so the toolbar, text and details stay usable
 // and the user can try another reading. A connector that does not report issues sends none. The band behind the list
 // takes the colour of the most serious one.
-const previewIssues = computed(() => activePreviewConfig.value?.issues ?? []);
+const previewIssues = computed(() => activeItemReading.value?.issues ?? []);
 const previewHasErrorIssue = computed(() => previewIssues.value.some((issue) => issue.severityId === 'error'));
 // Each issue says all it can about where it is: its lines, its record and its value within the record, each as its own
 // phrase, so a language can order its words. The value at fault shows as it appears in the file.
@@ -430,7 +449,7 @@ const encodingOptions = computed<SelectOption[]>(() => {
 // The tools that read the previewed format. The select shows only when there is a choice, because most formats have a
 // single parser.
 const parserOptions = computed<SelectOption[]>(() => {
-    const dataFormatId = activePreviewConfig.value?.dataFormatId;
+    const dataFormatId = activeItemReading.value?.dataFormatId;
     return dataFormatId == null ? [] : localiseConfigs(listParserToolConfigs(toolConfigs.value, dataFormatId), localeId.value).map(({ id, label }) => ({ id, label }));
 });
 const parserIsChoosable = computed(() => parserOptions.value.length > 1);
@@ -447,8 +466,8 @@ const valueDelimiterOptions = computed<SelectOption[]>(() => {
     const options: SelectOption[] = ORDERED_VALUE_DELIMITER_IDS.map((id) => ({ id, label: t(TEXT, VALUE_DELIMITER_LABEL_KEYS[id]) }));
     return [constructAutoOption(detectedId == null ? undefined : t(TEXT, VALUE_DELIMITER_LABEL_KEYS[detectedId])), ...options];
 });
-const valueDelimiterIsChoosable = computed(() => activePreviewConfig.value?.dataFormatId === 'dtv');
-const previewHeadersAreChoosable = computed(() => activePreviewConfig.value?.dataFormatId === 'dtv' && activePreviewConfig.value.parsedRecords.length > 0);
+const valueDelimiterIsChoosable = computed(() => activeItemReading.value?.dataFormatId === 'dtv');
+const previewHeadersAreChoosable = computed(() => activeItemReading.value?.dataFormatId === 'dtv' && activeItemReading.value.parsedRecords.length > 0);
 
 // The value each select shows: the user's choice, or else what the preview detected. Choosing reads the item again. A
 // new format clears the chosen parser, which may not read it, and the chosen value delimiter, which may not apply to it.
@@ -462,13 +481,13 @@ const previewDataFormatId = computed({
     }
 });
 const previewHasHeaders = computed({
-    get: () => activePreviewConfig.value?.hasHeaders === true,
+    get: () => activeItemReading.value?.hasHeaders === true,
     set: (hasHeaders: boolean) => {
         readingIsChanged.value = true;
         selectedHasHeaders.value = hasHeaders;
-        if (activePreviewConfig.value == null) return;
-        activePreviewConfig.value = applyPreviewHeaders(activePreviewConfig.value, hasHeaders);
-        showPreviewTable(activePreviewConfig.value);
+        if (activeItemReading.value == null) return;
+        activeItemReading.value = applyPreviewHeaders(activeItemReading.value, hasHeaders);
+        showPreviewTable(activeItemReading.value);
         void recountActivePreview(hasHeaders);
     }
 });
@@ -487,52 +506,65 @@ const previewEncodingId = computed({
     }
 });
 const previewParserId = computed({
-    get: () => selectedParserId.value ?? activePreviewConfig.value?.parserId, // No choice yet shows the parser that read the preview.
+    get: () => selectedParserId.value ?? activeItemReading.value?.parserId, // No choice yet shows the parser that read the preview.
     set: (parserId: string | undefined) => {
         readingIsChanged.value = true;
         selectedParserId.value = parserId;
     }
 });
 
-// How much of the item the preview read. A percentage whenever the item's size is known, so the meter shows a whole
-// item as complete as well as how little of a large one was read. The toolbar shows the labelled text where there is
-// room and the short text where there is not, and screen readers get the full one.
-const previewAmount = computed(() => {
-    const previewConfig = activePreviewConfig.value;
-    if (previewConfig == null) return;
-    const previewSize = previewConfig.size ?? 0;
+// How much of the item has been audited, in one form at every stage, with the running figures while an audit runs. A
+// percentage whenever the item's size is known, so the meter shows a whole item as complete as well as how little of a large
+// one was read. An item not read as bytes has no amount. The toolbar shows the full text where there is room and the short
+// text where there is not.
+const auditStatus = computed(() => {
+    const contentAuditConfig = activeContentAuditConfig.value;
+    if (contentAuditConfig == null) return;
+    const isRunning = auditIsRunning.value;
+    const byteCount = isRunning ? auditedByteCount.value : contentAuditConfig.byteCount;
+    const recordCount = isRunning ? auditedRecordCount.value : contentAuditConfig.recordCount;
+    const duration = constructDurationText(isRunning ? auditElapsedDuration.value : contentAuditConfig.duration);
+    const records = t(TEXT, recordCount === 1 ? 'record.one.text' : 'record.other.text', { count: formatCount(recordCount) });
     const itemSize = activeConnectionObjectConfig.value?.size ?? 0;
-    const size = formatNumberAsStorageSize(previewSize);
-    if (itemSize === 0) {
+    const isComplete = !isRunning && contentAuditConfig.isComplete;
+    const stateId = isRunning ? 'running' : 'done';
+    if (itemSize === 0 || contentAuditConfig.byteCount === 0) {
+        const amount = formatNumberAsStorageSize(byteCount);
         return {
-            isComplete: false,
-            labelledText: t(TEXT, 'preview.amount.text', { amount: size }),
+            isComplete,
             percentage: undefined,
-            shortText: size,
-            text: t(TEXT, 'preview.sizeUnknown.text', { size })
+            shortText: records,
+            text: byteCount === 0 ? t(TEXT, `audit.records.${stateId}.text`, { duration, records }) : t(TEXT, `audit.amount.${stateId}.text`, { amount, duration, records })
         };
     }
-    if (previewSize === itemSize) {
-        const shortText = t(TEXT, 'preview.entireItem.short.text', { size });
-        return {
-            isComplete: true,
-            labelledText: t(TEXT, 'preview.amount.text', { amount: shortText }),
-            percentage: 100,
-            shortText,
-            text: t(TEXT, 'preview.entireItem.text', { size })
-        };
-    }
-    const percentage = (previewSize / itemSize) * 100;
-    const total = formatNumberAsStorageSize(itemSize);
-    const percentageText = constructPreviewPercentageText(percentage);
-    const shortText = t(TEXT, 'preview.partial.short.text', { percentage: percentageText, size, total });
+    const percentage = isComplete ? 100 : Math.min((byteCount / itemSize) * 100, 100);
+    const amount = formatNumberAsStorageSize(isComplete ? itemSize : byteCount);
+    const percentageText = constructAuditPercentageText(percentage);
     return {
-        isComplete: false,
-        labelledText: t(TEXT, 'preview.amount.text', { amount: shortText }),
+        isComplete,
         percentage,
-        shortText,
-        text: t(TEXT, 'preview.partial.text', { percentage: percentageText, size, total })
+        shortText: t(TEXT, 'audit.short.text', { percentage: percentageText, records }),
+        text: isComplete
+            ? t(TEXT, 'audit.amount.done.text', { amount, duration, records })
+            : t(TEXT, `audit.part.${stateId}.text`, { amount, duration, percentage: percentageText, records, total: formatNumberAsStorageSize(itemSize) })
     };
+});
+
+// The next few sizes larger than what has been audited and smaller than the item, then the whole item.
+const auditChoices = computed<AuditChoice[]>(() => {
+    const auditedBytes = activeContentAuditConfig.value?.byteCount ?? 0;
+    const itemSize = activeConnectionObjectConfig.value?.size ?? Infinity;
+    const byteLimits = AUDIT_BYTE_LIMITS.filter((byteLimit) => byteLimit > auditedBytes && byteLimit < itemSize).slice(0, AUDIT_CHOICE_LIMIT);
+    const sizeChoices = byteLimits.map((byteLimit) => ({ byteLimit, id: String(byteLimit), label: formatNumberAsStorageSize(byteLimit) }));
+    return [...sizeChoices, { byteLimit: undefined, id: 'all', label: t(TEXT, 'audit.all.label') }];
+});
+
+// The records and text only hold the start of the item, however much of it has been audited.
+const previewExtentText = computed(() => {
+    const previewSize = activeItemReading.value?.size;
+    const itemSize = activeConnectionObjectConfig.value?.size;
+    if (previewSize == null || previewSize === 0 || previewSize === itemSize || currentPreviewTabId.value === 'columns' || currentPreviewTabId.value === 'details') return;
+    return t(TEXT, 'preview.extent.text', { size: formatNumberAsStorageSize(previewSize) });
 });
 
 const currentPreviewTab = computed(() =>
@@ -548,18 +580,18 @@ const currentPreviewTab = computed(() =>
 // same way. Then the tabs only show the item, and Select is enabled when the format in force is delimited text, JSON or
 // JSON Lines and gave at least one row.
 const previewIsSelectable = computed(() => {
-    const previewConfig = activePreviewConfig.value;
-    if (previewConfig == null || previewConfig.parsedRecords.length === 0 || previewHasErrorIssue.value) return false;
-    const isOpenedAsTable = TEXT_DATA_FORMAT_IDS.has(previewConfig.dataFormatId) && currentPreviewTabId.value === 'table';
-    return TABLE_DATA_FORMAT_IDS.has(previewConfig.dataFormatId) || isOpenedAsTable;
+    const itemReading = activeItemReading.value;
+    if (itemReading == null || itemReading.parsedRecords.length === 0 || previewHasErrorIssue.value) return false;
+    const isOpenedAsTable = TEXT_DATA_FORMAT_IDS.has(itemReading.dataFormatId) && currentPreviewTabId.value === 'table';
+    return TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId) || isOpenedAsTable;
 });
 
 // Names the format when there is one, which is every format the app has no reader for yet.
 const previewUnsupportedText = computed(() => {
-    const previewConfig = activePreviewConfig.value;
-    if (previewConfig?.size === 0) return t(TEXT, 'item.empty.text');
-    if (previewConfig == null || previewConfig.dataFormatId === 'unknown') return t(TEXT, 'item.unsupported.text');
-    return t(TEXT, 'item.unsupportedFormat.text', { format: t(TEXT, DATA_FORMAT_LABEL_KEYS[previewConfig.dataFormatId]) });
+    const itemReading = activeItemReading.value;
+    if (itemReading?.size === 0) return t(TEXT, 'item.empty.text');
+    if (itemReading == null || itemReading.dataFormatId === 'unknown') return t(TEXT, 'item.unsupported.text');
+    return t(TEXT, 'item.unsupportedFormat.text', { format: t(TEXT, DATA_FORMAT_LABEL_KEYS[itemReading.dataFormatId]) });
 });
 
 // The details tab is a read-only document of what the toolbar's choices produced. It lists only the facts there are: a
@@ -567,19 +599,12 @@ const previewUnsupportedText = computed(() => {
 // content and the third about how it was parsed.
 // Read choices change how the item is read, so they wait for an audit of the current reading to finish.
 const readChoicesAreLocked = computed(() => previewIsPending.value || auditIsRunning.value);
-const columnsAreAudited = computed(() => dataViewConfig.value?.columnSetConfig?.sourceId === 'audit' && activePreviewIsAudited.value);
-const auditActionIsShown = computed(() => activePreviewConfig.value != null && previewIsSelectable.value);
-const auditPendingText = computed(() => t(TEXT, 'audit.pending.text', { count: new Intl.NumberFormat(localeId.value).format(auditedRecordCount.value) }));
+const auditActionIsShown = computed(() => activeItemReading.value != null && previewIsSelectable.value);
 
 const itemDetailGroups = computed(() => {
     const connectionNodeConfig = activeConnectionObjectConfig.value;
-    const previewConfig = activePreviewConfig.value;
-    if (connectionNodeConfig == null || previewConfig == null) return [];
-    const previewedText = t(TEXT, 'detail.previewed.text', {
-        amount: previewAmount.value?.shortText ?? '',
-        at: new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(previewConfig.asAt),
-        duration: constructDurationText(previewConfig.duration)
-    });
+    const itemReading = activeItemReading.value;
+    if (connectionNodeConfig == null || itemReading == null) return [];
     const detailGroups: { id: string; title: string; details: { labelKey: keyof typeof TEXT; value: string | undefined }[] }[] = [
         {
             id: 'item',
@@ -590,7 +615,7 @@ const itemDetailGroups = computed(() => {
                     labelKey: 'detail.name.label',
                     value: connectionNodeConfig.extension == null ? connectionNodeConfig.name : `${connectionNodeConfig.name}.${connectionNodeConfig.extension}`
                 },
-                { labelKey: 'detail.fileType.label', value: previewConfig.fileType?.mime ?? connectionNodeConfig.mimeType },
+                { labelKey: 'detail.fileType.label', value: itemReading.fileType?.mime ?? connectionNodeConfig.mimeType },
                 { labelKey: 'detail.size.label', value: formatNumberAsStorageSize(connectionNodeConfig.size) },
                 {
                     labelKey: 'detail.lastModified.label',
@@ -606,7 +631,7 @@ const itemDetailGroups = computed(() => {
             title: t(TEXT, 'detail.content.title'),
             details: [
                 { labelKey: 'detail.dataFormat.label', value: previewFormatText.value },
-                { labelKey: 'detail.encoding.label', value: constructEncodingText(previewConfig) },
+                { labelKey: 'detail.encoding.label', value: constructEncodingText(itemReading) },
                 { labelKey: 'detail.issues.label', value: previewIssueCountText.value } // Listed in the band above the tabs.
             ]
         },
@@ -614,16 +639,14 @@ const itemDetailGroups = computed(() => {
             id: 'parsing',
             title: t(TEXT, 'detail.parsing.title'),
             details: [
-                { labelKey: 'parser.label', value: parserOptions.value.find((option) => option.id === previewConfig.parserId)?.label },
-                { labelKey: 'detail.previewed.label', value: previewedText },
-                { labelKey: 'recordDelimiter.label', value: constructRecordDelimiterText(previewConfig) },
-                { labelKey: 'valueDelimiter.label', value: constructValueDelimiterText(previewConfig) },
-                { labelKey: 'hasHeaders.label', value: constructHeadersText(previewConfig) }
+                { labelKey: 'parser.label', value: parserOptions.value.find((option) => option.id === itemReading.parserId)?.label },
+                { labelKey: 'recordDelimiter.label', value: constructRecordDelimiterText(itemReading) },
+                { labelKey: 'valueDelimiter.label', value: constructValueDelimiterText(itemReading) },
+                { labelKey: 'hasHeaders.label', value: constructHeadersText(itemReading) }
             ]
         }
     ];
-    const auditSummaryConfig = columnsAreAudited.value ? dataViewConfig.value?.auditSummaryConfig : undefined;
-    if (auditSummaryConfig) detailGroups.push(constructAuditDetailGroup(auditSummaryConfig));
+    if (activeContentAuditConfig.value) detailGroups.push(constructAuditDetailGroup(activeContentAuditConfig.value));
     return detailGroups
         .map((detailGroup) => ({ ...detailGroup, details: detailGroup.details.filter((detail) => detail.value != null && detail.value !== '') }))
         .filter((detailGroup) => detailGroup.details.length > 0);
@@ -636,13 +659,15 @@ const previewColumnTableColumnDefinitions = computed<ColumnDef<TableFeatureSet, 
 });
 const columnDetailFillsSpace = computed(() => columnsPaneWidth.value < COLUMN_DETAIL_SIDE_BY_SIDE_WIDTH_PX); // Too narrow for the names and the detail together.
 const columnRowsNeedingAttention = computed(() => {
-    const columnConfigs = activePreviewConfig.value?.columnConfigs ?? [];
+    const columnConfigs = activeItemReading.value?.columnConfigs ?? [];
     const columnIndexes = columnConfigs.map((_config, index) => index);
     return new Set(columnIndexes.filter((index) => (columnConfigs[index]?.invalidValueCount ?? 0) > 0 || columnConfigs[index]?.isFormatAmbiguous === true));
 });
-const previewColumnIcons = computed(() => (activePreviewConfig.value == null ? [] : constructPreviewColumnIcons(activePreviewConfig.value)));
+const previewValueStates = shallowRef<PreviewValueStateId[][]>([]); // For each record shown, what each value is. Only the engine can tell whether a value fits its type.
+const columnValueCounts = computed(() => (activeItemReading.value == null ? [] : constructColumnValueCounts(activeItemReading.value)));
+const previewColumnIcons = computed(() => (activeItemReading.value == null ? [] : constructPreviewColumnIcons(activeItemReading.value)));
 const previewColumnTableDataSource = computed<DataSource<PreviewColumnRow>>(() => {
-    const rows = activePreviewConfig.value == null ? [] : constructPreviewColumnRows(activePreviewConfig.value);
+    const rows = activeItemReading.value == null ? [] : constructPreviewColumnRows(activeItemReading.value);
     return { rowCount: rows.length, getRows: (start: number, end: number): Promise<{ rows: PreviewColumnRow[] }> => Promise.resolve({ rows: rows.slice(start, end) }) };
 });
 
@@ -713,22 +738,21 @@ watch(
             if (!activeConnectionConfig.value) return;
 
             const options = constructPreviewOptions(newActiveItem, isNewReadChoice);
-            const previewConfig = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewConfig;
+            const previewObjectResult = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewObjectResult;
             if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
 
-            const headedPreviewConfig = await applyHeaderChoice(previewConfig, newActiveItem);
+            const itemReading = constructItemReading(previewObjectResult);
+            const headedItemReading = await applyHeaderChoice(itemReading, newActiveItem);
             if (currentRequestId !== previewRequestId.value) return;
 
             const wereColumnTypesChosen = Object.values(selectedColumnDataTypeIds.value).some((dataTypeId) => dataTypeId != null);
             selectedColumnDataTypeIds.value = isNewReadChoice ? {} : constructSavedColumnDataTypeIds(newActiveItem); // A new reading can change the columns, but reopening the saved item keeps its types.
-            detectedColumnTypes.value = constructDetectedColumnTypes(headedPreviewConfig);
-            if (isNewReadChoice) {
-                activePreviewIsAudited.value = false;
-                selectedColumnIndex.value = undefined; // A new reading can change the columns.
-            }
-            const typedPreviewConfig = isNewReadChoice ? headedPreviewConfig : applySavedAudit(headedPreviewConfig, newActiveItem);
-            applyPreviewConfig(isNewReadChoice && wereColumnTypesChosen ? addColumnTypesResetIssue(typedPreviewConfig) : typedPreviewConfig, isNewReadChoice);
-            recordDetectedValues(previewConfig);
+            detectedColumnTypes.value = constructDetectedColumnTypes(headedItemReading);
+            if (isNewReadChoice) selectedColumnIndex.value = undefined; // A new reading can change the columns.
+            activeContentAuditConfig.value = constructFirstContentAuditConfig(previewObjectResult.contentAuditConfig, headedItemReading);
+            const typedItemReading = isNewReadChoice ? headedItemReading : applySavedAudit(headedItemReading, newActiveItem);
+            applyPreviewConfig(isNewReadChoice && wereColumnTypesChosen ? addColumnTypesResetIssue(typedItemReading) : typedItemReading, isNewReadChoice);
+            recordDetectedValues(itemReading);
             hasLastPreviewSucceeded.value = true;
         } catch (error) {
             if (currentRequestId !== previewRequestId.value) return; // A newer selection owns the panel now.
@@ -745,9 +769,29 @@ watch(
 // Each change of the item, its reading or a column's type goes into the draft once the preview shows it. A reading that
 // cannot be selected leaves the draft with no item, so it cannot be saved. Opening a markdown file as a table can make
 // it selectable without a new preview.
-watch([activePreviewConfig, previewIsSelectable], ([previewConfig]) => {
-    if (previewConfig == null || !readingIsChanged.value) return;
+watch([activeItemReading, previewIsSelectable], ([itemReading]) => {
+    if (itemReading == null || !readingIsChanged.value) return;
     changeDataView(constructEditedDataViewConfig() ?? constructItemlessDataViewConfig());
+});
+
+// Goes by the column types, so choosing a type marks the values again. Empty until the engine answers, so a mark never
+// describes the wrong records.
+watch(activeItemReading, async (itemReading) => {
+    const currentRequestId = ++valueStateRequestId.value;
+    previewValueStates.value = [];
+    if (itemReading == null || !activeConnectionConfig.value || itemReading.parsedRecords.length === 0) return;
+    try {
+        const { processRequest } = await establishEngineWorker();
+        const options: ClassifyPreviewValuesOptions = {
+            columnConfigs: itemReading.columnConfigs,
+            parsedRecords: itemReading.parsedRecords.slice(itemReading.hasHeaders === true ? 1 : 0)
+        };
+        const valueStates = (await processRequest('classifyPreviewValues', activeConnectionConfig.value, options)) as PreviewValueStateId[][];
+        if (currentRequestId === valueStateRequestId.value) previewValueStates.value = valueStates;
+    } catch (error) {
+        if (currentRequestId === valueStateRequestId.value)
+            raiseFailure(new AppError('Failed to check the preview values.', 'dpuse-app.SelectItemPanel.classifyPreviewValues', { typeId: 'handled' }, { cause: error }));
+    }
 });
 
 onClickOutside(previewTabMenuElement, () => {
@@ -767,11 +811,11 @@ function handleRetryList(): void {
 function handleSelectColumnDataType(columnId: string, dataTypeId: string): void {
     const columnIndex = Number(columnId);
     const detectedColumnType = detectedColumnTypes.value.at(columnIndex);
-    if (detectedColumnType == null || activePreviewConfig.value == null) return;
+    if (detectedColumnType == null || activeItemReading.value == null) return;
     readingIsChanged.value = true;
     const chosenDataTypeId = dataTypeId === AUTO_OPTION_ID ? undefined : (dataTypeId as DataTypeId); // The other options are all data type ids.
     selectedColumnDataTypeIds.value[columnId] = chosenDataTypeId;
-    activePreviewConfig.value = applyPreviewColumnType(activePreviewConfig.value, columnIndex, chosenDataTypeId, detectedColumnType);
+    activeItemReading.value = applyPreviewColumnType(activeItemReading.value, columnIndex, chosenDataTypeId, detectedColumnType);
 }
 
 function handleRetryItem(): void {
@@ -875,6 +919,33 @@ async function handleShowIssueLine(lineNumber: number): Promise<void> {
     textViewerComponent.value?.scrollToLine(lineNumber);
 }
 
+function constructValueState(columnId: string, rowIndex: number): PreviewValueStateId | undefined {
+    return previewValueStates.value[rowIndex]?.[Number(columnId)];
+}
+
+function constructValueCellClass(columnId: string, rowIndex: number): string | undefined {
+    return constructValueState(columnId, rowIndex) === 'invalid' ? 'bg-[color-mix(in_srgb,var(--color-danger-text)_10%,transparent)]' : undefined;
+}
+
+// A blank value can hold spaces, and a missing one can be a null word such as 'NULL', which still shows as written.
+function isValueEmpty(columnId: string, rowIndex: number): boolean {
+    const valueState = constructValueState(columnId, rowIndex);
+    if (valueState !== 'blank' && valueState !== 'missing') return false;
+    const dataRecordIndex = rowIndex + (activeItemReading.value?.hasHeaders === true ? 1 : 0);
+    return (activeItemReading.value?.parsedRecords[dataRecordIndex]?.[Number(columnId)]?.value ?? '').trim() === '';
+}
+
+// Every value is unique and none is missing, so the column could identify each record. Only the whole item can show that.
+function isKeyColumn(columnId: string): boolean {
+    const columnConfig = activeItemReading.value?.columnConfigs[Number(columnId)];
+    return activeContentAuditConfig.value?.isComplete === true && columnConfig?.isUnique === true && columnConfig.isRequired === true;
+}
+
+function handleShowColumnDetail(columnIndex: number): void {
+    currentPreviewTabId.value = 'columns';
+    selectedColumnIndex.value = columnIndex;
+}
+
 function handleSelectPreviewTab(previewTabId: PreviewTabId): void {
     currentPreviewTabId.value = previewTabId;
     closePreviewTabMenu();
@@ -888,18 +959,25 @@ function handleMoveToExploreStep(): void {
     void ignoreReportedNavigationFailure(router.push({ name: 'data', params: { dataViewId: route.params.dataViewId }, query: route.query, state: { loadIsRequested: true } }));
 }
 
-function handleStartAudit(): void {
-    void startAudit();
+// The preview grows first, so the records and text shown keep up with the audit until they reach their limit. Reading it
+// audits it too, so a size no larger than the preview needs nothing more.
+async function handleStartAudit(byteLimit: number | undefined): Promise<void> {
+    try {
+        const previewObjectResult = await readLargerPreview();
+        if (byteLimit !== PREVIEW_BYTE_LIMIT) await startAudit(byteLimit);
+        else if (previewObjectResult) handleItemAudited(previewObjectResult.contentAuditConfig);
+    } catch (error) {
+        itemFailure.value = raiseFailure(new AppError('Failed to preview this item.', 'dpuse-app.SelectItemPanel.handleStartAudit', { typeId: 'handled' }, { cause: error }));
+    }
 }
 
-function handleItemAudited(editedDataViewConfig: DataViewConfig, contentAuditConfig: ContentAuditConfig): void {
-    const auditedDataViewConfig: DataViewConfig = {
-        ...editedDataViewConfig,
-        columnSetConfig: constructAuditColumnSetConfig(contentAuditConfig, editedDataViewConfig.columnSetConfig),
-        auditSummaryConfig: constructAuditSummaryConfig(contentAuditConfig)
-    };
-    changeDataView(auditedDataViewConfig);
-    if (activePreviewConfig.value) showColumnsOfDataView(activePreviewConfig.value, auditedDataViewConfig);
+function handleItemAudited(contentAuditConfig: ContentAuditConfig): void {
+    const itemReading = activeItemReading.value;
+    if (itemReading == null) return;
+    activeContentAuditConfig.value = constructStoredContentAuditConfig(contentAuditConfig);
+    activeItemReading.value = applyAuditColumns(itemReading, contentAuditConfig.columns.length > 0 ? contentAuditConfig.columns : itemReading.columnConfigs);
+    const auditedDataViewConfig = constructEditedDataViewConfig();
+    if (auditedDataViewConfig) changeDataView(auditedDataViewConfig);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -907,34 +985,28 @@ function handleItemAudited(editedDataViewConfig: DataViewConfig, contentAuditCon
 // The data view as the current pick and preview would leave it. Undefined until there is something that can be kept.
 function constructEditedDataViewConfig(): DataViewConfig | undefined {
     const connectionNodeConfig = activeConnectionObjectConfig.value;
-    const previewConfig = activePreviewConfig.value;
-    if (connectionNodeConfig == null || previewConfig == null || !previewIsSelectable.value || dataViewConfig.value == null) return;
+    const itemReading = activeItemReading.value;
+    const contentAuditConfig = activeContentAuditConfig.value;
+    if (connectionNodeConfig == null || itemReading == null || contentAuditConfig == null || !previewIsSelectable.value || dataViewConfig.value == null) return;
 
-    const storablePreviewConfig: StoredPreviewConfig = {
-        ...constructStoredPreviewConfig(previewConfig),
-        dataFormatId: TABLE_DATA_FORMAT_IDS.has(previewConfig.dataFormatId) ? previewConfig.dataFormatId : 'dtv', // Markdown opened as a table was parsed as delimited text, so it is saved as that.
-        text: undefined
-    }; // All the parsed records are kept, so the data view panel shows the whole preview block, a few kilobytes at most. The raw text is the same block again, so it is not kept.
-    // A saved audit still describes the same item read the same way, so its whole-item figures stay, rather than the
-    // preview's sample replacing them.
-    const savedColumnSetConfig = dataViewConfig.value.columnSetConfig;
-    const auditIsStillCurrent = savedColumnSetConfig?.sourceId === 'audit' && isSameAsSavedItem(dataViewConfig.value, connectionNodeConfig, storablePreviewConfig);
-    const savedAuditColumnSetConfig = auditIsStillCurrent ? savedColumnSetConfig : undefined;
+    const readConfig: ReadConfig = {
+        ...constructReadConfig(itemReading),
+        dataFormatId: TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId) ? itemReading.dataFormatId : 'dtv' // Markdown opened as a table was parsed as delimited text, so it is saved as that.
+    };
     return {
         ...dataViewConfig.value,
         connectionNodeConfig: constructStorableNodeConfig(connectionNodeConfig),
-        previewConfig: storablePreviewConfig,
-        columnSetConfig: savedAuditColumnSetConfig
-            ? applyChosenColumnDataTypes(savedAuditColumnSetConfig, selectedColumnDataTypeIds.value)
-            : constructPreviewColumnSetConfig(previewConfig, detectedColumnTypes.value, selectedColumnDataTypeIds.value),
-        auditSummaryConfig: savedAuditColumnSetConfig ? dataViewConfig.value.auditSummaryConfig : undefined,
+        readConfig,
+        previewConfig: constructStoredPreviewConfig(itemReading),
+        contentAuditConfig,
+        columnSetConfig: constructItemColumnSetConfig(itemReading, contentAuditConfig.asAt, detectedColumnTypes.value, selectedColumnDataTypeIds.value),
         relationshipsAuditConfig: undefined
     };
 }
 
 // Up to two decimal places, rounded down so a part of an item never reads as all of it. An amount too small to show
 // reads as under 0.01 rather than 0, because some of the item was read.
-function constructPreviewPercentageText(percentage: number): string {
+function constructAuditPercentageText(percentage: number): string {
     const shownPercentage = Math.floor(percentage * 100) / 100;
     const isTooSmallToShow = percentage > 0 && shownPercentage === 0;
     const percentageText = formatNumberAsDecimalNumber(isTooSmallToShow ? 0.01 : shownPercentage, 2, 0, localeId.value);
@@ -951,9 +1023,11 @@ async function waitForActiveConnectionConfig(): Promise<LocalisedConfig<Connecti
 // What the user chose first. The data view's own item then opens the way the data view reads it, not as detection would
 // read it afresh.
 function constructPreviewOptions(connectionNodeConfig: ConnectionNodeConfig, isNewReadChoice: boolean): PreviewObjectOptions {
-    const dataViewReading = isNewReadChoice || !isDataViewItem(connectionNodeConfig) ? undefined : dataViewConfig.value?.previewConfig;
+    const isOwnItem = !isNewReadChoice && isDataViewItem(connectionNodeConfig);
+    const dataViewReading = isOwnItem ? dataViewConfig.value?.readConfig : undefined;
+    const savedPreviewSize = isOwnItem ? dataViewConfig.value?.previewConfig?.size : undefined;
     return {
-        chunkSize: undefined,
+        chunkSize: savedPreviewSize != null && savedPreviewSize > 0 ? savedPreviewSize : undefined, // A preview that grew reads as much again.
         dataFormatId: selectedDataFormatId.value ?? dataViewReading?.dataFormatId,
         encodingId: selectedEncodingId.value ?? dataViewReading?.encodingId,
         extension: undefined,
@@ -966,9 +1040,8 @@ function constructPreviewOptions(connectionNodeConfig: ConnectionNodeConfig, isN
 
 // Only picking a different item changes the data view. Browsing folders, or clearing the selection, leaves it as it is.
 function pickItem(connectionNodeConfig?: ConnectionNodeConfig): void {
-    stopAudit(); // An audit reads one item, so it ends when the user moves to another.
+    abortAudit(); // An audit reads one item, so it ends when the user moves to another.
     selectedColumnIndex.value = undefined;
-    activePreviewIsAudited.value = false;
     activeConnectionObjectConfig.value = connectionNodeConfig;
     selectedDataFormatId.value = undefined;
     selectedEncodingId.value = undefined;
@@ -986,9 +1059,10 @@ function constructItemlessDataViewConfig(): DataViewConfig {
     return {
         ...assertDefined(dataViewConfig.value, 'No data view to change.'),
         connectionNodeConfig: undefined,
+        readConfig: undefined,
         previewConfig: undefined,
+        contentAuditConfig: undefined,
         columnSetConfig: undefined,
-        auditSummaryConfig: undefined,
         relationshipsAuditConfig: undefined
     };
 }
@@ -1023,22 +1097,22 @@ function constructFolderNodeConfigs(folderPath: string): ConnectionNodeConfig[] 
 
 // The encoding the preview detected, with how sure the detection was. Without a confidence level nothing was detected
 // and the preview fell back to UTF-8, so the encoding is marked as assumed.
-function constructEncodingText(previewConfig: PreviewConfig): string | undefined {
-    if (previewConfig.encodingId == null) return;
-    const encoding = previewConfig.encodingId;
-    if (previewConfig.encodingConfidenceLevel == null) return t(TEXT, 'detail.encoding.assumed.text', { encoding });
-    const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(previewConfig.encodingConfidenceLevel);
+function constructEncodingText(itemReading: ItemReading): string | undefined {
+    if (itemReading.encodingId == null) return;
+    const encoding = itemReading.encodingId;
+    if (itemReading.encodingConfidenceLevel == null) return t(TEXT, 'detail.encoding.assumed.text', { encoding });
+    const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(itemReading.encodingConfidenceLevel);
     return t(TEXT, 'detail.encoding.text', { confidence, encoding });
 }
 
 // What detection found, from a preview the user has not chosen how to read. A choice of one value leaves the other to
 // detection, so each is taken only while it was not chosen.
-function recordDetectedValues(previewConfig: PreviewConfig): void {
-    if (selectedDataFormatId.value == null) detectedDataFormatId.value = previewConfig.dataFormatId;
-    if (selectedValueDelimiterId.value == null) detectedValueDelimiterId.value = previewConfig.valueDelimiterId;
+function recordDetectedValues(itemReading: ItemReading): void {
+    if (selectedDataFormatId.value == null) detectedDataFormatId.value = itemReading.dataFormatId;
+    if (selectedValueDelimiterId.value == null) detectedValueDelimiterId.value = itemReading.valueDelimiterId;
     if (selectedEncodingId.value != null) return;
-    detectedEncodingId.value = previewConfig.encodingId;
-    detectedEncodingIsAssumed.value = previewConfig.encodingConfidenceLevel == null;
+    detectedEncodingId.value = itemReading.encodingId;
+    detectedEncodingIsAssumed.value = itemReading.encodingConfidenceLevel == null;
 }
 
 // One decimal place, with more only for a time too short to show in one, so a quick preview does not read as 0. A time
@@ -1058,18 +1132,18 @@ function constructDurationText(milliseconds: number): string {
 }
 
 // Headers and delimiters only apply to delimited text. There they always show, and a parse that found none says so.
-function constructHeadersText({ dataFormatId, hasHeaders }: PreviewConfig): string | undefined {
+function constructHeadersText({ dataFormatId, hasHeaders }: ItemReading): string | undefined {
     if (dataFormatId !== 'dtv') return;
     if (hasHeaders == null) return t(TEXT, 'detail.notDetected.text');
     return t(TEXT, hasHeaders ? 'hasHeaders.yes.label' : 'hasHeaders.no.label');
 }
 
-function constructRecordDelimiterText({ dataFormatId, recordDelimiterId }: PreviewConfig): string | undefined {
+function constructRecordDelimiterText({ dataFormatId, recordDelimiterId }: ItemReading): string | undefined {
     if (dataFormatId !== 'dtv') return;
     return t(TEXT, recordDelimiterId == null ? 'detail.notDetected.text' : RECORD_DELIMITER_LABEL_KEYS[recordDelimiterId]);
 }
 
-function constructValueDelimiterText({ dataFormatId, valueDelimiterId }: PreviewConfig): string | undefined {
+function constructValueDelimiterText({ dataFormatId, valueDelimiterId }: ItemReading): string | undefined {
     if (dataFormatId !== 'dtv') return;
     return t(TEXT, valueDelimiterId == null ? 'detail.notDetected.text' : VALUE_DELIMITER_LABEL_KEYS[valueDelimiterId]);
 }
@@ -1083,7 +1157,7 @@ function constructColumnTypeOptions(columnId: string): SelectOption[] {
 
 // The icon for a column's type select. Undefined until the preview holds the column.
 function constructColumnTypeIcon(columnId: string): Component | undefined {
-    const columnConfig = activePreviewConfig.value?.columnConfigs.at(Number(columnId));
+    const columnConfig = activeItemReading.value?.columnConfigs.at(Number(columnId));
     return columnConfig == null ? undefined : getColumnTypeIcon(columnConfig);
 }
 
@@ -1094,9 +1168,9 @@ function constructPreviewColumnCellIcon(columnId: string, rowIndex: number): Com
     return columnId === 'dataSubtypeLabel' ? columnIcons?.dataSubtypeIcon : undefined;
 }
 
-function addColumnTypesResetIssue(previewConfig: PreviewConfig): PreviewConfig {
+function addColumnTypesResetIssue(itemReading: ItemReading): ItemReading {
     const issue: PreviewIssue = { id: COLUMN_TYPES_RESET_ISSUE_ID, lineNumber: undefined, message: 'The column types were reset by the new reading.', severityId: 'info' };
-    return { ...previewConfig, issues: [...(previewConfig.issues ?? []), issue] };
+    return { ...itemReading, issues: [...(itemReading.issues ?? []), issue] };
 }
 
 // Auto, naming what detection found once it is known. A closed select shows only the value, to save room, and its muted
@@ -1110,7 +1184,7 @@ function constructAutoOption(detectedText?: string, isAssumed = false): SelectOp
 // A file recognised as something other than data, such as a PDF or an image, has no format, so the type the preview
 // detected names it instead. A container type names it by the item's extension, so a legacy Excel file reads 'XLS'.
 function constructDataFormatText(dataFormatId: DataFormatId): string {
-    const fileType = activePreviewConfig.value?.fileType;
+    const fileType = activeItemReading.value?.fileType;
     if (fileType == null || dataFormatId !== 'unknown') return t(TEXT, DATA_FORMAT_LABEL_KEYS[dataFormatId]);
     const itemExtension = activeConnectionObjectConfig.value?.extension;
     const isNamedByItem = itemExtension != null && itemExtension !== '' && CONTAINER_FILE_TYPE_EXTENSIONS.has(fileType.ext);
@@ -1142,11 +1216,11 @@ function focusPreviewTabMenuItem(previewTabIndex: number): void {
 // Markdown, a format not supported yet and one that never will be all show as text. The table stays enabled while
 // there is no preview, so the tabs do not flicker as it loads.
 function isPreviewTabDisabled(previewTabId: PreviewTabId): boolean {
-    const previewConfig = activePreviewConfig.value;
+    const itemReading = activeItemReading.value;
     return (
         (previewTabId === 'table' || previewTabId === 'columns') &&
-        previewConfig != null &&
-        (previewHasErrorIssue.value || previewConfig.parsedRecords.length === 0 || !READABLE_DATA_FORMAT_IDS.has(previewConfig.dataFormatId))
+        itemReading != null &&
+        (previewHasErrorIssue.value || itemReading.parsedRecords.length === 0 || !READABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId))
     );
 }
 
@@ -1169,25 +1243,26 @@ function constructStorableNodeConfig(connectionNodeConfig: ConnectionNodeConfig)
 }
 
 // Whether the item is the data view's own, unchanged since, and read the same way, so the data view's audit still applies.
-function isSameAsSavedItem(dataViewConfig: DataViewConfig, connectionNodeConfig: ConnectionNodeConfig, previewConfig: StoredPreviewConfig): boolean {
+function isSameAsSavedItem(dataViewConfig: DataViewConfig, connectionNodeConfig: ConnectionNodeConfig, readConfig: ReadConfig): boolean {
     const savedNodeConfig = dataViewConfig.connectionNodeConfig;
-    const savedPreviewConfig = dataViewConfig.previewConfig;
+    const savedReadConfig = dataViewConfig.readConfig;
     return (
         savedNodeConfig != null &&
-        savedPreviewConfig != null &&
+        savedReadConfig != null &&
         constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig) &&
         savedNodeConfig.lastModifiedAt === connectionNodeConfig.lastModifiedAt &&
-        savedPreviewConfig.dataFormatId === previewConfig.dataFormatId &&
-        savedPreviewConfig.encodingId === previewConfig.encodingId &&
-        savedPreviewConfig.parserId === previewConfig.parserId &&
-        savedPreviewConfig.hasHeaders === previewConfig.hasHeaders &&
-        savedPreviewConfig.recordDelimiterId === previewConfig.recordDelimiterId &&
-        savedPreviewConfig.valueDelimiterId === previewConfig.valueDelimiterId
+        savedReadConfig.dataFormatId === readConfig.dataFormatId &&
+        savedReadConfig.encodingId === readConfig.encodingId &&
+        savedReadConfig.parserId === readConfig.parserId &&
+        savedReadConfig.hasHeaders === readConfig.hasHeaders &&
+        savedReadConfig.recordDelimiterId === readConfig.recordDelimiterId &&
+        savedReadConfig.valueDelimiterId === readConfig.valueDelimiterId
     );
 }
 
 function resetPreviewState(): void {
-    activePreviewConfig.value = undefined;
+    activeItemReading.value = undefined;
+    activeContentAuditConfig.value = undefined;
     previewIsPending.value = false;
     previewTableColumnDefinitions.value = [];
     previewTableDataSource.value = {
@@ -1199,37 +1274,46 @@ function resetPreviewState(): void {
 
 // A preview detects headers afresh, so the user's choice for this item, or the one saved with it, is put back. Otherwise
 // reopening a saved item would change how it reads and lose its audit.
-async function applyHeaderChoice(previewConfig: PreviewConfig, connectionNodeConfig: ConnectionNodeConfig): Promise<PreviewConfig> {
+function applyHeaderChoice(itemReading: ItemReading, connectionNodeConfig: ConnectionNodeConfig): ItemReading | Promise<ItemReading> {
     const savedNodeConfig = dataViewConfig.value?.connectionNodeConfig;
     const savedHasHeaders =
-        savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig) ? dataViewConfig.value?.previewConfig?.hasHeaders : undefined;
+        savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig) ? dataViewConfig.value?.readConfig?.hasHeaders : undefined;
     const hasHeaders = selectedHasHeaders.value ?? savedHasHeaders;
-    if (hasHeaders == null || previewConfig.dataFormatId !== 'dtv') return previewConfig;
-    return hasHeaders === previewConfig.hasHeaders ? applyPreviewHeaders(previewConfig, hasHeaders) : recountPreviewColumns(previewConfig, hasHeaders);
+    return hasHeaders == null || itemReading.dataFormatId !== 'dtv' ? itemReading : applyHeaders(itemReading, hasHeaders);
+}
+
+function applyHeaders(itemReading: ItemReading, hasHeaders: boolean): ItemReading | Promise<ItemReading> {
+    const headersAreUnchanged = hasHeaders === itemReading.hasHeaders;
+    return headersAreUnchanged ? applyPreviewHeaders(itemReading, hasHeaders) : recountPreviewColumns(itemReading, hasHeaders);
 }
 
 // The first record moves between the columns' names and their data, so every count changes. It runs in the engine, which
 // does all the counting, and the records already read are enough.
-async function recountPreviewColumns(previewConfig: PreviewConfig, hasHeaders: boolean): Promise<PreviewConfig> {
-    if (!activeConnectionConfig.value) return applyPreviewHeaders(previewConfig, hasHeaders);
+async function recountPreviewColumns(itemReading: ItemReading, hasHeaders: boolean): Promise<ItemReading> {
+    if (!activeConnectionConfig.value) return applyPreviewHeaders(itemReading, hasHeaders);
     const { processRequest } = await establishEngineWorker();
-    const options: RecountPreviewColumnsOptions = { hasHeaders, parsedRecords: previewConfig.parsedRecords };
+    const options: RecountPreviewColumnsOptions = { hasHeaders, parsedRecords: itemReading.parsedRecords };
     const columnConfigs = (await processRequest('recountPreviewColumns', activeConnectionConfig.value, options)) as ObjectColumnConfig[];
-    return applyPreviewHeaders({ ...previewConfig, columnConfigs }, hasHeaders);
+    return applyPreviewHeaders({ ...itemReading, columnConfigs }, hasHeaders);
 }
 
 // The labels already show the new choice, so the table stays as it is while the counts catch up. The types the user
 // chose are kept, because the records have not changed.
 async function recountActivePreview(hasHeaders: boolean): Promise<void> {
-    const previewConfig = activePreviewConfig.value;
-    if (previewConfig == null) return;
+    const itemReading = activeItemReading.value;
+    if (itemReading == null) return;
     const currentRequestId = ++previewRequestId.value;
     try {
-        const recountedPreviewConfig = await recountPreviewColumns(previewConfig, hasHeaders);
+        const recountedItemReading = await recountPreviewColumns(itemReading, hasHeaders);
         if (currentRequestId !== previewRequestId.value) return; // A newer choice owns the panel now.
-        activePreviewIsAudited.value = false; // The headers changed how the item reads, so an audit no longer describes it.
-        detectedColumnTypes.value = constructDetectedColumnTypes(recountedPreviewConfig);
-        activePreviewConfig.value = applyPreviewColumnTypes(recountedPreviewConfig, selectedColumnDataTypeIds.value, detectedColumnTypes.value);
+        // The headers changed how the item reads, so an audit no longer describes it.
+        activeContentAuditConfig.value = constructPreviewContentAuditConfig(
+            recountedItemReading,
+            Date.now(),
+            recountedItemReading.size === activeConnectionObjectConfig.value?.size
+        );
+        detectedColumnTypes.value = constructDetectedColumnTypes(recountedItemReading);
+        activeItemReading.value = applyPreviewColumnTypes(recountedItemReading, selectedColumnDataTypeIds.value, detectedColumnTypes.value);
     } catch (error) {
         if (currentRequestId !== previewRequestId.value) return; // A newer choice owns the panel now.
         itemFailure.value = raiseFailure(
@@ -1238,46 +1322,97 @@ async function recountActivePreview(hasHeaders: boolean): Promise<void> {
     }
 }
 
-// A saved audit of this item, read this way, replaces the preview's sample figures, so returning to the step does not lose
-// them. Otherwise the preview's columns stay, each with any type saved for it.
-function applySavedAudit(previewConfig: PreviewConfig, connectionNodeConfig: ConnectionNodeConfig): PreviewConfig {
+// A saved audit of this item, read this way, replaces what opening it found, so returning to the step does not lose it.
+// Otherwise the columns found on opening stay, each with any type saved for it.
+function applySavedAudit(itemReading: ItemReading, connectionNodeConfig: ConnectionNodeConfig): ItemReading {
     const savedConfig = dataViewConfig.value;
-    const auditIsCurrent = savedConfig?.columnSetConfig?.sourceId === 'audit' && isSameAsSavedItem(savedConfig, connectionNodeConfig, constructStoredPreviewConfig(previewConfig));
-    if (auditIsCurrent) return showColumnsOfDataView(previewConfig, savedConfig);
-    activePreviewIsAudited.value = false;
-    return applyPreviewColumnTypes(previewConfig, selectedColumnDataTypeIds.value, detectedColumnTypes.value);
+    const savedContentAuditConfig = savedConfig?.contentAuditConfig;
+    if (savedConfig == null || savedContentAuditConfig == null || !isSameAsSavedItem(savedConfig, connectionNodeConfig, constructReadConfig(itemReading))) {
+        return applyPreviewColumnTypes(itemReading, selectedColumnDataTypeIds.value, detectedColumnTypes.value);
+    }
+    activeContentAuditConfig.value = savedContentAuditConfig;
+    selectedColumnDataTypeIds.value = constructChosenColumnDataTypeIds(savedConfig.columnSetConfig);
+    return applyAuditColumns(itemReading, savedConfig.columnSetConfig?.columnConfigs ?? []);
 }
 
-// Puts a data view's columns in the preview, and on screen when it is already showing.
-function showColumnsOfDataView(previewConfig: PreviewConfig, columnDataViewConfig: DataViewConfig): PreviewConfig {
-    const columnConfigs = columnDataViewConfig.columnSetConfig?.columnConfigs ?? [];
-    const columnPreviewConfig = applyPreviewHeaders({ ...previewConfig, columnConfigs }, previewConfig.hasHeaders === true);
-    activePreviewIsAudited.value = columnDataViewConfig.columnSetConfig?.sourceId === 'audit';
-    selectedColumnDataTypeIds.value = constructChosenColumnDataTypeIds(columnDataViewConfig.columnSetConfig);
-    detectedColumnTypes.value = constructDetectedColumnTypes(columnPreviewConfig);
-    const typedPreviewConfig = applyPreviewColumnTypes(columnPreviewConfig, selectedColumnDataTypeIds.value, detectedColumnTypes.value);
-    if (activePreviewConfig.value != null) activePreviewConfig.value = typedPreviewConfig;
-    return typedPreviewConfig;
+// Puts an audit's columns on the item, keeping the types the user chose.
+function applyAuditColumns(itemReading: ItemReading, columnConfigs: ObjectColumnConfig[]): ItemReading {
+    const columnItemReading = applyPreviewHeaders({ ...itemReading, columnConfigs }, itemReading.hasHeaders === true);
+    detectedColumnTypes.value = constructDetectedColumnTypes(columnItemReading);
+    return applyPreviewColumnTypes(columnItemReading, selectedColumnDataTypeIds.value, detectedColumnTypes.value);
 }
 
-function constructAuditDetailGroup(auditSummaryConfig: AuditSummaryConfig): { details: { labelKey: keyof typeof TEXT; value: string | undefined }[]; id: string; title: string } {
+// Reads up to the preview's limit, the same way the item is read now, and shows the larger records and text. Nothing to do
+// once the preview has reached the limit or holds the whole item.
+async function readLargerPreview(): Promise<PreviewObjectResult | undefined> {
+    const itemReading = activeItemReading.value;
+    const connectionNodeConfig = activeConnectionObjectConfig.value;
+    if (itemReading == null || connectionNodeConfig == null || !activeConnectionConfig.value) return;
+    const previewSize = itemReading.size ?? 0;
+    if (previewSize >= PREVIEW_BYTE_LIMIT || previewSize === connectionNodeConfig.size) return;
+
+    const currentRequestId = ++previewRequestId.value;
+    previewIsPending.value = true;
+    try {
+        const { processRequest } = await establishEngineWorker();
+        const options: PreviewObjectOptions = {
+            chunkSize: PREVIEW_BYTE_LIMIT,
+            dataFormatId: itemReading.dataFormatId,
+            encodingId: itemReading.encodingId,
+            extension: undefined,
+            mimeType: connectionNodeConfig.mimeType,
+            parserId: itemReading.parserId,
+            path: constructItemPath(connectionNodeConfig),
+            valueDelimiterId: itemReading.valueDelimiterId
+        };
+        const previewObjectResult = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewObjectResult;
+        if (currentRequestId !== previewRequestId.value) return;
+        const largerReading = await applyHeaders(constructItemReading(previewObjectResult), itemReading.hasHeaders === true);
+        if (currentRequestId !== previewRequestId.value) return;
+        activeItemReading.value = {
+            ...itemReading,
+            issues: largerReading.issues ?? [],
+            parsedRecords: largerReading.parsedRecords,
+            size: largerReading.size,
+            text: largerReading.text
+        };
+        text.value = largerReading.text;
+        showPreviewTable(activeItemReading.value);
+        const contentAuditConfig = constructFirstContentAuditConfig(previewObjectResult.contentAuditConfig, largerReading);
+        return { ...previewObjectResult, contentAuditConfig: { ...contentAuditConfig, columns: largerReading.columnConfigs } };
+    } finally {
+        if (currentRequestId === previewRequestId.value) previewIsPending.value = false; // A newer selection owns the busy state now.
+    }
+}
+
+// What opening an item audited, with its records counted the way the headers are now set.
+function constructFirstContentAuditConfig(contentAuditConfig: ContentAuditConfig, itemReading: ItemReading): ContentAuditConfig {
+    return { ...contentAuditConfig, recordCount: Math.max(0, itemReading.parsedRecords.length - (itemReading.hasHeaders === true ? 1 : 0)) };
+}
+
+function constructAuditDetailGroup(contentAuditConfig: StoredContentAuditConfig): {
+    details: { labelKey: keyof typeof TEXT; value: string | undefined }[];
+    id: string;
+    title: string;
+} {
     const numberFormat = new Intl.NumberFormat(localeId.value);
-    const formatCount = (count: number | undefined): string | undefined => (count == null ? undefined : numberFormat.format(count));
+    const formatOptionalCount = (count: number | undefined): string | undefined => (count == null ? undefined : numberFormat.format(count));
     return {
         id: 'audit',
         title: t(TEXT, 'detail.audit.title'),
         details: [
-            { labelKey: 'detail.records.label', value: formatCount(auditSummaryConfig.recordCount) },
-            { labelKey: 'detail.lines.label', value: formatCount(auditSummaryConfig.lineCount) },
-            { labelKey: 'detail.emptyLines.label', value: formatCount(auditSummaryConfig.emptyLineCount) },
-            { labelKey: 'detail.commentLines.label', value: formatCount(auditSummaryConfig.commentLineCount) },
-            { labelKey: 'detail.unevenRecords.label', value: formatCount(auditSummaryConfig.invalidFieldLengthCount) },
-            { labelKey: 'detail.duration.label', value: constructDurationText(auditSummaryConfig.duration) },
+            { labelKey: 'detail.auditedAmount.label', value: auditStatus.value?.text },
+            { labelKey: 'detail.records.label', value: formatCount(contentAuditConfig.recordCount) },
+            { labelKey: 'detail.lines.label', value: formatOptionalCount(contentAuditConfig.lineCount) },
+            { labelKey: 'detail.emptyLines.label', value: formatOptionalCount(contentAuditConfig.emptyLineCount) },
+            { labelKey: 'detail.commentLines.label', value: formatOptionalCount(contentAuditConfig.commentLineCount) },
+            { labelKey: 'detail.unevenRecords.label', value: formatOptionalCount(contentAuditConfig.invalidFieldLengthCount) },
+            { labelKey: 'detail.duration.label', value: constructDurationText(contentAuditConfig.duration) },
             {
                 labelKey: 'detail.sourceWait.label',
-                value: auditSummaryConfig.sourceWaitDuration == null ? undefined : constructDurationText(auditSummaryConfig.sourceWaitDuration)
+                value: contentAuditConfig.sourceWaitDuration == null ? undefined : constructDurationText(contentAuditConfig.sourceWaitDuration)
             }, // Part of the duration.
-            { labelKey: 'detail.audited.label', value: new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(auditSummaryConfig.asAt) }
+            { labelKey: 'detail.audited.label', value: new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(contentAuditConfig.asAt) }
         ]
     };
 }
@@ -1289,20 +1424,20 @@ function constructSavedColumnDataTypeIds(connectionNodeConfig: ConnectionNodeCon
     return isSavedItem ? constructChosenColumnDataTypeIds(dataViewConfig.value?.columnSetConfig) : {};
 }
 
-function constructDetectedColumnTypes({ columnConfigs }: PreviewConfig): DetectedColumnType[] {
+function constructDetectedColumnTypes({ columnConfigs }: ItemReading): DetectedColumnType[] {
     return columnConfigs.map(({ dataSubtypeId, dataTypeId }) => ({ dataSubtypeId, dataTypeId }));
 }
 
 // A new read choice stays on the current tab, so the user can compare the readings, unless the new reading disables it.
-function applyPreviewConfig(previewConfig: PreviewConfig, isNewReadChoice: boolean): void {
-    activePreviewConfig.value = previewConfig;
-    if (!isNewReadChoice || isPreviewTabDisabled(currentPreviewTabId.value)) currentPreviewTabId.value = establishFirstPreviewTabId(previewConfig);
-    text.value = previewConfig.text;
-    showPreviewTable(previewConfig);
+function applyPreviewConfig(itemReading: ItemReading, isNewReadChoice: boolean): void {
+    activeItemReading.value = itemReading;
+    if (!isNewReadChoice || isPreviewTabDisabled(currentPreviewTabId.value)) currentPreviewTabId.value = establishFirstPreviewTabId(itemReading);
+    text.value = itemReading.text;
+    showPreviewTable(itemReading);
 }
 
-function showPreviewTable(previewConfig: PreviewConfig): void {
-    const previewColumnLabels = previewConfig.columnConfigs.map((config, index) => config.label.en ?? String(index));
+function showPreviewTable(itemReading: ItemReading): void {
+    const previewColumnLabels = itemReading.columnConfigs.map((config, index) => config.label.en ?? String(index));
 
     // Columns are keyed by position, not header text. TanStack reads a dot in an 'accessorKey' as a nested path, and two
     // columns with the same header text would share one key.
@@ -1311,8 +1446,8 @@ function showPreviewTable(previewConfig: PreviewConfig): void {
         header: label
     }));
 
-    const dataOffset = previewConfig.hasHeaders === true ? 1 : 0;
-    const previewRows = previewConfig.parsedRecords
+    const dataOffset = itemReading.hasHeaders === true ? 1 : 0;
+    const previewRows = itemReading.parsedRecords
         .slice(dataOffset)
         .map((record) => Object.fromEntries(record.map((cell, index) => [String(index), cell.value])) as Record<string, string | null>);
 
@@ -1324,14 +1459,14 @@ function showPreviewTable(previewConfig: PreviewConfig): void {
 
 // The tab that shows the item as its format suggests: data as a table, anything else as text. Data with no usable
 // table opens on the text, so the user can see why. Every other tab stays available, apart from a disabled table.
-function establishFirstPreviewTabId(previewConfig: PreviewConfig): PreviewTabId {
+function establishFirstPreviewTabId(itemReading: ItemReading): PreviewTabId {
     const requestedColumnIndex = (history.state as { columnIndex?: number } | null)?.columnIndex;
     if (requestedColumnIndex != null) {
         selectedColumnIndex.value = requestedColumnIndex; // Sent here to check this column.
         return 'columns';
     }
-    const tableIsUsable = previewConfig.parsedRecords.length > 0 && (previewConfig.issues ?? []).every((issue) => issue.severityId !== 'error');
-    return tableIsUsable && TABLE_DATA_FORMAT_IDS.has(previewConfig.dataFormatId) ? 'table' : 'text';
+    const tableIsUsable = itemReading.parsedRecords.length > 0 && (itemReading.issues ?? []).every((issue) => issue.severityId !== 'error');
+    return tableIsUsable && TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId) ? 'table' : 'text';
 }
 
 function constructPreviewIssueLineText(issue: PreviewIssue): string | undefined {
@@ -1432,54 +1567,52 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
             <ErrorNotice v-if="itemFailure" :failures="[itemFailure]" @retry="handleRetryItem" />
             <!-- Preview Toolbar ─ Sits over the preview only, so the breadcrumbs keep the whole header row. -->
             <div v-if="itemFailure == null" class="relative flex h-9.25 flex-none items-center gap-x-3 border-b border-separator px-page text-xs text-muted">
-                <!-- Preview Meter ─ Along the top edge, clear of the selected tab's underline at the bottom. Only when the
-                     item's size is known. Green when the whole item was read. The grey track shows how much was not. Any
-                     amount read keeps a minimum width, so a sliver read from a large item is still visible rather than
-                     looking like nothing. A meter rather than a progress bar, because it shows a settled amount, not
-                     work under way. -->
+                <!-- Audit Bar ─ Along the top edge, clear of the selected tab's underline at the bottom. Only when the item's
+                     size is known. Green when the whole item was audited. The grey track shows how much was not. Any amount
+                     keeps a minimum width, so a sliver of a large item is still visible rather than looking like nothing. A
+                     progress bar while an audit runs, and otherwise a meter, because it then shows a settled amount. -->
                 <div
-                    v-if="previewAmount?.percentage != null"
-                    :aria-label="t(TEXT, 'preview.aria')"
+                    v-if="auditStatus?.percentage != null"
+                    :aria-label="t(TEXT, 'audit.aria')"
                     aria-valuemax="100"
                     aria-valuemin="0"
-                    :aria-valuenow="Math.round(previewAmount.percentage)"
-                    :aria-valuetext="previewAmount.text"
+                    :aria-valuenow="Math.round(auditStatus.percentage)"
+                    :aria-valuetext="auditStatus.text"
                     class="absolute inset-x-0 top-0 h-0.75 bg-separator/50"
-                    role="meter"
+                    :role="auditIsRunning ? 'progressbar' : 'meter'"
                 >
                     <div
                         class="h-full"
                         :class="[
-                            previewAmount.isComplete
+                            auditStatus.isComplete
                                 ? 'bg-[color-mix(in_srgb,var(--color-success-text)_40%,var(--color-card))]'
                                 : 'bg-[color-mix(in_srgb,var(--color-accent)_40%,var(--color-card))]',
-                            { 'min-w-0.75': previewAmount.percentage > 0 }
+                            { 'min-w-0.75': auditStatus.percentage > 0 }
                         ]"
-                        :style="{ width: `${previewAmount.percentage}%` }"
+                        :style="{ width: `${auditStatus.percentage}%` }"
                     />
                 </div>
-                <!-- Hidden from screen readers when the meter already reads it out. Sized to its text, and the selects give
-                     way first, so the amount always shows. 'mr-auto' pushes the rest of the toolbar to the right. -->
-                <p v-if="currentPreviewTabId === 'columns' && columnsAreAudited" class="mr-auto flex-none">{{ t(TEXT, 'audit.whole.text') }}</p>
-                <p v-else-if="previewAmount" :aria-hidden="previewAmount.percentage != null" class="mr-auto flex-none">
-                    <span aria-hidden="true" class="hidden @[21.5rem]:inline">{{ previewAmount.labelledText }}</span>
-                    <span aria-hidden="true" class="@[21.5rem]:hidden">{{ previewAmount.shortText }}</span>
-                    <span class="sr-only">{{ previewAmount.text }}</span>
+                <!-- Audit Status ─ One message at every stage. 'mr-auto' pushes the rest of the toolbar to the right. The running
+                     figures change too often to read out, so only the bar announces them. -->
+                <p v-if="auditStatus" class="mr-auto min-w-0 truncate">
+                    <span aria-hidden="true" class="hidden @[35rem]:inline">{{ auditStatus.text }}</span>
+                    <span aria-hidden="true" class="@[35rem]:hidden">{{ auditStatus.shortText }}</span>
+                    <span class="sr-only">{{ auditStatus.text }}</span>
                 </p>
                 <span v-else class="flex-1" />
 
-                <!-- Audit ─ Beside the amount, because it reads the whole item. -->
-                <template v-if="auditIsRunning">
-                    <span aria-live="polite" class="min-w-0 truncate">{{ auditPendingText }}</span>
-                    <ActionWrapper class="flex-none text-accent hover:underline" @click="stopAudit">{{ t(TEXT, 'audit.stop.label') }}</ActionWrapper>
+                <!-- Audit ─ Beside the amount it changes. A whole item has nothing further to read, so it is only audited again. -->
+                <ActionWrapper v-if="auditIsRunning" class="flex-none text-accent hover:underline" @click="stopAudit">{{ t(TEXT, 'audit.stop.label') }}</ActionWrapper>
+                <template v-else-if="auditActionIsShown">
+                    <ActionWrapper
+                        v-if="auditStatus?.isComplete"
+                        class="flex-none text-accent hover:underline disabled:text-muted"
+                        :disabled="readChoicesAreLocked"
+                        @click="handleStartAudit(undefined)"
+                        >{{ t(TEXT, 'audit.again.label') }}</ActionWrapper
+                    >
+                    <AuditMenu v-else :audit-choices="auditChoices" :disabled="readChoicesAreLocked" @select="handleStartAudit" />
                 </template>
-                <ActionWrapper
-                    v-else-if="auditActionIsShown"
-                    class="flex-none text-accent hover:underline disabled:text-muted"
-                    :disabled="readChoicesAreLocked"
-                    @click="handleStartAudit"
-                    >{{ t(TEXT, columnsAreAudited ? 'audit.again.label' : 'audit.start.label') }}</ActionWrapper
-                >
 
                 <!-- Preview Tabs ─ Icons rather than words, to leave the toolbar room. '-mr-1.5' centres the last icon 30px
                      from the edge, under the assistant toggle. -->
@@ -1598,7 +1731,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             </template>
                         </SelectInput>
                         <SelectInput
-                            v-if="activePreviewConfig?.encodingId != null"
+                            v-if="activeItemReading?.encodingId != null"
                             v-model="previewEncodingId"
                             :is-default="selectedEncodingId == null"
                             class="min-w-12.75"
@@ -1684,12 +1817,14 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 class="relative flex min-h-0 flex-1 flex-col"
                 :role="viewportIsWide ? 'tabpanel' : undefined"
             >
+                <p v-if="previewExtentText" class="flex-none px-page pt-1 text-xs text-muted">{{ previewExtentText }}</p>
                 <!-- Busy Bar ─ Over the content, because taking up height would nudge the preview down on every read. -->
                 <BusyBar v-if="previewIsPending" class="absolute inset-x-0 top-0 z-10 mx-page" />
                 <Table
-                    v-show="currentPreviewTabId === 'table' && activePreviewConfig != null"
+                    v-show="currentPreviewTabId === 'table' && activeItemReading != null"
                     class="flex-1"
                     :column-definitions="previewTableColumnDefinitions"
+                    :construct-cell-class="constructValueCellClass"
                     :data-source="previewTableDataSource"
                     is-column-menu-hidden
                     is-column-picker-hidden
@@ -1699,26 +1834,55 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                          select's own padding and border, so its icon lines up with the label. 'min-w-12.75' is the width of the
                          icon and arrow, so the arrow never covers the icon. -->
                     <template #header-detail="{ columnId }">
-                        <SelectInput
-                            class="-ml-1.75 min-w-12.75"
-                            :disabled="readChoicesAreLocked"
-                            is-compact
-                            :is-default="selectedColumnDataTypeIds[columnId] == null"
-                            :label="t(TEXT, 'columnType.aria', { label: String(previewTableColumnDefinitions[Number(columnId)]?.header) })"
-                            label-hidden
-                            :model-value="selectedColumnDataTypeIds[columnId] ?? AUTO_OPTION_ID"
-                            :options="constructColumnTypeOptions(columnId)"
-                            :tone="selectedColumnDataTypeIds[columnId] == null ? undefined : 'info'"
-                            @update:model-value="handleSelectColumnDataType(columnId, $event)"
-                        >
-                            <template #icon><component :is="constructColumnTypeIcon(columnId)" aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
-                        </SelectInput>
+                        <div class="flex min-w-0 items-center gap-x-1">
+                            <SelectInput
+                                class="-ml-1.75 min-w-12.75"
+                                :disabled="readChoicesAreLocked"
+                                is-compact
+                                :is-default="selectedColumnDataTypeIds[columnId] == null"
+                                :label="t(TEXT, 'columnType.aria', { label: String(previewTableColumnDefinitions[Number(columnId)]?.header) })"
+                                label-hidden
+                                :model-value="selectedColumnDataTypeIds[columnId] ?? AUTO_OPTION_ID"
+                                :options="constructColumnTypeOptions(columnId)"
+                                :tone="selectedColumnDataTypeIds[columnId] == null ? undefined : 'info'"
+                                @update:model-value="handleSelectColumnDataType(columnId, $event)"
+                            >
+                                <template #icon><component :is="constructColumnTypeIcon(columnId)" aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
+                            </SelectInput>
+                            <!-- Key ─ Only after a whole audit, because the rest of the item could still repeat a value. -->
+                            <span v-if="isKeyColumn(columnId)" :aria-label="t(TEXT, 'columnKey.aria')" class="flex-none text-accent" role="img" :title="t(TEXT, 'columnKey.aria')">
+                                <KeyRoundIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                            </span>
+                            <ColumnValueSpread
+                                v-if="activeItemReading?.columnConfigs[Number(columnId)]"
+                                :column-config="activeItemReading.columnConfigs[Number(columnId)]!"
+                                :column-label="String(previewTableColumnDefinitions[Number(columnId)]?.header)"
+                            />
+                        </div>
+                        <ColumnValueBar
+                            v-if="columnValueCounts[Number(columnId)]"
+                            :column-label="String(previewTableColumnDefinitions[Number(columnId)]?.header)"
+                            :column-value-counts="columnValueCounts[Number(columnId)]!"
+                            @click="handleShowColumnDetail(Number(columnId))"
+                        />
+                    </template>
+                    <!-- Value Marks ─ A shape as well as the tint, so an invalid value does not rely on colour. Blank and missing
+                         values have nothing to show, so a dash says they are empty rather than not loaded. -->
+                    <template #cell-icon="{ columnId, rowIndex }">
+                        <template v-if="constructValueState(columnId, rowIndex) === 'invalid'">
+                            <TriangleAlertIcon aria-hidden="true" class="size-3.5 flex-none text-danger-text" :stroke-width="1.5" />
+                            <span class="sr-only">{{ t(TEXT, 'value.invalid.aria') }}</span>
+                        </template>
+                        <span v-else-if="isValueEmpty(columnId, rowIndex)" class="text-sm text-subtle">
+                            <span aria-hidden="true">–</span>
+                            <span class="sr-only">{{ t(TEXT, constructValueState(columnId, rowIndex) === 'blank' ? 'value.blank.aria' : 'value.missing.aria') }}</span>
+                        </span>
                     </template>
                 </Table>
                 <!-- Columns ─ 'v-if', so the table measures its space when it opens rather than while hidden. With a column's
                      detail open the table drops back to its names, and 'v-show' keeps its scroll position where the
                      detail fills the space. -->
-                <div v-if="currentPreviewTabId === 'columns' && activePreviewConfig != null" ref="columnsPane" class="flex min-h-0 flex-1">
+                <div v-if="currentPreviewTabId === 'columns' && activeItemReading != null" ref="columnsPane" class="flex min-h-0 flex-1">
                     <Table
                         v-show="selectedColumnIndex == null || !columnDetailFillsSpace"
                         :class="selectedColumnIndex == null ? 'min-w-0 flex-1' : 'w-57 flex-none'"
@@ -1757,8 +1921,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         :column-index="selectedColumnIndex"
                         :detected-data-type-id="detectedColumnTypes[selectedColumnIndex]?.dataTypeId"
                         :is-type-disabled="readChoicesAreLocked"
-                        :preview-config="activePreviewConfig"
-                        :source-text="columnsAreAudited ? t(TEXT, 'audit.whole.text') : (previewAmount?.shortText ?? '')"
+                        :item-reading="activeItemReading"
+                        :source-text="auditStatus?.shortText ?? ''"
                         :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
                         :type-value="selectedColumnDataTypeIds[String(selectedColumnIndex)] ?? AUTO_OPTION_ID"
                         @close="selectedColumnIndex = undefined"
@@ -1767,7 +1931,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     />
                 </div>
                 <TextViewer
-                    v-show="currentPreviewTabId === 'text' && activePreviewConfig != null && !previewIsMarkdown"
+                    v-show="currentPreviewTabId === 'text' && activeItemReading != null && !previewIsMarkdown"
                     ref="textViewer"
                     class="flex-1"
                     :line-highlights="previewLineHighlights"
@@ -1780,7 +1944,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     <div class="dpuse-prose px-page py-3 text-sm" v-html="renderMarkdown(text ?? '')" />
                 </ScrollArea>
                 <ScrollArea
-                    v-show="currentPreviewTabId === 'details' && activePreviewConfig != null"
+                    v-show="currentPreviewTabId === 'details' && activeItemReading != null"
                     class="flex-1"
                     scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)"
                     scroll-area-padding-left="var(--spacing-page)"
@@ -1794,7 +1958,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             class="mt-1 mb-4 text-sm"
                             :connection-id="dataViewConfig?.connectionId"
                             :connection-node-config="activeConnectionObjectConfig"
-                            :data-format-id="activePreviewConfig?.dataFormatId"
+                            :data-format-id="activeItemReading?.dataFormatId"
                             :data-view-connection="activeDataViewConnection"
                             :item-type-id="activeDataViewConnection?.itemTypeId"
                         />
@@ -1809,8 +1973,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 </template>
                             </dl>
                         </StudioDocumentSection>
-                        <StudioDocumentSection v-if="activePreviewConfig && activePreviewConfig.columnConfigs.length > 0" :title="t(TEXT, 'detail.columns.title')">
-                            <PreviewColumnTable :preview-config="activePreviewConfig" />
+                        <StudioDocumentSection v-if="activeItemReading && activeItemReading.columnConfigs.length > 0" :title="t(TEXT, 'detail.columns.title')">
+                            <PreviewColumnTable :item-reading="activeItemReading" />
                         </StudioDocumentSection>
                     </StudioDocumentPanel>
                 </ScrollArea>
@@ -1828,7 +1992,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                  not data, or while saving. -->
             <Teleport defer :to="`#${DATA_VIEW_STEP_ACTION_ID}`">
                 <PillSegment
-                    v-if="itemFailure == null && (activePreviewConfig != null || (previewIsPending && hasLastPreviewSucceeded))"
+                    v-if="itemFailure == null && (activeItemReading != null || (previewIsPending && hasLastPreviewSucceeded))"
                     :disabled="!previewIsSelectable || auditIsRunning"
                     :icon="ArrowRightIcon"
                     is-separated

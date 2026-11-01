@@ -1,9 +1,9 @@
 <script setup lang="ts" generic="T extends Record<string, number | string | null | undefined>">
 // ── External Dependencies & Registrations
-import { useEventListener } from '@vueuse/core';
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, type ColumnVisibilityState, useTable } from '@tanstack/vue-table';
-import { computed, shallowRef, useId, useTemplateRef } from 'vue';
+import { computed, ref, shallowRef, useId, useTemplateRef } from 'vue';
+import { useEventListener, useResizeObserver } from '@vueuse/core';
 
 // ── Local Framework
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
@@ -28,6 +28,7 @@ const EDGE_INSET_PX = 4;
 
 interface Properties {
     columnDefinitions: ColumnDef<TableFeatureSet, T>[];
+    constructCellClass?: (columnId: string, rowIndex: number) => string | undefined; // Marks a cell by what it holds.
     dataSource: DataSource<T>;
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
@@ -41,6 +42,7 @@ interface Properties {
 }
 const {
     columnDefinitions,
+    constructCellClass,
     dataSource,
     cacheBlockSize = 100,
     maxBlocksInCache = 10,
@@ -70,6 +72,8 @@ const scrollElementId = useId();
 const innerScrollElement = useTemplateRef<HTMLDivElement>('innerScroller');
 const innerScrollElementId = useId();
 const headerViewport = useTemplateRef<HTMLDivElement>('headerViewport');
+const savedScrollLeft = ref(0); // Where the table was left, because a browser can reset a hidden element's scroll position.
+const savedScrollTop = ref(0);
 const verticalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('verticalThumb');
 const horizontalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('horizontalThumb');
 
@@ -162,6 +166,8 @@ const virtualColumns = computed(() => (columnVirtualisationIsRequired.value ? co
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 useEventListener(innerScrollElement, 'scroll', syncHeaderScroll, { passive: true });
+useEventListener(scrollElement, 'scroll', saveVerticalScroll, { passive: true });
+useResizeObserver(scrollElement, restoreScroll);
 useEventListener(scrollElement, 'wheel', handleBodyWheel, { passive: true });
 
 // ── Scroll Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────
@@ -171,6 +177,21 @@ useEventListener(scrollElement, 'wheel', handleBodyWheel, { passive: true });
 function syncHeaderScroll(): void {
     if (!headerViewport.value || !innerScrollElement.value) return;
     headerViewport.value.scrollLeft = innerScrollElement.value.scrollLeft;
+    if (innerScrollElement.value.clientWidth > 0) savedScrollLeft.value = innerScrollElement.value.scrollLeft;
+}
+
+function saveVerticalScroll(): void {
+    if (scrollElement.value && scrollElement.value.clientHeight > 0) savedScrollTop.value = scrollElement.value.scrollTop;
+}
+
+// A table hidden with 'v-show' can come back with its scroll position reset, and no scroll event says so. The virtualizers
+// would then keep drawing the rows and columns of the old position, off screen, and leave the table looking empty. Putting
+// the position back fixes that, and keeps the user's place.
+function restoreScroll(): void {
+    if (!scrollElement.value || !innerScrollElement.value || scrollElement.value.clientWidth === 0) return;
+    scrollElement.value.scrollTop = savedScrollTop.value;
+    innerScrollElement.value.scrollLeft = savedScrollLeft.value;
+    syncHeaderScroll();
 }
 
 // ── Wheel Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -204,7 +225,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
              ancestor, and inside the body below that would be the horizontal-only inner scroller, which never scrolls
              vertically, so a sticky header nested in there would just scroll away with the rows instead of pinning. -->
             <div ref="headerViewport" class="overflow-hidden" role="rowgroup" @wheel.passive="handleHeaderWheel">
-                <div class="flex border-b border-boundary bg-backdrop" :class="$slots['header-detail'] ? 'h-14' : 'h-10'" :style="{ minWidth: totalWidth + 'px' }" role="row">
+                <div class="flex border-b border-boundary bg-backdrop" :class="$slots['header-detail'] ? 'h-17' : 'h-10'" :style="{ minWidth: totalWidth + 'px' }" role="row">
                     <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
 
                     <!-- Left pinned headers -->
@@ -299,7 +320,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                         :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
                                         :loading="visibleRowData[i] === undefined"
                                         class="sticky shrink-0 border-r border-boundary bg-surface group-hover:bg-card"
-                                        :class="{ 'state-selected': vRow.index === selectedRowIndex }"
+                                        :class="[{ 'state-selected': vRow.index === selectedRowIndex }, constructCellClass?.(leftLeafHeader.column.id, vRow.index)]"
                                         :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 1 }"
                                     >
                                         <template v-if="$slots['pinned-cell']" #value
@@ -322,6 +343,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                             :value="visibleRowData[i]?.[centerLeafHeader.column.id]"
                                             :loading="visibleRowData[i] === undefined"
                                             class="shrink-0"
+                                            :class="constructCellClass?.(centerLeafHeader.column.id, vRow.index)"
                                             :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
                                         >
                                             <template v-if="$slots['cell-icon']" #icon
@@ -337,6 +359,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                             :value="visibleRowData[i]?.[centerLeafHeaders[virtualColumn.index]!.column.id]"
                                             :loading="visibleRowData[i] === undefined"
                                             class="absolute top-0 h-full"
+                                            :class="constructCellClass?.(centerLeafHeaders[virtualColumn.index]!.column.id, vRow.index)"
                                             :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
                                         >
                                             <template v-if="$slots['cell-icon']" #icon

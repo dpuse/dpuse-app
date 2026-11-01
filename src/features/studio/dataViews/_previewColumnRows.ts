@@ -2,14 +2,22 @@
 import type { Component } from 'vue';
 
 // ── DPUse Framework
-import type { DataSubtypeId, DataTypeId, ObjectColumnConfig, PreviewConfig, StorageTypeId } from '@dpuse/dpuse-shared';
+import type { DataSubtypeId, DataTypeId, ObjectColumnConfig, StorageTypeId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import type { ItemReading } from './_dataViewColumns';
 import { TEXT } from './_previewColumnRows_.json';
 import { DATA_SUBTYPE_ICONS, DATA_TYPE_ICONS } from './_columnTypeIcons';
 import { localeId, t } from '@/state/locale';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+export interface ColumnValueCounts {
+    blankCount: number;
+    invalidCount: number;
+    missingCount: number;
+    validCount: number;
+}
 
 export type PreviewColumnRow = Record<(typeof PREVIEW_COLUMN_KEYS)[number], string>;
 
@@ -133,16 +141,11 @@ export function constructPreviewColumnHeaders(): PreviewColumnRow {
 
 // One row per column of the preview. The match is the share of sampled values, the header excluded, that fitted the
 // column's type, as the engine counts it when it chooses.
-export function constructPreviewColumnRows(previewConfig: PreviewConfig): PreviewColumnRow[] {
+export function constructPreviewColumnRows(itemReading: ItemReading): PreviewColumnRow[] {
     const percentFormat = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 });
     const numberFormat = new Intl.NumberFormat(localeId.value);
-    return previewConfig.columnConfigs.map((columnConfig, index) => {
-        const sampleCounts = Object.entries(columnConfig.inferenceCounts).map(([inferenceTypeId, count]) => ({
-            inferenceTypeId,
-            count: previewConfig.hasHeaders === true ? count - (columnConfig.leadingInferenceCounts[inferenceTypeId] ?? 0) : count
-        }));
-        const total = sampleCounts.reduce((sum, sampleCount) => sum + sampleCount.count, 0);
-        const count = countColumnMatches(columnConfig.dataTypeId, sampleCounts, total);
+    return itemReading.columnConfigs.map((columnConfig, index) => {
+        const { count, total } = countColumnValues(columnConfig, itemReading.hasHeaders === true);
         return {
             label: columnConfig.label[localeId.value] ?? columnConfig.label.en ?? String(index + 1),
             dataTypeLabel: constructDataTypeLabel(columnConfig.dataTypeId),
@@ -174,9 +177,17 @@ export function constructPreviewColumnRows(previewConfig: PreviewConfig): Previe
     });
 }
 
+// What each column's values are, for the bar in its header. Follows a type the user chose, as the rows do.
+export function constructColumnValueCounts(itemReading: ItemReading): ColumnValueCounts[] {
+    return itemReading.columnConfigs.map((columnConfig) => {
+        const { count, total } = countColumnValues(columnConfig, itemReading.hasHeaders === true);
+        return { blankCount: columnConfig.blankValueCount ?? 0, invalidCount: total - count, missingCount: columnConfig.missingValueCount ?? 0, validCount: count };
+    });
+}
+
 // The icons beside a row's type and subtype labels, kept apart from the rows because the table's cells hold only text.
-export function constructPreviewColumnIcons(previewConfig: PreviewConfig): PreviewColumnIcons[] {
-    return previewConfig.columnConfigs.map(({ dataSubtypeId, dataTypeId }) => ({
+export function constructPreviewColumnIcons(itemReading: ItemReading): PreviewColumnIcons[] {
+    return itemReading.columnConfigs.map(({ dataSubtypeId, dataTypeId }) => ({
         dataSubtypeIcon: dataSubtypeId === undefined || dataSubtypeId === 'plain' ? undefined : DATA_SUBTYPE_ICONS[dataSubtypeId],
         dataTypeIcon: DATA_TYPE_ICONS[dataTypeId]
     }));
@@ -224,6 +235,16 @@ function constructReadingText({ dateOrderId, decimalSeparatorId, isFormatAmbiguo
     if (decimalSeparatorId != null) readings.push(t(TEXT, decimalSeparatorId === ',' ? 'reading.decimalComma.text' : 'reading.decimalPoint.text'));
     const readingText = readings.join(', ');
     return isFormatAmbiguous === true ? t(TEXT, 'reading.unclear.text', { reading: readingText }) : readingText;
+}
+
+// How many of a column's values fit its current type, of those it holds. A header record's own value is not data.
+function countColumnValues(columnConfig: ObjectColumnConfig, hasHeaders: boolean): { count: number; total: number } {
+    const sampleCounts = Object.entries(columnConfig.inferenceCounts).map(([inferenceTypeId, count]) => ({
+        inferenceTypeId,
+        count: hasHeaders ? count - (columnConfig.leadingInferenceCounts[inferenceTypeId] ?? 0) : count
+    }));
+    const total = sampleCounts.reduce((sum, sampleCount) => sum + sampleCount.count, 0);
+    return { count: countColumnMatches(columnConfig.dataTypeId, sampleCounts, total), total };
 }
 
 // A full match is just '100%'. The counts are only added below that, so a weak guess stands out.

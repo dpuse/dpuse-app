@@ -6,13 +6,20 @@
 import { describe, expect, it } from 'vitest';
 
 // Framework dependencies.
-import { constructPreviewColumnHeaders, constructPreviewColumnIcons, constructPreviewColumnRows, PREVIEW_COLUMN_KEYS } from '@/features/studio/dataViews/_previewColumnRows';
+import type { ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
+import type { ObjectColumnConfig } from '@dpuse/dpuse-shared';
+import {
+    constructColumnValueCounts,
+    constructPreviewColumnHeaders,
+    constructPreviewColumnIcons,
+    constructPreviewColumnRows,
+    PREVIEW_COLUMN_KEYS
+} from '@/features/studio/dataViews/_previewColumnRows';
 import { DATA_SUBTYPE_ICONS, DATA_TYPE_ICONS, getColumnTypeIcon } from '@/features/studio/dataViews/_columnTypeIcons';
-import type { ObjectColumnConfig, PreviewConfig } from '@dpuse/dpuse-shared';
 
-function constructPreviewConfig(hasHeaders: boolean, columnConfig: Partial<ObjectColumnConfig>): PreviewConfig {
+function buildItemReading(hasHeaders: boolean, columnConfig: Partial<ObjectColumnConfig>): ItemReading {
     const defaultColumnConfig = { dataTypeId: 'string', inferenceCounts: {}, label: { en: 'id' }, leadingInferenceCounts: {} };
-    return { columnConfigs: [{ ...defaultColumnConfig, ...columnConfig }], hasHeaders } as unknown as PreviewConfig;
+    return { columnConfigs: [{ ...defaultColumnConfig, ...columnConfig }], hasHeaders } as unknown as ItemReading;
 }
 
 describe('constructPreviewColumnHeaders', () => {
@@ -25,15 +32,15 @@ describe('constructPreviewColumnHeaders', () => {
 
 describe('constructPreviewColumnIcons', () => {
     it('gives a column its type and subtype icons', () => {
-        const previewConfig = constructPreviewConfig(false, { dataSubtypeId: 'integer', dataTypeId: 'numeric' });
+        const itemReading = buildItemReading(false, { dataSubtypeId: 'integer', dataTypeId: 'numeric' });
 
-        expect(constructPreviewColumnIcons(previewConfig)[0]).toEqual({ dataSubtypeIcon: DATA_SUBTYPE_ICONS.integer, dataTypeIcon: DATA_TYPE_ICONS.numeric });
+        expect(constructPreviewColumnIcons(itemReading)[0]).toEqual({ dataSubtypeIcon: DATA_SUBTYPE_ICONS.integer, dataTypeIcon: DATA_TYPE_ICONS.numeric });
     });
 
     it('shows no subtype icon for plain text, which has no subtype label', () => {
-        const previewConfig = constructPreviewConfig(false, { dataSubtypeId: 'plain' });
+        const itemReading = buildItemReading(false, { dataSubtypeId: 'plain' });
 
-        expect(constructPreviewColumnIcons(previewConfig)[0]).toEqual({ dataSubtypeIcon: undefined, dataTypeIcon: DATA_TYPE_ICONS.string });
+        expect(constructPreviewColumnIcons(itemReading)[0]).toEqual({ dataSubtypeIcon: undefined, dataTypeIcon: DATA_TYPE_ICONS.string });
     });
 });
 
@@ -46,24 +53,24 @@ describe('getColumnTypeIcon', () => {
 
 describe('constructPreviewColumnRows', () => {
     it('leaves the header out of the match, and adds the counts below a full match', () => {
-        const previewConfig = constructPreviewConfig(true, {
+        const itemReading = buildItemReading(true, {
             dataSubtypeId: 'integer',
             dataTypeId: 'numeric',
             inferenceCounts: { 'numeric.integer': 3, 'string.plain': 2 },
             leadingInferenceCounts: { 'string.plain': 1 }
         });
 
-        expect(constructPreviewColumnRows(previewConfig)[0]).toMatchObject({ dataSubtypeLabel: 'Integer', dataTypeLabel: 'Number', label: 'id', matchText: '75% (3 of 4)' });
+        expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({ dataSubtypeLabel: 'Integer', dataTypeLabel: 'Number', label: 'id', matchText: '75% (3 of 4)' });
     });
 
     it('shows no subtype for plain text, which fits every value', () => {
-        const previewConfig = constructPreviewConfig(false, { dataSubtypeId: 'plain', inferenceCounts: { 'numeric.integer': 1, 'string.plain': 1 } });
+        const itemReading = buildItemReading(false, { dataSubtypeId: 'plain', inferenceCounts: { 'numeric.integer': 1, 'string.plain': 1 } });
 
-        expect(constructPreviewColumnRows(previewConfig)[0]).toMatchObject({ dataSubtypeLabel: '', dataTypeLabel: 'Text', label: 'id', matchText: '100%' });
+        expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({ dataSubtypeLabel: '', dataTypeLabel: 'Text', label: 'id', matchText: '100%' });
     });
 
     it('shows every measured item', () => {
-        const previewConfig = constructPreviewConfig(false, {
+        const itemReading = buildItemReading(false, {
             dataTypeId: 'numeric',
             decimalSeparatorId: ',',
             distinctValueCount: 2,
@@ -85,7 +92,7 @@ describe('constructPreviewColumnRows', () => {
             validValues: { '7': 'numeric.integer', '12': 'numeric.integer' }
         });
 
-        expect(constructPreviewColumnRows(previewConfig)[0]).toMatchObject({
+        expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({
             decimalText: '2',
             distinctValueText: '2',
             formatText: '9999,9 (5), 9999 (3)',
@@ -101,7 +108,7 @@ describe('constructPreviewColumnRows', () => {
     });
 
     it('keeps the counts in step with a type the user chose', () => {
-        const previewConfig = constructPreviewConfig(false, {
+        const itemReading = buildItemReading(false, {
             blankValueCount: 1,
             dataTypeId: 'string',
             inferenceCounts: { 'numeric.integer': 3, 'string.plain': 1 },
@@ -110,7 +117,7 @@ describe('constructPreviewColumnRows', () => {
             validValueCount: 3
         });
 
-        expect(constructPreviewColumnRows(previewConfig)[0]).toMatchObject({
+        expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({
             blankValueText: '1',
             invalidValueText: '0',
             matchText: '100%',
@@ -120,13 +127,25 @@ describe('constructPreviewColumnRows', () => {
     });
 
     it('says when a column held too many values to count, and leaves a preview read before counting blank', () => {
-        const measuredConfig = constructPreviewConfig(false, { quotedValueCount: 0 });
+        const measuredConfig = buildItemReading(false, { quotedValueCount: 0 });
 
         expect(constructPreviewColumnRows(measuredConfig)[0]?.distinctValueText).toBe('Not counted');
-        expect(constructPreviewColumnRows(constructPreviewConfig(false, {}))[0]?.distinctValueText).toBe('');
+        expect(constructPreviewColumnRows(buildItemReading(false, {}))[0]?.distinctValueText).toBe('');
+    });
+
+    it('splits a column’s values by whether they fit its type, leaving out a header record', () => {
+        const itemReading = buildItemReading(true, {
+            blankValueCount: 1,
+            dataTypeId: 'numeric',
+            inferenceCounts: { 'numeric.integer': 4, 'string.plain': 3 },
+            leadingInferenceCounts: { 'string.plain': 1 },
+            missingValueCount: 2
+        });
+
+        expect(constructColumnValueCounts(itemReading)[0]).toEqual({ blankCount: 1, invalidCount: 2, missingCount: 2, validCount: 4 });
     });
 
     it('shows no match for a column with no sampled values', () => {
-        expect(constructPreviewColumnRows(constructPreviewConfig(false, {}))[0]?.matchText).toBe('');
+        expect(constructPreviewColumnRows(buildItemReading(false, {}))[0]?.matchText).toBe('');
     });
 });

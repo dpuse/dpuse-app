@@ -7,7 +7,15 @@ import { defineComponent, h, type VNode } from 'vue';
 import InvestigateDataPanel from '@/features/studio/dataViews/exploreData/InvestigateDataPanel.vue';
 import { settle } from '~/tests/support/settle';
 import { TEXT } from '@/features/studio/dataViews/exploreData/InvestigateDataPanel_.json';
-import { closeDataViewStore, findDataViewStoreLabel, hasDataViewLoad, isDataViewLoaded, loadDataViewRecords, openDataViewStore, queryDataViewRecords } from '@/features/studio/dataViews/_dataViewStore';
+import {
+    closeDataViewStore,
+    findDataViewStoreLabel,
+    hasDataViewLoad,
+    isDataViewLoaded,
+    loadDataViewRecords,
+    openDataViewStore,
+    queryDataViewRecords
+} from '@/features/studio/dataViews/_dataViewStore';
 import { localeId, t } from '@/state/locale';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -59,8 +67,7 @@ const AUDITED_DATA_VIEW = {
         columnConfigs: [
             { dataSubtypeId: 'integer', dataTypeId: 'numeric', label: { en: 'Id' } },
             { dataSubtypeId: 'date', dataTypeId: 'temporal', label: { en: 'Day' } }
-        ],
-        sourceId: 'audit'
+        ]
     },
     id: 'dataView1'
 };
@@ -145,7 +152,10 @@ describe('InvestigateDataPanel', () => {
         expect(wrapper.text()).toContain(t(TEXT, 'load.required.text'));
         expect(openDataViewStore).not.toHaveBeenCalled();
 
-        await wrapper.findAll('button').find((button) => button.text() === t(TEXT, 'load.data.label'))?.trigger('click');
+        await wrapper
+            .findAll('button')
+            .find((button) => button.text() === t(TEXT, 'load.data.label'))
+            ?.trigger('click');
         await settle();
 
         expect(loadDataViewRecords).toHaveBeenCalledOnce();
@@ -209,7 +219,10 @@ describe('InvestigateDataPanel', () => {
 
         expect(wrapper.text()).toContain(t(TEXT, 'store.heldElsewhere.text'));
 
-        await wrapper.findAll('button').find((button) => button.text() === t(TEXT, 'retry.label'))?.trigger('click');
+        await wrapper
+            .findAll('button')
+            .find((button) => button.text() === t(TEXT, 'retry.label'))
+            ?.trigger('click');
         await settle();
 
         expect(openDataViewStore).toHaveBeenCalledTimes(2);
