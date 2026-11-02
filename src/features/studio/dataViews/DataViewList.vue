@@ -14,6 +14,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { defineLazyComponent } from '@/utilities/index.ts';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import { ignoreReportedNavigationFailure } from '@/router';
+import { isDataViewLoaded } from './_dataViewStore';
 import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './DataViewList_.json';
 import { useCardRowHeight } from '@/components/ui/config/configCard';
@@ -152,9 +153,12 @@ function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewC
     else updateDataViewIdParameter(dataViewLocalisedConfig.id);
 }
 
-// Opens the data view at the last task it has finished, or at Explore Data once every other task is done.
+// Opens the data view at the last task it has finished, or at Explore Data once every other task is done. Explore Data
+// has nothing to show until the records are loaded, so a data view with none for its current columns opens at its item,
+// where the load starts. No draft can be open here, because leaving a data view settles its changes.
 function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): void {
-    const routeName = resolveCurrentDataViewStepId(dataViewLocalisedConfig);
+    const stepId = resolveCurrentDataViewStepId(dataViewLocalisedConfig);
+    const routeName = stepId === 'data' && !isDataViewLoaded(dataViewLocalisedConfig, false) ? 'item' : stepId;
     void ignoreReportedNavigationFailure(router.push({ name: routeName, params: { dataViewId: dataViewLocalisedConfig.id }, query: route.query }));
 }
 

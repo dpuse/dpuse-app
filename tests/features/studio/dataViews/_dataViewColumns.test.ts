@@ -6,10 +6,11 @@ import type { ColumnSetConfig, ContentAuditConfig, DataViewColumnConfig, DataVie
 
 // ── Local Framework
 import {
-    applyChosenColumnDataTypes,
+    applyChosenColumnTypes,
     constructAuditColumnSetConfig,
-    constructChosenColumnDataTypeIds,
+    constructChosenColumnTypes,
     constructColumnSetVersion,
+    constructDataTypeCellClass,
     constructItemColumnSetConfig,
     constructItemReading,
     constructLoadColumnConfigs,
@@ -84,10 +85,12 @@ describe('constructItemColumnSetConfig', () => {
     it('keeps the detected type apart from the chosen one', () => {
         const itemReading = { columnConfigs: [buildColumn({ dataTypeId: 'numeric' })] } as unknown as ItemReading;
 
-        const columnSetConfig = constructItemColumnSetConfig(itemReading, 3, [{ dataSubtypeId: 'email', dataTypeId: 'string' }], { 0: 'numeric' });
+        const columnSetConfig = constructItemColumnSetConfig(itemReading, 3, [{ dataSubtypeId: 'email', dataTypeId: 'string' }], {
+            0: { dataSubtypeId: 'decimal', dataTypeId: 'numeric' }
+        });
 
         expect(columnSetConfig.asAt).toBe(3);
-        expect(columnSetConfig.columnConfigs[0]).toMatchObject({ chosenDataTypeId: 'numeric', dataSubtypeId: 'email', dataTypeId: 'string' });
+        expect(columnSetConfig.columnConfigs[0]).toMatchObject({ chosenDataSubtypeId: 'decimal', chosenDataTypeId: 'numeric', dataSubtypeId: 'email', dataTypeId: 'string' });
     });
 });
 
@@ -95,30 +98,47 @@ describe('constructAuditColumnSetConfig', () => {
     it('replaces what was detected and keeps each chosen type', () => {
         const audit = { asAt: 9, columns: [buildColumn({ dataTypeId: 'temporal' }), buildColumn({ dataTypeId: 'numeric' })] } as unknown as ContentAuditConfig;
 
-        const columnSetConfig = constructAuditColumnSetConfig(audit, buildColumnSet([buildColumn({ chosenDataTypeId: 'string' })]));
+        const columnSetConfig = constructAuditColumnSetConfig(audit, buildColumnSet([buildColumn({ chosenDataSubtypeId: 'email', chosenDataTypeId: 'string' })]));
 
         expect(columnSetConfig.asAt).toBe(9);
-        expect(columnSetConfig.columnConfigs[0]).toMatchObject({ chosenDataTypeId: 'string', dataTypeId: 'temporal' });
+        expect(columnSetConfig.columnConfigs[0]).toMatchObject({ chosenDataSubtypeId: 'email', chosenDataTypeId: 'string', dataTypeId: 'temporal' });
         expect(columnSetConfig.columnConfigs[1]?.chosenDataTypeId).toBeUndefined();
     });
 });
 
 describe('chosen column types', () => {
     it('round trip through a column set, by position', () => {
-        const columnSetConfig = applyChosenColumnDataTypes(buildColumnSet([buildColumn({}), buildColumn({})]), { 1: 'boolean' });
+        const chosenColumnTypes = { 1: { dataSubtypeId: 'decimal', dataTypeId: 'numeric' } } as const;
+        const columnSetConfig = applyChosenColumnTypes(buildColumnSet([buildColumn({}), buildColumn({})]), chosenColumnTypes);
 
-        expect(constructChosenColumnDataTypeIds(columnSetConfig)).toStrictEqual({ 1: 'boolean' });
+        expect(constructChosenColumnTypes(columnSetConfig)).toStrictEqual(chosenColumnTypes);
+    });
+
+    it('fill in the subtype of a type saved without one', () => {
+        const columnSetConfig = buildColumnSet([
+            buildColumn({ chosenDataTypeId: 'numeric', dataSubtypeId: 'decimal', dataTypeId: 'numeric' }),
+            buildColumn({ chosenDataTypeId: 'numeric', dataSubtypeId: 'plain', dataTypeId: 'string' }),
+            buildColumn({ chosenDataTypeId: 'temporal', dataSubtypeId: 'plain', dataTypeId: 'string' }),
+            buildColumn({ chosenDataTypeId: 'boolean', dataSubtypeId: 'plain', dataTypeId: 'string' })
+        ]);
+
+        expect(constructChosenColumnTypes(columnSetConfig)).toStrictEqual({
+            0: { dataSubtypeId: 'decimal', dataTypeId: 'numeric' },
+            1: { dataSubtypeId: 'integer', dataTypeId: 'numeric' },
+            2: { dataSubtypeId: 'dateTime', dataTypeId: 'temporal' },
+            3: { dataSubtypeId: undefined, dataTypeId: 'boolean' }
+        });
     });
 
     it('are empty without a column set', () => {
-        expect(constructChosenColumnDataTypeIds(undefined)).toStrictEqual({});
+        expect(constructChosenColumnTypes(undefined)).toStrictEqual({});
     });
 });
 
 describe('resolveColumnConfig', () => {
-    it('uses the chosen type and drops the detected subtype', () => {
-        expect(resolveColumnConfig(buildColumn({ chosenDataTypeId: 'string', dataSubtypeId: 'integer', dataTypeId: 'numeric' }))).toMatchObject({
-            dataSubtypeId: undefined,
+    it('uses the chosen type and subtype in place of the detected ones', () => {
+        expect(resolveColumnConfig(buildColumn({ chosenDataSubtypeId: 'email', chosenDataTypeId: 'string', dataSubtypeId: 'integer', dataTypeId: 'numeric' }))).toMatchObject({
+            dataSubtypeId: 'email',
             dataTypeId: 'string'
         });
     });
@@ -155,6 +175,8 @@ describe('constructColumnSetVersion', () => {
         const columnSetConfig = buildColumnSet([buildColumn({ chosenDataTypeId: 'numeric' })]);
 
         expect(constructColumnSetVersion(columnSetConfig)).toBe('5|{"0":"numeric"}');
+        const subtypedColumnSetConfig = buildColumnSet([buildColumn({ chosenDataSubtypeId: 'decimal', chosenDataTypeId: 'numeric' })]);
+        expect(constructColumnSetVersion(subtypedColumnSetConfig)).toBe('5|{"0":"numeric.decimal"}');
     });
 
     it('is undefined without a column set', () => {
@@ -176,5 +198,20 @@ describe('restoreItemReading', () => {
 
     it('is undefined without a preview', () => {
         expect(restoreItemReading({ columnSetConfig: undefined, previewConfig: undefined, readConfig: undefined })).toBeUndefined();
+    });
+});
+
+describe('constructDataTypeCellClass', () => {
+    it('right aligns numbers with even digits', () => {
+        expect(constructDataTypeCellClass('numeric')).toBe('justify-end tabular-nums');
+    });
+
+    it('keeps dates on the left with even digits', () => {
+        expect(constructDataTypeCellClass('temporal')).toBe('tabular-nums');
+    });
+
+    it('adds nothing for other columns', () => {
+        expect(constructDataTypeCellClass('string')).toBeUndefined();
+        expect(constructDataTypeCellClass(undefined)).toBeUndefined();
     });
 });

@@ -10,6 +10,7 @@ import type { ColumnDef } from '@tanstack/vue-table';
 import {
     ArrowLeftIcon,
     ArrowRightIcon,
+    AsteriskIcon,
     BracesIcon,
     CheckIcon,
     ChevronDownIcon,
@@ -48,7 +49,6 @@ import type {
     ConnectionNodeConfig,
     ContentAuditConfig,
     DataFormatId,
-    DataTypeId,
     DataViewConfig,
     GetInfoOptions,
     GetInfoResult,
@@ -75,7 +75,7 @@ import type { AuditChoice } from './AuditMenu.vue';
 import AuditMenu from './AuditMenu.vue';
 import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
 import ColumnValueBar from './ColumnValueBar.vue';
-import ColumnValueSpread from './ColumnValueSpread.vue';
+import { constructFittedColumnWidth } from '@/components/ui/table/tableColumnWidth';
 import type { DataSource } from '@/composables/useDataWindow';
 import { establishEngineWorker } from '@/services/engine';
 import { getColumnTypeIcon } from '../_columnTypeIcons';
@@ -85,9 +85,12 @@ import { TEXT } from './SelectItemPanel_.json';
 import { useItemAudit } from './useItemAudit';
 import { viewportIsWide } from '@/state/device';
 import { type AppFailure, raiseFailure } from '@/state/errors';
-import { applyPreviewColumnType, applyPreviewColumnTypes, type DetectedColumnType } from './_previewColumnTypes';
+import { applyPreviewColumnType, applyPreviewColumnTypes, CHOOSABLE_COLUMN_TYPES, constructDecimalPadding, type DetectedColumnType } from './_previewColumnTypes';
 import {
-    constructChosenColumnDataTypeIds,
+    type ChosenColumnTypes,
+    constructChosenColumnTypes,
+    constructColumnTypeId,
+    constructDataTypeCellClass,
     constructItemColumnSetConfig,
     constructItemReading,
     constructPreviewContentAuditConfig,
@@ -97,6 +100,7 @@ import {
     type ItemReading
 } from '../_dataViewColumns';
 import {
+    constructColumnTypeLabel,
     constructColumnValueCounts,
     constructDataTypeLabel,
     constructPreviewColumnHeaders,
@@ -198,7 +202,6 @@ const PREVIEW_ISSUE_SEVERITIES: Record<PreviewIssueSeverityId, { bandClass: stri
 };
 const PREVIEW_ISSUE_SEVERITY_IDS: PreviewIssueSeverityId[] = ['error', 'warning', 'info']; // Most serious first.
 
-const CHOOSABLE_DATA_TYPE_IDS: DataTypeId[] = ['string', 'numeric', 'temporal', 'boolean']; // A column's main types. 'unknown' is only ever detected, so it is not offered.
 const AUTO_OPTION_ID = 'auto'; // The selects' value for 'read it as detected'. No format, encoding or value delimiter has this id.
 const CONTAINER_FILE_TYPE_EXTENSIONS = new Set(['cfb']); // Detected types that only name a container, e.g. a legacy Excel or Word file, so the item's own extension names it better.
 const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
@@ -249,6 +252,24 @@ const PREVIEW_BYTE_LIMIT = 65_536;
 const AUDIT_BYTE_LIMITS = [PREVIEW_BYTE_LIMIT, 1_048_576, 10_485_760, 104_857_600];
 const AUDIT_CHOICE_LIMIT = 2; // The next sizes offered, as well as all of the item, because the toolbar has little room.
 const COLUMN_NAME_WIDTH_PX = 220; // The table's pinned names. 'w-57' on the table in the template is this and the table's edges.
+const MINIMUM_FITTED_PREVIEW_COLUMN_WIDTH_PX = 120; // Keeps the type select's name readable in a column of short values.
+const MINIMUM_PREVIEW_COLUMN_WIDTH_PX = 72; // Keeps the header's type select wide enough to show its icon and arrow.
+const PREVIEW_COLUMN_MARKS_WIDTH_PX = 34; // The mandatory and key marks after a label: two 14px icons, 'gap-x-0.5' and 'ml-1'.
+const PREVIEW_INVALID_ICON_WIDTH_PX = 20; // The icon beside an invalid value: 14px and the cell's 'gap-x-1.5'.
+
+// ── Value Tints ─ Each a layer inset from the cell's edges, so neighbouring marked values stay apart and nothing in the cell
+// moves. Red is the strongest, because only an invalid value is a problem. Blank and missing take the colours of the
+// header's value bar.
+const VALUE_TINT_CLASSES: Partial<Record<PreviewValueStateId, string>> = {
+    blank: 'before:pointer-events-none before:absolute before:inset-0.5 before:rounded-sm before:bg-blank-tint',
+    invalid: 'before:pointer-events-none before:absolute before:inset-0.5 before:rounded-sm before:bg-invalid-tint',
+    missing: 'before:pointer-events-none before:absolute before:inset-0.5 before:rounded-sm before:bg-missing-tint'
+};
+const VALUE_TITLE_KEYS: Partial<Record<PreviewValueStateId, keyof typeof TEXT>> = {
+    blank: 'value.blank.aria',
+    invalid: 'value.invalid.text',
+    missing: 'value.missing.aria'
+};
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -297,7 +318,7 @@ const detectedValueDelimiterId = ref<ValueDelimiterId>();
 
 // ── Column Types ─ The type the user chose for a column, by its id in the table, which is its position. Cleared by every
 // new reading. What was detected is kept apart, so Auto can return to it.
-const selectedColumnDataTypeIds = ref<Partial<Record<string, DataTypeId>>>({});
+const selectedColumnTypes = ref<ChosenColumnTypes>({});
 const detectedColumnTypes = shallowRef<DetectedColumnType[]>([]);
 
 // ── Preview Tabs ─ Tabs and their panel reference each other by id, which must be unique on the page. Below 'md' the
@@ -529,13 +550,8 @@ const auditStatus = computed(() => {
     const isComplete = !isRunning && contentAuditConfig.isComplete;
     const stateId = isRunning ? 'running' : 'done';
     if (itemSize === 0 || contentAuditConfig.byteCount === 0) {
-        const amount = formatNumberAsStorageSize(byteCount);
-        return {
-            isComplete,
-            percentage: undefined,
-            shortText: records,
-            text: byteCount === 0 ? t(TEXT, `audit.records.${stateId}.text`, { duration, records }) : t(TEXT, `audit.amount.${stateId}.text`, { amount, duration, records })
-        };
+        const textKey = `audit.${byteCount === 0 ? 'records' : 'amount'}.${isComplete ? 'complete' : stateId}.text` as const;
+        return { isComplete, percentage: undefined, ...constructUnsizedAuditText(textKey, isComplete, byteCount, duration, records) };
     }
     const percentage = isComplete ? 100 : Math.min((byteCount / itemSize) * 100, 100);
     const amount = formatNumberAsStorageSize(isComplete ? itemSize : byteCount);
@@ -545,7 +561,7 @@ const auditStatus = computed(() => {
         percentage,
         shortText: t(TEXT, 'audit.short.text', { percentage: percentageText, records }),
         text: isComplete
-            ? t(TEXT, 'audit.amount.done.text', { amount, duration, records })
+            ? t(TEXT, 'audit.amount.complete.text', { amount, duration, percentage: percentageText, records })
             : t(TEXT, `audit.part.${stateId}.text`, { amount, duration, percentage: percentageText, records, total: formatNumberAsStorageSize(itemSize) })
     };
 });
@@ -745,8 +761,8 @@ watch(
             const headedItemReading = await applyHeaderChoice(itemReading, newActiveItem);
             if (currentRequestId !== previewRequestId.value) return;
 
-            const wereColumnTypesChosen = Object.values(selectedColumnDataTypeIds.value).some((dataTypeId) => dataTypeId != null);
-            selectedColumnDataTypeIds.value = isNewReadChoice ? {} : constructSavedColumnDataTypeIds(newActiveItem); // A new reading can change the columns, but reopening the saved item keeps its types.
+            const wereColumnTypesChosen = Object.values(selectedColumnTypes.value).some((columnType) => columnType != null);
+            selectedColumnTypes.value = isNewReadChoice ? {} : constructSavedColumnTypes(newActiveItem); // A new reading can change the columns, but reopening the saved item keeps its types.
             detectedColumnTypes.value = constructDetectedColumnTypes(headedItemReading);
             if (isNewReadChoice) selectedColumnIndex.value = undefined; // A new reading can change the columns.
             activeContentAuditConfig.value = constructFirstContentAuditConfig(previewObjectResult.contentAuditConfig, headedItemReading);
@@ -808,14 +824,15 @@ function handleRetryList(): void {
 }
 
 // A change of type keeps the records, so nothing is read again and the table stays as it is.
-function handleSelectColumnDataType(columnId: string, dataTypeId: string): void {
+function handleSelectColumnType(columnId: string, columnTypeId: string): void {
     const columnIndex = Number(columnId);
     const detectedColumnType = detectedColumnTypes.value.at(columnIndex);
     if (detectedColumnType == null || activeItemReading.value == null) return;
     readingIsChanged.value = true;
-    const chosenDataTypeId = dataTypeId === AUTO_OPTION_ID ? undefined : (dataTypeId as DataTypeId); // The other options are all data type ids.
-    selectedColumnDataTypeIds.value[columnId] = chosenDataTypeId;
-    activeItemReading.value = applyPreviewColumnType(activeItemReading.value, columnIndex, chosenDataTypeId, detectedColumnType);
+    const chosenColumnType = CHOOSABLE_COLUMN_TYPES.find((columnType) => constructColumnTypeId(columnType) === columnTypeId); // Auto is not one of them, so it chooses none.
+    selectedColumnTypes.value[columnId] = chosenColumnType;
+    activeItemReading.value = applyPreviewColumnType(activeItemReading.value, columnIndex, chosenColumnType, detectedColumnType);
+    showPreviewColumns(activeItemReading.value);
 }
 
 function handleRetryItem(): void {
@@ -923,22 +940,46 @@ function constructValueState(columnId: string, rowIndex: number): PreviewValueSt
     return previewValueStates.value[rowIndex]?.[Number(columnId)];
 }
 
-function constructValueCellClass(columnId: string, rowIndex: number): string | undefined {
-    return constructValueState(columnId, rowIndex) === 'invalid' ? 'bg-[color-mix(in_srgb,var(--color-danger-text)_10%,transparent)]' : undefined;
+// Numbers sit to the right, with digits of one width, so they can be compared by size.
+function constructValueCellClass(columnId: string, rowIndex: number): string {
+    const dataTypeClass = constructDataTypeCellClass(activeItemReading.value?.columnConfigs[Number(columnId)]?.dataTypeId) ?? '';
+    return `${dataTypeClass} ${VALUE_TINT_CLASSES[constructValueState(columnId, rowIndex) ?? 'valid'] ?? ''}`;
+}
+
+function constructValueCellTitle(columnId: string, rowIndex: number): string | undefined {
+    const titleKey = VALUE_TITLE_KEYS[constructValueState(columnId, rowIndex) ?? 'valid'];
+    return titleKey == null ? undefined : t(TEXT, titleKey);
+}
+
+function isNumericColumn(columnId: string): boolean {
+    return activeItemReading.value?.columnConfigs[Number(columnId)]?.dataTypeId === 'numeric';
+}
+
+function findRecordValue(columnId: string, rowIndex: number): string {
+    const dataRecordIndex = rowIndex + (activeItemReading.value?.hasHeaders === true ? 1 : 0);
+    return activeItemReading.value?.parsedRecords[dataRecordIndex]?.[Number(columnId)]?.value ?? '';
+}
+
+// Blank space after a number, so the decimal points line up while the value still shows exactly as it is written.
+function constructValueDecimalPadding(columnId: string, rowIndex: number): string {
+    const columnConfig = activeItemReading.value?.columnConfigs[Number(columnId)];
+    return columnConfig?.dataTypeId === 'numeric' && constructValueState(columnId, rowIndex) === 'valid' ? constructDecimalPadding(findRecordValue(columnId, rowIndex), columnConfig) : '';
 }
 
 // A blank value can hold spaces, and a missing one can be a null word such as 'NULL', which still shows as written.
 function isValueEmpty(columnId: string, rowIndex: number): boolean {
     const valueState = constructValueState(columnId, rowIndex);
-    if (valueState !== 'blank' && valueState !== 'missing') return false;
-    const dataRecordIndex = rowIndex + (activeItemReading.value?.hasHeaders === true ? 1 : 0);
-    return (activeItemReading.value?.parsedRecords[dataRecordIndex]?.[Number(columnId)]?.value ?? '').trim() === '';
+    return (valueState === 'blank' || valueState === 'missing') && findRecordValue(columnId, rowIndex).trim() === '';
 }
 
-// Every value is unique and none is missing, so the column could identify each record. Only the whole item can show that.
+// No value is missing. Only the whole item can show that.
+function isRequiredColumn(columnId: string): boolean {
+    return activeContentAuditConfig.value?.isComplete === true && activeItemReading.value?.columnConfigs[Number(columnId)]?.isRequired === true;
+}
+
+// Every value is unique and none is missing, so the column could identify each record.
 function isKeyColumn(columnId: string): boolean {
-    const columnConfig = activeItemReading.value?.columnConfigs[Number(columnId)];
-    return activeContentAuditConfig.value?.isComplete === true && columnConfig?.isUnique === true && columnConfig.isRequired === true;
+    return isRequiredColumn(columnId) && activeItemReading.value?.columnConfigs[Number(columnId)]?.isUnique === true;
 }
 
 function handleShowColumnDetail(columnIndex: number): void {
@@ -976,6 +1017,7 @@ function handleItemAudited(contentAuditConfig: ContentAuditConfig): void {
     if (itemReading == null) return;
     activeContentAuditConfig.value = constructStoredContentAuditConfig(contentAuditConfig);
     activeItemReading.value = applyAuditColumns(itemReading, contentAuditConfig.columns.length > 0 ? contentAuditConfig.columns : itemReading.columnConfigs);
+    showPreviewColumns(activeItemReading.value);
     const auditedDataViewConfig = constructEditedDataViewConfig();
     if (auditedDataViewConfig) changeDataView(auditedDataViewConfig);
 }
@@ -999,13 +1041,22 @@ function constructEditedDataViewConfig(): DataViewConfig | undefined {
         readConfig,
         previewConfig: constructStoredPreviewConfig(itemReading),
         contentAuditConfig,
-        columnSetConfig: constructItemColumnSetConfig(itemReading, contentAuditConfig.asAt, detectedColumnTypes.value, selectedColumnDataTypeIds.value),
+        columnSetConfig: constructItemColumnSetConfig(itemReading, contentAuditConfig.asAt, detectedColumnTypes.value, selectedColumnTypes.value),
         relationshipsAuditConfig: undefined
     };
 }
 
 // Up to two decimal places, rounded down so a part of an item never reads as all of it. An amount too small to show
 // reads as under 0.01 rather than 0, because some of the item was read.
+// An item of unknown size has no part to show as a percentage, so only a whole audit shows one.
+function constructUnsizedAuditText(textKey: keyof typeof TEXT, isComplete: boolean, byteCount: number, duration: string, records: string): { shortText: string; text: string } {
+    const percentage = constructAuditPercentageText(100);
+    return {
+        shortText: isComplete ? t(TEXT, 'audit.short.text', { percentage, records }) : records,
+        text: t(TEXT, textKey, { amount: formatNumberAsStorageSize(byteCount), duration, percentage, records })
+    };
+}
+
 function constructAuditPercentageText(percentage: number): string {
     const shownPercentage = Math.floor(percentage * 100) / 100;
     const isTooSmallToShow = percentage > 0 && shownPercentage === 0;
@@ -1151,8 +1202,18 @@ function constructValueDelimiterText({ dataFormatId, valueDelimiterId }: ItemRea
 // A column's Auto names the type detected for it.
 function constructColumnTypeOptions(columnId: string): SelectOption[] {
     const detectedColumnType = detectedColumnTypes.value.at(Number(columnId));
-    const options: SelectOption[] = CHOOSABLE_DATA_TYPE_IDS.map((id) => ({ id, label: constructDataTypeLabel(id) }));
-    return [constructAutoOption(detectedColumnType == null ? undefined : constructDataTypeLabel(detectedColumnType.dataTypeId)), ...options];
+    const options: SelectOption[] = CHOOSABLE_COLUMN_TYPES.map((columnType) => ({
+        groupLabel: columnType.dataSubtypeId == null ? undefined : constructDataTypeLabel(columnType.dataTypeId),
+        id: constructColumnTypeId(columnType),
+        label: constructColumnTypeLabel(columnType)
+    }));
+    return [constructAutoOption(detectedColumnType == null ? undefined : constructColumnTypeLabel(detectedColumnType)), ...options];
+}
+
+// The value of a column's type select.
+function constructColumnTypeValue(columnId: string): string {
+    const selectedColumnType = selectedColumnTypes.value[columnId];
+    return selectedColumnType == null ? AUTO_OPTION_ID : constructColumnTypeId(selectedColumnType);
 }
 
 // The icon for a column's type select. Undefined until the preview holds the column.
@@ -1313,7 +1374,8 @@ async function recountActivePreview(hasHeaders: boolean): Promise<void> {
             recountedItemReading.size === activeConnectionObjectConfig.value?.size
         );
         detectedColumnTypes.value = constructDetectedColumnTypes(recountedItemReading);
-        activeItemReading.value = applyPreviewColumnTypes(recountedItemReading, selectedColumnDataTypeIds.value, detectedColumnTypes.value);
+        activeItemReading.value = applyPreviewColumnTypes(recountedItemReading, selectedColumnTypes.value, detectedColumnTypes.value);
+        showPreviewColumns(activeItemReading.value);
     } catch (error) {
         if (currentRequestId !== previewRequestId.value) return; // A newer choice owns the panel now.
         itemFailure.value = raiseFailure(
@@ -1328,10 +1390,10 @@ function applySavedAudit(itemReading: ItemReading, connectionNodeConfig: Connect
     const savedConfig = dataViewConfig.value;
     const savedContentAuditConfig = savedConfig?.contentAuditConfig;
     if (savedConfig == null || savedContentAuditConfig == null || !isSameAsSavedItem(savedConfig, connectionNodeConfig, constructReadConfig(itemReading))) {
-        return applyPreviewColumnTypes(itemReading, selectedColumnDataTypeIds.value, detectedColumnTypes.value);
+        return applyPreviewColumnTypes(itemReading, selectedColumnTypes.value, detectedColumnTypes.value);
     }
     activeContentAuditConfig.value = savedContentAuditConfig;
-    selectedColumnDataTypeIds.value = constructChosenColumnDataTypeIds(savedConfig.columnSetConfig);
+    selectedColumnTypes.value = constructChosenColumnTypes(savedConfig.columnSetConfig);
     return applyAuditColumns(itemReading, savedConfig.columnSetConfig?.columnConfigs ?? []);
 }
 
@@ -1339,7 +1401,7 @@ function applySavedAudit(itemReading: ItemReading, connectionNodeConfig: Connect
 function applyAuditColumns(itemReading: ItemReading, columnConfigs: ObjectColumnConfig[]): ItemReading {
     const columnItemReading = applyPreviewHeaders({ ...itemReading, columnConfigs }, itemReading.hasHeaders === true);
     detectedColumnTypes.value = constructDetectedColumnTypes(columnItemReading);
-    return applyPreviewColumnTypes(columnItemReading, selectedColumnDataTypeIds.value, detectedColumnTypes.value);
+    return applyPreviewColumnTypes(columnItemReading, selectedColumnTypes.value, detectedColumnTypes.value);
 }
 
 // Reads up to the preview's limit, the same way the item is read now, and shows the larger records and text. Nothing to do
@@ -1418,10 +1480,10 @@ function constructAuditDetailGroup(contentAuditConfig: StoredContentAuditConfig)
 }
 
 // The types saved with this item. A different item starts with none.
-function constructSavedColumnDataTypeIds(connectionNodeConfig: ConnectionNodeConfig): Partial<Record<string, DataTypeId>> {
+function constructSavedColumnTypes(connectionNodeConfig: ConnectionNodeConfig): ChosenColumnTypes {
     const savedNodeConfig = dataViewConfig.value?.connectionNodeConfig;
     const isSavedItem = savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig);
-    return isSavedItem ? constructChosenColumnDataTypeIds(dataViewConfig.value?.columnSetConfig) : {};
+    return isSavedItem ? constructChosenColumnTypes(dataViewConfig.value?.columnSetConfig) : {};
 }
 
 function constructDetectedColumnTypes({ columnConfigs }: ItemReading): DetectedColumnType[] {
@@ -1436,15 +1498,28 @@ function applyPreviewConfig(itemReading: ItemReading, isNewReadChoice: boolean):
     showPreviewTable(itemReading);
 }
 
-function showPreviewTable(itemReading: ItemReading): void {
-    const previewColumnLabels = itemReading.columnConfigs.map((config, index) => config.label.en ?? String(index));
+// Every record is at hand, so a column fits its widest value. A number is measured with its decimal padding, and the room
+// for the icon is kept for a column with invalid values. The padding comes from the column, not the value's state, because
+// the engine reports the states after the table is built. A numeric column has no width limit, because a number cut off
+// would lose its decimal point's place in the column.
+function constructPreviewColumnWidth(itemReading: ItemReading, label: string, columnIndex: number): number {
+    const columnConfig = itemReading.columnConfigs[columnIndex];
+    const isNumeric = columnConfig.dataTypeId === 'numeric';
+    const dataOffset = itemReading.hasHeaders === true ? 1 : 0;
+    const values = itemReading.parsedRecords.slice(dataOffset).map((record) => {
+        const value = record[columnIndex]?.value ?? '';
+        return isNumeric && value.trim() !== '' ? `${value}${constructDecimalPadding(value, columnConfig)}` : value;
+    });
+    const fittedWidth = constructFittedColumnWidth(label, values, {
+        cellExtraPx: (columnValueCounts.value[columnIndex]?.invalidCount ?? 0) > 0 ? PREVIEW_INVALID_ICON_WIDTH_PX : 0,
+        headerExtraPx: PREVIEW_COLUMN_MARKS_WIDTH_PX,
+        maximumWidthPx: isNumeric ? Infinity : undefined
+    });
+    return Math.max(fittedWidth, MINIMUM_FITTED_PREVIEW_COLUMN_WIDTH_PX);
+}
 
-    // Columns are keyed by position, not header text. TanStack reads a dot in an 'accessorKey' as a nested path, and two
-    // columns with the same header text would share one key.
-    previewTableColumnDefinitions.value = previewColumnLabels.map<ColumnDef<TableFeatureSet, Record<string, string | null>>>((label, index) => ({
-        accessorKey: String(index),
-        header: label
-    }));
+function showPreviewTable(itemReading: ItemReading): void {
+    showPreviewColumns(itemReading);
 
     const dataOffset = itemReading.hasHeaders === true ? 1 : 0;
     const previewRows = itemReading.parsedRecords
@@ -1455,6 +1530,21 @@ function showPreviewTable(itemReading: ItemReading): void {
         rowCount: previewRows.length,
         getRows: (start: number, end: number): Promise<{ rows: Record<string, string | null>[] }> => Promise.resolve({ rows: previewRows.slice(start, end) })
     };
+}
+
+// Run whenever the columns change with the records staying the same, such as after an audit, because a column's longest
+// decimal decides how much room its numbers need. The records stay in place, so the table keeps its scroll position.
+function showPreviewColumns(itemReading: ItemReading): void {
+    const previewColumnLabels = itemReading.columnConfigs.map((config, index) => config.label.en ?? String(index));
+
+    // Columns are keyed by position, not header text. TanStack reads a dot in an 'accessorKey' as a nested path, and two
+    // columns with the same header text would share one key.
+    previewTableColumnDefinitions.value = previewColumnLabels.map<ColumnDef<TableFeatureSet, Record<string, string | null>>>((label, index) => ({
+        accessorKey: String(index),
+        header: label,
+        minSize: MINIMUM_PREVIEW_COLUMN_WIDTH_PX,
+        size: constructPreviewColumnWidth(itemReading, label, index)
+    }));
 }
 
 // The tab that shows the item as its format suggests: data as a table, anything else as text. Data with no usable
@@ -1825,40 +1915,31 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     class="flex-1"
                     :column-definitions="previewTableColumnDefinitions"
                     :construct-cell-class="constructValueCellClass"
+                    :construct-cell-title="constructValueCellTitle"
                     :data-source="previewTableDataSource"
                     is-column-menu-hidden
                     is-column-picker-hidden
                 >
                     <!-- Column Type ─ Below the label, so a type can be changed beside the values it describes. Choosing one
                          changes how the column is read, not the records, so nothing is read again. '-ml-1.75' cancels the
-                         select's own padding and border, so its icon lines up with the label. 'min-w-12.75' is the width of the
-                         icon and arrow, so the arrow never covers the icon. -->
+                         select's own padding and border, so its icon lines up with the label. '-mr-1.5' cancels the arrow's
+                         inset, so the arrow ends where the label's line and the value bar end. 'min-w-12.75' is the width of
+                         the icon and arrow, so the arrow never covers the icon. -->
                     <template #header-detail="{ columnId }">
-                        <div class="flex min-w-0 items-center gap-x-1">
-                            <SelectInput
-                                class="-ml-1.75 min-w-12.75"
-                                :disabled="readChoicesAreLocked"
-                                is-compact
-                                :is-default="selectedColumnDataTypeIds[columnId] == null"
-                                :label="t(TEXT, 'columnType.aria', { label: String(previewTableColumnDefinitions[Number(columnId)]?.header) })"
-                                label-hidden
-                                :model-value="selectedColumnDataTypeIds[columnId] ?? AUTO_OPTION_ID"
-                                :options="constructColumnTypeOptions(columnId)"
-                                :tone="selectedColumnDataTypeIds[columnId] == null ? undefined : 'info'"
-                                @update:model-value="handleSelectColumnDataType(columnId, $event)"
-                            >
-                                <template #icon><component :is="constructColumnTypeIcon(columnId)" aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
-                            </SelectInput>
-                            <!-- Key ─ Only after a whole audit, because the rest of the item could still repeat a value. -->
-                            <span v-if="isKeyColumn(columnId)" :aria-label="t(TEXT, 'columnKey.aria')" class="flex-none text-accent" role="img" :title="t(TEXT, 'columnKey.aria')">
-                                <KeyRoundIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
-                            </span>
-                            <ColumnValueSpread
-                                v-if="activeItemReading?.columnConfigs[Number(columnId)]"
-                                :column-config="activeItemReading.columnConfigs[Number(columnId)]!"
-                                :column-label="String(previewTableColumnDefinitions[Number(columnId)]?.header)"
-                            />
-                        </div>
+                        <SelectInput
+                            class="-mr-1.5 -ml-1.75 min-w-12.75"
+                            :disabled="readChoicesAreLocked"
+                            is-compact
+                            :is-default="selectedColumnTypes[columnId] == null"
+                            :label="t(TEXT, 'columnType.aria', { label: String(previewTableColumnDefinitions[Number(columnId)]?.header) })"
+                            label-hidden
+                            :model-value="constructColumnTypeValue(columnId)"
+                            :options="constructColumnTypeOptions(columnId)"
+                            :tone="selectedColumnTypes[columnId] == null ? undefined : 'info'"
+                            @update:model-value="handleSelectColumnType(columnId, $event)"
+                        >
+                            <template #icon><component :is="constructColumnTypeIcon(columnId)" aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
+                        </SelectInput>
                         <ColumnValueBar
                             v-if="columnValueCounts[Number(columnId)]"
                             :column-label="String(previewTableColumnDefinitions[Number(columnId)]?.header)"
@@ -1866,17 +1947,41 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             @click="handleShowColumnDetail(Number(columnId))"
                         />
                     </template>
-                    <!-- Value Marks ─ A shape as well as the tint, so an invalid value does not rely on colour. Blank and missing
-                         values have nothing to show, so a dash says they are empty rather than not loaded. -->
+                    <!-- Mandatory and Key ─ Only after a whole audit, because the rest of the item could still lack or repeat a
+                         value. A key is always mandatory, so 'isRequiredColumn' covers both. The key comes last, as wide as
+                         the type select's arrow and ending at the same edge, so it sits directly above it. -->
+                    <template #header-label-end="{ columnId }">
+                        <span v-if="isRequiredColumn(columnId)" class="ml-1 flex flex-none items-center gap-x-0.5 text-muted">
+                            <span :aria-label="t(TEXT, 'columnRequired.aria')" role="img" :title="t(TEXT, 'columnRequired.aria')">
+                                <AsteriskIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                            </span>
+                            <span v-if="isKeyColumn(columnId)" :aria-label="t(TEXT, 'columnKey.aria')" role="img" :title="t(TEXT, 'columnKey.aria')">
+                                <KeyRoundIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                            </span>
+                        </span>
+                    </template>
+                    <!-- Value Marks ─ A shape as well as the tint, so an invalid value does not rely on colour. It goes at the far
+                         end of the cell from the value, so the value never moves. Blank and missing values have nothing to
+                         show, so a mark in the middle of the tint says they are empty rather than not loaded: '""' for blank
+                         and a dash for missing, so they differ by shape as well as colour. The padding is 'invisible' and
+                         '-ml-1.5' cancels the cell's gap, so it adds only its own width. -->
                     <template #cell-icon="{ columnId, rowIndex }">
                         <template v-if="constructValueState(columnId, rowIndex) === 'invalid'">
-                            <TriangleAlertIcon aria-hidden="true" class="size-3.5 flex-none text-danger-text" :stroke-width="1.5" />
+                            <TriangleAlertIcon
+                                aria-hidden="true"
+                                class="size-3.5 flex-none text-danger-text"
+                                :class="isNumericColumn(columnId) ? 'mr-auto' : 'order-1 ml-auto'"
+                                :stroke-width="1.5"
+                            />
                             <span class="sr-only">{{ t(TEXT, 'value.invalid.aria') }}</span>
                         </template>
-                        <span v-else-if="isValueEmpty(columnId, rowIndex)" class="text-sm text-subtle">
-                            <span aria-hidden="true">–</span>
+                        <span v-else-if="isValueEmpty(columnId, rowIndex)" class="absolute inset-0 flex items-center justify-center text-sm text-subtle">
+                            <span aria-hidden="true">{{ constructValueState(columnId, rowIndex) === 'blank' ? '""' : '–' }}</span>
                             <span class="sr-only">{{ t(TEXT, constructValueState(columnId, rowIndex) === 'blank' ? 'value.blank.aria' : 'value.missing.aria') }}</span>
                         </span>
+                        <span v-else-if="constructValueDecimalPadding(columnId, rowIndex)" aria-hidden="true" class="invisible order-1 -ml-1.5 flex-none text-sm">{{
+                            constructValueDecimalPadding(columnId, rowIndex)
+                        }}</span>
                     </template>
                 </Table>
                 <!-- Columns ─ 'v-if', so the table measures its space when it opens rather than while hidden. With a column's
@@ -1919,15 +2024,15 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         class="min-w-0 flex-1 border-l border-separator"
                         :can-step-columns="columnDetailFillsSpace"
                         :column-index="selectedColumnIndex"
-                        :detected-data-type-id="detectedColumnTypes[selectedColumnIndex]?.dataTypeId"
+                        :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
                         :is-type-disabled="readChoicesAreLocked"
                         :item-reading="activeItemReading"
                         :source-text="auditStatus?.shortText ?? ''"
                         :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
-                        :type-value="selectedColumnDataTypeIds[String(selectedColumnIndex)] ?? AUTO_OPTION_ID"
+                        :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
                         @close="selectedColumnIndex = undefined"
                         @step="selectedColumnIndex = $event"
-                        @update:type-value="handleSelectColumnDataType(String(selectedColumnIndex), $event)"
+                        @update:type-value="handleSelectColumnType(String(selectedColumnIndex), $event)"
                     />
                 </div>
                 <TextViewer

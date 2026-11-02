@@ -4,12 +4,12 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
-import type { DataTypeId, ObjectColumnConfig } from '@dpuse/dpuse-shared';
+import type { ObjectColumnConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import type { ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
 import { TEXT } from './ColumnDetailPanel_.json';
-import { constructDataTypeLabel, constructPreviewColumnHeaders, constructPreviewColumnRows, type PreviewColumnRow } from '@/features/studio/dataViews/_previewColumnRows';
+import { type ColumnType, constructColumnTypeId, type ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
+import { constructColumnTypeLabel, constructPreviewColumnHeaders, constructPreviewColumnRows, type PreviewColumnRow } from '@/features/studio/dataViews/_previewColumnRows';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -28,10 +28,10 @@ const COLLAPSED_LIST_ROW_COUNT = 10; // Rows a long list shows until the user as
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { canStepColumns, columnIndex, detectedDataTypeId, isTypeDisabled, itemReading, sourceText, typeOptions, typeValue } = defineProps<{
+const { canStepColumns, columnIndex, detectedColumnType, isTypeDisabled, itemReading, sourceText, typeOptions, typeValue } = defineProps<{
     canStepColumns?: boolean; // Filling the space hides the table, so Previous and Next take its place.
     columnIndex: number;
-    detectedDataTypeId: DataTypeId | undefined;
+    detectedColumnType: ColumnType | undefined;
     isTypeDisabled?: boolean;
     itemReading: ItemReading;
     sourceText: string; // What the figures describe: how much of the item was audited.
@@ -56,8 +56,8 @@ const summaryText = computed(() => [columnRow.value?.dataTypeLabel, columnRow.va
 
 // The detected type, shown only when it differs from the type in use, so a choice that disagrees with the data is seen.
 const detectedTypeText = computed(() => {
-    if (detectedDataTypeId == null || detectedDataTypeId === columnConfig.value?.dataTypeId) return;
-    return t(TEXT, 'detected.text', { type: constructDataTypeLabel(detectedDataTypeId) });
+    if (detectedColumnType == null || columnConfig.value == null || constructColumnTypeId(detectedColumnType) === constructColumnTypeId(columnConfig.value)) return;
+    return t(TEXT, 'detected.text', { type: constructColumnTypeLabel(detectedColumnType) });
 });
 
 // ── Lists

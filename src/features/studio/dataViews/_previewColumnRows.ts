@@ -109,6 +109,11 @@ export function constructDataTypeLabel(dataTypeId: DataTypeId): string {
     return t(TEXT, DATA_TYPE_LABEL_KEYS[dataTypeId]);
 }
 
+// The most specific name for a column's type, for where one name stands for its whole type.
+export function constructColumnTypeLabel({ dataSubtypeId, dataTypeId }: Pick<ObjectColumnConfig, 'dataSubtypeId' | 'dataTypeId'>): string {
+    return dataSubtypeId == null ? constructDataTypeLabel(dataTypeId) : t(TEXT, DATA_SUBTYPE_LABEL_KEYS[dataSubtypeId]);
+}
+
 export function constructPreviewColumnHeaders(): PreviewColumnRow {
     return {
         blankValueText: t(TEXT, 'column.blankValues.label'),

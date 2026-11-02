@@ -4,6 +4,7 @@
         "apiEndpoint.select.text": { "en": "Select an API endpoint from the list.", "es": "Selecciona un endpoint de API de la lista." },
         "audit.again.label": { "en": "Audit again", "es": "Auditar de nuevo" },
         "audit.all.label": { "en": "All", "es": "Todo" },
+        "audit.amount.complete.text": { "en": "Audited {amount} ({percentage}%) · {records} · {duration}", "es": "Auditado {amount} ({percentage} %) · {records} · {duration}" },
         "audit.amount.done.text": { "en": "Audited {amount} · {records} · {duration}", "es": "Auditado {amount} · {records} · {duration}" },
         "audit.amount.running.text": { "en": "Auditing {amount} · {records} · {duration}", "es": "Auditando {amount} · {records} · {duration}" },
         "audit.aria": { "en": "Amount audited", "es": "Cantidad auditada" },
@@ -15,6 +16,7 @@
             "en": "Auditing {amount} of {total} ({percentage}%) · {records} · {duration}",
             "es": "Auditando {amount} de {total} ({percentage} %) · {records} · {duration}"
         },
+        "audit.records.complete.text": { "en": "Audited {percentage}% · {records} · {duration}", "es": "Auditado {percentage} % · {records} · {duration}" },
         "audit.records.done.text": { "en": "Audited {records} · {duration}", "es": "Auditado {records} · {duration}" },
         "audit.records.running.text": { "en": "Auditing {records} · {duration}", "es": "Auditando {records} · {duration}" },
         "audit.short.text": { "en": "{percentage}% · {records}", "es": "{percentage} % · {records}" },
@@ -25,6 +27,7 @@
             "en": "Every value is unique and none are missing, so this column could identify each record",
             "es": "Todos los valores son únicos y no falta ninguno, por lo que esta columna podría identificar cada registro"
         },
+        "columnRequired.aria": { "en": "Every record has a value in this column", "es": "Todos los registros tienen un valor en esta columna" },
         "columnType.aria": { "en": "Data type of {label}", "es": "Tipo de dato de {label}" },
         "dataFormat.arrow.label": { "en": "Arrow", "es": "Arrow" },
         "dataFormat.avro.label": { "en": "Avro", "es": "Avro" },
@@ -134,6 +137,7 @@
         "table.select.text": { "en": "Select a table from the list.", "es": "Selecciona una tabla de la lista." },
         "value.blank.aria": { "en": "Blank", "es": "En blanco" },
         "value.invalid.aria": { "en": "Does not fit the column's type:", "es": "No se ajusta al tipo de la columna:" },
+        "value.invalid.text": { "en": "Does not fit the column's type", "es": "No se ajusta al tipo de la columna" },
         "value.missing.aria": { "en": "Missing", "es": "Ausente" },
         "valueDelimiter.colon.label": { "en": "Colon", "es": "Dos puntos" },
         "valueDelimiter.comma.label": { "en": "Comma", "es": "Coma" },

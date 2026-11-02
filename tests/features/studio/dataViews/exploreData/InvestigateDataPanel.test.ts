@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, type VNode } from 'vue';
 
 // ── Local Framework
+import { constructFittedColumnWidth } from '@/components/ui/table/tableColumnWidth';
 import InvestigateDataPanel from '@/features/studio/dataViews/exploreData/InvestigateDataPanel.vue';
 import { settle } from '~/tests/support/settle';
 import { TEXT } from '@/features/studio/dataViews/exploreData/InvestigateDataPanel_.json';
@@ -41,6 +42,8 @@ vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
     queryDataViewRecords: vi.fn(),
     resolveDataViewTablePath: (dataViewId: string): string => dataViewId
 }));
+vi.mock('@/components/ui/table/tableColumnWidth', () => ({ HEADER_MENU_WIDTH_PX: 24, constructFittedColumnWidth: vi.fn() }));
+
 vi.mock('vue-router', async (importOriginal) => ({
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
     ...(await importOriginal<typeof import('vue-router')>()),
@@ -50,14 +53,15 @@ vi.mock('vue-router', async (importOriginal) => ({
 // The table scrolls and measures, which jsdom cannot, so it is stood in for and what it is given is checked.
 const renderNothing = (): VNode => h('div');
 const TableStub = defineComponent({
-    props: { columnDefinitions: { type: Array, required: true }, dataSource: { type: Object, required: true } },
+    props: { columnDefinitions: { type: Array, required: true }, constructCellClass: { type: Function, required: true }, dataSource: { type: Object, required: true } },
     setup: () => renderNothing
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface TableProperties {
-    columnDefinitions: { accessorKey: string; header: string }[];
+    columnDefinitions: { accessorKey: string; header: string; size: number }[];
+    constructCellClass: (columnId: string) => string | undefined;
     dataSource: { getRows: (startRow: number, endRow: number) => Promise<{ rows: Record<string, string>[]; totalCount: number }> };
 }
 
@@ -129,6 +133,51 @@ describe('InvestigateDataPanel', () => {
         expect(queryDataViewRecords).toHaveBeenCalledWith('dataView1', { aggregates: [], filters: [], groupColumnIndexes: [], limit: 100, offset: 0, sorts: [] });
         const expectedDateText = new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeZone: 'UTC' }).format(Date.UTC(2026, 9, 28));
         expect(page).toEqual({ rows: [{ c0: '7', c1: expectedDateText }], totalCount: 1 });
+    });
+
+    it('shows numbers to the right with their column’s decimals, never rounding a longer one', async () => {
+        dataView.config = {
+            ...AUDITED_DATA_VIEW,
+            columnSetConfig: { asAt: 1, columnConfigs: [{ dataSubtypeId: 'decimal', dataTypeId: 'numeric', label: { en: 'Score' }, maxDecimals: 2 }] }
+        };
+        vi.mocked(queryDataViewRecords).mockResolvedValue({ records: [[50], [87.1], [1.2345]], totalCount: 3 });
+        const wrapper = mountPanel();
+        await settle();
+
+        const table = wrapper.findComponent(TableStub).props() as TableProperties;
+        const page = await table.dataSource.getRows(0, 100);
+
+        expect(page.rows.map((row) => row.c0)).toEqual(['50.00', '87.10', '1.2345']);
+        expect(table.constructCellClass('c0')).toContain('justify-end');
+    });
+
+    it('fits its columns to the first page of a load, once, so scrolling back cannot move them', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(queryDataViewRecords).mockResolvedValue({ records: [[7, new Date(Date.UTC(2026, 9, 28))]], totalCount: 1 });
+        vi.mocked(constructFittedColumnWidth).mockReturnValueOnce(90).mockReturnValueOnce(130);
+        const wrapper = mountPanel();
+        await settle();
+
+        const { dataSource } = wrapper.findComponent(TableStub).props() as TableProperties;
+        await dataSource.getRows(100, 200);
+        await settle();
+        expect((wrapper.findComponent(TableStub).props() as TableProperties).columnDefinitions.map((column) => column.size)).toEqual([160, 160]);
+
+        await dataSource.getRows(0, 100);
+        await dataSource.getRows(0, 100);
+        await settle();
+
+        expect((wrapper.findComponent(TableStub).props() as TableProperties).columnDefinitions.map((column) => column.size)).toEqual([90, 130]);
+    });
+
+    it('leaves a column that is not numbers on the left', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        const wrapper = mountPanel();
+        await settle();
+
+        const table = wrapper.findComponent(TableStub).props() as TableProperties;
+
+        expect(table.constructCellClass('c1')).toBe('tabular-nums');
     });
 
     it('loads straight away when the pill asked for the data, once only, then shows it', async () => {

@@ -2,10 +2,11 @@
 // ── External Dependencies & Registrations
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, type ColumnVisibilityState, useTable } from '@tanstack/vue-table';
-import { computed, ref, shallowRef, useId, useTemplateRef } from 'vue';
+import { computed, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
 import { useEventListener, useResizeObserver } from '@vueuse/core';
 
 // ── Local Framework
+import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX } from './tableColumnWidth';
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // ── Static Components
@@ -23,15 +24,18 @@ const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000; // Empirically chosen — below
 // edge, while the table and its lines run to the edges of whatever holds it. It scrolls with the columns, so no space is
 // kept empty once the table is scrolled sideways.
 const EDGE_INSET_PX = 4;
+const ROW_HEIGHT_PX = 36; // One line of text with a little room, so a screen shows as many rows as it comfortably can.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 interface Properties {
     columnDefinitions: ColumnDef<TableFeatureSet, T>[];
-    constructCellClass?: (columnId: string, rowIndex: number) => string | undefined; // Marks a cell by what it holds.
+    constructCellClass?: (columnId: string, rowIndex: number) => string | undefined; // Marks a cell by what it holds. Every cell is positioned, so a mark can be a layer inside it.
+    constructCellTitle?: (columnId: string, rowIndex: number) => string | undefined; // Says in words what a mark on a cell means, on hover.
     dataSource: DataSource<T>;
     cacheBlockSize?: number; // Rows fetched per request. Default: 100.
     maxBlocksInCache?: number; // Maximum blocks held in memory before LRU eviction. Default: 10.
+    isColumnFitToVisibleRows?: boolean; // A double click on a column's edge fits it to the rows on screen, for a table that holds only some of its rows. Otherwise it returns to the column's starting width.
     isColumnMenuHidden?: boolean; // Leaves out each column's pin and hide menu, for a table that must show every column as it is.
     isColumnPickerHidden?: boolean; // Leaves out the toolbar that shows and hides columns, for a table that only previews data.
     isCollapsedToPinned?: boolean; // Shows only the pinned columns, for a table sharing its space with a detail panel. The rest stay defined, so they return as they were.
@@ -43,10 +47,12 @@ interface Properties {
 const {
     columnDefinitions,
     constructCellClass,
+    constructCellTitle,
     dataSource,
     cacheBlockSize = 100,
     maxBlocksInCache = 10,
     isCollapsedToPinned,
+    isColumnFitToVisibleRows,
     isColumnMenuHidden,
     isColumnPickerHidden,
     label,
@@ -58,6 +64,7 @@ const {
 defineSlots<{
     'cell-icon'?(properties: { columnId: string; rowIndex: number }): unknown; // Rendered before a cell's value.
     'header-detail'?(properties: { columnId: string }): unknown; // Rendered below each column's label, in a taller header.
+    'header-label-end'?(properties: { columnId: string }): unknown; // Rendered at the end of each column's label.
     'pinned-cell'?(properties: { columnId: string; rowIndex: number; value: unknown }): unknown; // Rendered in place of a left pinned cell's value, e.g. a button.
 }>();
 
@@ -93,6 +100,7 @@ const { virtualRows, totalSize, visibleRowData } = useDataWindow({
     scrollElement,
     dataSource: () => dataSource,
     cacheBlockSize: () => cacheBlockSize,
+    estimateSize: () => ROW_HEIGHT_PX,
     maxBlocksInCache: () => maxBlocksInCache
 });
 
@@ -170,6 +178,27 @@ useEventListener(scrollElement, 'scroll', saveVerticalScroll, { passive: true })
 useResizeObserver(scrollElement, restoreScroll);
 useEventListener(scrollElement, 'wheel', handleBodyWheel, { passive: true });
 
+// The column virtualizer keeps the widths it measured, so new starting widths need it to measure again.
+watch(
+    () => columnDefinitions,
+    () => {
+        if (columnVirtualisationIsRequired.value) columnVirtualizer.value.measure();
+    }
+);
+
+// ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+function handleFitColumn(columnId: string): void {
+    const column = table.getColumn(columnId);
+    if (!isColumnFitToVisibleRows) {
+        column?.resetSize();
+        return;
+    }
+    const values = visibleRowData.value.map((row) => String(row?.[columnId] ?? ''));
+    const fittedWidth = constructFittedColumnWidth(String(column?.columnDef.header), values, { headerExtraPx: isColumnMenuHidden ? 0 : HEADER_MENU_WIDTH_PX });
+    table.setColumnSizing((columnSizing) => ({ ...columnSizing, [columnId]: fittedWidth }));
+}
+
 // ── Scroll Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Keeps the header viewport's horizontal position matched to the body's — the header is a separate element (see
@@ -236,8 +265,9 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                         role="columnheader"
                         :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                     >
-                        <TableHeaderCell :header="leftLeafHeader" :is-menu-hidden="isColumnMenuHidden">
+                        <TableHeaderCell :header="leftLeafHeader" :is-menu-hidden="isColumnMenuHidden" @fit-width="handleFitColumn(leftLeafHeader.column.id)">
                             <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="leftLeafHeader.column.id" /></template>
+                            <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="leftLeafHeader.column.id" /></template>
                         </TableHeaderCell>
                     </div>
 
@@ -250,8 +280,9 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                             role="columnheader"
                             :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
                         >
-                            <TableHeaderCell :header="centerLeafHeader" :is-menu-hidden="isColumnMenuHidden">
+                            <TableHeaderCell :header="centerLeafHeader" :is-menu-hidden="isColumnMenuHidden" @fit-width="handleFitColumn(centerLeafHeader.column.id)">
                                 <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="centerLeafHeader.column.id" /></template>
+                                <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="centerLeafHeader.column.id" /></template>
                             </TableHeaderCell>
                         </div>
                     </template>
@@ -264,9 +295,16 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                             role="columnheader"
                             :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
                         >
-                            <TableHeaderCell :header="centerLeafHeaders[virtualColumn.index]!" :is-menu-hidden="isColumnMenuHidden">
+                            <TableHeaderCell
+                                :header="centerLeafHeaders[virtualColumn.index]!"
+                                :is-menu-hidden="isColumnMenuHidden"
+                                @fit-width="handleFitColumn(centerLeafHeaders[virtualColumn.index]!.column.id)"
+                            >
                                 <template v-if="$slots['header-detail']" #detail
                                     ><slot name="header-detail" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id"
+                                /></template>
+                                <template v-if="$slots['header-label-end']" #label-end
+                                    ><slot name="header-label-end" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id"
                                 /></template>
                             </TableHeaderCell>
                         </div>
@@ -280,8 +318,9 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                         role="columnheader"
                         :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                     >
-                        <TableHeaderCell :header="rightLeafHeader" :is-menu-hidden="isColumnMenuHidden">
+                        <TableHeaderCell :header="rightLeafHeader" :is-menu-hidden="isColumnMenuHidden" @fit-width="handleFitColumn(rightLeafHeader.column.id)">
                             <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="rightLeafHeader.column.id" /></template>
+                            <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="rightLeafHeader.column.id" /></template>
                         </TableHeaderCell>
                     </div>
 
@@ -321,6 +360,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                         :loading="visibleRowData[i] === undefined"
                                         class="sticky shrink-0 border-r border-boundary bg-surface group-hover:bg-card"
                                         :class="[{ 'state-selected': vRow.index === selectedRowIndex }, constructCellClass?.(leftLeafHeader.column.id, vRow.index)]"
+                                        :title="constructCellTitle?.(leftLeafHeader.column.id, vRow.index)"
                                         :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 1 }"
                                     >
                                         <template v-if="$slots['pinned-cell']" #value
@@ -342,8 +382,9 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                             :key="centerLeafHeader.id"
                                             :value="visibleRowData[i]?.[centerLeafHeader.column.id]"
                                             :loading="visibleRowData[i] === undefined"
-                                            class="shrink-0"
+                                            class="relative shrink-0"
                                             :class="constructCellClass?.(centerLeafHeader.column.id, vRow.index)"
+                                            :title="constructCellTitle?.(centerLeafHeader.column.id, vRow.index)"
                                             :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
                                         >
                                             <template v-if="$slots['cell-icon']" #icon
@@ -360,6 +401,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                             :loading="visibleRowData[i] === undefined"
                                             class="absolute top-0 h-full"
                                             :class="constructCellClass?.(centerLeafHeaders[virtualColumn.index]!.column.id, vRow.index)"
+                                            :title="constructCellTitle?.(centerLeafHeaders[virtualColumn.index]!.column.id, vRow.index)"
                                             :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
                                         >
                                             <template v-if="$slots['cell-icon']" #icon

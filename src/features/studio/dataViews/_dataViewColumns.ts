@@ -2,6 +2,7 @@
 import type {
     ColumnSetConfig,
     ContentAuditConfig,
+    DataSubtypeId,
     DataTypeId,
     DataViewColumnConfig,
     DataViewConfig,
@@ -18,7 +19,14 @@ import type {
 // step with the others.
 export type ItemReading = PreviewConfig & ReadConfig & { columnConfigs: ObjectColumnConfig[] };
 
-type ChosenColumnDataTypeIds = Partial<Record<string, DataTypeId>>; // Keyed by the column's position, as a string.
+export type ColumnType = Pick<ObjectColumnConfig, 'dataSubtypeId' | 'dataTypeId'>;
+
+export type ChosenColumnTypes = Partial<Record<string, ColumnType>>; // Keyed by the column's position, as a string.
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// How the engine stores a type with no subtype, which is what a type chosen before subtypes could be chosen means.
+const DEFAULT_DATA_SUBTYPE_IDS: Partial<Record<DataTypeId, DataSubtypeId>> = { numeric: 'integer', string: 'plain', temporal: 'dateTime' };
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -65,15 +73,15 @@ export function constructPreviewContentAuditConfig(
 export function constructItemColumnSetConfig(
     itemReading: ItemReading,
     asAt: number,
-    detectedColumnTypes: Pick<ObjectColumnConfig, 'dataSubtypeId' | 'dataTypeId'>[],
-    chosenColumnDataTypeIds: ChosenColumnDataTypeIds
+    detectedColumnTypes: ColumnType[],
+    chosenColumnTypes: ChosenColumnTypes
 ): ColumnSetConfig {
     return {
         asAt,
         columnConfigs: itemReading.columnConfigs.map((columnConfig, index) => ({
             ...columnConfig,
             ...detectedColumnTypes[index],
-            chosenDataTypeId: chosenColumnDataTypeIds[String(index)]
+            ...constructChosenColumnFields(chosenColumnTypes[String(index)])
         }))
     };
 }
@@ -82,29 +90,29 @@ export function constructItemColumnSetConfig(
 export function constructAuditColumnSetConfig(contentAuditConfig: ContentAuditConfig, columnSetConfig: ColumnSetConfig | undefined): ColumnSetConfig {
     return {
         asAt: contentAuditConfig.asAt,
-        columnConfigs: contentAuditConfig.columns.map((columnConfig, index) => ({ ...columnConfig, chosenDataTypeId: columnSetConfig?.columnConfigs[index]?.chosenDataTypeId }))
+        columnConfigs: contentAuditConfig.columns.map((columnConfig, index) => {
+            const { chosenDataSubtypeId, chosenDataTypeId } = columnSetConfig?.columnConfigs[index] ?? {};
+            return { ...columnConfig, chosenDataSubtypeId, chosenDataTypeId };
+        })
     };
 }
 
-export function applyChosenColumnDataTypes(columnSetConfig: ColumnSetConfig, chosenColumnDataTypeIds: ChosenColumnDataTypeIds): ColumnSetConfig {
+export function applyChosenColumnTypes(columnSetConfig: ColumnSetConfig, chosenColumnTypes: ChosenColumnTypes): ColumnSetConfig {
     return {
         ...columnSetConfig,
-        columnConfigs: columnSetConfig.columnConfigs.map((columnConfig, index) => ({ ...columnConfig, chosenDataTypeId: chosenColumnDataTypeIds[String(index)] }))
+        columnConfigs: columnSetConfig.columnConfigs.map((columnConfig, index) => ({ ...columnConfig, ...constructChosenColumnFields(chosenColumnTypes[String(index)]) }))
     };
 }
 
-export function constructChosenColumnDataTypeIds(columnSetConfig: ColumnSetConfig | undefined): ChosenColumnDataTypeIds {
-    const entries = (columnSetConfig?.columnConfigs ?? []).map((columnConfig, index) => [String(index), columnConfig.chosenDataTypeId]);
-    return Object.fromEntries(entries.filter(([, chosenDataTypeId]) => chosenDataTypeId != null)) as ChosenColumnDataTypeIds;
+export function constructChosenColumnTypes(columnSetConfig: ColumnSetConfig | undefined): ChosenColumnTypes {
+    const entries = (columnSetConfig?.columnConfigs ?? []).map((columnConfig, index) => [String(index), constructChosenColumnType(columnConfig)] as const);
+    return Object.fromEntries(entries.filter(([, chosenColumnType]) => chosenColumnType != null));
 }
 
-// A column as the user wants it read: the type they chose, otherwise the detected one. Detection's subtype only describes
-// detection's type, so a different type has none.
+// A column as the user wants it read: the type they chose, otherwise the detected one.
 export function resolveColumnConfig(columnConfig: DataViewColumnConfig): ObjectColumnConfig {
-    const { chosenDataTypeId, ...detectedColumnConfig } = columnConfig;
-    return chosenDataTypeId == null || chosenDataTypeId === columnConfig.dataTypeId
-        ? detectedColumnConfig
-        : { ...detectedColumnConfig, dataSubtypeId: undefined, dataTypeId: chosenDataTypeId };
+    const { chosenDataSubtypeId: _chosenDataSubtypeId, chosenDataTypeId: _chosenDataTypeId, ...detectedColumnConfig } = columnConfig;
+    return { ...detectedColumnConfig, ...constructChosenColumnType(columnConfig) };
 }
 
 // An 'unknown' column may only be blank in the part audited, and an unknown column loads as nothing, so it loads as text.
@@ -117,14 +125,29 @@ export function constructLoadColumnConfigs({ columnSetConfig, contentAuditConfig
 }
 
 // What a load depends on, so a change to either the columns or a chosen type asks for a new load. A number when no type
-// is chosen, which is what loads recorded before types could be chosen hold.
+// is chosen, which is what loads recorded before types could be chosen hold. Built from the stored fields, so a load
+// recorded before subtypes could be chosen still matches its data view.
 export function constructColumnSetVersion(columnSetConfig: ColumnSetConfig | undefined): number | string | undefined {
     if (columnSetConfig == null) return;
-    const chosenColumnDataTypeIds = constructChosenColumnDataTypeIds(columnSetConfig);
-    return Object.keys(chosenColumnDataTypeIds).length === 0 ? columnSetConfig.asAt : `${String(columnSetConfig.asAt)}|${JSON.stringify(chosenColumnDataTypeIds)}`;
+    const chosenTypeEntries = columnSetConfig.columnConfigs.flatMap(({ chosenDataSubtypeId, chosenDataTypeId }, index) =>
+        chosenDataTypeId == null ? [] : [[String(index), constructColumnTypeId({ dataSubtypeId: chosenDataSubtypeId, dataTypeId: chosenDataTypeId })]]
+    );
+    return chosenTypeEntries.length === 0 ? columnSetConfig.asAt : `${String(columnSetConfig.asAt)}|${JSON.stringify(Object.fromEntries(chosenTypeEntries))}`;
+}
+
+// A column type as one id, in the form the engine counts types under, e.g. 'numeric.integer'.
+export function constructColumnTypeId({ dataSubtypeId, dataTypeId }: ColumnType): string {
+    return dataSubtypeId == null ? dataTypeId : `${dataTypeId}.${dataSubtypeId}`;
 }
 
 // The saved item with its columns put back, for what shows an item, each column as the user wants it read.
+// Numbers sit on the right so their digits line up by place. Tabular figures only even out digit widths, so they suit a
+// date column of any format and leave its letters alone.
+export function constructDataTypeCellClass(dataTypeId: ColumnType['dataTypeId'] | undefined): string | undefined {
+    if (dataTypeId === 'numeric') return 'justify-end tabular-nums';
+    return dataTypeId === 'temporal' ? 'tabular-nums' : undefined;
+}
+
 export function restoreItemReading({
     columnSetConfig,
     previewConfig,
@@ -132,4 +155,18 @@ export function restoreItemReading({
 }: Pick<DataViewConfig, 'columnSetConfig' | 'previewConfig' | 'readConfig'>): ItemReading | undefined {
     if (previewConfig == null || readConfig == null) return;
     return { ...readConfig, ...previewConfig, columnConfigs: (columnSetConfig?.columnConfigs ?? []).map((columnConfig) => resolveColumnConfig(columnConfig)) };
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function constructChosenColumnFields(chosenColumnType: ColumnType | undefined): Pick<DataViewColumnConfig, 'chosenDataSubtypeId' | 'chosenDataTypeId'> {
+    return { chosenDataSubtypeId: chosenColumnType?.dataSubtypeId, chosenDataTypeId: chosenColumnType?.dataTypeId };
+}
+
+// A type saved without a subtype keeps the detected subtype when it is the detected type, as detection's subtype only
+// describes detection's type. Otherwise it takes the subtype the engine stored it as.
+function constructChosenColumnType({ chosenDataSubtypeId, chosenDataTypeId, dataSubtypeId, dataTypeId }: DataViewColumnConfig): ColumnType | undefined {
+    if (chosenDataTypeId == null) return;
+    const detectedDataSubtypeId = chosenDataTypeId === dataTypeId ? dataSubtypeId : undefined;
+    return { dataSubtypeId: chosenDataSubtypeId ?? detectedDataSubtypeId ?? DEFAULT_DATA_SUBTYPE_IDS[chosenDataTypeId], dataTypeId: chosenDataTypeId };
 }

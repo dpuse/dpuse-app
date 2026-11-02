@@ -21,7 +21,10 @@ const { header, isMenuHidden } = defineProps<Properties>();
 
 defineSlots<{
     detail?(): unknown; // Rendered below the column's label.
+    'label-end'?(): unknown; // Rendered at the end of the label's line, which the label shortens to leave room for.
 }>();
+
+const emit = defineEmits<{ fitWidth: [] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -69,9 +72,12 @@ function handleToggleMenu(): void {
 </script>
 
 <template>
-    <div class="relative flex h-full items-center pr-2 select-none pointer-coarse:pr-5" data-region="TableHeaderCell">
+    <div class="relative flex h-full items-center select-none" data-region="TableHeaderCell">
         <div class="flex min-w-0 flex-1 flex-col justify-center px-3">
-            <span class="truncate text-sm font-medium text-muted">{{ String(header.column.columnDef.header) }}</span>
+            <div class="flex min-w-0 items-center">
+                <span class="min-w-0 flex-1 truncate text-sm font-medium text-muted">{{ String(header.column.columnDef.header) }}</span>
+                <slot name="label-end" />
+            </div>
             <slot name="detail" />
         </div>
 
@@ -134,14 +140,17 @@ function handleToggleMenu(): void {
         </div>
 
         <!-- Resize Handle ─ 'touch-none' prevents scroll interference on mobile. The short line stays visible so the
-             edge reads as draggable, and grows to the header's height on hover and during a drag. The wider area around
-             it is invisible and only makes it easier to grab. It doubles on touch screens, where a fingertip needs
-             more. -->
+             edge reads as draggable, and grows to the header's height on hover and during a drag. It sits in the middle
+             of a wider, invisible area that only makes it easier to grab. That area doubles on touch screens, where a
+             fingertip needs more. The area is centred on the edge between two columns, so the line falls in the gap
+             between their cells. 'z-1' keeps its other half above the next column's header, and below a pinned one.
+             A double click fits the column to its content. -->
         <div
             v-if="header.column.getCanResize()"
-            class="group/resize absolute top-0 right-0 flex h-full w-3 cursor-col-resize touch-none items-center justify-end select-none pointer-coarse:w-6"
+            class="group/resize absolute top-0 -right-1.5 z-1 flex h-full w-3 cursor-col-resize touch-none items-center justify-center select-none pointer-coarse:-right-3 pointer-coarse:w-6"
             role="button"
             tabIndex="0"
+            @dblclick="emit('fitWidth')"
             @mousedown.stop="header.getResizeHandler()($event)"
             @touchstart.stop.passive="header.getResizeHandler()($event)"
         >

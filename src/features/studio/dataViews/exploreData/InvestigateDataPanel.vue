@@ -26,7 +26,8 @@ import {
     resolveDataViewTablePath
 } from '@/features/studio/dataViews/_dataViewStore';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
-import { constructColumnSetVersion, constructLoadColumnConfigs } from '@/features/studio/dataViews/_dataViewColumns';
+import { constructColumnSetVersion, constructDataTypeCellClass, constructLoadColumnConfigs } from '@/features/studio/dataViews/_dataViewColumns';
+import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX } from '@/components/ui/table/tableColumnWidth';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -61,7 +62,9 @@ const DATE_FORMAT_OPTIONS: Partial<Record<DataSubtypeId, Intl.DateTimeFormatOpti
     date: { dateStyle: 'medium', timeZone: 'UTC' },
     time: { timeStyle: 'medium', timeZone: 'UTC' }
 };
+const COLUMN_WIDTH_PX = 160; // Until the first records arrive.
 const DATE_TIME_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'medium', timeZone: 'UTC' };
+const MAX_FRACTION_DIGITS = 20;
 
 // The messages for states that show only text, centred in the panel.
 const MESSAGE_KEYS: Partial<Record<InvestigateState['typeId'], keyof typeof TEXT>> = {
@@ -91,6 +94,7 @@ const loadedRecordCount = ref(0);
 const loadIsAbandoned = ref(false); // Set on leaving the panel, so the stopped load is not shown as a failure.
 const loadIsStopped = ref(false); // Set by 'Stop', so the stopped load is shown as stopped, not as a failure.
 const loadVersion = ref(0); // Counts loads, so the table drops the records it holds after each one.
+const firstPageColumnWidths = shallowRef<{ dataSourceId: string; widths: number[] }>(); // Measured once per load, so scrolling back cannot move the columns.
 const invalidValueCounts = shallowRef<number[]>([]); // From this panel's last finished load. A load from an earlier visit has none.
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -136,7 +140,7 @@ const columnDefinitions = computed<ColumnDef<TableFeatureSet, DisplayRow>[]>(() 
     columnConfigs.value.map((columnConfig, index) => ({
         accessorKey: constructColumnKey(index),
         header: columnConfig.label[localeId.value] ?? columnConfig.label.en ?? String(index + 1),
-        size: 160
+        size: firstPageColumnWidths.value?.widths[index] ?? COLUMN_WIDTH_PX
     }))
 );
 
@@ -144,15 +148,18 @@ const columnDefinitions = computed<ColumnDef<TableFeatureSet, DisplayRow>[]>(() 
 const dataSource = computed<DataSource<DisplayRow>>(() => {
     const dataViewId = dataViewConfig.value?.id;
     const tablePath = dataViewId == null ? undefined : resolveDataViewTablePath(dataViewId, draftIsCurrent.value);
+    const dataSourceId = `${tablePath ?? ''}|${String(loadVersion.value)}`;
     return {
-        id: `${tablePath ?? ''}|${String(loadVersion.value)}`,
+        id: dataSourceId,
         rowCount: undefined,
         getRows: async (startRow: number, endRow: number): Promise<{ rows: DisplayRow[]; totalCount: number }> => {
             if (tablePath == null) return { rows: [], totalCount: 0 };
             try {
                 const query = { aggregates: [], filters: [], groupColumnIndexes: [], limit: endRow - startRow, offset: startRow, sorts: [] };
                 const { records, totalCount } = await queryDataViewRecords(tablePath, query);
-                return { rows: records.map((storeRecord) => constructDisplayRow(storeRecord)), totalCount };
+                const rows = records.map((storeRecord) => constructDisplayRow(storeRecord));
+                if (startRow === 0) fitColumnsToFirstPage(dataSourceId, rows);
+                return { rows, totalCount };
             } catch (error) {
                 raiseAppFailure(new AppError("Failed to read the data view's records.", 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
                 return { rows: [], totalCount: 0 };
@@ -160,6 +167,16 @@ const dataSource = computed<DataSource<DisplayRow>>(() => {
         }
     };
 });
+
+// ── Number Formats ─ One for each column. Every number shows at least its column's most decimals, so the decimal points
+// line up. The maximum is high because a partial audit can miss a longer value, which must never be rounded. No grouping,
+// because a number can be an id.
+const numberFormats = computed(() =>
+    columnConfigs.value.map((columnConfig) => {
+        const minimumFractionDigits = columnConfig.maxDecimals ?? 0;
+        return new Intl.NumberFormat(localeId.value, { maximumFractionDigits: Math.max(minimumFractionDigits, MAX_FRACTION_DIGITS), minimumFractionDigits, useGrouping: false });
+    })
+);
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -260,6 +277,21 @@ async function openAndLoad(isReloaded: boolean): Promise<void> {
     }
 }
 
+// Numbers sit to the right, with digits of one width, so they can be compared by size.
+function constructValueCellClass(columnId: string): string | undefined {
+    const columnIndex = Number(columnId.slice(1));
+    return constructDataTypeCellClass(columnConfigs.value[columnIndex]?.dataTypeId);
+}
+
+// The records load in pages, so the widest value of all is not known. The first page is the best guide to the rest.
+function fitColumnsToFirstPage(dataSourceId: string, rows: DisplayRow[]): void {
+    if (firstPageColumnWidths.value?.dataSourceId === dataSourceId) return;
+    const widths = columnDefinitions.value.map(({ header }, index) =>
+        constructFittedColumnWidth(String(header), rows.map((row) => row[constructColumnKey(index)] ?? ''), { headerExtraPx: HEADER_MENU_WIDTH_PX })
+    );
+    firstPageColumnWidths.value = { dataSourceId, widths };
+}
+
 function constructColumnKey(columnIndex: number): string {
     return `c${String(columnIndex)}`;
 }
@@ -267,13 +299,15 @@ function constructColumnKey(columnIndex: number): string {
 function constructDisplayRow(storeRecord: StoreRecord): DisplayRow {
     const displayRow: DisplayRow = {};
     for (const [columnIndex, columnConfig] of columnConfigs.value.entries())
-        displayRow[constructColumnKey(columnIndex)] = formatStoreValue(storeRecord[columnIndex] ?? null, columnConfig);
+        displayRow[constructColumnKey(columnIndex)] = formatStoreValue(storeRecord[columnIndex] ?? null, columnConfig, numberFormats.value[columnIndex]);
     return displayRow;
 }
 
-// Each value is stored as its column's type, so a date is formatted for the locale and anything else shows as itself.
-function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig): string {
+// Each value is stored as its column's type, so a date or number is formatted for the locale and anything else shows as
+// itself.
+function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig, numberFormat: Intl.NumberFormat | undefined): string {
     if (value == null) return '';
+    if (numberFormat != null && columnConfig.dataTypeId === 'numeric' && (typeof value === 'number' || typeof value === 'bigint')) return numberFormat.format(value);
     if (value instanceof Date) {
         const formatOptions = columnConfig.dataSubtypeId == null ? undefined : DATE_FORMAT_OPTIONS[columnConfig.dataSubtypeId];
         return new Intl.DateTimeFormat(localeId.value, formatOptions ?? DATE_TIME_FORMAT_OPTIONS).format(value);
@@ -327,7 +361,9 @@ function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig): 
                 v-if="investigateState.typeId === 'ready' && columnConfigs.length > 0"
                 class="flex-1"
                 :column-definitions="columnDefinitions"
+                :construct-cell-class="constructValueCellClass"
                 :data-source="dataSource"
+                is-column-fit-to-visible-rows
                 scroll-area-padding-bottom="calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))"
             />
             <!-- Announced as it changes, because the count is the only sign that a long load is still going. -->

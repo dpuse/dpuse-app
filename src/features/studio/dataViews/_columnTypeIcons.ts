@@ -8,8 +8,8 @@ import {
     CircleQuestionMarkIcon,
     ClockIcon,
     DecimalsArrowRightIcon,
+    FingerprintIcon,
     HashIcon,
-    KeyRoundIcon,
     LinkIcon,
     MailIcon,
     RouterIcon,
@@ -44,9 +44,9 @@ export const DATA_SUBTYPE_ICONS: Record<DataSubtypeId, Component> = {
     ipv6: RouterIcon,
     plain: TextAlignStartIcon,
     time: ClockIcon,
-    ulid: KeyRoundIcon,
+    ulid: FingerprintIcon,
     url: LinkIcon,
-    uuid: KeyRoundIcon
+    uuid: FingerprintIcon
 };
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────

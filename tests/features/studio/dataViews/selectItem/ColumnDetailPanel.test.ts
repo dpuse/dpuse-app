@@ -32,7 +32,7 @@ function mountPanel(columnConfigs: ObjectColumnConfig[], properties: object = {}
         global: { stubs: { SelectInput: true } },
         props: {
             columnIndex: 0,
-            detectedDataTypeId: 'numeric',
+            detectedColumnType: { dataSubtypeId: undefined, dataTypeId: 'numeric' },
             itemReading: { columnConfigs, hasHeaders: true } as unknown as ItemReading,
             sourceText: 'All records',
             typeOptions: [],
@@ -87,6 +87,10 @@ describe('ColumnDetailPanel', () => {
         await wrapper.find('[aria-selected="true"]').trigger('keydown', { key: 'ArrowRight' });
 
         expect(wrapper.find('[aria-selected="true"]').text()).toBe(t(TEXT, 'tab.formats.label'));
+    });
+
+    it('shows the detected subtype when another subtype of its type is in use', () => {
+        expect(mountPanel([buildColumn({ dataSubtypeId: 'decimal' })]).find('[role="status"]').exists()).toBe(true);
     });
 
     it('shows the detected type only when it differs from the type in use', () => {

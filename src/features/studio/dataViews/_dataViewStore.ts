@@ -71,7 +71,7 @@ export async function closeDataViewStore(): Promise<void> {
     await processRequest('closeStore', findStoreConnectionLocalisedConfig(), {});
 }
 
-export function isDataViewLoaded(dataViewConfig: DataViewConfig, isDraft: boolean): boolean {
+export function isDataViewLoaded(dataViewConfig: Pick<DataViewConfig, 'columnSetConfig' | 'id'>, isDraft: boolean): boolean {
     const columnSetVersion = constructColumnSetVersion(dataViewConfig.columnSetConfig);
     return columnSetVersion != null && loadedColumnSetVersions.value[constructLoadKey(dataViewConfig.id, isDraft)] === columnSetVersion;
 }

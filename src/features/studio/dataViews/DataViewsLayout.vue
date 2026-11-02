@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { useConfirmDialog } from '@vueuse/core';
+import { CircleXIcon, SaveIcon } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 import { isNavigationFailure, NavigationFailureType, onBeforeRouteLeave, onBeforeRouteUpdate, type RouteLocationNormalized, useRoute, useRouter } from 'vue-router';
-import { SaveIcon, Undo2Icon } from '@lucide/vue';
 
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared';
@@ -367,7 +367,7 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
         >
             <div :id="DATA_VIEW_SCROLL_ACTIONS_ID" class="pointer-events-auto contents" />
             <div class="pointer-events-auto flex h-10 overflow-hidden shadow-md" :class="PILL_CLASSES" data-region="DataViewPill">
-                <PillSegment :disabled="!dataViewHasChanges" :icon="Undo2Icon" :label="t(TEXT, 'discard.label')" @click="handleDiscardDataView" />
+                <PillSegment :disabled="!dataViewHasChanges" :icon="CircleXIcon" :label="t(TEXT, 'discard.label')" @click="handleDiscardDataView" />
                 <PillSegment :disabled="!dataViewCanBeSaved || dataViewIsSaving" :icon="SaveIcon" is-separated :label="t(TEXT, 'save.label')" @click="handleSaveDataView" />
                 <div :id="DATA_VIEW_STEP_ACTION_ID" class="contents" />
             </div>

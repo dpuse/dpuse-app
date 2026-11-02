@@ -15,7 +15,7 @@ import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 const SEGMENTS: { colorClass: string; id: keyof ColumnValueCounts }[] = [
     { colorClass: 'bg-[color-mix(in_srgb,var(--color-success-text)_40%,var(--color-card))]', id: 'validCount' },
     { colorClass: 'bg-danger-text', id: 'invalidCount' },
-    { colorClass: 'bg-warning-mark', id: 'blankCount' },
+    { colorClass: 'bg-blank-value', id: 'blankCount' },
     { colorClass: 'bg-subtle', id: 'missingCount' }
 ];
 
@@ -49,8 +49,9 @@ const countsText = computed(() => {
 <template>
     <!-- Value Bar ─ Along the bottom of the header, positioned on the header cell. A button, because the counts in its title
          only show on hover, and it opens the column's detail for touch and keyboard. Each segment keeps a minimum width, so
-         a few bad values in a large item are still visible. -->
-    <ActionWrapper :aria-label="countsText" class="absolute inset-x-3 bottom-0 flex pt-1 pb-0.5" :title="countsText">
+         a few bad values in a large item are still visible. 'inset-x-0.5' is the inset of the tint on an invalid cell, so the
+         bar is as wide as the tints in its column. -->
+    <ActionWrapper :aria-label="countsText" class="absolute inset-x-0.5 bottom-0 flex pt-1 pb-0.5" :title="countsText">
         <span aria-hidden="true" class="flex h-1 w-full gap-px overflow-hidden rounded-full">
             <span v-for="segment in shownSegments" :key="segment.id" class="min-w-0.5 basis-0" :class="segment.colorClass" :style="{ flexGrow: segment.count }" />
         </span>

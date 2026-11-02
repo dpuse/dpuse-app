@@ -10,11 +10,14 @@ import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { TEXT as CONFIRM_DIALOG_TEXT } from '@/components/ui/dialog/ConfirmDialog_.json';
 import { TEXT as DATA_VIEW_LIST_TEXT } from '@/features/studio/dataViews/DataViewList_.json';
+import { isDataViewLoaded } from '@/features/studio/dataViews/_dataViewStore';
 import { raiseAppFailure } from '@/state/errors';
 import { settle } from '~/tests/support/settle';
 import { t } from '@/state/locale';
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
+
+vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({ isDataViewLoaded: vi.fn() }));
 
 vi.mock('@/state/errors', async (importOriginal) => ({ ...(await importOriginal<object>()), raiseAppFailure: vi.fn() }));
 
@@ -53,11 +56,18 @@ interface StateForTest {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The grid needs a measured layout that jsdom cannot give, so this stand-in only shows the selected data view's detail.
+// The grid needs a measured layout that jsdom cannot give, so this stand-in only shows the selected data view's detail
+// and its Open button.
 const GridDetailPanelStub = {
     props: { selectedItem: { type: Object as PropType<LocalisedConfig<DataViewConfig>>, default: undefined } },
     setup(properties: { selectedItem?: LocalisedConfig<DataViewConfig> }, { slots }: SetupContext) {
-        return (): ReturnType<typeof h> => h('div', properties.selectedItem ? slots.detail?.({ item: properties.selectedItem, close: vi.fn() }) : []);
+        return (): ReturnType<typeof h> =>
+            h(
+                'div',
+                properties.selectedItem
+                    ? [slots.detail?.({ item: properties.selectedItem, close: vi.fn() }), slots['detail-action']?.({ item: properties.selectedItem })]
+                    : []
+            );
     }
 };
 
@@ -98,7 +108,9 @@ async function buildRouter(): Promise<Router> {
         history: createMemoryHistory(),
         routes: [
             { name: 'dataViews', path: '/dataViews/:dataViewId?', component },
-            { name: 'connection', path: '/dataViews/:dataViewId/connections', component }
+            { name: 'connection', path: '/dataViews/:dataViewId/connections', component },
+            { name: 'item', path: '/dataViews/:dataViewId/items', component },
+            { name: 'data', path: '/dataViews/:dataViewId/data', component }
         ]
     });
     await router.push('/dataViews/a');
@@ -196,5 +208,37 @@ describe('data view list deletion', () => {
 
         expect(wrapper.get('[data-test="delete"]').attributes('disabled')).toBeDefined();
         wrapper.unmount();
+    });
+});
+
+describe('opening a data view', () => {
+    async function openSelectedDataView(connectionNodeConfig: DataViewConfig['connectionNodeConfig'], isLoaded: boolean): Promise<unknown> {
+        const state = await getState();
+        state.dataViewConfigs.value = [{ ...buildDataView('a', 'Sales'), connectionNodeConfig }];
+        vi.mocked(isDataViewLoaded).mockReturnValue(isLoaded);
+        const router = await buildRouter();
+        const wrapper = await mountList(router);
+
+        const openButton = wrapper.findAll('button').find((candidate) => candidate.text() === t(DATA_VIEW_LIST_TEXT, 'detail.open.label'));
+        await openButton?.trigger('click');
+        await settle();
+
+        const routeName = router.currentRoute.value.name; // Taken before the unmount, which resets the router.
+        wrapper.unmount();
+        return routeName;
+    }
+
+    const itemConfig = { name: 'sales' } as DataViewConfig['connectionNodeConfig'];
+
+    it('opens at Explore Data once the records are loaded', async () => {
+        expect(await openSelectedDataView(itemConfig, true)).toBe('data');
+    });
+
+    it('opens at the item while its records are not loaded', async () => {
+        expect(await openSelectedDataView(itemConfig, false)).toBe('item');
+    });
+
+    it('opens at the connection of a data view with no item chosen', async () => {
+        expect(await openSelectedDataView(undefined, false)).toBe('connection');
     });
 });

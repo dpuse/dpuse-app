@@ -87,6 +87,10 @@
     --color-warning-mark: var(--warning-mark); /* A small shape such as a dot, brighter than text can be */
     --color-warning-ring: var(--warning-ring);
     --color-warning-border: var(--warning-border); /* Edge of a guarded button or warning tag */
+    --color-blank-value: var(--blank-value); /* A blank value's share of a value bar */
+    --color-blank-tint: var(--blank-tint); /* Cell tints, strongest for an invalid value, which is the only problem. Stronger in dark mode, where a tint shows less. */
+    --color-invalid-tint: var(--invalid-tint);
+    --color-missing-tint: var(--missing-tint);
 
     --color-danger: var(--danger);
     --color-danger-hover: var(--danger-hover);
@@ -154,6 +158,10 @@
     --warning-press: var(--warning-active); /* Light mode presses one step past hover already. */
     --warning-text: var(--color-amber-800);
     --warning-mark: var(--color-amber-600);
+    --blank-value: var(--color-amber-500);
+    --blank-tint: color-mix(in srgb, var(--blank-value) 18%, transparent);
+    --invalid-tint: color-mix(in srgb, var(--danger-text) 10%, transparent);
+    --missing-tint: color-mix(in srgb, var(--subtle) 12%, transparent);
     --warning-ring: var(--color-amber-500);
     --warning-border: var(--color-amber-200);
 
@@ -216,6 +224,10 @@
     --warning-press: color-mix(in srgb, var(--color-amber-400) 40%, transparent); /* Buttons rest at 20% and hover at 30% in dark mode. */
     --warning-text: var(--color-amber-400);
     --warning-mark: var(--color-amber-400);
+    --blank-value: var(--color-amber-500);
+    --blank-tint: color-mix(in srgb, var(--blank-value) 18%, transparent);
+    --invalid-tint: color-mix(in srgb, var(--danger-text) 22%, transparent);
+    --missing-tint: color-mix(in srgb, var(--subtle) 20%, transparent);
     --warning-ring: color-mix(in srgb, var(--color-amber-400) 20%, transparent);
     --warning-border: var(--color-amber-900);
 
