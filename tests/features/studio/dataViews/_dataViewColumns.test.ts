@@ -20,6 +20,7 @@ import {
     constructStoredContentAuditConfig,
     constructStoredPreviewConfig,
     isDerivedColumn,
+    isEmptyUnitColumn,
     type ItemReading,
     resolveColumnConfig,
     restoreItemReading
@@ -154,6 +155,15 @@ describe('resolveColumnConfig', () => {
         });
     });
 
+    it('uses the figures measured for the chosen decimal separator', () => {
+        const numericReadings = { ',': { dataSubtypeId: 'integer', maxValue: '3456' }, '.': { dataSubtypeId: 'decimal', maxValue: '3.456' } } as DataViewColumnConfig['numericReadings'];
+
+        expect(resolveColumnConfig(buildColumn({ chosenDecimalSeparatorId: ',', dataTypeId: 'numeric', decimalSeparatorId: '.', numericReadings }))).toMatchObject({
+            dataSubtypeId: 'integer',
+            maxValue: '3456'
+        });
+    });
+
     it('uses the chosen decimal separator in place of the detected one', () => {
         expect(resolveColumnConfig(buildColumn({ chosenDecimalSeparatorId: ',', dataTypeId: 'numeric', decimalSeparatorId: '.' })).decimalSeparatorId).toBe(',');
         expect(resolveColumnConfig(buildColumn({ dataTypeId: 'numeric', decimalSeparatorId: '.' })).decimalSeparatorId).toBe('.');
@@ -184,6 +194,14 @@ describe('isDerivedColumn', () => {
     it('tells a column worked out from another apart from a column of the item', () => {
         expect(isDerivedColumn(buildColumn({ derivationId: 'currency', derivedFromColumnIndex: 0 }))).toBe(true);
         expect(isDerivedColumn(buildColumn({}))).toBe(false);
+    });
+});
+
+describe('isEmptyUnitColumn', () => {
+    it('is a unit column that found no unit', () => {
+        expect(isEmptyUnitColumn(buildColumn({ derivationId: 'unit', derivedFromColumnIndex: 0, validValueCount: 0 }))).toBe(true);
+        expect(isEmptyUnitColumn(buildColumn({ derivationId: 'unit', derivedFromColumnIndex: 0, validValueCount: 2 }))).toBe(false);
+        expect(isEmptyUnitColumn(buildColumn({ validValueCount: 0 }))).toBe(false);
     });
 });
 

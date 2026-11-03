@@ -26,7 +26,7 @@ import {
     resolveDataViewTablePath
 } from '@/features/studio/dataViews/_dataViewStore';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
-import { constructColumnSetVersion, constructDataTypeCellClass, constructLoadColumnConfigs } from '@/features/studio/dataViews/_dataViewColumns';
+import { constructColumnSetVersion, constructDataTypeCellClass, constructLoadColumnConfigs, isEmptyUnitColumn } from '@/features/studio/dataViews/_dataViewColumns';
 import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX } from '@/components/ui/table/tableColumnWidth';
 import { localeId, t } from '@/state/locale';
 
@@ -52,7 +52,7 @@ type InvestigateState =
     | { typeId: 'stopped' }
     | { typeId: 'unavailable' };
 
-type DisplayRow = Record<string, string>; // Keyed by column position, 'c0' first, each value as the text the table shows.
+type DisplayRow = Record<string, string>; // Keyed by column position, 'c0' first, each value as the text the table shows. A number's unit is under 'u' and its position, such as 'u0'.
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -144,6 +144,11 @@ const columnDefinitions = computed<ColumnDef<TableFeatureSet, DisplayRow>[]>(() 
     }))
 );
 
+// Unit columns that found no unit start hidden, and the column picker shows them.
+const hiddenColumnIds = computed(() =>
+    columnConfigs.value.map((columnConfig, index) => (isEmptyUnitColumn(columnConfig) ? constructColumnKey(index) : undefined)).filter((columnId) => columnId !== undefined)
+);
+
 // The records are read a block at a time as the table scrolls.
 const dataSource = computed<DataSource<DisplayRow>>(() => {
     const dataViewId = dataViewConfig.value?.id;
@@ -167,6 +172,27 @@ const dataSource = computed<DataSource<DisplayRow>>(() => {
         }
     };
 });
+
+// ── Units ─ A column of numbers shows each number's unit in its cell, in the accounting layout: a currency at the
+// cell's left edge, the number on the right with its decimal point lined up, and a percent sign after it. The unit
+// comes from the column worked out from the numbers, so the number itself can stay a number that sorts and adds up. A
+// column with any percentage keeps room for the sign on every row, so the decimal points still line up.
+const unitColumnIndexes = computed(() => {
+    const indexes = new Map<number, number>();
+    for (const [index, columnConfig] of columnConfigs.value.entries()) {
+        const isUnitColumn = columnConfig.derivationId === 'unit' || columnConfig.derivationId === 'currency';
+        if (isUnitColumn && columnConfig.derivedFromColumnIndex != null) indexes.set(columnConfig.derivedFromColumnIndex, index);
+    }
+    return indexes;
+});
+const percentageColumnIndexes = computed(
+    () =>
+        new Set(
+            [...unitColumnIndexes.value]
+                .filter(([, unitIndex]) => (columnConfigs.value[unitIndex]?.formats['%'] ?? 0) > 0)
+                .map(([sourceIndex]) => sourceIndex)
+        )
+);
 
 // ── Number Formats ─ One for each column. Every number shows at least its column's most decimals, so the decimal points
 // line up. The maximum is high because a partial audit can miss a longer value, which must never be rounded. No grouping,
@@ -286,9 +312,11 @@ function constructValueCellClass(columnId: string): string | undefined {
 // The records load in pages, so the widest value of all is not known. The first page is the best guide to the rest.
 function fitColumnsToFirstPage(dataSourceId: string, rows: DisplayRow[]): void {
     if (firstPageColumnWidths.value?.dataSourceId === dataSourceId) return;
-    const widths = columnDefinitions.value.map(({ header }, index) =>
-        constructFittedColumnWidth(String(header), rows.map((row) => row[constructColumnKey(index)] ?? ''), { headerExtraPx: HEADER_MENU_WIDTH_PX })
-    );
+    const widths = columnDefinitions.value.map(({ header }, index) => {
+        const percentSign = percentageColumnIndexes.value.has(index) ? ' %' : ''; // Measured with its unit, so a currency or sign never covers the number.
+        const values = rows.map((row) => `${row[constructUnitKey(index)] ?? ''} ${row[constructColumnKey(index)] ?? ''}${percentSign}`.trim());
+        return constructFittedColumnWidth(String(header), values, { headerExtraPx: HEADER_MENU_WIDTH_PX });
+    });
     firstPageColumnWidths.value = { dataSourceId, widths };
 }
 
@@ -296,11 +324,48 @@ function constructColumnKey(columnIndex: number): string {
     return `c${String(columnIndex)}`;
 }
 
+function constructUnitKey(columnIndex: number): string {
+    return `u${String(columnIndex)}`;
+}
+
+// A percentage is stored as a fraction, such as 0.5, and shown as the number it was written as, 50, beside its sign.
 function constructDisplayRow(storeRecord: StoreRecord): DisplayRow {
     const displayRow: DisplayRow = {};
-    for (const [columnIndex, columnConfig] of columnConfigs.value.entries())
-        displayRow[constructColumnKey(columnIndex)] = formatStoreValue(storeRecord[columnIndex] ?? null, columnConfig, numberFormats.value[columnIndex]);
+    for (const [columnIndex, columnConfig] of columnConfigs.value.entries()) {
+        const unitIndex = unitColumnIndexes.value.get(columnIndex);
+        const unit = unitIndex === undefined ? undefined : storeRecord[unitIndex];
+        const value = storeRecord[columnIndex] ?? null;
+        const shownValue = unit === '%' && typeof value === 'number' ? convertFractionToPercentage(value) : value;
+        displayRow[constructColumnKey(columnIndex)] = formatStoreValue(shownValue, columnConfig, numberFormats.value[columnIndex]);
+        if (typeof unit === 'string') displayRow[constructUnitKey(columnIndex)] = unit;
+    }
     return displayRow;
+}
+
+// Moves the decimal point two places in the text rather than multiplying by 100, which would show 0.011 as
+// 1.0999999999999999.
+function convertFractionToPercentage(fraction: number): number {
+    const text = String(fraction);
+    const exponentIndex = text.indexOf('e');
+    if (exponentIndex !== -1) {
+        const exponent = Number(text.slice(exponentIndex + 1)) + 2;
+        return Number(`${text.slice(0, exponentIndex)}e${String(exponent)}`);
+    }
+    const [sign, digits] = text.startsWith('-') ? ['-', text.slice(1)] : ['', text];
+    const pointIndex = digits.indexOf('.');
+    const whole = pointIndex === -1 ? digits : digits.slice(0, pointIndex);
+    const shiftedDecimals = (pointIndex === -1 ? '' : digits.slice(pointIndex + 1)).padEnd(2, '0');
+    return Number(`${sign}${whole}${shiftedDecimals.slice(0, 2)}.${shiftedDecimals.slice(2) || '0'}`);
+}
+
+// The unit shown before a number, at the cell's left edge. A percent sign goes after it instead.
+function findCurrencyUnit(columnId: string, row: DisplayRow | undefined): string | undefined {
+    const unit = row?.[constructUnitKey(Number(columnId.slice(1)))];
+    return unit === undefined || unit === '%' ? undefined : unit;
+}
+
+function isPercentageColumn(columnId: string): boolean {
+    return percentageColumnIndexes.value.has(Number(columnId.slice(1)));
 }
 
 // Each value is stored as its column's type, so a date or number is formatted for the locale and anything else shows as
@@ -363,9 +428,18 @@ function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig, n
                 :column-definitions="columnDefinitions"
                 :construct-cell-class="constructValueCellClass"
                 :data-source="dataSource"
+                :hidden-column-ids="hiddenColumnIds"
                 is-column-fit-to-visible-rows
                 scroll-area-padding-bottom="calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))"
-            />
+            >
+                <!-- Units ─ A currency at the left edge, and a percent sign after the number. The sign's room is kept
+                     on every row of a column with any percentage, unseen where there is none, so the decimal points
+                     line up. -->
+                <template #cell-icon="{ columnId, row }">
+                    <span v-if="findCurrencyUnit(columnId, row)" class="mr-auto text-sm text-muted">{{ findCurrencyUnit(columnId, row) }}</span>
+                    <span v-if="isPercentageColumn(columnId) && row != null" class="order-1 -ml-1 text-sm text-muted" :class="{ invisible: row[`u${columnId.slice(1)}`] !== '%' }">%</span>
+                </template>
+            </Table>
             <!-- Announced as it changes, because the count is the only sign that a long load is still going. -->
             <p v-else-if="investigateState.typeId === 'loading'" aria-live="polite" class="m-auto px-4 text-center text-sm text-muted">{{ loadPendingText }}</p>
             <div v-else-if="messageKey" class="m-auto flex flex-col items-center gap-y-2 px-4 text-center text-sm text-muted">

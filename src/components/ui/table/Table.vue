@@ -40,6 +40,7 @@ interface Properties {
     isColumnPickerHidden?: boolean; // Leaves out the toolbar that shows and hides columns, for a table that only previews data.
     isCollapsedToPinned?: boolean; // Shows only the pinned columns, for a table sharing its space with a detail panel. The rest stay defined, so they return as they were.
     label?: string; // Names the table for screen readers.
+    hiddenColumnIds?: string[]; // Columns hidden from the start. The column picker can show them.
     pinnedColumnIds?: string[]; // Columns pinned to the left from the start.
     selectedRowIndex?: number; // Marks the row whose detail is showing.
     scrollAreaPaddingBottom?: string; // Room after the last row, as a grid's scroll area has. Less where the table already ends above a status bar.
@@ -56,13 +57,14 @@ const {
     isColumnMenuHidden,
     isColumnPickerHidden,
     label,
+    hiddenColumnIds = [],
     pinnedColumnIds = [],
     scrollAreaPaddingBottom = 'var(--vertical-scroll-bottom-screen-inset)',
     selectedRowIndex
 } = defineProps<Properties>();
 
 defineSlots<{
-    'cell-icon'?(properties: { columnId: string; rowIndex: number }): unknown; // Rendered before a cell's value.
+    'cell-icon'?(properties: { columnId: string; row: T | undefined; rowIndex: number }): unknown; // Rendered before a cell's value. Its row is given too, for a cell that shows more of the row than its own value.
     'header-detail'?(properties: { columnId: string }): unknown; // Rendered below each column's label, in a taller header.
     'header-label-end'?(properties: { columnId: string }): unknown; // Rendered at the end of each column's label.
     'pinned-cell'?(properties: { columnId: string; rowIndex: number; value: unknown }): unknown; // Rendered in place of a left pinned cell's value, e.g. a button.
@@ -177,6 +179,15 @@ useEventListener(innerScrollElement, 'scroll', syncHeaderScroll, { passive: true
 useEventListener(scrollElement, 'scroll', saveVerticalScroll, { passive: true });
 useResizeObserver(scrollElement, restoreScroll);
 useEventListener(scrollElement, 'wheel', handleBodyWheel, { passive: true });
+
+// Only a change to which columns start hidden resets them, so a column the user showed stays shown as the rows load.
+watch(
+    () => hiddenColumnIds.join('\n'),
+    () => {
+        columnVisibilityStateMap.value = Object.fromEntries(hiddenColumnIds.map((columnId) => [columnId, false]));
+    },
+    { immediate: true }
+);
 
 // The column virtualizer keeps the widths it measured, so new starting widths need it to measure again.
 watch(
@@ -371,7 +382,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                                 :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
                                         /></template>
                                         <template v-if="$slots['cell-icon']" #icon
-                                            ><slot name="cell-icon" :column-id="leftLeafHeader.column.id" :row-index="vRow.index"
+                                            ><slot name="cell-icon" :column-id="leftLeafHeader.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
                                         /></template>
                                     </TableCell>
 
@@ -388,7 +399,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                             :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
                                         >
                                             <template v-if="$slots['cell-icon']" #icon
-                                                ><slot name="cell-icon" :column-id="centerLeafHeader.column.id" :row-index="vRow.index"
+                                                ><slot name="cell-icon" :column-id="centerLeafHeader.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
                                             /></template>
                                         </TableCell>
                                     </template>
@@ -405,7 +416,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                             :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
                                         >
                                             <template v-if="$slots['cell-icon']" #icon
-                                                ><slot name="cell-icon" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" :row-index="vRow.index"
+                                                ><slot name="cell-icon" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
                                             /></template>
                                         </TableCell>
                                     </div>
@@ -420,7 +431,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                         :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 1 }"
                                     >
                                         <template v-if="$slots['cell-icon']" #icon
-                                            ><slot name="cell-icon" :column-id="rightLeafHeader.column.id" :row-index="vRow.index"
+                                            ><slot name="cell-icon" :column-id="rightLeafHeader.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
                                         /></template>
                                     </TableCell>
 

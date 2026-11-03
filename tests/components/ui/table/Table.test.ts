@@ -30,6 +30,24 @@ function setSize(element: HTMLElement, size: number): void {
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('Table', () => {
+    it('starts with the columns it is told to hide hidden', async () => {
+        const wrapper = mount(Table, {
+            props: {
+                columnDefinitions: [
+                    { accessorKey: '0', header: 'Amount' },
+                    { accessorKey: '1', header: 'Amount unit' }
+                ],
+                dataSource: { getRows: () => Promise.resolve({ rows: [] }), rowCount: 0 },
+                hiddenColumnIds: ['1'],
+                isColumnPickerHidden: true
+            }
+        });
+        await nextTick();
+
+        expect(wrapper.findAll('[role="columnheader"]').map((header) => header.text())).toEqual(['Amount']);
+        wrapper.unmount();
+    });
+
     it('puts a resized column back to its default width on a double click of its handle', async () => {
         const wrapper = mount(Table, {
             attachTo: document.body, // A resize listens on the document.

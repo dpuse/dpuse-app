@@ -80,6 +80,24 @@ describe('applyPreviewDecimalSeparators', () => {
     });
 });
 
+describe('applyPreviewDecimalSeparator', () => {
+    const NUMERIC_READINGS = {
+        ',': { dataSubtypeId: 'integer', maxDecimals: 0, maxValue: '3456', storageTypeId: 'int16' },
+        '.': { dataSubtypeId: 'decimal', maxDecimals: 3, maxValue: '3.456', storageTypeId: 'double' }
+    };
+    const READ_ITEM = {
+        columnConfigs: [{ dataSubtypeId: 'decimal', dataTypeId: 'numeric', decimalSeparatorId: '.', label: { en: 'amount' }, maxValue: '3.456', numericReadings: NUMERIC_READINGS }]
+    } as unknown as ItemReading;
+
+    it('swaps in the figures measured for the separator chosen', () => {
+        expect(applyPreviewDecimalSeparator(READ_ITEM, 0, ',').columnConfigs[0]).toMatchObject({ dataSubtypeId: 'integer', decimalSeparatorId: ',', maxDecimals: 0, maxValue: '3456', storageTypeId: 'int16' });
+    });
+
+    it('keeps a subtype the user chose', () => {
+        expect(applyPreviewDecimalSeparator(READ_ITEM, 0, ',', true).columnConfigs[0]?.dataSubtypeId).toBe('decimal');
+    });
+});
+
 describe('constructDecimalPadding', () => {
     const COLUMN = { decimalSeparatorId: '.', maxDecimals: 2 } as const;
 

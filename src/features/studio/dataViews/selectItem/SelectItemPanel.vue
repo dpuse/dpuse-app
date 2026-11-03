@@ -109,6 +109,7 @@ import {
     constructStoredContentAuditConfig,
     constructStoredPreviewConfig,
     isDerivedColumn,
+    isEmptyUnitColumn,
     type ItemReading
 } from '../_dataViewColumns';
 import {
@@ -309,6 +310,7 @@ const currentFolderPath = ref('');
 const previewRequestId = ref(0);
 const valueStateRequestId = ref(0);
 const selectedColumnIndex = ref<number>(); // The column whose detail is showing in the Columns tab.
+const emptyUnitColumnsAreShown = ref(false);
 const columnsPaneElement = useTemplateRef<HTMLDivElement>('columnsPane');
 const { width: columnsPaneWidth } = useElementSize(columnsPaneElement);
 const activeItemReading = shallowRef<ItemReading>(); // Goes into the draft with the item.
@@ -695,8 +697,21 @@ const columnRowsNeedingAttention = computed(() => {
 const previewValueStates = shallowRef<PreviewValueStateId[][]>([]); // For each record shown, what each value is. Only the engine can tell whether a value fits its type.
 const columnValueCounts = computed(() => (activeItemReading.value == null ? [] : constructColumnValueCounts(activeItemReading.value)));
 const previewColumnIcons = computed(() => (activeItemReading.value == null ? [] : constructPreviewColumnIcons(activeItemReading.value)));
+// ── Shown Columns ─ The Columns tab's rows, by column position. Unit columns that found no unit are left out until
+// asked for, so a row's position in the table is not always its column's position.
+const emptyUnitColumnCount = computed(() => (activeItemReading.value?.columnConfigs ?? []).filter((columnConfig) => isEmptyUnitColumn(columnConfig)).length);
+const shownColumnIndexes = computed(() =>
+    (activeItemReading.value?.columnConfigs ?? [])
+        .map((columnConfig, index) => (emptyUnitColumnsAreShown.value || !isEmptyUnitColumn(columnConfig) ? index : undefined))
+        .filter((index) => index !== undefined)
+);
+const selectedColumnRowIndex = computed(() => {
+    const rowIndex = selectedColumnIndex.value == null ? -1 : shownColumnIndexes.value.indexOf(selectedColumnIndex.value);
+    return rowIndex === -1 ? undefined : rowIndex;
+});
 const previewColumnTableDataSource = computed<DataSource<PreviewColumnRow>>(() => {
-    const rows = activeItemReading.value == null ? [] : constructPreviewColumnRows(activeItemReading.value);
+    const columnRows = activeItemReading.value == null ? [] : constructPreviewColumnRows(activeItemReading.value);
+    const rows = shownColumnIndexes.value.flatMap((columnIndex) => columnRows.slice(columnIndex, columnIndex + 1));
     return { rowCount: rows.length, getRows: (start: number, end: number): Promise<{ rows: PreviewColumnRow[] }> => Promise.resolve({ rows: rows.slice(start, end) }) };
 });
 
@@ -846,7 +861,7 @@ function handleSelectColumnType(columnId: string, columnTypeId: string): void {
     const chosenColumnType = CHOOSABLE_COLUMN_TYPES.find((columnType) => constructColumnTypeId(columnType) === columnTypeId); // Auto is not one of them, so it chooses none.
     selectedColumnTypes.value[columnId] = chosenColumnType;
     const typedItemReading = applyPreviewColumnType(activeItemReading.value, columnIndex, chosenColumnType, detectedColumnType);
-    activeItemReading.value = applyPreviewDecimalSeparators(typedItemReading, selectedDecimalSeparators.value); // A detected type brings back the detected separator.
+    activeItemReading.value = applyPreviewDecimalSeparators(typedItemReading, selectedDecimalSeparators.value, selectedColumnTypes.value); // A detected type brings back the detected separator.
     showPreviewColumns(activeItemReading.value);
 }
 
@@ -858,7 +873,7 @@ function handleSelectDecimalSeparator(columnId: string, decimalSeparatorValue: s
     const chosenDecimalSeparatorId = decimalSeparatorValue === AUTO_OPTION_ID ? undefined : (decimalSeparatorValue as DecimalSeparatorId); // The other options are both separators.
     selectedDecimalSeparators.value[columnId] = chosenDecimalSeparatorId;
     const decimalSeparatorId = chosenDecimalSeparatorId ?? detectedColumnTypes.value.at(columnIndex)?.decimalSeparatorId;
-    activeItemReading.value = applyPreviewDecimalSeparator(activeItemReading.value, columnIndex, decimalSeparatorId);
+    activeItemReading.value = applyPreviewDecimalSeparator(activeItemReading.value, columnIndex, decimalSeparatorId, selectedColumnTypes.value[columnId] != null);
     showPreviewColumns(activeItemReading.value);
 }
 
@@ -1012,6 +1027,15 @@ function isKeyColumn(columnId: string): boolean {
 function handleShowColumnDetail(columnIndex: number): void {
     currentPreviewTabId.value = 'columns';
     selectedColumnIndex.value = columnIndex;
+}
+
+// Previous and Next step over the columns the Columns tab leaves out.
+function handleStepColumn(columnIndex: number): void {
+    const rowIndex = selectedColumnRowIndex.value;
+    if (rowIndex == null) return;
+    const nextRowIndex = rowIndex + (columnIndex > (selectedColumnIndex.value ?? columnIndex) ? 1 : -1);
+    const nextColumnIndex = nextRowIndex < 0 ? undefined : shownColumnIndexes.value.at(nextRowIndex); // 'at' reads a negative index from the end.
+    if (nextColumnIndex != null) selectedColumnIndex.value = nextColumnIndex;
 }
 
 function handleSelectPreviewTab(previewTabId: PreviewTabId): void {
@@ -1272,7 +1296,8 @@ function constructColumnTypeIcon(columnId: string): Component | undefined {
 
 // The Columns tab's type and subtype cells carry their icon. Other cells have none.
 function constructPreviewColumnCellIcon(columnId: string, rowIndex: number): Component | undefined {
-    const columnIcons = previewColumnIcons.value.at(rowIndex);
+    const columnIndex = shownColumnIndexes.value.at(rowIndex);
+    const columnIcons = columnIndex === undefined ? undefined : previewColumnIcons.value.at(columnIndex);
     if (columnId === 'dataTypeLabel') return columnIcons?.dataTypeIcon;
     return columnId === 'dataSubtypeLabel' ? columnIcons?.dataSubtypeIcon : undefined;
 }
@@ -1455,7 +1480,7 @@ function applyAuditColumns(itemReading: ItemReading, columnConfigs: ObjectColumn
 
 // The types first, because putting a detected type back also puts back the detected decimal separator.
 function applyChosenColumns(itemReading: ItemReading): ItemReading {
-    return applyPreviewDecimalSeparators(applyPreviewColumnTypes(itemReading, selectedColumnTypes.value, detectedColumnTypes.value), selectedDecimalSeparators.value);
+    return applyPreviewDecimalSeparators(applyPreviewColumnTypes(itemReading, selectedColumnTypes.value, detectedColumnTypes.value), selectedDecimalSeparators.value, selectedColumnTypes.value);
 }
 
 // Reads up to the preview's limit, the same way the item is read now, and shows the larger records and text. Nothing to do
@@ -2050,6 +2075,13 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <!-- Columns ─ 'v-if', so the table measures its space when it opens rather than while hidden. With a column's
                      detail open the table drops back to its names, and 'v-show' keeps its scroll position where the
                      detail fills the space. -->
+                <label
+                    v-if="currentPreviewTabId === 'columns' && emptyUnitColumnCount > 0"
+                    class="flex flex-none items-center gap-x-1.5 px-page pt-1 text-xs text-muted"
+                >
+                    <input v-model="emptyUnitColumnsAreShown" class="size-3.5 rounded accent-accent" type="checkbox" />
+                    {{ t(TEXT, 'emptyUnitColumns.label', { count: emptyUnitColumnCount }) }}
+                </label>
                 <div v-if="currentPreviewTabId === 'columns' && activeItemReading != null" ref="columnsPane" class="flex min-h-0 flex-1">
                     <Table
                         v-show="selectedColumnIndex == null || !columnDetailFillsSpace"
@@ -2061,20 +2093,20 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         is-column-picker-hidden
                         :label="t(TEXT, 'detail.columns.title')"
                         :pinned-column-ids="['label']"
-                        :selected-row-index="selectedColumnIndex"
+                        :selected-row-index="selectedColumnRowIndex"
                     >
                         <template #cell-icon="{ columnId, rowIndex }">
                             <component :is="constructPreviewColumnCellIcon(columnId, rowIndex)" aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
                         </template>
                         <template #pinned-cell="{ rowIndex, value }">
                             <ActionWrapper
-                                :aria-current="rowIndex === selectedColumnIndex ? 'true' : undefined"
+                                :aria-current="rowIndex === selectedColumnRowIndex ? 'true' : undefined"
                                 class="min-w-0 truncate text-left text-sm text-accent hover:underline"
-                                @click="selectedColumnIndex = rowIndex"
+                                @click="selectedColumnIndex = shownColumnIndexes[rowIndex]"
                                 >{{ value }}</ActionWrapper
                             >
                             <TriangleAlertIcon
-                                v-if="columnRowsNeedingAttention.has(rowIndex)"
+                                v-if="columnRowsNeedingAttention.has(shownColumnIndexes[rowIndex] ?? -1)"
                                 :aria-label="t(TEXT, 'column.attention.aria')"
                                 class="size-4 flex-none text-warning-text"
                                 role="img"
@@ -2096,7 +2128,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
                         :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
                         @close="selectedColumnIndex = undefined"
-                        @step="selectedColumnIndex = $event"
+                        @step="handleStepColumn"
                         @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
                         @update:type-value="handleSelectColumnType(String(selectedColumnIndex), $event)"
                     />

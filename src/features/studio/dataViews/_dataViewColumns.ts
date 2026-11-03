@@ -125,10 +125,22 @@ export function isDerivedColumn({ derivedFromColumnIndex }: ObjectColumnConfig):
     return derivedFromColumnIndex != null;
 }
 
+// A unit column that found no unit in the part of the item audited. It is kept, because a unit can appear past that
+// part, but it is hidden at first so a file of plain numbers does not show a column of nothing beside each one.
+export function isEmptyUnitColumn(columnConfig: ObjectColumnConfig): boolean {
+    return isDerivedColumn(columnConfig) && (columnConfig.validValueCount ?? 0) === 0;
+}
+
 // A column as the user wants it read: the type and decimal separator they chose, otherwise the detected ones.
 export function resolveColumnConfig(columnConfig: DataViewColumnConfig): ObjectColumnConfig {
     const { chosenDataSubtypeId: _chosenDataSubtypeId, chosenDataTypeId: _chosenDataTypeId, chosenDecimalSeparatorId, ...detectedColumnConfig } = columnConfig;
-    return { ...detectedColumnConfig, ...constructChosenColumnType(columnConfig), decimalSeparatorId: chosenDecimalSeparatorId ?? detectedColumnConfig.decimalSeparatorId };
+    const numericReading = chosenDecimalSeparatorId == null ? undefined : detectedColumnConfig.numericReadings?.[chosenDecimalSeparatorId]; // The figures for the chosen separator.
+    return {
+        ...detectedColumnConfig,
+        ...numericReading,
+        ...constructChosenColumnType(columnConfig),
+        decimalSeparatorId: chosenDecimalSeparatorId ?? detectedColumnConfig.decimalSeparatorId
+    };
 }
 
 // An 'unknown' column may only be blank in the part audited, and an unknown column loads as nothing, so it loads as text.

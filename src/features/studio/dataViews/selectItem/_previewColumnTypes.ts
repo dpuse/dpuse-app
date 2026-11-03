@@ -50,21 +50,32 @@ export function applyPreviewColumnTypes(itemReading: ItemReading, chosenColumnTy
 }
 
 // The preview with each decimal separator the user chose put back, after its types are put back.
-export function applyPreviewDecimalSeparators(itemReading: ItemReading, chosenDecimalSeparators: ChosenDecimalSeparators): ItemReading {
+export function applyPreviewDecimalSeparators(itemReading: ItemReading, chosenDecimalSeparators: ChosenDecimalSeparators, chosenColumnTypes: ChosenColumnTypes = {}): ItemReading {
     let separatedItemReading = itemReading;
     for (const [columnId, decimalSeparatorId] of Object.entries(chosenDecimalSeparators)) {
-        if (decimalSeparatorId != null) separatedItemReading = applyPreviewDecimalSeparator(separatedItemReading, Number(columnId), decimalSeparatorId);
+        if (decimalSeparatorId != null)
+            separatedItemReading = applyPreviewDecimalSeparator(separatedItemReading, Number(columnId), decimalSeparatorId, chosenColumnTypes[columnId] != null);
     }
     return separatedItemReading;
 }
 
-// The preview with one column's numbers read with the decimal separator given. Only how the values read changes, so the
-// figures the audit measured stay as they were.
-export function applyPreviewDecimalSeparator(itemReading: ItemReading, columnIndex: number, decimalSeparatorId: DecimalSeparatorId | undefined): ItemReading {
+// The preview with one column's numbers read with the decimal separator given, and the figures the audit measured for
+// that separator in place of the others. A subtype the user chose stays, because a chosen type outranks a measured one.
+export function applyPreviewDecimalSeparator(itemReading: ItemReading, columnIndex: number, decimalSeparatorId: DecimalSeparatorId | undefined, isSubtypeChosen = false): ItemReading {
     return {
         ...itemReading,
-        columnConfigs: itemReading.columnConfigs.map((columnConfig, index) => (index === columnIndex ? { ...columnConfig, decimalSeparatorId } : columnConfig))
+        columnConfigs: itemReading.columnConfigs.map((columnConfig, index) =>
+            index === columnIndex ? applyNumericReading(columnConfig, decimalSeparatorId, isSubtypeChosen) : columnConfig
+        )
     };
+}
+
+// The figures an audit measured for one decimal separator. A column whose values read only one way has none, because
+// its figures are the same either way.
+function applyNumericReading<T extends ObjectColumnConfig>(columnConfig: T, decimalSeparatorId: DecimalSeparatorId | undefined, isSubtypeChosen = false): T {
+    const numericReading = decimalSeparatorId == null ? undefined : columnConfig.numericReadings?.[decimalSeparatorId];
+    if (numericReading == null) return { ...columnConfig, decimalSeparatorId };
+    return { ...columnConfig, ...numericReading, dataSubtypeId: isSubtypeChosen ? columnConfig.dataSubtypeId : numericReading.dataSubtypeId, decimalSeparatorId };
 }
 
 // The preview with one column read as the type the user chose, or as detected when they chose none.
