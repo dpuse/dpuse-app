@@ -1,5 +1,5 @@
 {
-  "version": "1.0.244",
+  "version": "1.0.245",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -171,7 +171,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261102.1"
+              "version": "5.20261103.1"
             },
             "blake3-wasm": {
               "version": "2.1.5"
@@ -208,8 +208,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261102.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261102.1.tgz",
+      "version": "5.20261103.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261103.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -218,7 +218,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.174"
+          "version": "1.0.175"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1366,8 +1366,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.174",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.174.tgz",
+      "version": "1.0.175",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.175.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1453,7 +1453,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.174"
+          "version": "1.0.175"
         },
         "@tanstack/charts": {
           "version": "1.1.0",
@@ -3430,8 +3430,8 @@
               "version": "4.10.1"
             },
             "enhanced-resolve": {
-              "version": "5.24.2",
-              "resolved": "https://registry.npmjs.org/enhanced-resolve/-/enhanced-resolve-5.24.2.tgz",
+              "version": "5.26.0",
+              "resolved": "https://registry.npmjs.org/enhanced-resolve/-/enhanced-resolve-5.26.0.tgz",
               "overridden": false,
               "dependencies": {
                 "graceful-fs": {
@@ -4321,8 +4321,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.66.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.66.0.tgz",
+      "version": "1.67.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.67.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -4348,52 +4348,30 @@
       }
     },
     "@tailwindcss/vite": {
-      "version": "4.3.3",
-      "resolved": "https://registry.npmjs.org/@tailwindcss/vite/-/vite-4.3.3.tgz",
+      "version": "4.3.4",
+      "resolved": "https://registry.npmjs.org/@tailwindcss/vite/-/vite-4.3.4.tgz",
       "overridden": false,
       "dependencies": {
         "@tailwindcss/node": {
-          "version": "4.3.3",
-          "resolved": "https://registry.npmjs.org/@tailwindcss/node/-/node-4.3.3.tgz",
+          "version": "4.3.4",
+          "resolved": "https://registry.npmjs.org/@tailwindcss/node/-/node-4.3.4.tgz",
           "overridden": false,
           "dependencies": {
             "@jridgewell/remapping": {
               "version": "2.3.5"
             },
             "enhanced-resolve": {
-              "version": "5.24.2"
+              "version": "5.26.0"
             },
             "jiti": {
               "version": "2.7.0"
             },
             "lightningcss": {
-              "version": "1.32.0",
-              "resolved": "https://registry.npmjs.org/lightningcss/-/lightningcss-1.32.0.tgz",
-              "overridden": false,
-              "dependencies": {
-                "detect-libc": {
-                  "version": "2.1.2"
-                },
-                "lightningcss-android-arm64": {},
-                "lightningcss-darwin-arm64": {
-                  "version": "1.32.0",
-                  "resolved": "https://registry.npmjs.org/lightningcss-darwin-arm64/-/lightningcss-darwin-arm64-1.32.0.tgz",
-                  "overridden": false
-                },
-                "lightningcss-darwin-x64": {},
-                "lightningcss-freebsd-x64": {},
-                "lightningcss-linux-arm-gnueabihf": {},
-                "lightningcss-linux-arm64-gnu": {},
-                "lightningcss-linux-arm64-musl": {},
-                "lightningcss-linux-x64-gnu": {},
-                "lightningcss-linux-x64-musl": {},
-                "lightningcss-win32-arm64-msvc": {},
-                "lightningcss-win32-x64-msvc": {}
-              }
+              "version": "1.33.0"
             },
             "magic-string": {
-              "version": "0.30.21",
-              "resolved": "https://registry.npmjs.org/magic-string/-/magic-string-0.30.21.tgz",
+              "version": "1.4.5",
+              "resolved": "https://registry.npmjs.org/magic-string/-/magic-string-1.4.5.tgz",
               "overridden": false,
               "dependencies": {
                 "@jridgewell/sourcemap-codec": {
@@ -4405,19 +4383,19 @@
               "version": "1.2.2"
             },
             "tailwindcss": {
-              "version": "4.3.3"
+              "version": "4.3.4"
             }
           }
         },
         "@tailwindcss/oxide": {
-          "version": "4.3.3",
-          "resolved": "https://registry.npmjs.org/@tailwindcss/oxide/-/oxide-4.3.3.tgz",
+          "version": "4.3.4",
+          "resolved": "https://registry.npmjs.org/@tailwindcss/oxide/-/oxide-4.3.4.tgz",
           "overridden": false,
           "dependencies": {
             "@tailwindcss/oxide-android-arm64": {},
             "@tailwindcss/oxide-darwin-arm64": {
-              "version": "4.3.3",
-              "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-darwin-arm64/-/oxide-darwin-arm64-4.3.3.tgz",
+              "version": "4.3.4",
+              "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-darwin-arm64/-/oxide-darwin-arm64-4.3.4.tgz",
               "overridden": false
             },
             "@tailwindcss/oxide-darwin-x64": {},
@@ -4427,13 +4405,77 @@
             "@tailwindcss/oxide-linux-arm64-musl": {},
             "@tailwindcss/oxide-linux-x64-gnu": {},
             "@tailwindcss/oxide-linux-x64-musl": {},
-            "@tailwindcss/oxide-wasm32-wasi": {},
+            "@tailwindcss/oxide-wasm32-wasi": {
+              "version": "4.3.4",
+              "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-wasm32-wasi/-/oxide-wasm32-wasi-4.3.4.tgz",
+              "overridden": false,
+              "dependencies": {
+                "@emnapi/core": {
+                  "version": "1.11.3",
+                  "overridden": false,
+                  "dependencies": {
+                    "@emnapi/wasi-threads": {
+                      "version": "1.2.3"
+                    },
+                    "tslib": {
+                      "version": "2.8.1"
+                    }
+                  }
+                },
+                "@emnapi/runtime": {
+                  "version": "1.11.3",
+                  "overridden": false,
+                  "dependencies": {
+                    "tslib": {
+                      "version": "2.8.1"
+                    }
+                  }
+                },
+                "@emnapi/wasi-threads": {
+                  "version": "1.2.3",
+                  "overridden": false,
+                  "dependencies": {
+                    "tslib": {
+                      "version": "2.8.1"
+                    }
+                  }
+                },
+                "@napi-rs/wasm-runtime": {
+                  "version": "1.2.2",
+                  "overridden": false,
+                  "dependencies": {
+                    "@emnapi/core": {
+                      "version": "1.11.3"
+                    },
+                    "@emnapi/runtime": {
+                      "version": "1.11.3"
+                    },
+                    "@tybys/wasm-util": {
+                      "version": "0.10.3"
+                    }
+                  }
+                },
+                "@tybys/wasm-util": {
+                  "version": "0.10.3",
+                  "overridden": false,
+                  "dependencies": {
+                    "tslib": {
+                      "version": "2.8.1"
+                    }
+                  }
+                },
+                "tslib": {
+                  "version": "2.8.1",
+                  "overridden": false
+                }
+              }
+            },
             "@tailwindcss/oxide-win32-arm64-msvc": {},
             "@tailwindcss/oxide-win32-x64-msvc": {}
           }
         },
         "tailwindcss": {
-          "version": "4.3.3"
+          "version": "4.3.4"
         },
         "vite": {
           "version": "8.3.5"
@@ -4515,8 +4557,8 @@
       }
     },
     "@tanstack/vue-query": {
-      "version": "5.105.2",
-      "resolved": "https://registry.npmjs.org/@tanstack/vue-query/-/vue-query-5.105.2.tgz",
+      "version": "5.105.3",
+      "resolved": "https://registry.npmjs.org/@tanstack/vue-query/-/vue-query-5.105.3.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/match-sorter-utils": {
@@ -4532,8 +4574,8 @@
           }
         },
         "@tanstack/query-core": {
-          "version": "5.105.2",
-          "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.105.2.tgz",
+          "version": "5.105.3",
+          "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.105.3.tgz",
           "overridden": false
         },
         "@vue/composition-api": {},
@@ -5825,7 +5867,7 @@
           "overridden": false,
           "dependencies": {
             "enhanced-resolve": {
-              "version": "5.24.2"
+              "version": "5.26.0"
             },
             "jiti": {
               "version": "2.7.0"
@@ -5834,12 +5876,12 @@
               "version": "1.2.1"
             },
             "tailwindcss": {
-              "version": "4.3.3"
+              "version": "4.3.4"
             }
           }
         },
         "tailwindcss": {
-          "version": "4.3.3"
+          "version": "4.3.4"
         }
       }
     },
@@ -6846,8 +6888,8 @@
       }
     },
     "tailwindcss": {
-      "version": "4.3.3",
-      "resolved": "https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.3.3.tgz",
+      "version": "4.3.4",
+      "resolved": "https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.3.4.tgz",
       "overridden": false
     },
     "tinybase": {
@@ -6858,7 +6900,7 @@
         "@automerge/automerge-repo": {},
         "@capacitor-community/sqlite": {},
         "@cloudflare/workers-types": {
-          "version": "5.20261102.1"
+          "version": "5.20261103.1"
         },
         "@electric-sql/pglite": {},
         "@libsql/client": {},
@@ -7274,7 +7316,14 @@
               "overridden": false
             },
             "magic-string": {
-              "version": "0.30.21"
+              "version": "0.30.21",
+              "resolved": "https://registry.npmjs.org/magic-string/-/magic-string-0.30.21.tgz",
+              "overridden": false,
+              "dependencies": {
+                "@jridgewell/sourcemap-codec": {
+                  "version": "1.6.0"
+                }
+              }
             },
             "postcss": {
               "version": "8.5.31"
@@ -7752,7 +7801,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261102.1"
+          "version": "5.20261103.1"
         },
         "@cspotcode/source-map-support": {
           "version": "0.8.1",

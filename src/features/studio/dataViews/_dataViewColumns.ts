@@ -6,6 +6,7 @@ import type {
     DataTypeId,
     DataViewColumnConfig,
     DataViewConfig,
+    DecimalSeparatorId,
     ObjectColumnConfig,
     PreviewConfig,
     PreviewObjectResult,
@@ -22,6 +23,8 @@ export type ItemReading = PreviewConfig & ReadConfig & { columnConfigs: ObjectCo
 export type ColumnType = Pick<ObjectColumnConfig, 'dataSubtypeId' | 'dataTypeId'>;
 
 export type ChosenColumnTypes = Partial<Record<string, ColumnType>>; // Keyed by the column's position, as a string.
+
+export type ChosenDecimalSeparators = Partial<Record<string, DecimalSeparatorId>>; // Keyed by the column's position, as a string.
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -69,19 +72,22 @@ export function constructPreviewContentAuditConfig(
     };
 }
 
-// The item's columns hold any chosen type in place of the detected one, so the detected types are passed in.
+// The item's columns hold any chosen type and decimal separator in place of the detected ones, so the detected ones are
+// passed in.
 export function constructItemColumnSetConfig(
     itemReading: ItemReading,
     asAt: number,
-    detectedColumnTypes: ColumnType[],
-    chosenColumnTypes: ChosenColumnTypes
+    detectedColumnTypes: (ColumnType & Partial<Pick<ObjectColumnConfig, 'decimalSeparatorId'>>)[],
+    chosenColumnTypes: ChosenColumnTypes,
+    chosenDecimalSeparators: ChosenDecimalSeparators = {}
 ): ColumnSetConfig {
     return {
         asAt,
         columnConfigs: itemReading.columnConfigs.map((columnConfig, index) => ({
             ...columnConfig,
             ...detectedColumnTypes[index],
-            ...constructChosenColumnFields(chosenColumnTypes[String(index)])
+            ...constructChosenColumnFields(chosenColumnTypes[String(index)]),
+            chosenDecimalSeparatorId: chosenDecimalSeparators[String(index)]
         }))
     };
 }
@@ -91,8 +97,8 @@ export function constructAuditColumnSetConfig(contentAuditConfig: ContentAuditCo
     return {
         asAt: contentAuditConfig.asAt,
         columnConfigs: contentAuditConfig.columns.map((columnConfig, index) => {
-            const { chosenDataSubtypeId, chosenDataTypeId } = columnSetConfig?.columnConfigs[index] ?? {};
-            return { ...columnConfig, chosenDataSubtypeId, chosenDataTypeId };
+            const { chosenDataSubtypeId, chosenDataTypeId, chosenDecimalSeparatorId } = columnSetConfig?.columnConfigs[index] ?? {};
+            return { ...columnConfig, chosenDataSubtypeId, chosenDataTypeId, chosenDecimalSeparatorId };
         })
     };
 }
@@ -109,10 +115,20 @@ export function constructChosenColumnTypes(columnSetConfig: ColumnSetConfig | un
     return Object.fromEntries(entries.filter(([, chosenColumnType]) => chosenColumnType != null));
 }
 
-// A column as the user wants it read: the type they chose, otherwise the detected one.
+export function constructChosenDecimalSeparators(columnSetConfig: ColumnSetConfig | undefined): ChosenDecimalSeparators {
+    const entries = (columnSetConfig?.columnConfigs ?? []).map(({ chosenDecimalSeparatorId }, index) => [String(index), chosenDecimalSeparatorId] as const);
+    return Object.fromEntries(entries.filter(([, chosenDecimalSeparatorId]) => chosenDecimalSeparatorId != null));
+}
+
+// A column the item does not hold, such as the currencies of a column of numbers in several, worked out when it loads.
+export function isDerivedColumn({ derivedFromColumnIndex }: ObjectColumnConfig): boolean {
+    return derivedFromColumnIndex != null;
+}
+
+// A column as the user wants it read: the type and decimal separator they chose, otherwise the detected ones.
 export function resolveColumnConfig(columnConfig: DataViewColumnConfig): ObjectColumnConfig {
-    const { chosenDataSubtypeId: _chosenDataSubtypeId, chosenDataTypeId: _chosenDataTypeId, ...detectedColumnConfig } = columnConfig;
-    return { ...detectedColumnConfig, ...constructChosenColumnType(columnConfig) };
+    const { chosenDataSubtypeId: _chosenDataSubtypeId, chosenDataTypeId: _chosenDataTypeId, chosenDecimalSeparatorId, ...detectedColumnConfig } = columnConfig;
+    return { ...detectedColumnConfig, ...constructChosenColumnType(columnConfig), decimalSeparatorId: chosenDecimalSeparatorId ?? detectedColumnConfig.decimalSeparatorId };
 }
 
 // An 'unknown' column may only be blank in the part audited, and an unknown column loads as nothing, so it loads as text.
@@ -124,15 +140,16 @@ export function constructLoadColumnConfigs({ columnSetConfig, contentAuditConfig
     });
 }
 
-// What a load depends on, so a change to either the columns or a chosen type asks for a new load. A number when no type
-// is chosen, which is what loads recorded before types could be chosen hold. Built from the stored fields, so a load
-// recorded before subtypes could be chosen still matches its data view.
+// What a load depends on, so a change to the columns, a chosen type or a chosen decimal separator asks for a new load.
+// A number when nothing is chosen, which is what loads recorded before types could be chosen hold. Built from the stored
+// fields, so a load recorded before subtypes could be chosen still matches its data view.
 export function constructColumnSetVersion(columnSetConfig: ColumnSetConfig | undefined): number | string | undefined {
     if (columnSetConfig == null) return;
-    const chosenTypeEntries = columnSetConfig.columnConfigs.flatMap(({ chosenDataSubtypeId, chosenDataTypeId }, index) =>
-        chosenDataTypeId == null ? [] : [[String(index), constructColumnTypeId({ dataSubtypeId: chosenDataSubtypeId, dataTypeId: chosenDataTypeId })]]
-    );
-    return chosenTypeEntries.length === 0 ? columnSetConfig.asAt : `${String(columnSetConfig.asAt)}|${JSON.stringify(Object.fromEntries(chosenTypeEntries))}`;
+    const chosenEntries = columnSetConfig.columnConfigs.flatMap(({ chosenDataSubtypeId, chosenDataTypeId, chosenDecimalSeparatorId }, index) => [
+        ...(chosenDataTypeId == null ? [] : [[String(index), constructColumnTypeId({ dataSubtypeId: chosenDataSubtypeId, dataTypeId: chosenDataTypeId })]]),
+        ...(chosenDecimalSeparatorId == null ? [] : [[`${String(index)}.decimalSeparator`, chosenDecimalSeparatorId]])
+    ]);
+    return chosenEntries.length === 0 ? columnSetConfig.asAt : `${String(columnSetConfig.asAt)}|${JSON.stringify(Object.fromEntries(chosenEntries))}`;
 }
 
 // A column type as one id, in the form the engine counts types under, e.g. 'numeric.integer'.

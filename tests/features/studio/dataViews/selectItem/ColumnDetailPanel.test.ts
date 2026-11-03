@@ -113,6 +113,13 @@ describe('ColumnDetailPanel', () => {
         expect(wrapper.findAll('tbody tr')).toHaveLength(12);
     });
 
+    it('offers a decimal separator only when it is given choices', () => {
+        const separatorOptions = [{ id: 'auto', label: 'Auto' }];
+
+        expect(mountPanel([buildColumn({})]).findAll('select-input-stub')).toHaveLength(1);
+        expect(mountPanel([buildColumn({})], { decimalSeparatorOptions: separatorOptions, decimalSeparatorValue: 'auto' }).findAll('select-input-stub')).toHaveLength(2);
+    });
+
     it('offers Previous and Next only when the detail fills the space', () => {
         expect(
             mountPanel([buildColumn({})])

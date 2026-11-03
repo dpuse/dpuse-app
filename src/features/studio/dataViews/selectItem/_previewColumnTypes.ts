@@ -1,12 +1,13 @@
 // ── DPUse Framework
-import type { ObjectColumnConfig } from '@dpuse/dpuse-shared';
+import type { DecimalSeparatorId, ObjectColumnConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import type { ChosenColumnTypes, ColumnType, ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
+import type { ChosenColumnTypes, ChosenDecimalSeparators, ColumnType, ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export type DetectedColumnType = ColumnType;
+// The decimal separator detected for a column is kept with its type, so Auto can return to it.
+export type DetectedColumnType = ColumnType & Partial<Pick<ObjectColumnConfig, 'decimalSeparatorId'>>;
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -46,6 +47,24 @@ export function applyPreviewColumnTypes(itemReading: ItemReading, chosenColumnTy
     for (const [columnIndex, detectedColumnType] of detectedColumnTypes.entries())
         typedItemReading = applyPreviewColumnType(typedItemReading, columnIndex, chosenColumnTypes[String(columnIndex)], detectedColumnType);
     return typedItemReading;
+}
+
+// The preview with each decimal separator the user chose put back, after its types are put back.
+export function applyPreviewDecimalSeparators(itemReading: ItemReading, chosenDecimalSeparators: ChosenDecimalSeparators): ItemReading {
+    let separatedItemReading = itemReading;
+    for (const [columnId, decimalSeparatorId] of Object.entries(chosenDecimalSeparators)) {
+        if (decimalSeparatorId != null) separatedItemReading = applyPreviewDecimalSeparator(separatedItemReading, Number(columnId), decimalSeparatorId);
+    }
+    return separatedItemReading;
+}
+
+// The preview with one column's numbers read with the decimal separator given. Only how the values read changes, so the
+// figures the audit measured stay as they were.
+export function applyPreviewDecimalSeparator(itemReading: ItemReading, columnIndex: number, decimalSeparatorId: DecimalSeparatorId | undefined): ItemReading {
+    return {
+        ...itemReading,
+        columnConfigs: itemReading.columnConfigs.map((columnConfig, index) => (index === columnIndex ? { ...columnConfig, decimalSeparatorId } : columnConfig))
+    };
 }
 
 // The preview with one column read as the type the user chose, or as detected when they chose none.

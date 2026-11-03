@@ -107,6 +107,18 @@ describe('constructPreviewColumnRows', () => {
         });
     });
 
+    it('names a derived column as derived, because the item does not hold it', () => {
+        const itemReading = buildItemReading(false, { derivationId: 'currency', derivedFromColumnIndex: 0, label: { en: 'Amount currency' } });
+
+        expect(constructPreviewColumnRows(itemReading)[0]?.label).toBe('Amount currency (derived)');
+    });
+
+    it('calls a column unclear on its own when there is no reading to name', () => {
+        const itemReading = buildItemReading(false, { dataTypeId: 'numeric', isFormatAmbiguous: true });
+
+        expect(constructPreviewColumnRows(itemReading)[0]?.readingText).toBe('Unclear, check this column');
+    });
+
     it('keeps the counts in step with a type the user chose', () => {
         const itemReading = buildItemReading(false, {
             blankValueCount: 1,

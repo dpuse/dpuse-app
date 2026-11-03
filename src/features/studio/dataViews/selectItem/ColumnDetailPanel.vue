@@ -28,17 +28,20 @@ const COLLAPSED_LIST_ROW_COUNT = 10; // Rows a long list shows until the user as
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { canStepColumns, columnIndex, detectedColumnType, isTypeDisabled, itemReading, sourceText, typeOptions, typeValue } = defineProps<{
-    canStepColumns?: boolean; // Filling the space hides the table, so Previous and Next take its place.
-    columnIndex: number;
-    detectedColumnType: ColumnType | undefined;
-    isTypeDisabled?: boolean;
-    itemReading: ItemReading;
-    sourceText: string; // What the figures describe: how much of the item was audited.
-    typeOptions: SelectOption[];
-    typeValue: string;
-}>();
-const emit = defineEmits<{ close: []; step: [columnIndex: number]; 'update:typeValue': [typeValue: string] }>();
+const { canStepColumns, columnIndex, decimalSeparatorOptions = [], decimalSeparatorValue, detectedColumnType, isTypeDisabled, itemReading, sourceText, typeOptions, typeValue } =
+    defineProps<{
+        canStepColumns?: boolean; // Filling the space hides the table, so Previous and Next take its place.
+        columnIndex: number;
+        decimalSeparatorOptions?: SelectOption[]; // Only a column of numbers has any.
+        decimalSeparatorValue?: string;
+        detectedColumnType: ColumnType | undefined;
+        isTypeDisabled?: boolean;
+        itemReading: ItemReading;
+        sourceText: string; // What the figures describe: how much of the item was audited.
+        typeOptions: SelectOption[];
+        typeValue: string;
+    }>();
+const emit = defineEmits<{ close: []; step: [columnIndex: number]; 'update:decimalSeparatorValue': [decimalSeparatorValue: string]; 'update:typeValue': [typeValue: string] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -211,6 +214,15 @@ function constructCountRows(counts: Record<string, number> | undefined): { count
                     @update:model-value="emit('update:typeValue', $event)"
                 />
                 <p v-if="detectedTypeText" class="mt-1 mb-0 text-muted" role="status">{{ detectedTypeText }}</p>
+                <SelectInput
+                    v-if="decimalSeparatorOptions.length > 0 && decimalSeparatorValue != null"
+                    class="mt-2"
+                    :disabled="isTypeDisabled"
+                    :label="t(TEXT, 'decimalSeparator.label')"
+                    :model-value="decimalSeparatorValue"
+                    :options="decimalSeparatorOptions"
+                    @update:model-value="emit('update:decimalSeparatorValue', $event)"
+                />
                 <dl v-for="group in overviewGroups" :key="group.id" class="mt-3 grid grid-cols-[minmax(7.5rem,max-content)_1fr] *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
                     <template v-for="groupRow in group.rows" :key="groupRow.label">
                         <dt class="text-muted">{{ groupRow.label }}</dt>

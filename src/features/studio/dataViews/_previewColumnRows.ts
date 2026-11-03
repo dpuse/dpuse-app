@@ -152,7 +152,7 @@ export function constructPreviewColumnRows(itemReading: ItemReading): PreviewCol
     return itemReading.columnConfigs.map((columnConfig, index) => {
         const { count, total } = countColumnValues(columnConfig, itemReading.hasHeaders === true);
         return {
-            label: columnConfig.label[localeId.value] ?? columnConfig.label.en ?? String(index + 1),
+            label: constructColumnLabel(columnConfig, index),
             dataTypeLabel: constructDataTypeLabel(columnConfig.dataTypeId),
             dataSubtypeLabel:
                 columnConfig.dataSubtypeId === undefined || columnConfig.dataSubtypeId === 'plain' ? '' : t(TEXT, DATA_SUBTYPE_LABEL_KEYS[columnConfig.dataSubtypeId]), // Plain text has no special format, so it gets no subtype label and real subtypes stand out.
@@ -180,6 +180,12 @@ export function constructPreviewColumnRows(itemReading: ItemReading): PreviewCol
             invalidSampleText: formatSamples(columnConfig.invalidValues)
         };
     });
+}
+
+// A derived column says so, because the item does not hold it.
+function constructColumnLabel(columnConfig: ItemReading['columnConfigs'][number], index: number): string {
+    const label = columnConfig.label[localeId.value] ?? columnConfig.label.en ?? String(index + 1);
+    return columnConfig.derivedFromColumnIndex == null ? label : t(TEXT, 'column.derived.label', { label });
 }
 
 // What each column's values are, for the bar in its header. Follows a type the user chose, as the rows do.
@@ -239,7 +245,8 @@ function constructReadingText({ dateOrderId, decimalSeparatorId, isFormatAmbiguo
     if (dateOrderId != null) readings.push(t(TEXT, dateOrderId === 'dayFirst' ? 'reading.dayFirst.text' : 'reading.monthFirst.text'));
     if (decimalSeparatorId != null) readings.push(t(TEXT, decimalSeparatorId === ',' ? 'reading.decimalComma.text' : 'reading.decimalPoint.text'));
     const readingText = readings.join(', ');
-    return isFormatAmbiguous === true ? t(TEXT, 'reading.unclear.text', { reading: readingText }) : readingText;
+    if (isFormatAmbiguous !== true) return readingText;
+    return readingText === '' ? t(TEXT, 'reading.unclearOnly.text') : t(TEXT, 'reading.unclear.text', { reading: readingText }); // A column of mixed currencies, say, has no reading to name.
 }
 
 // How many of a column's values fit its current type, of those it holds. A header record's own value is not data.

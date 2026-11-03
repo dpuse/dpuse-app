@@ -46,6 +46,13 @@ describe('applyPreviewHeaders', () => {
         expect(itemReading.columnConfigs.map((columnConfig) => columnConfig.label.en)).toEqual(['Column 1', 'Column 2']);
     });
 
+    it('keeps the name of a derived column, which is not in the header record', () => {
+        const currencyColumn = { dataTypeId: 'string', derivationId: 'currency', derivedFromColumnIndex: 0, label: { en: 'Column 1 currency' } };
+        const itemReading = applyPreviewHeaders({ ...ITEM_READING, columnConfigs: [...ITEM_READING.columnConfigs, currencyColumn] } as ItemReading, true);
+
+        expect(itemReading.columnConfigs.map((columnConfig) => columnConfig.label.en)).toEqual(['2023', 'Column 2', 'Column 1 currency']);
+    });
+
     it('leaves the preview it was given unchanged', () => {
         applyPreviewHeaders(ITEM_READING, true);
 

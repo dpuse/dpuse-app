@@ -9,6 +9,7 @@ import {
     applyChosenColumnTypes,
     constructAuditColumnSetConfig,
     constructChosenColumnTypes,
+    constructChosenDecimalSeparators,
     constructColumnSetVersion,
     constructDataTypeCellClass,
     constructItemColumnSetConfig,
@@ -18,6 +19,7 @@ import {
     constructReadConfig,
     constructStoredContentAuditConfig,
     constructStoredPreviewConfig,
+    isDerivedColumn,
     type ItemReading,
     resolveColumnConfig,
     restoreItemReading
@@ -92,6 +94,15 @@ describe('constructItemColumnSetConfig', () => {
         expect(columnSetConfig.asAt).toBe(3);
         expect(columnSetConfig.columnConfigs[0]).toMatchObject({ chosenDataSubtypeId: 'decimal', chosenDataTypeId: 'numeric', dataSubtypeId: 'email', dataTypeId: 'string' });
     });
+
+    it('keeps the detected decimal separator apart from the chosen one', () => {
+        const itemReading = { columnConfigs: [buildColumn({ dataTypeId: 'numeric', decimalSeparatorId: ',' })] } as unknown as ItemReading;
+
+        const columnSetConfig = constructItemColumnSetConfig(itemReading, 3, [{ dataSubtypeId: 'decimal', dataTypeId: 'numeric', decimalSeparatorId: '.' }], {}, { 0: ',' });
+
+        expect(columnSetConfig.columnConfigs[0]).toMatchObject({ chosenDecimalSeparatorId: ',', decimalSeparatorId: '.' });
+        expect(constructChosenDecimalSeparators(columnSetConfig)).toEqual({ 0: ',' });
+    });
 });
 
 describe('constructAuditColumnSetConfig', () => {
@@ -143,6 +154,11 @@ describe('resolveColumnConfig', () => {
         });
     });
 
+    it('uses the chosen decimal separator in place of the detected one', () => {
+        expect(resolveColumnConfig(buildColumn({ chosenDecimalSeparatorId: ',', dataTypeId: 'numeric', decimalSeparatorId: '.' })).decimalSeparatorId).toBe(',');
+        expect(resolveColumnConfig(buildColumn({ dataTypeId: 'numeric', decimalSeparatorId: '.' })).decimalSeparatorId).toBe('.');
+    });
+
     it('keeps the detected type and subtype otherwise', () => {
         expect(resolveColumnConfig(buildColumn({ dataSubtypeId: 'integer', dataTypeId: 'numeric' }))).toMatchObject({ dataSubtypeId: 'integer', dataTypeId: 'numeric' });
         expect(resolveColumnConfig(buildColumn({ chosenDataTypeId: 'numeric', dataSubtypeId: 'integer', dataTypeId: 'numeric' }))).toMatchObject({ dataSubtypeId: 'integer' });
@@ -164,6 +180,13 @@ describe('constructLoadColumnConfigs', () => {
     });
 });
 
+describe('isDerivedColumn', () => {
+    it('tells a column worked out from another apart from a column of the item', () => {
+        expect(isDerivedColumn(buildColumn({ derivationId: 'currency', derivedFromColumnIndex: 0 }))).toBe(true);
+        expect(isDerivedColumn(buildColumn({}))).toBe(false);
+    });
+});
+
 describe('constructColumnSetVersion', () => {
     it('is the time alone with no chosen type, as loads recorded earlier hold', () => {
         const columnSetConfig = buildColumnSet([buildColumn({})]);
@@ -177,6 +200,12 @@ describe('constructColumnSetVersion', () => {
         expect(constructColumnSetVersion(columnSetConfig)).toBe('5|{"0":"numeric"}');
         const subtypedColumnSetConfig = buildColumnSet([buildColumn({ chosenDataSubtypeId: 'decimal', chosenDataTypeId: 'numeric' })]);
         expect(constructColumnSetVersion(subtypedColumnSetConfig)).toBe('5|{"0":"numeric.decimal"}');
+    });
+
+    it('changes with a chosen decimal separator', () => {
+        const columnSetConfig = buildColumnSet([buildColumn({ chosenDecimalSeparatorId: ',' })]);
+
+        expect(constructColumnSetVersion(columnSetConfig)).toBe('5|{"0.decimalSeparator":","}');
     });
 
     it('is undefined without a column set', () => {

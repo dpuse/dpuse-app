@@ -49,6 +49,7 @@ import type {
     ConnectionNodeConfig,
     ContentAuditConfig,
     DataFormatId,
+    DecimalSeparatorId,
     DataViewConfig,
     GetInfoOptions,
     GetInfoResult,
@@ -85,10 +86,20 @@ import { TEXT } from './SelectItemPanel_.json';
 import { useItemAudit } from './useItemAudit';
 import { viewportIsWide } from '@/state/device';
 import { type AppFailure, raiseFailure } from '@/state/errors';
-import { applyPreviewColumnType, applyPreviewColumnTypes, CHOOSABLE_COLUMN_TYPES, constructDecimalPadding, type DetectedColumnType } from './_previewColumnTypes';
+import {
+    applyPreviewColumnType,
+    applyPreviewColumnTypes,
+    applyPreviewDecimalSeparator,
+    applyPreviewDecimalSeparators,
+    CHOOSABLE_COLUMN_TYPES,
+    constructDecimalPadding,
+    type DetectedColumnType
+} from './_previewColumnTypes';
 import {
     type ChosenColumnTypes,
+    type ChosenDecimalSeparators,
     constructChosenColumnTypes,
+    constructChosenDecimalSeparators,
     constructColumnTypeId,
     constructDataTypeCellClass,
     constructItemColumnSetConfig,
@@ -97,6 +108,7 @@ import {
     constructReadConfig,
     constructStoredContentAuditConfig,
     constructStoredPreviewConfig,
+    isDerivedColumn,
     type ItemReading
 } from '../_dataViewColumns';
 import {
@@ -316,9 +328,10 @@ const detectedEncodingId = ref<string>();
 const detectedEncodingIsAssumed = ref(false);
 const detectedValueDelimiterId = ref<ValueDelimiterId>();
 
-// ── Column Types ─ The type the user chose for a column, by its id in the table, which is its position. Cleared by every
-// new reading. What was detected is kept apart, so Auto can return to it.
+// ── Column Types ─ The type and decimal separator the user chose for a column, by its id in the table, which is its
+// position. Cleared by every new reading. What was detected is kept apart, so Auto can return to it.
 const selectedColumnTypes = ref<ChosenColumnTypes>({});
+const selectedDecimalSeparators = ref<ChosenDecimalSeparators>({});
 const detectedColumnTypes = shallowRef<DetectedColumnType[]>([]);
 
 // ── Preview Tabs ─ Tabs and their panel reference each other by id, which must be unique on the page. Below 'md' the
@@ -761,8 +774,9 @@ watch(
             const headedItemReading = await applyHeaderChoice(itemReading, newActiveItem);
             if (currentRequestId !== previewRequestId.value) return;
 
-            const wereColumnTypesChosen = Object.values(selectedColumnTypes.value).some((columnType) => columnType != null);
+            const wereColumnTypesChosen = [...Object.values(selectedColumnTypes.value), ...Object.values(selectedDecimalSeparators.value)].some((choice) => choice != null);
             selectedColumnTypes.value = isNewReadChoice ? {} : constructSavedColumnTypes(newActiveItem); // A new reading can change the columns, but reopening the saved item keeps its types.
+            selectedDecimalSeparators.value = isNewReadChoice ? {} : constructSavedDecimalSeparators(newActiveItem);
             detectedColumnTypes.value = constructDetectedColumnTypes(headedItemReading);
             if (isNewReadChoice) selectedColumnIndex.value = undefined; // A new reading can change the columns.
             activeContentAuditConfig.value = constructFirstContentAuditConfig(previewObjectResult.contentAuditConfig, headedItemReading);
@@ -831,7 +845,20 @@ function handleSelectColumnType(columnId: string, columnTypeId: string): void {
     readingIsChanged.value = true;
     const chosenColumnType = CHOOSABLE_COLUMN_TYPES.find((columnType) => constructColumnTypeId(columnType) === columnTypeId); // Auto is not one of them, so it chooses none.
     selectedColumnTypes.value[columnId] = chosenColumnType;
-    activeItemReading.value = applyPreviewColumnType(activeItemReading.value, columnIndex, chosenColumnType, detectedColumnType);
+    const typedItemReading = applyPreviewColumnType(activeItemReading.value, columnIndex, chosenColumnType, detectedColumnType);
+    activeItemReading.value = applyPreviewDecimalSeparators(typedItemReading, selectedDecimalSeparators.value); // A detected type brings back the detected separator.
+    showPreviewColumns(activeItemReading.value);
+}
+
+// For a column whose values did not settle it. Only how the values read changes, so nothing is read again.
+function handleSelectDecimalSeparator(columnId: string, decimalSeparatorValue: string): void {
+    if (activeItemReading.value == null) return;
+    const columnIndex = Number(columnId);
+    readingIsChanged.value = true;
+    const chosenDecimalSeparatorId = decimalSeparatorValue === AUTO_OPTION_ID ? undefined : (decimalSeparatorValue as DecimalSeparatorId); // The other options are both separators.
+    selectedDecimalSeparators.value[columnId] = chosenDecimalSeparatorId;
+    const decimalSeparatorId = chosenDecimalSeparatorId ?? detectedColumnTypes.value.at(columnIndex)?.decimalSeparatorId;
+    activeItemReading.value = applyPreviewDecimalSeparator(activeItemReading.value, columnIndex, decimalSeparatorId);
     showPreviewColumns(activeItemReading.value);
 }
 
@@ -1041,7 +1068,7 @@ function constructEditedDataViewConfig(): DataViewConfig | undefined {
         readConfig,
         previewConfig: constructStoredPreviewConfig(itemReading),
         contentAuditConfig,
-        columnSetConfig: constructItemColumnSetConfig(itemReading, contentAuditConfig.asAt, detectedColumnTypes.value, selectedColumnTypes.value),
+        columnSetConfig: constructItemColumnSetConfig(itemReading, contentAuditConfig.asAt, detectedColumnTypes.value, selectedColumnTypes.value, selectedDecimalSeparators.value),
         relationshipsAuditConfig: undefined
     };
 }
@@ -1210,6 +1237,27 @@ function constructColumnTypeOptions(columnId: string): SelectOption[] {
     return [constructAutoOption(detectedColumnType == null ? undefined : constructColumnTypeLabel(detectedColumnType)), ...options];
 }
 
+// A column of numbers can be read with either decimal separator. Auto names the one detected. A derived column holds
+// no numbers of its own.
+function constructDecimalSeparatorOptions(columnId: string): SelectOption[] {
+    const columnConfig = activeItemReading.value?.columnConfigs.at(Number(columnId));
+    if (columnConfig?.dataTypeId !== 'numeric' || isDerivedColumn(columnConfig)) return [];
+    const detectedDecimalSeparatorId = detectedColumnTypes.value.at(Number(columnId))?.decimalSeparatorId;
+    return [
+        constructAutoOption(detectedDecimalSeparatorId == null ? undefined : constructDecimalSeparatorLabel(detectedDecimalSeparatorId)),
+        { id: '.', label: constructDecimalSeparatorLabel('.') },
+        { id: ',', label: constructDecimalSeparatorLabel(',') }
+    ];
+}
+
+function constructDecimalSeparatorLabel(decimalSeparatorId: DecimalSeparatorId): string {
+    return t(TEXT, decimalSeparatorId === ',' ? 'decimalSeparator.comma.label' : 'decimalSeparator.point.label');
+}
+
+function constructDecimalSeparatorValue(columnId: string): string {
+    return selectedDecimalSeparators.value[columnId] ?? AUTO_OPTION_ID;
+}
+
 // The value of a column's type select.
 function constructColumnTypeValue(columnId: string): string {
     const selectedColumnType = selectedColumnTypes.value[columnId];
@@ -1374,7 +1422,7 @@ async function recountActivePreview(hasHeaders: boolean): Promise<void> {
             recountedItemReading.size === activeConnectionObjectConfig.value?.size
         );
         detectedColumnTypes.value = constructDetectedColumnTypes(recountedItemReading);
-        activeItemReading.value = applyPreviewColumnTypes(recountedItemReading, selectedColumnTypes.value, detectedColumnTypes.value);
+        activeItemReading.value = applyChosenColumns(recountedItemReading);
         showPreviewColumns(activeItemReading.value);
     } catch (error) {
         if (currentRequestId !== previewRequestId.value) return; // A newer choice owns the panel now.
@@ -1390,18 +1438,24 @@ function applySavedAudit(itemReading: ItemReading, connectionNodeConfig: Connect
     const savedConfig = dataViewConfig.value;
     const savedContentAuditConfig = savedConfig?.contentAuditConfig;
     if (savedConfig == null || savedContentAuditConfig == null || !isSameAsSavedItem(savedConfig, connectionNodeConfig, constructReadConfig(itemReading))) {
-        return applyPreviewColumnTypes(itemReading, selectedColumnTypes.value, detectedColumnTypes.value);
+        return applyChosenColumns(itemReading);
     }
     activeContentAuditConfig.value = savedContentAuditConfig;
     selectedColumnTypes.value = constructChosenColumnTypes(savedConfig.columnSetConfig);
+    selectedDecimalSeparators.value = constructChosenDecimalSeparators(savedConfig.columnSetConfig);
     return applyAuditColumns(itemReading, savedConfig.columnSetConfig?.columnConfigs ?? []);
 }
 
-// Puts an audit's columns on the item, keeping the types the user chose.
+// Puts an audit's columns on the item, keeping the types and decimal separators the user chose.
 function applyAuditColumns(itemReading: ItemReading, columnConfigs: ObjectColumnConfig[]): ItemReading {
     const columnItemReading = applyPreviewHeaders({ ...itemReading, columnConfigs }, itemReading.hasHeaders === true);
     detectedColumnTypes.value = constructDetectedColumnTypes(columnItemReading);
-    return applyPreviewColumnTypes(columnItemReading, selectedColumnTypes.value, detectedColumnTypes.value);
+    return applyChosenColumns(columnItemReading);
+}
+
+// The types first, because putting a detected type back also puts back the detected decimal separator.
+function applyChosenColumns(itemReading: ItemReading): ItemReading {
+    return applyPreviewDecimalSeparators(applyPreviewColumnTypes(itemReading, selectedColumnTypes.value, detectedColumnTypes.value), selectedDecimalSeparators.value);
 }
 
 // Reads up to the preview's limit, the same way the item is read now, and shows the larger records and text. Nothing to do
@@ -1486,8 +1540,15 @@ function constructSavedColumnTypes(connectionNodeConfig: ConnectionNodeConfig): 
     return isSavedItem ? constructChosenColumnTypes(dataViewConfig.value?.columnSetConfig) : {};
 }
 
+// The decimal separators saved with this item. A different item starts with none.
+function constructSavedDecimalSeparators(connectionNodeConfig: ConnectionNodeConfig): ChosenDecimalSeparators {
+    const savedNodeConfig = dataViewConfig.value?.connectionNodeConfig;
+    const isSavedItem = savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig);
+    return isSavedItem ? constructChosenDecimalSeparators(dataViewConfig.value?.columnSetConfig) : {};
+}
+
 function constructDetectedColumnTypes({ columnConfigs }: ItemReading): DetectedColumnType[] {
-    return columnConfigs.map(({ dataSubtypeId, dataTypeId }) => ({ dataSubtypeId, dataTypeId }));
+    return columnConfigs.map(({ dataSubtypeId, dataTypeId, decimalSeparatorId }) => ({ dataSubtypeId, dataTypeId, decimalSeparatorId }));
 }
 
 // A new read choice stays on the current tab, so the user can compare the readings, unless the new reading disables it.
@@ -1534,8 +1595,10 @@ function showPreviewTable(itemReading: ItemReading): void {
 
 // Run whenever the columns change with the records staying the same, such as after an audit, because a column's longest
 // decimal decides how much room its numbers need. The records stay in place, so the table keeps its scroll position.
+// A derived column, such as a currency column, is not in the item's records, so the records table leaves it out. It
+// comes after every column of the item, so the others keep their positions.
 function showPreviewColumns(itemReading: ItemReading): void {
-    const previewColumnLabels = itemReading.columnConfigs.map((config, index) => config.label.en ?? String(index));
+    const previewColumnLabels = itemReading.columnConfigs.filter((config) => !isDerivedColumn(config)).map((config, index) => config.label.en ?? String(index));
 
     // Columns are keyed by position, not header text. TanStack reads a dot in an 'accessorKey' as a nested path, and two
     // columns with the same header text would share one key.
@@ -2025,13 +2088,16 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         :can-step-columns="columnDetailFillsSpace"
                         :column-index="selectedColumnIndex"
                         :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
-                        :is-type-disabled="readChoicesAreLocked"
+                        :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
+                        :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
+                        :is-type-disabled="readChoicesAreLocked || isDerivedColumn(activeItemReading.columnConfigs[selectedColumnIndex]!)"
                         :item-reading="activeItemReading"
                         :source-text="auditStatus?.shortText ?? ''"
                         :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
                         :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
                         @close="selectedColumnIndex = undefined"
                         @step="selectedColumnIndex = $event"
+                        @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
                         @update:type-value="handleSelectColumnType(String(selectedColumnIndex), $event)"
                     />
                 </div>

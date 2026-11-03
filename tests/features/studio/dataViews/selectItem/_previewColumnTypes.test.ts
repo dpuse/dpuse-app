@@ -5,7 +5,14 @@ import { describe, expect, it } from 'vitest';
 import { constructColumnTypeId, type ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
 
 // ── Local Framework
-import { applyPreviewColumnType, applyPreviewColumnTypes, CHOOSABLE_COLUMN_TYPES, constructDecimalPadding } from '@/features/studio/dataViews/selectItem/_previewColumnTypes';
+import {
+    applyPreviewColumnType,
+    applyPreviewColumnTypes,
+    applyPreviewDecimalSeparator,
+    applyPreviewDecimalSeparators,
+    CHOOSABLE_COLUMN_TYPES,
+    constructDecimalPadding
+} from '@/features/studio/dataViews/selectItem/_previewColumnTypes';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -56,6 +63,20 @@ describe('applyPreviewColumnTypes', () => {
 
         expect(itemReading.columnConfigs[0]).toMatchObject({ dataSubtypeId: 'url', dataTypeId: 'string' });
         expect(itemReading.columnConfigs[1]).toMatchObject({ dataSubtypeId: 'plain', dataTypeId: 'string' });
+    });
+});
+
+describe('applyPreviewDecimalSeparators', () => {
+    it('reads only the chosen columns with the chosen separator', () => {
+        const { columnConfigs } = applyPreviewDecimalSeparators(ITEM_READING, { 0: ',' });
+
+        expect(columnConfigs.map((columnConfig) => columnConfig.decimalSeparatorId)).toEqual([',', undefined]);
+    });
+
+    it('puts back the detected separator when given it', () => {
+        const chosenItemReading = applyPreviewDecimalSeparator(ITEM_READING, 0, ',');
+
+        expect(applyPreviewDecimalSeparator(chosenItemReading, 0, '.').columnConfigs[0]?.decimalSeparatorId).toBe('.');
     });
 });
 
