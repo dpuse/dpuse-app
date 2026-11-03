@@ -120,6 +120,16 @@ describe('ColumnDetailPanel', () => {
         expect(mountPanel([buildColumn({})], { decimalSeparatorOptions: separatorOptions, decimalSeparatorValue: 'auto' }).findAll('select-input-stub')).toHaveLength(2);
     });
 
+    it('offers to read null words as empty only when given the choice', async () => {
+        expect(mountPanel([buildColumn({ dataTypeId: 'string', nullWordValueCount: 3 })]).find('input[type="checkbox"]').exists()).toBe(false);
+        const wrapper = mountPanel([buildColumn({ dataTypeId: 'string', nullWordValueCount: 3 })], { nullWordReading: 'text' });
+        const checkbox = wrapper.get('input[type="checkbox"]');
+
+        expect(checkbox.element.parentElement?.textContent).toContain('3');
+        await checkbox.setValue(true);
+        expect(wrapper.emitted('update:nullWordsAreEmpty')).toEqual([[true]]);
+    });
+
     it('offers Previous and Next only when the detail fills the space', () => {
         expect(
             mountPanel([buildColumn({})])

@@ -91,15 +91,20 @@ import {
     applyPreviewColumnTypes,
     applyPreviewDecimalSeparator,
     applyPreviewDecimalSeparators,
+    applyPreviewNullWordChoice,
+    applyPreviewNullWordChoices,
     CHOOSABLE_COLUMN_TYPES,
+    constructColumnEnding,
     constructDecimalPadding,
     type DetectedColumnType
 } from './_previewColumnTypes';
 import {
     type ChosenColumnTypes,
     type ChosenDecimalSeparators,
+    type ChosenNullWords,
     constructChosenColumnTypes,
     constructChosenDecimalSeparators,
+    constructChosenNullWords,
     constructColumnTypeId,
     constructDataTypeCellClass,
     constructItemColumnSetConfig,
@@ -334,6 +339,7 @@ const detectedValueDelimiterId = ref<ValueDelimiterId>();
 // position. Cleared by every new reading. What was detected is kept apart, so Auto can return to it.
 const selectedColumnTypes = ref<ChosenColumnTypes>({});
 const selectedDecimalSeparators = ref<ChosenDecimalSeparators>({});
+const selectedNullWords = ref<ChosenNullWords>({});
 const detectedColumnTypes = shallowRef<DetectedColumnType[]>([]);
 
 // ── Preview Tabs ─ Tabs and their panel reference each other by id, which must be unique on the page. Below 'md' the
@@ -789,9 +795,12 @@ watch(
             const headedItemReading = await applyHeaderChoice(itemReading, newActiveItem);
             if (currentRequestId !== previewRequestId.value) return;
 
-            const wereColumnTypesChosen = [...Object.values(selectedColumnTypes.value), ...Object.values(selectedDecimalSeparators.value)].some((choice) => choice != null);
+            const wereColumnTypesChosen = [...Object.values(selectedColumnTypes.value), ...Object.values(selectedDecimalSeparators.value), ...Object.values(selectedNullWords.value)].some(
+                (choice) => choice != null
+            );
             selectedColumnTypes.value = isNewReadChoice ? {} : constructSavedColumnTypes(newActiveItem); // A new reading can change the columns, but reopening the saved item keeps its types.
             selectedDecimalSeparators.value = isNewReadChoice ? {} : constructSavedDecimalSeparators(newActiveItem);
+            selectedNullWords.value = isNewReadChoice || !isSavedItem(newActiveItem) ? {} : constructChosenNullWords(dataViewConfig.value?.columnSetConfig);
             detectedColumnTypes.value = constructDetectedColumnTypes(headedItemReading);
             if (isNewReadChoice) selectedColumnIndex.value = undefined; // A new reading can change the columns.
             activeContentAuditConfig.value = constructFirstContentAuditConfig(previewObjectResult.contentAuditConfig, headedItemReading);
@@ -863,6 +872,14 @@ function handleSelectColumnType(columnId: string, columnTypeId: string): void {
     const typedItemReading = applyPreviewColumnType(activeItemReading.value, columnIndex, chosenColumnType, detectedColumnType);
     activeItemReading.value = applyPreviewDecimalSeparators(typedItemReading, selectedDecimalSeparators.value, selectedColumnTypes.value); // A detected type brings back the detected separator.
     showPreviewColumns(activeItemReading.value);
+}
+
+// Only how the column's values read changes, so nothing is read again.
+function handleSelectNullWords(columnId: string, areNullWordsEmpty: boolean): void {
+    if (activeItemReading.value == null) return;
+    readingIsChanged.value = true;
+    selectedNullWords.value[columnId] = areNullWordsEmpty;
+    activeItemReading.value = applyPreviewNullWordChoice(activeItemReading.value, Number(columnId), areNullWordsEmpty);
 }
 
 // For a column whose values did not settle it. Only how the values read changes, so nothing is read again.
@@ -1005,7 +1022,8 @@ function findRecordValue(columnId: string, rowIndex: number): string {
 // Blank space after a number, so the decimal points line up while the value still shows exactly as it is written.
 function constructValueDecimalPadding(columnId: string, rowIndex: number): string {
     const columnConfig = activeItemReading.value?.columnConfigs[Number(columnId)];
-    return columnConfig?.dataTypeId === 'numeric' && constructValueState(columnId, rowIndex) === 'valid' ? constructDecimalPadding(findRecordValue(columnId, rowIndex), columnConfig) : '';
+    const isPadded = columnConfig?.dataTypeId === 'numeric' && constructValueState(columnId, rowIndex) === 'valid';
+    return isPadded ? constructDecimalPadding(findRecordValue(columnId, rowIndex), columnConfig, constructColumnEnding(columnConfig.formats)) : '';
 }
 
 // A blank value can hold spaces, and a missing one can be a null word such as 'NULL', which still shows as written.
@@ -1092,7 +1110,14 @@ function constructEditedDataViewConfig(): DataViewConfig | undefined {
         readConfig,
         previewConfig: constructStoredPreviewConfig(itemReading),
         contentAuditConfig,
-        columnSetConfig: constructItemColumnSetConfig(itemReading, contentAuditConfig.asAt, detectedColumnTypes.value, selectedColumnTypes.value, selectedDecimalSeparators.value),
+        columnSetConfig: constructItemColumnSetConfig(
+            itemReading,
+            contentAuditConfig.asAt,
+            detectedColumnTypes.value,
+            selectedColumnTypes.value,
+            selectedDecimalSeparators.value,
+            selectedNullWords.value
+        ),
         relationshipsAuditConfig: undefined
     };
 }
@@ -1282,6 +1307,13 @@ function constructDecimalSeparatorValue(columnId: string): string {
     return selectedDecimalSeparators.value[columnId] ?? AUTO_OPTION_ID;
 }
 
+// Only a text column of the item has the choice. Undefined hides it.
+function constructNullWordReading(columnId: string): 'empty' | 'text' | undefined {
+    const columnConfig = activeItemReading.value?.columnConfigs.at(Number(columnId));
+    if (columnConfig?.dataTypeId !== 'string' || isDerivedColumn(columnConfig)) return undefined;
+    return selectedNullWords.value[columnId] === true ? 'empty' : 'text';
+}
+
 // The value of a column's type select.
 function constructColumnTypeValue(columnId: string): string {
     const selectedColumnType = selectedColumnTypes.value[columnId];
@@ -1468,6 +1500,7 @@ function applySavedAudit(itemReading: ItemReading, connectionNodeConfig: Connect
     activeContentAuditConfig.value = savedContentAuditConfig;
     selectedColumnTypes.value = constructChosenColumnTypes(savedConfig.columnSetConfig);
     selectedDecimalSeparators.value = constructChosenDecimalSeparators(savedConfig.columnSetConfig);
+    selectedNullWords.value = constructChosenNullWords(savedConfig.columnSetConfig);
     return applyAuditColumns(itemReading, savedConfig.columnSetConfig?.columnConfigs ?? []);
 }
 
@@ -1480,7 +1513,8 @@ function applyAuditColumns(itemReading: ItemReading, columnConfigs: ObjectColumn
 
 // The types first, because putting a detected type back also puts back the detected decimal separator.
 function applyChosenColumns(itemReading: ItemReading): ItemReading {
-    return applyPreviewDecimalSeparators(applyPreviewColumnTypes(itemReading, selectedColumnTypes.value, detectedColumnTypes.value), selectedDecimalSeparators.value, selectedColumnTypes.value);
+    const typedItemReading = applyPreviewColumnTypes(itemReading, selectedColumnTypes.value, detectedColumnTypes.value);
+    return applyPreviewNullWordChoices(applyPreviewDecimalSeparators(typedItemReading, selectedDecimalSeparators.value, selectedColumnTypes.value), selectedNullWords.value);
 }
 
 // Reads up to the preview's limit, the same way the item is read now, and shows the larger records and text. Nothing to do
@@ -1566,6 +1600,11 @@ function constructSavedColumnTypes(connectionNodeConfig: ConnectionNodeConfig): 
 }
 
 // The decimal separators saved with this item. A different item starts with none.
+function isSavedItem(connectionNodeConfig: ConnectionNodeConfig): boolean {
+    const savedNodeConfig = dataViewConfig.value?.connectionNodeConfig;
+    return savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig);
+}
+
 function constructSavedDecimalSeparators(connectionNodeConfig: ConnectionNodeConfig): ChosenDecimalSeparators {
     const savedNodeConfig = dataViewConfig.value?.connectionNodeConfig;
     const isSavedItem = savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig);
@@ -1591,10 +1630,11 @@ function applyPreviewConfig(itemReading: ItemReading, isNewReadChoice: boolean):
 function constructPreviewColumnWidth(itemReading: ItemReading, label: string, columnIndex: number): number {
     const columnConfig = itemReading.columnConfigs[columnIndex];
     const isNumeric = columnConfig.dataTypeId === 'numeric';
+    const columnEnding = isNumeric ? constructColumnEnding(columnConfig.formats) : '';
     const dataOffset = itemReading.hasHeaders === true ? 1 : 0;
     const values = itemReading.parsedRecords.slice(dataOffset).map((record) => {
         const value = record[columnIndex]?.value ?? '';
-        return isNumeric && value.trim() !== '' ? `${value}${constructDecimalPadding(value, columnConfig)}` : value;
+        return isNumeric && value.trim() !== '' ? `${value}${constructDecimalPadding(value, columnConfig, columnEnding)}` : value;
     });
     const fittedWidth = constructFittedColumnWidth(label, values, {
         cellExtraPx: (columnValueCounts.value[columnIndex]?.invalidCount ?? 0) > 0 ? PREVIEW_INVALID_ICON_WIDTH_PX : 0,
@@ -2122,6 +2162,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
                         :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
                         :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
+                        :null-word-reading="constructNullWordReading(String(selectedColumnIndex))"
                         :is-type-disabled="readChoicesAreLocked || isDerivedColumn(activeItemReading.columnConfigs[selectedColumnIndex]!)"
                         :item-reading="activeItemReading"
                         :source-text="auditStatus?.shortText ?? ''"
@@ -2130,6 +2171,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         @close="selectedColumnIndex = undefined"
                         @step="handleStepColumn"
                         @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
+                        @update:null-words-are-empty="handleSelectNullWords(String(selectedColumnIndex), $event)"
                         @update:type-value="handleSelectColumnType(String(selectedColumnIndex), $event)"
                     />
                 </div>

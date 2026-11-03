@@ -10,7 +10,9 @@ import {
     applyPreviewColumnTypes,
     applyPreviewDecimalSeparator,
     applyPreviewDecimalSeparators,
+    applyPreviewNullWordChoice,
     CHOOSABLE_COLUMN_TYPES,
+    constructColumnEnding,
     constructDecimalPadding
 } from '@/features/studio/dataViews/selectItem/_previewColumnTypes';
 
@@ -98,6 +100,50 @@ describe('applyPreviewDecimalSeparator', () => {
     });
 });
 
+describe('constructColumnEnding', () => {
+    it('is the most common ending after the digits, leaving out numbers with none', () => {
+        expect(constructColumnEnding({ '99': 5, '99.9%': 2, '9%': 1 })).toBe('%');
+        expect(constructColumnEnding({ '99,99 €': 3 })).toBe(' €');
+        expect(constructColumnEnding({ '99.9': 2, '(9.99)': 1 })).toBe(')');
+        expect(constructColumnEnding({ $99: 2, '99': 1 })).toBe('');
+    });
+});
+
+describe('applyPreviewNullWordChoice', () => {
+    const TEXT_ITEM = {
+        columnConfigs: [
+            {
+                dataTypeId: 'string',
+                inferenceCounts: { 'string.plain': 4 },
+                isRequired: true,
+                label: { en: 'country' },
+                missingValueCount: 0,
+                nullWordValueCount: 2,
+                validValueCount: 4,
+                voidValueCount: 0
+            }
+        ]
+    } as unknown as ItemReading;
+
+    it('moves the null words from values to missing values', () => {
+        expect(applyPreviewNullWordChoice(TEXT_ITEM, 0, true).columnConfigs[0]).toMatchObject({
+            inferenceCounts: { 'string.plain': 2 },
+            isRequired: false,
+            missingValueCount: 2,
+            nullWordsAreEmpty: true,
+            validValueCount: 2,
+            voidValueCount: 2
+        });
+    });
+
+    it('moves them back, and never moves them twice', () => {
+        const emptyItemReading = applyPreviewNullWordChoice(applyPreviewNullWordChoice(TEXT_ITEM, 0, true), 0, true);
+
+        expect(emptyItemReading.columnConfigs[0]?.validValueCount).toBe(2);
+        expect(applyPreviewNullWordChoice(emptyItemReading, 0, false).columnConfigs[0]).toMatchObject({ missingValueCount: 0, validValueCount: 4, voidValueCount: 0 });
+    });
+});
+
 describe('constructDecimalPadding', () => {
     const COLUMN = { decimalSeparatorId: '.', maxDecimals: 2 } as const;
 
@@ -120,6 +166,18 @@ describe('constructDecimalPadding', () => {
         expect(constructDecimalPadding('1960', longDecimalColumn)).toBe('.000000000000000');
         expect(constructDecimalPadding('87.1', longDecimalColumn)).toBe('0'.repeat(14));
         expect(constructDecimalPadding('88.96779015161066', longDecimalColumn)).toBe('0');
+    });
+
+    it('counts only digits as decimals, not an ending such as a percent sign or currency', () => {
+        expect(constructDecimalPadding('12.5%', { decimalSeparatorId: '.', maxDecimals: 2 })).toBe('0');
+        expect(constructDecimalPadding('12,5 €', { decimalSeparatorId: ',', maxDecimals: 2 })).toBe('0');
+        expect(constructDecimalPadding('(3.2)', { decimalSeparatorId: '.', maxDecimals: 2 })).toBe('0');
+    });
+
+    it('makes room for the column’s ending on a number without one', () => {
+        expect(constructDecimalPadding('7', { decimalSeparatorId: '.', maxDecimals: 1 }, '%')).toBe('.0%');
+        expect(constructDecimalPadding('7', { decimalSeparatorId: '.', maxDecimals: 0 }, '%')).toBe('%');
+        expect(constructDecimalPadding('7%', { decimalSeparatorId: '.', maxDecimals: 1 }, '%')).toBe('.0');
     });
 
     it('uses the column’s decimal separator', () => {

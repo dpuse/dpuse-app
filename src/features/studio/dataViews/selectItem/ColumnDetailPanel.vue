@@ -28,8 +28,19 @@ const COLLAPSED_LIST_ROW_COUNT = 10; // Rows a long list shows until the user as
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { canStepColumns, columnIndex, decimalSeparatorOptions = [], decimalSeparatorValue, detectedColumnType, isTypeDisabled, itemReading, sourceText, typeOptions, typeValue } =
-    defineProps<{
+const {
+    canStepColumns,
+    columnIndex,
+    decimalSeparatorOptions = [],
+    decimalSeparatorValue,
+    detectedColumnType,
+    isTypeDisabled,
+    itemReading,
+    nullWordReading,
+    sourceText,
+    typeOptions,
+    typeValue
+} = defineProps<{
         canStepColumns?: boolean; // Filling the space hides the table, so Previous and Next take its place.
         columnIndex: number;
         decimalSeparatorOptions?: SelectOption[]; // Only a column of numbers has any.
@@ -37,11 +48,18 @@ const { canStepColumns, columnIndex, decimalSeparatorOptions = [], decimalSepara
         detectedColumnType: ColumnType | undefined;
         isTypeDisabled?: boolean;
         itemReading: ItemReading;
+        nullWordReading?: 'empty' | 'text'; // How null words such as 'NA' read. Only a text column has the choice. Not a boolean, because Vue reads a missing boolean as false.
         sourceText: string; // What the figures describe: how much of the item was audited.
         typeOptions: SelectOption[];
         typeValue: string;
     }>();
-const emit = defineEmits<{ close: []; step: [columnIndex: number]; 'update:decimalSeparatorValue': [decimalSeparatorValue: string]; 'update:typeValue': [typeValue: string] }>();
+const emit = defineEmits<{
+    close: [];
+    step: [columnIndex: number];
+    'update:decimalSeparatorValue': [decimalSeparatorValue: string];
+    'update:nullWordsAreEmpty': [nullWordsAreEmpty: boolean];
+    'update:typeValue': [typeValue: string];
+}>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -223,6 +241,18 @@ function constructCountRows(counts: Record<string, number> | undefined): { count
                     :options="decimalSeparatorOptions"
                     @update:model-value="emit('update:decimalSeparatorValue', $event)"
                 />
+                <!-- Null Words ─ Off by default, because in a text column 'NA' can be data, such as Namibia's country
+                     code. -->
+                <label v-if="nullWordReading != null" class="mt-2 flex items-center gap-x-1.5">
+                    <input
+                        class="size-3.5 rounded accent-accent"
+                        :checked="nullWordReading === 'empty'"
+                        :disabled="isTypeDisabled"
+                        type="checkbox"
+                        @change="emit('update:nullWordsAreEmpty', ($event.target as HTMLInputElement).checked)"
+                    />
+                    {{ t(TEXT, 'nullWords.label', { count: new Intl.NumberFormat(localeId).format(columnConfig?.nullWordValueCount ?? 0) }) }}
+                </label>
                 <dl v-for="group in overviewGroups" :key="group.id" class="mt-3 grid grid-cols-[minmax(7.5rem,max-content)_1fr] *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
                     <template v-for="groupRow in group.rows" :key="groupRow.label">
                         <dt class="text-muted">{{ groupRow.label }}</dt>

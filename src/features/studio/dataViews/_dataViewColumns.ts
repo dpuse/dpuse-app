@@ -26,6 +26,8 @@ export type ChosenColumnTypes = Partial<Record<string, ColumnType>>; // Keyed by
 
 export type ChosenDecimalSeparators = Partial<Record<string, DecimalSeparatorId>>; // Keyed by the column's position, as a string.
 
+export type ChosenNullWords = Partial<Record<string, boolean>>; // Whether a text column reads null words as empty, keyed by its position, as a string.
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // How the engine stores a type with no subtype, which is what a type chosen before subtypes could be chosen means.
@@ -79,7 +81,8 @@ export function constructItemColumnSetConfig(
     asAt: number,
     detectedColumnTypes: (ColumnType & Partial<Pick<ObjectColumnConfig, 'decimalSeparatorId'>>)[],
     chosenColumnTypes: ChosenColumnTypes,
-    chosenDecimalSeparators: ChosenDecimalSeparators = {}
+    chosenDecimalSeparators: ChosenDecimalSeparators = {},
+    chosenNullWords: ChosenNullWords = {}
 ): ColumnSetConfig {
     return {
         asAt,
@@ -87,7 +90,8 @@ export function constructItemColumnSetConfig(
             ...columnConfig,
             ...detectedColumnTypes[index],
             ...constructChosenColumnFields(chosenColumnTypes[String(index)]),
-            chosenDecimalSeparatorId: chosenDecimalSeparators[String(index)]
+            chosenDecimalSeparatorId: chosenDecimalSeparators[String(index)],
+            chosenNullWordsAreEmpty: chosenNullWords[String(index)]
         }))
     };
 }
@@ -97,8 +101,8 @@ export function constructAuditColumnSetConfig(contentAuditConfig: ContentAuditCo
     return {
         asAt: contentAuditConfig.asAt,
         columnConfigs: contentAuditConfig.columns.map((columnConfig, index) => {
-            const { chosenDataSubtypeId, chosenDataTypeId, chosenDecimalSeparatorId } = columnSetConfig?.columnConfigs[index] ?? {};
-            return { ...columnConfig, chosenDataSubtypeId, chosenDataTypeId, chosenDecimalSeparatorId };
+            const { chosenDataSubtypeId, chosenDataTypeId, chosenDecimalSeparatorId, chosenNullWordsAreEmpty } = columnSetConfig?.columnConfigs[index] ?? {};
+            return { ...columnConfig, chosenDataSubtypeId, chosenDataTypeId, chosenDecimalSeparatorId, chosenNullWordsAreEmpty };
         })
     };
 }
@@ -125,21 +129,34 @@ export function isDerivedColumn({ derivedFromColumnIndex }: ObjectColumnConfig):
     return derivedFromColumnIndex != null;
 }
 
+export function constructChosenNullWords(columnSetConfig: ColumnSetConfig | undefined): ChosenNullWords {
+    const entries = (columnSetConfig?.columnConfigs ?? []).map(({ chosenNullWordsAreEmpty }, index) => [String(index), chosenNullWordsAreEmpty] as const);
+    return Object.fromEntries(entries.filter(([, chosenNullWordsAreEmpty]) => chosenNullWordsAreEmpty != null));
+}
+
 // A unit column that found no unit in the part of the item audited. It is kept, because a unit can appear past that
 // part, but it is hidden at first so a file of plain numbers does not show a column of nothing beside each one.
 export function isEmptyUnitColumn(columnConfig: ObjectColumnConfig): boolean {
     return isDerivedColumn(columnConfig) && (columnConfig.validValueCount ?? 0) === 0;
 }
 
-// A column as the user wants it read: the type and decimal separator they chose, otherwise the detected ones.
+// A column as the user wants it read: the type, decimal separator and reading of null words they chose, otherwise the
+// detected ones.
 export function resolveColumnConfig(columnConfig: DataViewColumnConfig): ObjectColumnConfig {
-    const { chosenDataSubtypeId: _chosenDataSubtypeId, chosenDataTypeId: _chosenDataTypeId, chosenDecimalSeparatorId, ...detectedColumnConfig } = columnConfig;
+    const {
+        chosenDataSubtypeId: _chosenDataSubtypeId,
+        chosenDataTypeId: _chosenDataTypeId,
+        chosenDecimalSeparatorId,
+        chosenNullWordsAreEmpty,
+        ...detectedColumnConfig
+    } = columnConfig;
     const numericReading = chosenDecimalSeparatorId == null ? undefined : detectedColumnConfig.numericReadings?.[chosenDecimalSeparatorId]; // The figures for the chosen separator.
     return {
         ...detectedColumnConfig,
         ...numericReading,
         ...constructChosenColumnType(columnConfig),
-        decimalSeparatorId: chosenDecimalSeparatorId ?? detectedColumnConfig.decimalSeparatorId
+        decimalSeparatorId: chosenDecimalSeparatorId ?? detectedColumnConfig.decimalSeparatorId,
+        nullWordsAreEmpty: chosenNullWordsAreEmpty ?? detectedColumnConfig.nullWordsAreEmpty
     };
 }
 
@@ -152,14 +169,15 @@ export function constructLoadColumnConfigs({ columnSetConfig, contentAuditConfig
     });
 }
 
-// What a load depends on, so a change to the columns, a chosen type or a chosen decimal separator asks for a new load.
+// What a load depends on, so a change to the columns or to anything chosen for them asks for a new load.
 // A number when nothing is chosen, which is what loads recorded before types could be chosen hold. Built from the stored
 // fields, so a load recorded before subtypes could be chosen still matches its data view.
 export function constructColumnSetVersion(columnSetConfig: ColumnSetConfig | undefined): number | string | undefined {
     if (columnSetConfig == null) return;
-    const chosenEntries = columnSetConfig.columnConfigs.flatMap(({ chosenDataSubtypeId, chosenDataTypeId, chosenDecimalSeparatorId }, index) => [
+    const chosenEntries = columnSetConfig.columnConfigs.flatMap(({ chosenDataSubtypeId, chosenDataTypeId, chosenDecimalSeparatorId, chosenNullWordsAreEmpty }, index) => [
         ...(chosenDataTypeId == null ? [] : [[String(index), constructColumnTypeId({ dataSubtypeId: chosenDataSubtypeId, dataTypeId: chosenDataTypeId })]]),
-        ...(chosenDecimalSeparatorId == null ? [] : [[`${String(index)}.decimalSeparator`, chosenDecimalSeparatorId]])
+        ...(chosenDecimalSeparatorId == null ? [] : [[`${String(index)}.decimalSeparator`, chosenDecimalSeparatorId]]),
+        ...(chosenNullWordsAreEmpty == null ? [] : [[`${String(index)}.nullWordsAreEmpty`, String(chosenNullWordsAreEmpty)]])
     ]);
     return chosenEntries.length === 0 ? columnSetConfig.asAt : `${String(columnSetConfig.asAt)}|${JSON.stringify(Object.fromEntries(chosenEntries))}`;
 }

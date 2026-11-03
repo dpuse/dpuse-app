@@ -10,6 +10,7 @@ import {
     constructAuditColumnSetConfig,
     constructChosenColumnTypes,
     constructChosenDecimalSeparators,
+    constructChosenNullWords,
     constructColumnSetVersion,
     constructDataTypeCellClass,
     constructItemColumnSetConfig,
@@ -218,6 +219,14 @@ describe('constructColumnSetVersion', () => {
         expect(constructColumnSetVersion(columnSetConfig)).toBe('5|{"0":"numeric"}');
         const subtypedColumnSetConfig = buildColumnSet([buildColumn({ chosenDataSubtypeId: 'decimal', chosenDataTypeId: 'numeric' })]);
         expect(constructColumnSetVersion(subtypedColumnSetConfig)).toBe('5|{"0":"numeric.decimal"}');
+    });
+
+    it('changes with a chosen reading of null words', () => {
+        const columnSetConfig = buildColumnSet([buildColumn({ chosenNullWordsAreEmpty: true })]);
+
+        expect(constructColumnSetVersion(columnSetConfig)).toBe('5|{"0.nullWordsAreEmpty":"true"}');
+        expect(constructChosenNullWords(columnSetConfig)).toEqual({ 0: true });
+        expect(resolveColumnConfig(buildColumn({ chosenNullWordsAreEmpty: true })).nullWordsAreEmpty).toBe(true);
     });
 
     it('changes with a chosen decimal separator', () => {
