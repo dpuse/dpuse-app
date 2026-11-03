@@ -8,8 +8,14 @@ import type { ObjectColumnConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { TEXT } from './ColumnDetailPanel_.json';
+import {
+    COLUMN_VALUE_SEGMENTS,
+    constructColumnTypeLabel,
+    constructPreviewColumnHeaders,
+    constructPreviewColumnRows,
+    type PreviewColumnRow
+} from '@/features/studio/dataViews/_previewColumnRows';
 import { type ColumnType, constructColumnTypeId, type ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
-import { constructColumnTypeLabel, constructPreviewColumnHeaders, constructPreviewColumnRows, type PreviewColumnRow } from '@/features/studio/dataViews/_previewColumnRows';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -25,6 +31,7 @@ type DetailTabId = 'formats' | 'frequent' | 'overview' | 'samples';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const COLLAPSED_LIST_ROW_COUNT = 10; // Rows a long list shows until the user asks for the rest.
+const CHART_ROW_COUNT = 5; // Bars in each Overview chart. The Frequent and Formats tabs list them all.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -34,6 +41,8 @@ const {
     decimalSeparatorOptions = [],
     decimalSeparatorValue,
     detectedColumnType,
+    hasNextColumn,
+    hasPreviousColumn,
     isTypeDisabled,
     itemReading,
     nullWordReading,
@@ -41,21 +50,23 @@ const {
     typeOptions,
     typeValue
 } = defineProps<{
-        canStepColumns?: boolean; // Filling the space hides the table, so Previous and Next take its place.
-        columnIndex: number;
-        decimalSeparatorOptions?: SelectOption[]; // Only a column of numbers has any.
-        decimalSeparatorValue?: string;
-        detectedColumnType: ColumnType | undefined;
-        isTypeDisabled?: boolean;
-        itemReading: ItemReading;
-        nullWordReading?: 'empty' | 'text'; // How words such as 'NA' read. 'NULL' is always empty. Only a text column has the choice. Not a boolean, because Vue reads a missing boolean as false.
-        sourceText: string; // What the figures describe: how much of the item was audited.
-        typeOptions: SelectOption[];
-        typeValue: string;
-    }>();
+    canStepColumns?: boolean; // Filling the space hides the table, so Previous and Next take its place.
+    columnIndex: number;
+    decimalSeparatorOptions?: SelectOption[]; // Only a column of numbers has any.
+    decimalSeparatorValue?: string;
+    detectedColumnType: ColumnType | undefined;
+    hasNextColumn?: boolean; // Whether Next has a column to move to, among those the panel's host shows.
+    hasPreviousColumn?: boolean;
+    isTypeDisabled?: boolean;
+    itemReading: ItemReading;
+    nullWordReading?: 'empty' | 'text'; // How words such as 'NA' read. 'NULL' is always empty. Only a text column has the choice. Not a boolean, because Vue reads a missing boolean as false.
+    sourceText: string; // What the figures describe: how much of the item was audited.
+    typeOptions: SelectOption[];
+    typeValue: string;
+}>();
 const emit = defineEmits<{
     close: [];
-    step: [columnIndex: number];
+    step: [direction: -1 | 1];
     'update:decimalSeparatorValue': [decimalSeparatorValue: string];
     'update:nullWordsAreEmpty': [nullWordsAreEmpty: boolean];
     'update:typeValue': [typeValue: string];
@@ -92,6 +103,30 @@ const shownInvalidSamples = computed(() => (listsAreExpanded.value ? invalidSamp
 const shownValidSamples = computed(() => (listsAreExpanded.value ? validSamples.value : validSamples.value.slice(0, COLLAPSED_LIST_ROW_COUNT)));
 const listsCanExpand = computed(() => [frequentRows.value, invalidSamples.value, validSamples.value].some((list) => list.length > COLLAPSED_LIST_ROW_COUNT));
 
+// ── Charts ─ Each a single measure, so one colour and no legend beyond its labels. The value chart's colours mean a kind of
+// value, so its labels name each one and give its count, and colour is never the only cue.
+const valueSegments = computed(() => {
+    const config = columnConfig.value;
+    if (config == null) return [];
+    const counts = { blankCount: config.blankValueCount, invalidCount: config.invalidValueCount, missingCount: config.missingValueCount, validCount: config.validValueCount };
+    const labels = {
+        blankCount: headers.value.blankValueText,
+        invalidCount: headers.value.invalidValueText,
+        missingCount: headers.value.missingValueText,
+        validCount: headers.value.validValueText
+    };
+    const numberFormat = new Intl.NumberFormat(localeId.value);
+    return COLUMN_VALUE_SEGMENTS.map((segment) => ({
+        ...segment,
+        count: counts[segment.id] ?? 0,
+        countText: numberFormat.format(counts[segment.id] ?? 0),
+        label: labels[segment.id]
+    }));
+});
+const shownValueSegments = computed(() => valueSegments.value.filter((segment) => segment.count > 0));
+const frequentChartRows = computed(() => constructChartRows(frequentRows.value));
+const formatChartRows = computed(() => constructChartRows(formatRows.value));
+
 // ── Overview
 const overviewGroups = computed(() => {
     const row = columnRow.value;
@@ -109,11 +144,7 @@ const overviewGroups = computed(() => {
         {
             id: 'values',
             rows: [
-                { label: labels.validValueText, value: row.validValueText },
-                { label: labels.invalidValueText, value: row.invalidValueText },
-                { label: labels.blankValueText, value: row.blankValueText },
-                { label: labels.missingValueText, value: row.missingValueText },
-                { label: labels.distinctValueText, value: row.distinctValueText },
+                { label: labels.distinctValueText, value: row.distinctValueText }, // The counts of each kind of value are in the value chart.
                 { label: labels.requiredText, value: row.requiredText },
                 { label: labels.uniqueText, value: row.uniqueText },
                 { label: labels.quotedValueText, value: row.quotedValueText },
@@ -168,35 +199,32 @@ async function handleNavigateTabs(event: KeyboardEvent, tabIndex: number): Promi
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function constructCountRows(counts: Record<string, number> | undefined): { countText: string; id: string }[] {
+function constructCountRows(counts: Record<string, number> | undefined): { count: number; countText: string; id: string }[] {
     const numberFormat = new Intl.NumberFormat(localeId.value);
     return Object.entries(counts ?? {})
         .toSorted((left, right) => right[1] - left[1])
-        .map(([id, count]) => ({ countText: numberFormat.format(count), id }));
+        .map(([id, count]) => ({ count, countText: numberFormat.format(count), id }));
+}
+
+// The first rows of a list, longest first, each with its bar's length as a share of the longest.
+function constructChartRows(rows: { count: number; countText: string; id: string }[]): { barPercent: number; countText: string; id: string }[] {
+    const shownRows = rows.slice(0, CHART_ROW_COUNT);
+    const largestCount = shownRows[0]?.count ?? 0;
+    return shownRows.map((row) => ({ barPercent: largestCount === 0 ? 0 : (row.count / largestCount) * 100, countText: row.countText, id: row.id }));
 }
 </script>
 
 <template>
-    <section class="flex min-h-0 min-w-0 flex-col" :aria-label="columnRow?.label" data-region="ColumnDetailPanel">
+    <section class="@container flex min-h-0 min-w-0 flex-col" :aria-label="columnRow?.label" data-region="ColumnDetailPanel">
         <!-- Header ─ Stays in place, so only the tab's content scrolls. -->
         <header class="flex-none border-b border-separator px-4 pt-2">
             <div class="flex items-center gap-x-2">
                 <h2 class="m-0 min-w-0 flex-1 truncate border-0 p-0 text-base">{{ columnRow?.label }}</h2>
                 <template v-if="canStepColumns">
-                    <ActionWrapper
-                        :aria-label="t(TEXT, 'previous.aria')"
-                        class="rounded-md p-1 enabled:hover:state-hover"
-                        :disabled="columnIndex === 0"
-                        @click="emit('step', columnIndex - 1)"
-                    >
+                    <ActionWrapper :aria-label="t(TEXT, 'previous.aria')" class="rounded-md p-1 enabled:hover:state-hover" :disabled="!hasPreviousColumn" @click="emit('step', -1)">
                         <ChevronLeftIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
                     </ActionWrapper>
-                    <ActionWrapper
-                        :aria-label="t(TEXT, 'next.aria')"
-                        class="rounded-md p-1 enabled:hover:state-hover"
-                        :disabled="columnIndex === itemReading.columnConfigs.length - 1"
-                        @click="emit('step', columnIndex + 1)"
-                    >
+                    <ActionWrapper :aria-label="t(TEXT, 'next.aria')" class="rounded-md p-1 enabled:hover:state-hover" :disabled="!hasNextColumn" @click="emit('step', 1)">
                         <ChevronRightIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
                     </ActionWrapper>
                 </template>
@@ -222,44 +250,85 @@ function constructCountRows(counts: Record<string, number> | undefined): { count
         </header>
 
         <div class="min-h-0 flex-1 overflow-y-auto px-4 pt-3 pb-(--vertical-scroll-bottom-screen-inset) text-sm" role="tabpanel">
-            <!-- Overview -->
-            <template v-if="currentTabId === 'overview'">
-                <SelectInput
-                    :disabled="isTypeDisabled"
-                    :label="t(TEXT, 'type.label')"
-                    :model-value="typeValue"
-                    :options="typeOptions"
-                    @update:model-value="emit('update:typeValue', $event)"
-                />
-                <p v-if="detectedTypeText" class="mt-1 mb-0 text-muted" role="status">{{ detectedTypeText }}</p>
-                <SelectInput
-                    v-if="decimalSeparatorOptions.length > 0 && decimalSeparatorValue != null"
-                    class="mt-2"
-                    :disabled="isTypeDisabled"
-                    :label="t(TEXT, 'decimalSeparator.label')"
-                    :model-value="decimalSeparatorValue"
-                    :options="decimalSeparatorOptions"
-                    @update:model-value="emit('update:decimalSeparatorValue', $event)"
-                />
-                <!-- Null Words ─ Off by default, because in a text column 'NA' can be data, such as Namibia's country
-                     code. -->
-                <label v-if="nullWordReading != null" class="mt-2 flex items-center gap-x-1.5">
-                    <input
-                        class="size-3.5 rounded accent-accent"
-                        :checked="nullWordReading === 'empty'"
+            <!-- Overview ─ The charts first, as what people most often want, then the choices, then the figures. The
+                 blocks flow into columns when the panel is wide, as it is over the table. -->
+            <div v-if="currentTabId === 'overview'" class="grid items-start gap-x-8 gap-y-4 @3xl:grid-cols-2 @6xl:grid-cols-3">
+                <!-- Values ─ The audit's counts, labelled with their numbers, so colour is never the only cue. -->
+                <div v-if="shownValueSegments.length > 0">
+                    <h3 class="m-0 text-sm font-medium">{{ t(TEXT, 'valueChart.label') }}</h3>
+                    <span aria-hidden="true" class="mt-1.5 flex h-2 w-full gap-0.5 overflow-hidden rounded-full">
+                        <span v-for="segment in shownValueSegments" :key="segment.id" class="min-w-1 basis-0" :class="segment.colorClass" :style="{ flexGrow: segment.count }" />
+                    </span>
+                    <ul class="mt-1.5 grid list-none grid-cols-[auto_1fr_auto] items-center gap-x-1.5 p-0">
+                        <li v-for="segment in valueSegments" :key="segment.id" class="contents">
+                            <span aria-hidden="true" class="size-2 rounded-full" :class="segment.colorClass" />
+                            <span class="text-muted">{{ segment.label }}</span>
+                            <span class="text-right tabular-nums">{{ segment.countText }}</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Most Frequent and Formats ─ Five bars each. Their tabs list every one. -->
+                <div
+                    v-for="chart in [
+                        { id: 'frequent', label: t(TEXT, 'frequentChart.label'), rows: frequentChartRows },
+                        { id: 'formats', label: t(TEXT, 'formatChart.label'), rows: formatChartRows }
+                    ].filter((candidate) => candidate.rows.length > 0)"
+                    :key="chart.id"
+                >
+                    <h3 class="m-0 text-sm font-medium">{{ chart.label }}</h3>
+                    <ul class="mt-1.5 grid list-none grid-cols-[minmax(0,10rem)_1fr_auto] items-center gap-x-2 gap-y-1 p-0">
+                        <li v-for="row in chart.rows" :key="row.id" class="contents">
+                            <span class="truncate" :title="row.id">{{ row.id }}</span>
+                            <span aria-hidden="true" class="h-2" :title="row.countText">
+                                <span class="block h-full rounded-r bg-[color-mix(in_srgb,var(--color-accent)_45%,var(--color-card))]" :style="{ width: `${row.barPercent}%` }" />
+                            </span>
+                            <span class="text-right tabular-nums">{{ row.countText }}</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Choices -->
+                <div>
+                    <SelectInput
                         :disabled="isTypeDisabled"
-                        type="checkbox"
-                        @change="emit('update:nullWordsAreEmpty', ($event.target as HTMLInputElement).checked)"
+                        :label="t(TEXT, 'type.label')"
+                        :model-value="typeValue"
+                        :options="typeOptions"
+                        @update:model-value="emit('update:typeValue', $event)"
                     />
-                    {{ t(TEXT, 'nullWords.label', { count: new Intl.NumberFormat(localeId).format(columnConfig?.nullWordValueCount ?? 0) }) }}
-                </label>
-                <dl v-for="group in overviewGroups" :key="group.id" class="mt-3 grid grid-cols-[minmax(7.5rem,max-content)_1fr] *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
+                    <p v-if="detectedTypeText" class="mt-1 mb-0 text-muted" role="status">{{ detectedTypeText }}</p>
+                    <SelectInput
+                        v-if="decimalSeparatorOptions.length > 0 && decimalSeparatorValue != null"
+                        class="mt-2"
+                        :disabled="isTypeDisabled"
+                        :label="t(TEXT, 'decimalSeparator.label')"
+                        :model-value="decimalSeparatorValue"
+                        :options="decimalSeparatorOptions"
+                        @update:model-value="emit('update:decimalSeparatorValue', $event)"
+                    />
+                    <!-- Null Words ─ Off by default, because in a text column 'NA' can be data, such as Namibia's country
+                         code. -->
+                    <label v-if="nullWordReading != null" class="mt-2 flex items-center gap-x-1.5">
+                        <input
+                            class="size-3.5 rounded accent-accent"
+                            :checked="nullWordReading === 'empty'"
+                            :disabled="isTypeDisabled"
+                            type="checkbox"
+                            @change="emit('update:nullWordsAreEmpty', ($event.target as HTMLInputElement).checked)"
+                        />
+                        {{ t(TEXT, 'nullWords.label', { count: new Intl.NumberFormat(localeId).format(columnConfig?.nullWordValueCount ?? 0) }) }}
+                    </label>
+                </div>
+
+                <!-- Figures -->
+                <dl v-for="group in overviewGroups" :key="group.id" class="m-0 grid grid-cols-[minmax(7.5rem,max-content)_1fr] *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
                     <template v-for="groupRow in group.rows" :key="groupRow.label">
                         <dt class="text-muted">{{ groupRow.label }}</dt>
                         <dd class="m-0 min-w-0 wrap-break-word">{{ groupRow.value }}</dd>
                     </template>
                 </dl>
-            </template>
+            </div>
 
             <!-- Formats -->
             <template v-else-if="currentTabId === 'formats'">

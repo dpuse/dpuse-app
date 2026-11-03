@@ -137,6 +137,7 @@ import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
 import ColumnDetailPanel from './ColumnDetailPanel.vue';
+import ColumnMenu from './ColumnMenu.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import DataViewSource from '../DataViewSource.vue';
@@ -269,10 +270,10 @@ const COLUMN_DETAIL_SIDE_BY_SIDE_WIDTH_PX = 560; // Below this, a column's detai
 const PREVIEW_BYTE_LIMIT = 65_536;
 const AUDIT_BYTE_LIMITS = [PREVIEW_BYTE_LIMIT, 1_048_576, 10_485_760, 104_857_600];
 const AUDIT_CHOICE_LIMIT = 2; // The next sizes offered, as well as all of the item, because the toolbar has little room.
-const COLUMN_NAME_WIDTH_PX = 220; // The table's pinned names. 'w-57' on the table in the template is this and the table's edges.
-const MINIMUM_FITTED_PREVIEW_COLUMN_WIDTH_PX = 120; // Keeps the type select's name readable in a column of short values.
-const MINIMUM_PREVIEW_COLUMN_WIDTH_PX = 72; // Keeps the header's type select wide enough to show its icon and arrow.
-const PREVIEW_COLUMN_MARKS_WIDTH_PX = 34; // The mandatory and key marks after a label: two 14px icons, 'gap-x-0.5' and 'ml-1'.
+const COLUMN_NAME_WIDTH_PX = 220; // The table's pinned names. Beside a column's detail, the names fill the table's 'w-57' instead.
+const MINIMUM_FITTED_PREVIEW_COLUMN_WIDTH_PX = 72; // A column of short values with a short label stays wide enough to click its type icon and name.
+const MINIMUM_PREVIEW_COLUMN_WIDTH_PX = 72; // Keeps the header's type icon and the start of its name in view.
+const PREVIEW_COLUMN_MARKS_WIDTH_PX = 60; // The type icon before a name, 22px, the mandatory and key marks after it, 34px, and 4px so a measured name is never a pixel short.
 const PREVIEW_INVALID_ICON_WIDTH_PX = 20; // The icon beside an invalid value: 14px and the cell's 'gap-x-1.5'.
 
 // ── Value Tints ─ Each a layer inset from the cell's edges, so neighbouring marked values stay apart and nothing in the cell
@@ -314,9 +315,10 @@ const currentFolderPath = ref('');
 
 const previewRequestId = ref(0);
 const valueStateRequestId = ref(0);
-const selectedColumnIndex = ref<number>(); // The column whose detail is showing in the Columns tab.
+const selectedColumnIndex = ref<number>(); // The column whose detail is showing. The Table and Columns tabs share it, so a column stays chosen across them.
 const emptyUnitColumnsAreShown = ref(false);
 const columnsPaneElement = useTemplateRef<HTMLDivElement>('columnsPane');
+const previewTableComponent = useTemplateRef<{ scrollColumnIntoView: (columnId: string) => void }>('previewTable'); // Typed by what it exposes, because 'Table' is generic.
 const { width: columnsPaneWidth } = useElementSize(columnsPaneElement);
 const activeItemReading = shallowRef<ItemReading>(); // Goes into the draft with the item.
 const activeContentAuditConfig = shallowRef<StoredContentAuditConfig>(); // How much of the item has been audited, starting from what opening it read.
@@ -716,6 +718,15 @@ const selectedColumnRowIndex = computed(() => {
     const rowIndex = selectedColumnIndex.value == null ? -1 : shownColumnIndexes.value.indexOf(selectedColumnIndex.value);
     return rowIndex === -1 ? undefined : rowIndex;
 });
+// The table shows the item's own columns, which come before every derived one.
+const tableColumnIndexes = computed(() =>
+    (activeItemReading.value?.columnConfigs ?? []).map((columnConfig, index) => (isDerivedColumn(columnConfig) ? undefined : index)).filter((index) => index !== undefined)
+);
+const steppedColumnIndexes = computed(() => (currentPreviewTabId.value === 'table' ? tableColumnIndexes.value : shownColumnIndexes.value));
+const selectedColumnStepIndex = computed(() => {
+    const stepIndex = selectedColumnIndex.value == null ? -1 : steppedColumnIndexes.value.indexOf(selectedColumnIndex.value);
+    return stepIndex === -1 ? undefined : stepIndex;
+});
 const previewColumnTableDataSource = computed<DataSource<PreviewColumnRow>>(() => {
     const columnRows = activeItemReading.value == null ? [] : constructPreviewColumnRows(activeItemReading.value);
     const rows = shownColumnIndexes.value.flatMap((columnIndex) => columnRows.slice(columnIndex, columnIndex + 1));
@@ -1048,18 +1059,21 @@ function isKeyColumn(columnId: string): boolean {
     return isRequiredColumn(columnId) && activeItemReading.value?.columnConfigs[Number(columnId)]?.isUnique === true;
 }
 
+// The detail opens in the tab the user is in, so they keep their place.
 function handleShowColumnDetail(columnIndex: number): void {
-    currentPreviewTabId.value = 'columns';
     selectedColumnIndex.value = columnIndex;
 }
 
-// Previous and Next step over the columns the Columns tab leaves out.
-function handleStepColumn(columnIndex: number): void {
-    const rowIndex = selectedColumnRowIndex.value;
-    if (rowIndex == null) return;
-    const nextRowIndex = rowIndex + (columnIndex > (selectedColumnIndex.value ?? columnIndex) ? 1 : -1);
-    const nextColumnIndex = nextRowIndex < 0 ? undefined : shownColumnIndexes.value.at(nextRowIndex); // 'at' reads a negative index from the end.
-    if (nextColumnIndex != null) selectedColumnIndex.value = nextColumnIndex;
+// Previous and Next step through the columns the current tab shows: the item's own in the table, and the rows of the
+// Columns tab, which can leave out empty unit columns. The table scrolls to keep the chosen column's name in view.
+function handleStepColumn(direction: -1 | 1): void {
+    const stepIndex = selectedColumnStepIndex.value;
+    if (stepIndex == null) return;
+    const nextStepIndex = stepIndex + direction;
+    const nextColumnIndex = nextStepIndex < 0 ? undefined : steppedColumnIndexes.value.at(nextStepIndex); // 'at' would read a negative index from the end.
+    if (nextColumnIndex == null) return;
+    selectedColumnIndex.value = nextColumnIndex;
+    if (currentPreviewTabId.value === 'table') previewTableComponent.value?.scrollColumnIntoView(String(nextColumnIndex));
 }
 
 function handleSelectPreviewTab(previewTabId: PreviewTabId): void {
@@ -1329,6 +1343,12 @@ function constructNullWordReading(columnId: string): 'empty' | 'text' | undefine
 function constructColumnTypeValue(columnId: string): string {
     const selectedColumnType = selectedColumnTypes.value[columnId];
     return selectedColumnType == null ? AUTO_OPTION_ID : constructColumnTypeId(selectedColumnType);
+}
+
+// The type a column is read as, named for its menu button, because the icon alone does not say it.
+function constructColumnTypeText(columnId: string): string {
+    const columnConfig = activeItemReading.value?.columnConfigs.at(Number(columnId));
+    return columnConfig == null ? '' : constructColumnTypeLabel(columnConfig);
 }
 
 // The icon for a column's type select. Undefined until the preview holds the column.
@@ -2065,8 +2085,11 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <p v-if="previewExtentText" class="flex-none px-page pt-1 text-xs text-muted">{{ previewExtentText }}</p>
                 <!-- Busy Bar ─ Over the content, because taking up height would nudge the preview down on every read. -->
                 <BusyBar v-if="previewIsPending" class="absolute inset-x-0 top-0 z-10 mx-page" />
+                <!-- Table ─ A column's detail slides up over the rows and leaves the header in view, so the column names stay
+                     on screen to choose another, as the names do beside the detail in the Columns tab. -->
+                <div v-show="currentPreviewTabId === 'table' && activeItemReading != null" class="relative flex min-h-0 flex-1 flex-col overflow-hidden">
                 <Table
-                    v-show="currentPreviewTabId === 'table' && activeItemReading != null"
+                    ref="previewTable"
                     class="flex-1"
                     :column-definitions="previewTableColumnDefinitions"
                     :construct-cell-class="constructValueCellClass"
@@ -2074,37 +2097,42 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     :data-source="previewTableDataSource"
                     is-column-menu-hidden
                     is-column-picker-hidden
+                    :selected-column-id="selectedColumnIndex == null ? undefined : String(selectedColumnIndex)"
                 >
-                    <!-- Column Type ─ Below the label, so a type can be changed beside the values it describes. Choosing one
-                         changes how the column is read, not the records, so nothing is read again. '-ml-1.75' cancels the
-                         select's own padding and border, so its icon lines up with the label. '-mr-1.5' cancels the arrow's
-                         inset, so the arrow ends where the label's line and the value bar end. 'min-w-12.75' is the width of
-                         the icon and arrow, so the arrow never covers the icon. -->
-                    <template #header-detail="{ columnId }">
-                        <SelectInput
-                            class="-mr-1.5 -ml-1.75 min-w-12.75"
-                            :disabled="readChoicesAreLocked"
-                            is-compact
-                            :is-default="selectedColumnTypes[columnId] == null"
-                            :label="t(TEXT, 'columnType.aria', { label: String(previewTableColumnDefinitions[Number(columnId)]?.header) })"
-                            label-hidden
-                            :model-value="constructColumnTypeValue(columnId)"
-                            :options="constructColumnTypeOptions(columnId)"
-                            :tone="selectedColumnTypes[columnId] == null ? undefined : 'info'"
-                            @update:model-value="handleSelectColumnType(columnId, $event)"
-                        >
-                            <template #icon><component :is="constructColumnTypeIcon(columnId)" aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
-                        </SelectInput>
-                        <ColumnValueBar
-                            v-if="columnValueCounts[Number(columnId)]"
+                    <!-- Column Menu ─ The type icon opens the column's type and options, so the header needs only one row. Choosing a
+                         type changes how the column is read, not the records, so nothing is read again. -->
+                    <template #header-label-start="{ columnId }">
+                        <ColumnMenu
                             :column-label="String(previewTableColumnDefinitions[Number(columnId)]?.header)"
-                            :column-value-counts="columnValueCounts[Number(columnId)]!"
-                            @click="handleShowColumnDetail(Number(columnId))"
+                            :decimal-separator-options="constructDecimalSeparatorOptions(columnId)"
+                            :decimal-separator-value="constructDecimalSeparatorValue(columnId)"
+                            :is-disabled="readChoicesAreLocked"
+                            :is-type-chosen="selectedColumnTypes[columnId] != null"
+                            :null-word-reading="constructNullWordReading(columnId)"
+                            :null-word-value-count="activeItemReading?.columnConfigs[Number(columnId)]?.nullWordValueCount"
+                            :type-icon="constructColumnTypeIcon(columnId)"
+                            :type-options="constructColumnTypeOptions(columnId)"
+                            :type-text="constructColumnTypeText(columnId)"
+                            :type-value="constructColumnTypeValue(columnId)"
+                            @show-detail="handleShowColumnDetail(Number(columnId))"
+                            @update:decimal-separator-value="handleSelectDecimalSeparator(columnId, $event)"
+                            @update:null-words-are-empty="handleSelectNullWords(columnId, $event)"
+                            @update:type-value="handleSelectColumnType(columnId, $event)"
                         />
                     </template>
+                    <!-- Column Name ─ Opens the column's detail over the rows. -->
+                    <template #header-label="{ columnId }">
+                        <ActionWrapper
+                            :aria-current="Number(columnId) === selectedColumnIndex ? 'true' : undefined"
+                            class="min-w-0 flex-1 truncate text-left text-sm font-medium text-muted hover:underline"
+                            :title="t(TEXT, 'columnDetail.label', { label: String(previewTableColumnDefinitions[Number(columnId)]?.header) })"
+                            @click="handleShowColumnDetail(Number(columnId))"
+                            >{{ previewTableColumnDefinitions[Number(columnId)]?.header }}</ActionWrapper
+                        >
+                    </template>
                     <!-- Mandatory and Key ─ Only after a whole audit, because the rest of the item could still lack or repeat a
-                         value. A key is always mandatory, so 'isRequiredColumn' covers both. The key comes last, as wide as
-                         the type select's arrow and ending at the same edge, so it sits directly above it. -->
+                         value. A key is always mandatory, so 'isRequiredColumn' covers both. The value bar is placed on the
+                         header cell, along its bottom edge, so it sits here only to be in the cell. -->
                     <template #header-label-end="{ columnId }">
                         <span v-if="isRequiredColumn(columnId)" class="ml-1 flex flex-none items-center gap-x-0.5 text-muted">
                             <span :aria-label="t(TEXT, 'columnRequired.aria')" role="img" :title="t(TEXT, 'columnRequired.aria')">
@@ -2114,6 +2142,12 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 <KeyRoundIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
                             </span>
                         </span>
+                        <ColumnValueBar
+                            v-if="columnValueCounts[Number(columnId)]"
+                            :column-label="String(previewTableColumnDefinitions[Number(columnId)]?.header)"
+                            :column-value-counts="columnValueCounts[Number(columnId)]!"
+                            @click="handleShowColumnDetail(Number(columnId))"
+                        />
                     </template>
                     <!-- Value Marks ─ A shape as well as the tint, so an invalid value does not rely on colour. It goes at the far
                          end of the cell from the value, so the value never moves. Blank and missing values have nothing to
@@ -2148,6 +2182,31 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         >
                     </template>
                 </Table>
+                <Transition name="dpuse-sheet">
+                    <ColumnDetailPanel
+                        v-if="selectedColumnIndex != null && activeItemReading != null"
+                        class="absolute inset-x-0 top-10 bottom-0 z-10 border-t border-separator bg-surface shadow-md"
+                        can-step-columns
+                        :column-index="selectedColumnIndex"
+                        :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
+                        :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
+                        :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
+                        :has-next-column="selectedColumnStepIndex != null && selectedColumnStepIndex < steppedColumnIndexes.length - 1"
+                        :has-previous-column="selectedColumnStepIndex != null && selectedColumnStepIndex > 0"
+                        :is-type-disabled="readChoicesAreLocked || isDerivedColumn(activeItemReading.columnConfigs[selectedColumnIndex]!)"
+                        :item-reading="activeItemReading"
+                        :null-word-reading="constructNullWordReading(String(selectedColumnIndex))"
+                        :source-text="auditStatus?.shortText ?? ''"
+                        :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
+                        :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
+                        @close="selectedColumnIndex = undefined"
+                        @step="handleStepColumn"
+                        @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
+                        @update:null-words-are-empty="handleSelectNullWords(String(selectedColumnIndex), $event)"
+                        @update:type-value="handleSelectColumnType(String(selectedColumnIndex), $event)"
+                    />
+                </Transition>
+                </div>
                 <!-- Columns ─ 'v-if', so the table measures its space when it opens rather than while hidden. With a column's
                      detail open the table drops back to its names, and 'v-show' keeps its scroll position where the
                      detail fills the space. -->
@@ -2155,7 +2214,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     <input v-model="emptyUnitColumnsAreShown" class="size-3.5 rounded accent-accent" type="checkbox" />
                     {{ t(TEXT, 'emptyUnitColumns.label', { count: emptyUnitColumnCount }) }}
                 </label>
-                <div v-if="currentPreviewTabId === 'columns' && activeItemReading != null" ref="columnsPane" class="flex min-h-0 flex-1">
+                <div v-if="currentPreviewTabId === 'columns' && activeItemReading != null" ref="columnsPane" class="flex min-h-0 flex-1 overflow-hidden">
                     <Table
                         v-show="selectedColumnIndex == null || !columnDetailFillsSpace"
                         :class="selectedColumnIndex == null ? 'min-w-0 flex-1' : 'w-57 flex-none'"
@@ -2171,10 +2230,12 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         <template #cell-icon="{ columnId, rowIndex }">
                             <component :is="constructPreviewColumnCellIcon(columnId, rowIndex)" aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
                         </template>
+                        <!-- Column Name ─ The button's overlay covers the whole cell, so anywhere on the row selects the column,
+                             while the name stays the button's accessible name. -->
                         <template #pinned-cell="{ rowIndex, value }">
                             <ActionWrapper
                                 :aria-current="rowIndex === selectedColumnRowIndex ? 'true' : undefined"
-                                class="min-w-0 truncate text-left text-sm text-accent hover:underline"
+                                class="min-w-0 truncate text-left text-sm text-accent after:absolute after:inset-0 hover:underline"
                                 @click="selectedColumnIndex = shownColumnIndexes[rowIndex]"
                                 >{{ value }}</ActionWrapper
                             >
@@ -2187,6 +2248,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             />
                         </template>
                     </Table>
+                    <!-- Column Detail ─ Slides in from the right, beside the names that choose it. -->
+                    <Transition name="dpuse-slide-from-right">
                     <ColumnDetailPanel
                         v-if="selectedColumnIndex != null"
                         class="min-w-0 flex-1 border-l border-separator"
@@ -2195,6 +2258,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
                         :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
                         :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
+                        :has-next-column="selectedColumnStepIndex != null && selectedColumnStepIndex < steppedColumnIndexes.length - 1"
+                        :has-previous-column="selectedColumnStepIndex != null && selectedColumnStepIndex > 0"
                         :null-word-reading="constructNullWordReading(String(selectedColumnIndex))"
                         :is-type-disabled="readChoicesAreLocked || isDerivedColumn(activeItemReading.columnConfigs[selectedColumnIndex]!)"
                         :item-reading="activeItemReading"
@@ -2207,6 +2272,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         @update:null-words-are-empty="handleSelectNullWords(String(selectedColumnIndex), $event)"
                         @update:type-value="handleSelectColumnType(String(selectedColumnIndex), $event)"
                     />
+                    </Transition>
                 </div>
                 <TextViewer
                     v-show="currentPreviewTabId === 'text' && activeItemReading != null && !previewIsMarkdown"

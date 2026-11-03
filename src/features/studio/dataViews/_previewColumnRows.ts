@@ -28,6 +28,15 @@ export interface PreviewColumnIcons {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// The colour of each kind of value, shared by the value bar in a column's header and the chart in its detail, so the
+// two always agree.
+export const COLUMN_VALUE_SEGMENTS: { colorClass: string; id: keyof ColumnValueCounts }[] = [
+    { colorClass: 'bg-[color-mix(in_srgb,var(--color-success-text)_40%,var(--color-card))]', id: 'validCount' },
+    { colorClass: 'bg-danger-text', id: 'invalidCount' },
+    { colorClass: 'bg-blank-value', id: 'blankCount' },
+    { colorClass: 'bg-subtle', id: 'missingCount' }
+];
+
 export const PREVIEW_COLUMN_KEYS = [
     'label',
     'dataTypeLabel',

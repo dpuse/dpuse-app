@@ -3,21 +3,12 @@
 import { computed } from 'vue';
 
 // ── Local Framework
-import type { ColumnValueCounts } from '@/features/studio/dataViews/_previewColumnRows';
 import { TEXT } from './ColumnValueBar_.json';
+import { COLUMN_VALUE_SEGMENTS, type ColumnValueCounts } from '@/features/studio/dataViews/_previewColumnRows';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
-
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const SEGMENTS: { colorClass: string; id: keyof ColumnValueCounts }[] = [
-    { colorClass: 'bg-[color-mix(in_srgb,var(--color-success-text)_40%,var(--color-card))]', id: 'validCount' },
-    { colorClass: 'bg-danger-text', id: 'invalidCount' },
-    { colorClass: 'bg-blank-value', id: 'blankCount' },
-    { colorClass: 'bg-subtle', id: 'missingCount' }
-];
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -28,7 +19,7 @@ const { columnLabel, columnValueCounts } = defineProps<{
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const shownSegments = computed(() => SEGMENTS.filter((segment) => columnValueCounts[segment.id] > 0).map((segment) => ({ ...segment, count: columnValueCounts[segment.id] })));
+const shownSegments = computed(() => COLUMN_VALUE_SEGMENTS.filter((segment) => columnValueCounts[segment.id] > 0).map((segment) => ({ ...segment, count: columnValueCounts[segment.id] })));
 
 // The rows below show only the preview, so the text says how many records the counts cover.
 const countsText = computed(() => {

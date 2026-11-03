@@ -3,6 +3,8 @@
         "close.aria": { "en": "Close column details", "es": "Cerrar los detalles de la columna" },
         "decimalSeparator.label": { "en": "Decimal separator", "es": "Separador decimal" },
         "detected.text": { "en": "Detected as {type}", "es": "Detectado como {type}" },
+        "formatChart.label": { "en": "Most common formats", "es": "Formatos más comunes" },
+        "frequentChart.label": { "en": "Most frequent values", "es": "Valores más frecuentes" },
         "next.aria": { "en": "Next column", "es": "Columna siguiente" },
         "nullWords.label": { "en": "Read NA, N/A, None and the like as empty ({count} found)", "es": "Leer NA, N/A, None y similares como vacíos ({count} encontrados)" },
         "previous.aria": { "en": "Previous column", "es": "Columna anterior" },
@@ -14,6 +16,7 @@
         "tab.samples.count.label": { "en": "Samples ({count})", "es": "Muestras ({count})" },
         "tab.samples.label": { "en": "Samples", "es": "Muestras" },
         "tabs.aria": { "en": "Column details", "es": "Detalles de la columna" },
-        "type.label": { "en": "Data type", "es": "Tipo de dato" }
+        "type.label": { "en": "Data type", "es": "Tipo de dato" },
+        "valueChart.label": { "en": "Values", "es": "Valores" }
     }
 }

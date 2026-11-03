@@ -16,12 +16,15 @@ import type { TableFeatureSet } from './tableFeatures';
 interface Properties {
     header: Header<TableFeatureSet, T>;
     isMenuHidden?: boolean; // Leaves out the column options menu, for a table whose columns must all stay as they are.
+    isResizeHidden?: boolean; // Leaves out the resize handle, for a column that fills a table collapsed beside a detail panel.
 }
-const { header, isMenuHidden } = defineProps<Properties>();
+const { header, isMenuHidden, isResizeHidden } = defineProps<Properties>();
 
 defineSlots<{
     detail?(): unknown; // Rendered below the column's label.
+    label?(): unknown; // Rendered in place of the plain label, e.g. a button.
     'label-end'?(): unknown; // Rendered at the end of the label's line, which the label shortens to leave room for.
+    'label-start'?(): unknown; // Rendered at the start of the label's line.
 }>();
 
 const emit = defineEmits<{ fitWidth: [] }>();
@@ -75,7 +78,10 @@ function handleToggleMenu(): void {
     <div class="relative flex h-full items-center select-none" data-region="TableHeaderCell">
         <div class="flex min-w-0 flex-1 flex-col justify-center px-3">
             <div class="flex min-w-0 items-center">
-                <span class="min-w-0 flex-1 truncate text-sm font-medium text-muted">{{ String(header.column.columnDef.header) }}</span>
+                <slot name="label-start" />
+                <slot name="label">
+                    <span class="min-w-0 flex-1 truncate text-sm font-medium text-muted">{{ String(header.column.columnDef.header) }}</span>
+                </slot>
                 <slot name="label-end" />
             </div>
             <slot name="detail" />
@@ -146,7 +152,7 @@ function handleToggleMenu(): void {
              between their cells. 'z-1' keeps its other half above the next column's header, and below a pinned one.
              A double click fits the column to its content. -->
         <div
-            v-if="header.column.getCanResize()"
+            v-if="!isResizeHidden && header.column.getCanResize()"
             class="group/resize absolute top-0 -right-1.5 z-1 flex h-full w-3 cursor-col-resize touch-none items-center justify-center select-none pointer-coarse:-right-3 pointer-coarse:w-6"
             role="button"
             tabIndex="0"

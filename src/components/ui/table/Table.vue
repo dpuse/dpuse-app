@@ -43,6 +43,7 @@ interface Properties {
     label?: string; // Names the table for screen readers.
     hiddenColumnIds?: string[]; // Columns hidden from the start. The column picker can show them.
     pinnedColumnIds?: string[]; // Columns pinned to the left from the start.
+    selectedColumnId?: string; // Marks the column whose detail is showing.
     selectedRowIndex?: number; // Marks the row whose detail is showing.
     scrollAreaPaddingBottom?: string; // Room after the last row, as a grid's scroll area has. Less where the table already ends above a status bar.
 }
@@ -61,6 +62,7 @@ const {
     hiddenColumnIds = [],
     pinnedColumnIds = [],
     scrollAreaPaddingBottom = 'var(--vertical-scroll-bottom-screen-inset)',
+    selectedColumnId,
     selectedRowIndex
 } = defineProps<Properties>();
 
@@ -68,7 +70,9 @@ defineSlots<{
     'cell-icon'?(properties: { columnId: string; row: T | undefined; rowIndex: number }): unknown; // Rendered before a cell's value. Its row is given too, for a cell that shows more of the row than its own value.
     'cell-value'?(properties: { columnId: string; rowIndex: number; value: unknown }): unknown; // Rendered in place of a cell's plain value. A cell where it renders nothing shows the plain value.
     'header-detail'?(properties: { columnId: string }): unknown; // Rendered below each column's label, in a taller header.
+    'header-label'?(properties: { columnId: string }): unknown; // Rendered in place of each column's plain label, e.g. a button.
     'header-label-end'?(properties: { columnId: string }): unknown; // Rendered at the end of each column's label.
+    'header-label-start'?(properties: { columnId: string }): unknown; // Rendered at the start of each column's label.
     'pinned-cell'?(properties: { columnId: string; rowIndex: number; value: unknown }): unknown; // Rendered in place of a left pinned cell's value, e.g. a button.
 }>();
 
@@ -173,6 +177,9 @@ const totalCenterWidth = computed(() =>
     columnVirtualisationIsRequired.value ? columnVirtualizer.value.getTotalSize() : centerLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0)
 );
 const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value + rightPinnedWidth.value + EDGE_INSET_PX + END_INSET_PX);
+// A table collapsed to its pinned columns beside a detail panel is a list, so its columns fill its width and it never
+// scrolls sideways.
+const contentMinWidth = computed(() => (isCollapsedToPinned ? '100%' : `${String(totalWidth.value)}px`));
 const virtualColumns = computed(() => (columnVirtualisationIsRequired.value ? columnVirtualizer.value.getVirtualItems() : []));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -211,6 +218,23 @@ function handleFitColumn(columnId: string): void {
     const fittedWidth = constructFittedColumnWidth(String(column?.columnDef.header), values, { headerExtraPx: isColumnMenuHidden ? 0 : HEADER_MENU_WIDTH_PX });
     table.setColumnSizing((columnSizing) => ({ ...columnSizing, [columnId]: fittedWidth }));
 }
+
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Scrolls sideways just far enough to show a column chosen outside the table, such as by a detail panel's Previous and
+// Next. A pinned column is always in view.
+function scrollColumnIntoView(columnId: string): void {
+    const scroller = innerScrollElement.value;
+    const column = table.getColumn(columnId);
+    if (!scroller || column?.getIsPinned() !== false) return;
+    const columnStart = column.getStart('center');
+    const columnEnd = columnStart + column.getSize();
+    const visibleWidth = scroller.clientWidth - leftPinnedWidth.value - rightPinnedWidth.value - EDGE_INSET_PX - END_INSET_PX;
+    if (columnStart < scroller.scrollLeft) scroller.scrollTo({ behavior: 'smooth', left: columnStart });
+    else if (columnEnd > scroller.scrollLeft + visibleWidth) scroller.scrollTo({ behavior: 'smooth', left: columnEnd - visibleWidth });
+}
+
+defineExpose({ scrollColumnIntoView });
 
 // ── Scroll Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -267,20 +291,28 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
              ancestor, and inside the body below that would be the horizontal-only inner scroller, which never scrolls
              vertically, so a sticky header nested in there would just scroll away with the rows instead of pinning. -->
             <div ref="headerViewport" class="overflow-hidden" role="rowgroup" @wheel.passive="handleHeaderWheel">
-                <div class="flex border-b border-boundary bg-backdrop" :class="$slots['header-detail'] ? 'h-17' : 'h-10'" :style="{ minWidth: totalWidth + 'px' }" role="row">
+                <div class="flex border-b border-boundary bg-backdrop" :class="$slots['header-detail'] ? 'h-17' : 'h-10'" :style="{ minWidth: contentMinWidth }" role="row">
                     <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
 
                     <!-- Left pinned headers -->
                     <div
                         v-for="leftLeafHeader in leftLeafHeaders"
                         :key="leftLeafHeader.id"
-                        class="sticky shrink-0 border-r border-boundary bg-backdrop"
+                        class="sticky bg-backdrop"
+                        :class="[isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary', { 'state-selected': leftLeafHeader.column.id === selectedColumnId }]"
                         role="columnheader"
-                        :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 2 }"
+                        :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: isCollapsedToPinned ? undefined : leftLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                     >
-                        <TableHeaderCell :header="leftLeafHeader" :is-menu-hidden="isColumnMenuHidden" @fit-width="handleFitColumn(leftLeafHeader.column.id)">
+                        <TableHeaderCell
+                            :header="leftLeafHeader"
+                            :is-menu-hidden="isColumnMenuHidden"
+                            :is-resize-hidden="isCollapsedToPinned"
+                            @fit-width="handleFitColumn(leftLeafHeader.column.id)"
+                        >
                             <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="leftLeafHeader.column.id" /></template>
                             <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="leftLeafHeader.column.id" /></template>
+                            <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="leftLeafHeader.column.id" /></template>
+                            <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="leftLeafHeader.column.id" /></template>
                         </TableHeaderCell>
                     </div>
 
@@ -290,12 +322,15 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                             v-for="centerLeafHeader in centerLeafHeaders"
                             :key="centerLeafHeader.id"
                             class="h-full shrink-0"
+                            :class="{ 'state-selected': centerLeafHeader.column.id === selectedColumnId }"
                             role="columnheader"
                             :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
                         >
                             <TableHeaderCell :header="centerLeafHeader" :is-menu-hidden="isColumnMenuHidden" @fit-width="handleFitColumn(centerLeafHeader.column.id)">
                                 <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="centerLeafHeader.column.id" /></template>
                                 <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="centerLeafHeader.column.id" /></template>
+                                <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="centerLeafHeader.column.id" /></template>
+                                <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="centerLeafHeader.column.id" /></template>
                             </TableHeaderCell>
                         </div>
                     </template>
@@ -305,6 +340,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                             v-for="virtualColumn in virtualColumns"
                             :key="virtualColumn.index"
                             class="absolute top-0 h-full"
+                            :class="{ 'state-selected': centerLeafHeaders[virtualColumn.index]?.column.id === selectedColumnId }"
                             role="columnheader"
                             :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
                         >
@@ -319,6 +355,8 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                 <template v-if="$slots['header-label-end']" #label-end
                                     ><slot name="header-label-end" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id"
                                 /></template>
+                                <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" /></template>
+                                <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" /></template>
                             </TableHeaderCell>
                         </div>
                     </div>
@@ -334,10 +372,12 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                         <TableHeaderCell :header="rightLeafHeader" :is-menu-hidden="isColumnMenuHidden" @fit-width="handleFitColumn(rightLeafHeader.column.id)">
                             <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="rightLeafHeader.column.id" /></template>
                             <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="rightLeafHeader.column.id" /></template>
+                            <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="rightLeafHeader.column.id" /></template>
+                            <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="rightLeafHeader.column.id" /></template>
                         </TableHeaderCell>
                     </div>
 
-                    <div class="shrink-0" :style="{ width: END_INSET_PX + 'px' }" />
+                    <div v-if="!isCollapsedToPinned" class="shrink-0" :style="{ width: END_INSET_PX + 'px' }" />
                 </div>
             </div>
 
@@ -353,7 +393,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                     :style="{ paddingBottom: scrollAreaPaddingBottom }"
                 >
                     <div :id="innerScrollElementId" ref="innerScroller" class="scrollbar-none overflow-x-auto overflow-y-hidden overscroll-none" @scroll="syncHeaderScroll">
-                        <div :style="{ minWidth: totalWidth + 'px' }">
+                        <div :style="{ minWidth: contentMinWidth }">
                             <!-- Virtual rows spacer -->
                             <div class="relative" role="rowgroup" :style="{ height: totalSize + 'px' }">
                                 <div
@@ -361,7 +401,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                     :key="vRow.index"
                                     class="group absolute top-0 flex border-b border-boundary bg-surface"
                                     role="row"
-                                    :style="{ transform: `translateY(${vRow.start}px)`, height: vRow.size + 'px', minWidth: totalWidth + 'px', width: '100%' }"
+                                    :style="{ transform: `translateY(${vRow.start}px)`, height: vRow.size + 'px', minWidth: contentMinWidth, width: '100%' }"
                                 >
                                     <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
 
@@ -371,10 +411,14 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                         :key="leftLeafHeader.id"
                                         :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
                                         :loading="visibleRowData[i] === undefined"
-                                        class="sticky shrink-0 border-r border-boundary bg-surface group-hover:bg-card"
-                                        :class="[{ 'state-selected': vRow.index === selectedRowIndex }, constructCellClass?.(leftLeafHeader.column.id, vRow.index)]"
+                                        class="sticky bg-surface group-hover:bg-card"
+                                        :class="[
+                                            isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary',
+                                            { 'state-selected': vRow.index === selectedRowIndex },
+                                            constructCellClass?.(leftLeafHeader.column.id, vRow.index)
+                                        ]"
                                         :title="constructCellTitle?.(leftLeafHeader.column.id, vRow.index)"
-                                        :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: leftLeafHeader.column.getSize() + 'px', zIndex: 1 }"
+                                        :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: isCollapsedToPinned ? undefined : leftLeafHeader.column.getSize() + 'px', zIndex: 1 }"
                                     >
                                         <template v-if="$slots['pinned-cell']" #value
                                             ><slot
@@ -453,7 +497,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                         /></template>
                                     </TableCell>
 
-                                    <div class="shrink-0" :style="{ width: END_INSET_PX + 'px' }" />
+                                    <div v-if="!isCollapsedToPinned" class="shrink-0" :style="{ width: END_INSET_PX + 'px' }" />
                                 </div>
                             </div>
                         </div>

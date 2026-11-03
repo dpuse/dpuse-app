@@ -376,11 +376,28 @@
     background-color: transparent;
 }
 
+/* Slides a panel in from the right edge, such as a column's detail beside the names that choose it. Used as a
+   'Transition' name. */
+.dpuse-slide-from-right-enter-active,
+.dpuse-slide-from-right-leave-active {
+    transition:
+        transform 0.3s var(--ease-sheet),
+        opacity 0.2s ease;
+    will-change: transform, opacity;
+}
+.dpuse-slide-from-right-enter-from,
+.dpuse-slide-from-right-leave-to {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
 @media (prefers-reduced-motion: reduce) {
     .dpuse-slide-up-enter-active,
     .dpuse-slide-up-leave-active,
     .dpuse-sheet-enter-active,
-    .dpuse-sheet-leave-active {
+    .dpuse-sheet-leave-active,
+    .dpuse-slide-from-right-enter-active,
+    .dpuse-slide-from-right-leave-active {
         transition: none;
     }
 }
