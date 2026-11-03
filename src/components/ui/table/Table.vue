@@ -24,6 +24,7 @@ const COLUMN_VIRTUALIZATION_THRESHOLD_PX = 2000; // Empirically chosen — below
 // edge, while the table and its lines run to the edges of whatever holds it. It scrolls with the columns, so no space is
 // kept empty once the table is scrolled sideways.
 const EDGE_INSET_PX = 4;
+const END_INSET_PX = 16; // The page margin, '--spacing-page' in 'theme.css', so the last column's resize handle sits clear of the screen edge and the scroll thumb.
 const ROW_HEIGHT_PX = 36; // One line of text with a little room, so a screen shows as many rows as it comfortably can.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -170,7 +171,7 @@ const rightPinnedWidth = computed(() => rightLeafHeaders.value.reduce((sum, head
 const totalCenterWidth = computed(() =>
     columnVirtualisationIsRequired.value ? columnVirtualizer.value.getTotalSize() : centerLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0)
 );
-const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value + rightPinnedWidth.value + EDGE_INSET_PX * 2);
+const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value + rightPinnedWidth.value + EDGE_INSET_PX + END_INSET_PX);
 const virtualColumns = computed(() => (columnVirtualisationIsRequired.value ? columnVirtualizer.value.getVirtualItems() : []));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -335,7 +336,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                         </TableHeaderCell>
                     </div>
 
-                    <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
+                    <div class="shrink-0" :style="{ width: END_INSET_PX + 'px' }" />
                 </div>
             </div>
 
@@ -435,7 +436,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                         /></template>
                                     </TableCell>
 
-                                    <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
+                                    <div class="shrink-0" :style="{ width: END_INSET_PX + 'px' }" />
                                 </div>
                             </div>
                         </div>

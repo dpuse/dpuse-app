@@ -48,7 +48,7 @@ const {
         detectedColumnType: ColumnType | undefined;
         isTypeDisabled?: boolean;
         itemReading: ItemReading;
-        nullWordReading?: 'empty' | 'text'; // How null words such as 'NA' read. Only a text column has the choice. Not a boolean, because Vue reads a missing boolean as false.
+        nullWordReading?: 'empty' | 'text'; // How words such as 'NA' read. 'NULL' is always empty. Only a text column has the choice. Not a boolean, because Vue reads a missing boolean as false.
         sourceText: string; // What the figures describe: how much of the item was audited.
         typeOptions: SelectOption[];
         typeValue: string;
