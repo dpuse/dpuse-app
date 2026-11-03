@@ -796,9 +796,11 @@ watch(
             const headedItemReading = await applyHeaderChoice(itemReading, newActiveItem);
             if (currentRequestId !== previewRequestId.value) return;
 
-            const wereColumnTypesChosen = [...Object.values(selectedColumnTypes.value), ...Object.values(selectedDecimalSeparators.value), ...Object.values(selectedNullWords.value)].some(
-                (choice) => choice != null
-            );
+            const wereColumnTypesChosen = [
+                ...Object.values(selectedColumnTypes.value),
+                ...Object.values(selectedDecimalSeparators.value),
+                ...Object.values(selectedNullWords.value)
+            ].some((choice) => choice != null);
             selectedColumnTypes.value = isNewReadChoice ? {} : constructSavedColumnTypes(newActiveItem); // A new reading can change the columns, but reopening the saved item keeps its types.
             selectedDecimalSeparators.value = isNewReadChoice ? {} : constructSavedDecimalSeparators(newActiveItem);
             selectedNullWords.value = isNewReadChoice || !isSavedItem(newActiveItem) ? {} : constructChosenNullWords(dataViewConfig.value?.columnSetConfig);
@@ -1581,7 +1583,11 @@ async function readLargerPreview(): Promise<PreviewObjectResult | undefined> {
 
 // What opening an item audited, with its records counted the way the headers are now set.
 function constructFirstContentAuditConfig(contentAuditConfig: ContentAuditConfig, itemReading: ItemReading): ContentAuditConfig {
-    return { ...contentAuditConfig, hasHeaders: itemReading.hasHeaders === true, recordCount: Math.max(0, itemReading.parsedRecords.length - (itemReading.hasHeaders === true ? 1 : 0)) };
+    return {
+        ...contentAuditConfig,
+        hasHeaders: itemReading.hasHeaders === true,
+        recordCount: Math.max(0, itemReading.parsedRecords.length - (itemReading.hasHeaders === true ? 1 : 0))
+    };
 }
 
 function constructAuditDetailGroup(contentAuditConfig: StoredContentAuditConfig): {
@@ -2145,10 +2151,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <!-- Columns ─ 'v-if', so the table measures its space when it opens rather than while hidden. With a column's
                      detail open the table drops back to its names, and 'v-show' keeps its scroll position where the
                      detail fills the space. -->
-                <label
-                    v-if="currentPreviewTabId === 'columns' && emptyUnitColumnCount > 0"
-                    class="flex flex-none items-center gap-x-1.5 px-page pt-1 text-xs text-muted"
-                >
+                <label v-if="currentPreviewTabId === 'columns' && emptyUnitColumnCount > 0" class="flex flex-none items-center gap-x-1.5 px-page pt-1 text-xs text-muted">
                     <input v-model="emptyUnitColumnsAreShown" class="size-3.5 rounded accent-accent" type="checkbox" />
                     {{ t(TEXT, 'emptyUnitColumns.label', { count: emptyUnitColumnCount }) }}
                 </label>
