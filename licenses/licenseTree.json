@@ -1,5 +1,5 @@
 {
-  "version": "1.0.248",
+  "version": "1.0.249",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -218,7 +218,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.178"
+          "version": "1.0.179"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1366,8 +1366,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.178",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.178.tgz",
+      "version": "1.0.179",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.179.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1453,7 +1453,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.178"
+          "version": "1.0.179"
         },
         "@tanstack/charts": {
           "version": "1.1.0",

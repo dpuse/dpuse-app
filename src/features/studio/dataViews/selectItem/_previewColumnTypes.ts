@@ -36,17 +36,20 @@ export const CHOOSABLE_COLUMN_TYPES: ColumnType[] = [
 // such as '.0' for 50 in a column that holds 87.1. A value with more, after a partial audit, needs nothing. Only the
 // digits after the decimal point are decimals, so the '%' of '12.5%' or the ' €' of '12,50 €' are not counted. A value
 // with no ending, such as 7 in a column of percentages or 3.25 beside (3.25), also needs room for its column's ending.
-// Room is the same width wherever it goes, so it can all follow the value.
+// Room is the same width wherever it goes. The value comes back in display order: its number, the missing decimals,
+// its own ending, then the room for a missing column ending. The missing decimals are shown as implied, so they go
+// straight after the last digit, before any ending: '(3.2' + '0' + ')'. An exponent is the exception, because '1.50e3'
+// would change how the value is written, so its decimals are hidden after it. The room for a column's ending is always
+// hidden, because showing it would suggest a unit the value does not have.
 export function constructDecimalPadding(
     value: string,
     { decimalSeparatorId: decimalSeparator = '.', maxDecimals }: Pick<ObjectColumnConfig, 'decimalSeparatorId' | 'maxDecimals'>,
     columnEnding = ''
-): string {
-    const { decimalCount, ending, hasSeparator } = measureWrittenNumber(value.trim(), decimalSeparator);
-    const endingPadding = ending === '' ? columnEnding : '';
-    if (maxDecimals == null || maxDecimals === 0) return endingPadding;
-    const decimalPadding = hasSeparator ? '0'.repeat(Math.max(0, maxDecimals - decimalCount)) : decimalSeparator + '0'.repeat(maxDecimals);
-    return decimalPadding + endingPadding;
+): { hiddenPadding: string; numberText: string; shownPadding: string; writtenEnding: string } {
+    const { decimalCount, ending, hasSeparator, numberText } = measureWrittenNumber(value.trim(), decimalSeparator);
+    const missingDecimals = constructMissingDecimals(decimalCount, hasSeparator, decimalSeparator, maxDecimals);
+    if (/^e/iu.test(ending)) return { hiddenPadding: missingDecimals, numberText, shownPadding: '', writtenEnding: ending };
+    return { hiddenPadding: ending === '' ? columnEnding : '', numberText, shownPadding: missingDecimals, writtenEnding: ending };
 }
 
 // The ending a column's numbers most often have after their last digit, such as '%', ' €' or the ')' of an accounting
@@ -63,14 +66,20 @@ export function constructColumnEnding(formats: Record<string, number>): string {
 }
 
 // Splits a number as written into its digits and what follows them, such as '%', ' €', ')' or an exponent.
-function measureWrittenNumber(trimmedValue: string, decimalSeparator: string): { decimalCount: number; ending: string; hasSeparator: boolean } {
+function measureWrittenNumber(trimmedValue: string, decimalSeparator: string): { decimalCount: number; ending: string; hasSeparator: boolean; numberText: string } {
     const lastDigitIndex = trimmedValue.search(/\p{Nd}(?!.*\p{Nd})/u);
     const digitsEnd = lastDigitIndex === -1 ? trimmedValue.length : lastDigitIndex + 1;
     const exponentIndex = trimmedValue.slice(0, digitsEnd).search(/e[+-]?\p{Nd}+$/iu);
     const numberEnd = exponentIndex === -1 ? digitsEnd : exponentIndex;
     const numberText = trimmedValue.slice(0, numberEnd);
     const separatorIndex = numberText.lastIndexOf(decimalSeparator);
-    return { decimalCount: separatorIndex === -1 ? 0 : numberEnd - separatorIndex - 1, ending: trimmedValue.slice(numberEnd), hasSeparator: separatorIndex !== -1 };
+    return { decimalCount: separatorIndex === -1 ? 0 : numberEnd - separatorIndex - 1, ending: trimmedValue.slice(numberEnd), hasSeparator: separatorIndex !== -1, numberText };
+}
+
+// The separator and zeros a number needs to have as many decimals as its column's longest.
+function constructMissingDecimals(decimalCount: number, hasSeparator: boolean, decimalSeparator: string, maxDecimals: number | undefined): string {
+    if (maxDecimals == null || maxDecimals === 0) return '';
+    return hasSeparator ? '0'.repeat(Math.max(0, maxDecimals - decimalCount)) : decimalSeparator + '0'.repeat(maxDecimals);
 }
 
 // The preview with every type the user chose put back, for after its columns are counted again.

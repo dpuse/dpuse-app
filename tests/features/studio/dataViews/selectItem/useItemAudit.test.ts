@@ -29,7 +29,8 @@ function renderNothing(): ReturnType<typeof h> {
 
 function mountAudit(
     handleAudited = vi.fn().mockResolvedValue(null),
-    dataViewConfig: DataViewConfig | null = DATA_VIEW
+    dataViewConfig: DataViewConfig | null = DATA_VIEW,
+    headersAreChosen = true
 ): {
     audit: ReturnType<typeof useItemAudit>;
     unmount: () => void;
@@ -38,7 +39,11 @@ function mountAudit(
     const wrapper = mount(
         defineComponent({
             setup() {
-                audit = useItemAudit(() => dataViewConfig ?? undefined, handleAudited);
+                audit = useItemAudit(
+                    () => dataViewConfig ?? undefined,
+                    handleAudited,
+                    () => headersAreChosen
+                );
                 return renderNothing;
             }
         })
@@ -68,11 +73,20 @@ describe('useItemAudit', () => {
 
         await audit.startAudit(2048);
 
-        expect(auditDataViewContent).toHaveBeenCalledWith(DATA_VIEW, 2048, expect.any(Function));
+        expect(auditDataViewContent).toHaveBeenCalledWith(DATA_VIEW, 2048, expect.any(Function), true);
         expect(audit.auditedByteCount.value).toBe(1000);
         expect(audit.auditedRecordCount.value).toBe(5);
         expect(audit.auditIsRunning.value).toBe(false);
         expect(handleAudited).toHaveBeenCalledWith(AUDIT);
+    });
+
+    it('lets the audit check again for a header when the user has not chosen whether there is one', async () => {
+        vi.mocked(auditDataViewContent).mockResolvedValueOnce(AUDIT);
+        const { audit } = mountAudit(undefined, DATA_VIEW, false);
+
+        await audit.startAudit(undefined);
+
+        expect(auditDataViewContent).toHaveBeenCalledWith(DATA_VIEW, undefined, expect.any(Function), false);
     });
 
     it('does nothing with no item to audit', async () => {

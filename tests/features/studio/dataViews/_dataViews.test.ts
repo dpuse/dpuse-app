@@ -352,6 +352,27 @@ describe('data views', () => {
             );
             expect(onProgress).toHaveBeenCalledWith(2, 90);
         });
+
+        it('asks the audit to check again for a header only when none was found and none was chosen', async () => {
+            const processRequest = vi.fn(() => Promise.resolve({ contentAuditConfig: { recordCount: 2 } }));
+            vi.mocked(findConnectionLocalisedConfig).mockReturnValue({ id: 'connection-a' } as never);
+            vi.mocked(establishEngineWorker).mockResolvedValue({ processRequest } as never);
+            const constructDataView = (hasHeaders: boolean): DataViewConfig =>
+                ({
+                    ...buildDataView('a', 'Sales'),
+                    connectionId: 'connection-a',
+                    connectionNodeConfig: { extension: 'csv', folderPath: '/reports', name: 'sales' },
+                    readConfig: { dataFormatId: 'dtv', encodingId: 'utf-8', hasHeaders, parserId: undefined, valueDelimiterId: ',' }
+                }) as DataViewConfig;
+            const findSentHasHeaders = (): unknown => (processRequest.mock.lastCall as unknown as [string, unknown, { hasHeaders: unknown }])[2].hasHeaders;
+
+            await auditDataViewContent(constructDataView(false), undefined, vi.fn(), false);
+            expect(findSentHasHeaders()).toBeUndefined();
+            await auditDataViewContent(constructDataView(false), undefined, vi.fn(), true);
+            expect(findSentHasHeaders()).toBe(false);
+            await auditDataViewContent(constructDataView(true), undefined, vi.fn(), false);
+            expect(findSentHasHeaders()).toBe(true);
+        });
     });
 
     describe('abortDataViewContentAudit', () => {

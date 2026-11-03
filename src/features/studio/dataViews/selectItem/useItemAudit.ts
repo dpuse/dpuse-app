@@ -26,8 +26,13 @@ interface ItemAudit {
 
 // Runs an audit of the item on screen, from its start to 'byteLimit' or its end. The caller gives the data view as the user
 // has it, so an item not yet saved can be audited, and decides where the result goes. Stopping keeps what was read so far.
-// Leaving aborts the audit and drops its result, rather than letting it run on unseen.
-export function useItemAudit(constructDataViewConfig: () => DataViewConfig | undefined, handleAudited: (contentAuditConfig: ContentAuditConfig) => void): ItemAudit {
+// Leaving aborts the audit and drops its result, rather than letting it run on unseen. 'areHeadersChosen' says whether the
+// user chose if there is a header, so the audit only checks again for one that was detected as absent.
+export function useItemAudit(
+    constructDataViewConfig: () => DataViewConfig | undefined,
+    handleAudited: (contentAuditConfig: ContentAuditConfig) => void,
+    areHeadersChosen: () => boolean
+): ItemAudit {
     const auditIsRunning = ref(false);
     const auditIsAborted = ref(false);
     const auditedByteCount = ref(0);
@@ -49,10 +54,15 @@ export function useItemAudit(constructDataViewConfig: () => DataViewConfig | und
         auditStartedAt.value = Date.now();
         auditedConnectionId.value = dataViewConfig.connectionId;
         try {
-            const contentAuditConfig = await auditDataViewContent(dataViewConfig, byteLimit, (recordCount, byteCount) => {
-                auditedByteCount.value = byteCount;
-                auditedRecordCount.value = recordCount;
-            });
+            const contentAuditConfig = await auditDataViewContent(
+                dataViewConfig,
+                byteLimit,
+                (recordCount, byteCount) => {
+                    auditedByteCount.value = byteCount;
+                    auditedRecordCount.value = recordCount;
+                },
+                areHeadersChosen()
+            );
             if (!wasAuditAborted()) handleAudited(contentAuditConfig);
         } catch (error) {
             if (wasAuditAborted()) return;

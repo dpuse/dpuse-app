@@ -148,44 +148,49 @@ describe('constructDecimalPadding', () => {
     const COLUMN = { decimalSeparatorId: '.', maxDecimals: 2 } as const;
 
     it('pads a whole number with the separator and zeros', () => {
-        expect(constructDecimalPadding('50', COLUMN)).toBe('.00');
+        expect(constructDecimalPadding('50', COLUMN)).toEqual({ hiddenPadding: '', numberText: '50', shownPadding: '.00', writtenEnding: '' });
     });
 
     it('pads a number with fewer decimals than the column’s most', () => {
-        expect(constructDecimalPadding(' 87.1 ', COLUMN)).toBe('0');
+        expect(constructDecimalPadding(' 87.1 ', COLUMN)).toEqual({ hiddenPadding: '', numberText: '87.1', shownPadding: '0', writtenEnding: '' });
     });
 
     it('adds nothing to a number with as many or more decimals', () => {
-        expect(constructDecimalPadding('87.12', COLUMN)).toBe('');
-        expect(constructDecimalPadding('87.123', COLUMN)).toBe('');
+        expect(constructDecimalPadding('87.12', COLUMN)).toEqual({ hiddenPadding: '', numberText: '87.12', shownPadding: '', writtenEnding: '' });
+        expect(constructDecimalPadding('87.123', COLUMN)).toEqual({ hiddenPadding: '', numberText: '87.123', shownPadding: '', writtenEnding: '' });
     });
 
     it('lines decimals up however long the column’s longest', () => {
         const longDecimalColumn = { decimalSeparatorId: '.', maxDecimals: 15 } as const;
 
-        expect(constructDecimalPadding('1960', longDecimalColumn)).toBe('.000000000000000');
-        expect(constructDecimalPadding('87.1', longDecimalColumn)).toBe('0'.repeat(14));
-        expect(constructDecimalPadding('88.96779015161066', longDecimalColumn)).toBe('0');
+        expect(constructDecimalPadding('1960', longDecimalColumn).shownPadding).toBe('.000000000000000');
+        expect(constructDecimalPadding('87.1', longDecimalColumn).shownPadding).toBe('0'.repeat(14));
+        expect(constructDecimalPadding('88.96779015161066', longDecimalColumn).shownPadding).toBe('0');
     });
 
-    it('counts only digits as decimals, not an ending such as a percent sign or currency', () => {
-        expect(constructDecimalPadding('12.5%', { decimalSeparatorId: '.', maxDecimals: 2 })).toBe('0');
-        expect(constructDecimalPadding('12,5 €', { decimalSeparatorId: ',', maxDecimals: 2 })).toBe('0');
-        expect(constructDecimalPadding('(3.2)', { decimalSeparatorId: '.', maxDecimals: 2 })).toBe('0');
+    it('puts the zeros straight after the last digit, before the value’s own ending', () => {
+        expect(constructDecimalPadding('12.5%', COLUMN)).toEqual({ hiddenPadding: '', numberText: '12.5', shownPadding: '0', writtenEnding: '%' });
+        expect(constructDecimalPadding('12,5 €', { decimalSeparatorId: ',', maxDecimals: 2 })).toEqual({ hiddenPadding: '', numberText: '12,5', shownPadding: '0', writtenEnding: ' €' });
+        expect(constructDecimalPadding('(3.2)', COLUMN)).toEqual({ hiddenPadding: '', numberText: '(3.2', shownPadding: '0', writtenEnding: ')' });
+        expect(constructDecimalPadding('4.5-', { decimalSeparatorId: '.', maxDecimals: 3 })).toEqual({ hiddenPadding: '', numberText: '4.5', shownPadding: '00', writtenEnding: '-' });
+    });
+
+    it('hides the zeros of a number with an exponent, after it', () => {
+        expect(constructDecimalPadding('1.5e3', COLUMN)).toEqual({ hiddenPadding: '0', numberText: '1.5', shownPadding: '', writtenEnding: 'e3' });
     });
 
     it('makes room for the column’s ending on a number without one', () => {
-        expect(constructDecimalPadding('7', { decimalSeparatorId: '.', maxDecimals: 1 }, '%')).toBe('.0%');
-        expect(constructDecimalPadding('7', { decimalSeparatorId: '.', maxDecimals: 0 }, '%')).toBe('%');
-        expect(constructDecimalPadding('7%', { decimalSeparatorId: '.', maxDecimals: 1 }, '%')).toBe('.0');
+        expect(constructDecimalPadding('7', { decimalSeparatorId: '.', maxDecimals: 1 }, '%')).toEqual({ hiddenPadding: '%', numberText: '7', shownPadding: '.0', writtenEnding: '' });
+        expect(constructDecimalPadding('7', { decimalSeparatorId: '.', maxDecimals: 0 }, '%')).toEqual({ hiddenPadding: '%', numberText: '7', shownPadding: '', writtenEnding: '' });
+        expect(constructDecimalPadding('7%', { decimalSeparatorId: '.', maxDecimals: 1 }, '%')).toEqual({ hiddenPadding: '', numberText: '7', shownPadding: '.0', writtenEnding: '%' });
     });
 
     it('uses the column’s decimal separator', () => {
-        expect(constructDecimalPadding('1.234,5', { decimalSeparatorId: ',', maxDecimals: 2 })).toBe('0');
+        expect(constructDecimalPadding('1.234,5', { decimalSeparatorId: ',', maxDecimals: 2 }).shownPadding).toBe('0');
     });
 
     it('adds nothing to a column with no decimals, or none known', () => {
-        expect(constructDecimalPadding('50', { decimalSeparatorId: undefined, maxDecimals: 0 })).toBe('');
-        expect(constructDecimalPadding('50', { decimalSeparatorId: undefined, maxDecimals: undefined })).toBe('');
+        expect(constructDecimalPadding('50', { decimalSeparatorId: undefined, maxDecimals: 0 }).shownPadding).toBe('');
+        expect(constructDecimalPadding('50', { decimalSeparatorId: undefined, maxDecimals: undefined }).shownPadding).toBe('');
     });
 });

@@ -157,10 +157,13 @@ export function resolveDataViewIdParameter(dataViewIdParameter: unknown): string
 // Reads the item the way the data view reads it, from its start, so a whole item can take minutes. 'onProgress' receives
 // the records and bytes audited so far. Nothing is stored: the result describes each column, ready for loading the records
 // later. Undefined 'byteLimit' reads the whole item.
+// A header that was detected as absent, rather than chosen, is checked again by the audit, which reads more records than
+// the preview and can find one it missed.
 export async function auditDataViewContent(
     dataViewConfig: DataViewConfig,
     byteLimit: number | undefined,
-    onProgress: (recordCount: number, byteCount: number) => void
+    onProgress: (recordCount: number, byteCount: number) => void,
+    headersAreChosen = true
 ): Promise<ContentAuditConfig> {
     const connectionLocalisedConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
     const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
@@ -170,7 +173,7 @@ export async function auditDataViewContent(
         chunkSize: undefined,
         dataFormatId: readConfig.dataFormatId,
         encodingId: assertDefined(readConfig.encodingId, 'No encoding in the read configuration.'),
-        hasHeaders: readConfig.hasHeaders === true,
+        hasHeaders: headersAreChosen || readConfig.hasHeaders === true ? readConfig.hasHeaders === true : undefined,
         parserId: readConfig.parserId, // The tool that read the item first, so the audit reads it the same way.
         path: constructItemPath(connectionNodeConfig),
         valueDelimiterId: assertDefined(readConfig.valueDelimiterId, 'No value delimiter in the read configuration.')
@@ -261,7 +264,8 @@ function restoreOlderReading(
         'asAt' in olderContentAuditConfig
             ? { byteCount: itemSize ?? 0, ...(olderContentAuditConfig as OlderContentAuditConfig), isComplete: true }
             : { ...constructPreviewContentAuditConfig({ hasHeaders: readConfig.hasHeaders, parsedRecords, size }, asAt, size != null && size === itemSize), duration };
-    const auditColumns = columns != null && columns.length > 0 ? constructAuditColumnSetConfig({ ...contentAuditConfig, columns }, undefined) : undefined;
+    const auditColumns =
+        columns != null && columns.length > 0 ? constructAuditColumnSetConfig({ ...contentAuditConfig, columns, hasHeaders: readConfig.hasHeaders === true }, undefined) : undefined;
     const previewColumnSetConfig = columnConfigs == null ? undefined : { asAt, columnConfigs };
     return { columnSetConfig: storedDataViewConfig.columnSetConfig ?? auditColumns ?? previewColumnSetConfig, contentAuditConfig, previewConfig, readConfig };
 }

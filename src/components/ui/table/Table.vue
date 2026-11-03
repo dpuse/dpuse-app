@@ -66,6 +66,7 @@ const {
 
 defineSlots<{
     'cell-icon'?(properties: { columnId: string; row: T | undefined; rowIndex: number }): unknown; // Rendered before a cell's value. Its row is given too, for a cell that shows more of the row than its own value.
+    'cell-value'?(properties: { columnId: string; rowIndex: number; value: unknown }): unknown; // Rendered in place of a cell's plain value. A cell where it renders nothing shows the plain value.
     'header-detail'?(properties: { columnId: string }): unknown; // Rendered below each column's label, in a taller header.
     'header-label-end'?(properties: { columnId: string }): unknown; // Rendered at the end of each column's label.
     'pinned-cell'?(properties: { columnId: string; rowIndex: number; value: unknown }): unknown; // Rendered in place of a left pinned cell's value, e.g. a button.
@@ -382,6 +383,9 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                                 :row-index="vRow.index"
                                                 :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
                                         /></template>
+                                        <template v-else-if="$slots['cell-value']" #value
+                                            ><slot name="cell-value" :column-id="leftLeafHeader.column.id" :row-index="vRow.index" :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
+                                        /></template>
                                         <template v-if="$slots['cell-icon']" #icon
                                             ><slot name="cell-icon" :column-id="leftLeafHeader.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
                                         /></template>
@@ -399,6 +403,9 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                             :title="constructCellTitle?.(centerLeafHeader.column.id, vRow.index)"
                                             :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
                                         >
+                                            <template v-if="$slots['cell-value']" #value
+                                                ><slot name="cell-value" :column-id="centerLeafHeader.column.id" :row-index="vRow.index" :value="visibleRowData[i]?.[centerLeafHeader.column.id]"
+                                            /></template>
                                             <template v-if="$slots['cell-icon']" #icon
                                                 ><slot name="cell-icon" :column-id="centerLeafHeader.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
                                             /></template>
@@ -416,6 +423,13 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                             :title="constructCellTitle?.(centerLeafHeaders[virtualColumn.index]!.column.id, vRow.index)"
                                             :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
                                         >
+                                            <template v-if="$slots['cell-value']" #value
+                                                ><slot
+                                                    name="cell-value"
+                                                    :column-id="centerLeafHeaders[virtualColumn.index]!.column.id"
+                                                    :row-index="vRow.index"
+                                                    :value="visibleRowData[i]?.[centerLeafHeaders[virtualColumn.index]!.column.id]"
+                                            /></template>
                                             <template v-if="$slots['cell-icon']" #icon
                                                 ><slot name="cell-icon" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
                                             /></template>
@@ -431,6 +445,9 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                                         class="sticky shrink-0 border-l border-boundary bg-surface group-hover:bg-card"
                                         :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 1 }"
                                     >
+                                        <template v-if="$slots['cell-value']" #value
+                                            ><slot name="cell-value" :column-id="rightLeafHeader.column.id" :row-index="vRow.index" :value="visibleRowData[i]?.[rightLeafHeader.column.id]"
+                                        /></template>
                                         <template v-if="$slots['cell-icon']" #icon
                                             ><slot name="cell-icon" :column-id="rightLeafHeader.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
                                         /></template>

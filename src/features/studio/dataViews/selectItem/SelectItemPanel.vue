@@ -367,7 +367,8 @@ const { data: dataViewConfig } = useCurrentDataView(() => route.params.dataViewI
 // ── Audit
 const { abortAudit, auditedByteCount, auditedRecordCount, auditElapsedDuration, auditIsRunning, startAudit, stopAudit } = useItemAudit(
     constructEditedDataViewConfig,
-    handleItemAudited
+    handleItemAudited,
+    areHeadersChosen
 );
 
 const text = ref<string | undefined>();
@@ -1019,11 +1020,14 @@ function findRecordValue(columnId: string, rowIndex: number): string {
     return activeItemReading.value?.parsedRecords[dataRecordIndex]?.[Number(columnId)]?.value ?? '';
 }
 
-// Blank space after a number, so the decimal points line up while the value still shows exactly as it is written.
-function constructValueDecimalPadding(columnId: string, rowIndex: number): string {
+// A number split for display with its decimal padding, so the decimal points line up while the value still reads exactly
+// as it is written. None when the number needs no padding, so the cell shows its plain value.
+function constructValueDecimalPadding(columnId: string, rowIndex: number): ReturnType<typeof constructDecimalPadding> | undefined {
     const columnConfig = activeItemReading.value?.columnConfigs[Number(columnId)];
     const isPadded = columnConfig?.dataTypeId === 'numeric' && constructValueState(columnId, rowIndex) === 'valid';
-    return isPadded ? constructDecimalPadding(findRecordValue(columnId, rowIndex), columnConfig, constructColumnEnding(columnConfig.formats)) : '';
+    if (!isPadded) return undefined;
+    const valuePadding = constructDecimalPadding(findRecordValue(columnId, rowIndex), columnConfig, constructColumnEnding(columnConfig.formats));
+    return valuePadding.hiddenPadding === '' && valuePadding.shownPadding === '' ? undefined : valuePadding;
 }
 
 // A blank value can hold spaces, and a missing one can be a null word such as 'NULL', which still shows as written.
@@ -1081,12 +1085,17 @@ async function handleStartAudit(byteLimit: number | undefined): Promise<void> {
     }
 }
 
+// An audit reads more records than the preview, so it can find a header the preview missed. The first record then moves
+// out of the table's rows and names the columns.
 function handleItemAudited(contentAuditConfig: ContentAuditConfig): void {
     const itemReading = activeItemReading.value;
     if (itemReading == null) return;
+    const headersAreFound = contentAuditConfig.hasHeaders && itemReading.hasHeaders !== true;
+    const auditedItemReading = headersAreFound ? { ...itemReading, hasHeaders: true } : itemReading;
     activeContentAuditConfig.value = constructStoredContentAuditConfig(contentAuditConfig);
-    activeItemReading.value = applyAuditColumns(itemReading, contentAuditConfig.columns.length > 0 ? contentAuditConfig.columns : itemReading.columnConfigs);
-    showPreviewColumns(activeItemReading.value);
+    activeItemReading.value = applyAuditColumns(auditedItemReading, contentAuditConfig.columns.length > 0 ? contentAuditConfig.columns : itemReading.columnConfigs);
+    if (headersAreFound) showPreviewTable(activeItemReading.value);
+    else showPreviewColumns(activeItemReading.value);
     const auditedDataViewConfig = constructEditedDataViewConfig();
     if (auditedDataViewConfig) changeDataView(auditedDataViewConfig);
 }
@@ -1441,11 +1450,21 @@ function resetPreviewState(): void {
 // A preview detects headers afresh, so the user's choice for this item, or the one saved with it, is put back. Otherwise
 // reopening a saved item would change how it reads and lose its audit.
 function applyHeaderChoice(itemReading: ItemReading, connectionNodeConfig: ConnectionNodeConfig): ItemReading | Promise<ItemReading> {
+    const hasHeaders = findChosenHasHeaders(connectionNodeConfig);
+    return hasHeaders == null || itemReading.dataFormatId !== 'dtv' ? itemReading : applyHeaders(itemReading, hasHeaders);
+}
+
+// The user's choice of whether the item has a header, or the one saved with it. Undefined while it is still detected.
+function findChosenHasHeaders(connectionNodeConfig: ConnectionNodeConfig): boolean | undefined {
     const savedNodeConfig = dataViewConfig.value?.connectionNodeConfig;
     const savedHasHeaders =
         savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig) ? dataViewConfig.value?.readConfig?.hasHeaders : undefined;
-    const hasHeaders = selectedHasHeaders.value ?? savedHasHeaders;
-    return hasHeaders == null || itemReading.dataFormatId !== 'dtv' ? itemReading : applyHeaders(itemReading, hasHeaders);
+    return selectedHasHeaders.value ?? savedHasHeaders;
+}
+
+function areHeadersChosen(): boolean {
+    const connectionNodeConfig = activeConnectionObjectConfig.value;
+    return connectionNodeConfig != null && findChosenHasHeaders(connectionNodeConfig) != null;
 }
 
 function applyHeaders(itemReading: ItemReading, hasHeaders: boolean): ItemReading | Promise<ItemReading> {
@@ -1542,15 +1561,15 @@ async function readLargerPreview(): Promise<PreviewObjectResult | undefined> {
         };
         const previewObjectResult = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewObjectResult;
         if (currentRequestId !== previewRequestId.value) return;
-        const largerReading = await applyHeaders(constructItemReading(previewObjectResult), itemReading.hasHeaders === true);
+        // More records can show a header the first preview missed, unless the user chose whether there is one.
+        const detectedReading = constructItemReading(previewObjectResult);
+        const headersAreFound = itemReading.hasHeaders !== true && !areHeadersChosen() && detectedReading.hasHeaders === true;
+        const largerReading = await applyHeaders(detectedReading, itemReading.hasHeaders === true || headersAreFound);
         if (currentRequestId !== previewRequestId.value) return;
-        activeItemReading.value = {
-            ...itemReading,
-            issues: largerReading.issues ?? [],
-            parsedRecords: largerReading.parsedRecords,
-            size: largerReading.size,
-            text: largerReading.text
-        };
+        activeItemReading.value = applyPreviewHeaders(
+            { ...itemReading, issues: largerReading.issues ?? [], parsedRecords: largerReading.parsedRecords, size: largerReading.size, text: largerReading.text },
+            largerReading.hasHeaders === true
+        );
         text.value = largerReading.text;
         showPreviewTable(activeItemReading.value);
         const contentAuditConfig = constructFirstContentAuditConfig(previewObjectResult.contentAuditConfig, largerReading);
@@ -1562,7 +1581,7 @@ async function readLargerPreview(): Promise<PreviewObjectResult | undefined> {
 
 // What opening an item audited, with its records counted the way the headers are now set.
 function constructFirstContentAuditConfig(contentAuditConfig: ContentAuditConfig, itemReading: ItemReading): ContentAuditConfig {
-    return { ...contentAuditConfig, recordCount: Math.max(0, itemReading.parsedRecords.length - (itemReading.hasHeaders === true ? 1 : 0)) };
+    return { ...contentAuditConfig, hasHeaders: itemReading.hasHeaders === true, recordCount: Math.max(0, itemReading.parsedRecords.length - (itemReading.hasHeaders === true ? 1 : 0)) };
 }
 
 function constructAuditDetailGroup(contentAuditConfig: StoredContentAuditConfig): {
@@ -1634,7 +1653,9 @@ function constructPreviewColumnWidth(itemReading: ItemReading, label: string, co
     const dataOffset = itemReading.hasHeaders === true ? 1 : 0;
     const values = itemReading.parsedRecords.slice(dataOffset).map((record) => {
         const value = record[columnIndex]?.value ?? '';
-        return isNumeric && value.trim() !== '' ? `${value}${constructDecimalPadding(value, columnConfig, columnEnding)}` : value;
+        if (!isNumeric || value.trim() === '') return value;
+        const { hiddenPadding, shownPadding } = constructDecimalPadding(value, columnConfig, columnEnding);
+        return `${value}${shownPadding}${hiddenPadding}`;
     });
     const fittedWidth = constructFittedColumnWidth(label, values, {
         cellExtraPx: (columnValueCounts.value[columnIndex]?.invalidCount ?? 0) > 0 ? PREVIEW_INVALID_ICON_WIDTH_PX : 0,
@@ -2091,8 +2112,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     <!-- Value Marks ─ A shape as well as the tint, so an invalid value does not rely on colour. It goes at the far
                          end of the cell from the value, so the value never moves. Blank and missing values have nothing to
                          show, so a mark in the middle of the tint says they are empty rather than not loaded: '""' for blank
-                         and a dash for missing, so they differ by shape as well as colour. The padding is 'invisible' and
-                         '-ml-1.5' cancels the cell's gap, so it adds only its own width. -->
+                         and a dash for missing, so they differ by shape as well as colour. -->
                     <template #cell-icon="{ columnId, rowIndex }">
                         <template v-if="constructValueState(columnId, rowIndex) === 'invalid'">
                             <TriangleAlertIcon
@@ -2107,9 +2127,19 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             <span aria-hidden="true">{{ constructValueState(columnId, rowIndex) === 'blank' ? '""' : '–' }}</span>
                             <span class="sr-only">{{ t(TEXT, constructValueState(columnId, rowIndex) === 'blank' ? 'value.blank.aria' : 'value.missing.aria') }}</span>
                         </span>
-                        <span v-else-if="constructValueDecimalPadding(columnId, rowIndex)" aria-hidden="true" class="invisible order-1 -ml-1.5 flex-none text-sm">{{
-                            constructValueDecimalPadding(columnId, rowIndex)
-                        }}</span>
+                    </template>
+                    <!-- Decimal Padding ─ A number's missing separator and zeros show in a light colour straight after its last
+                         digit, before any ending such as the ')' of '(3.2)', so the decimals line up and read as implied
+                         rather than written. The room for a missing ending such as '%' stays 'invisible'. Both are hidden
+                         from screen readers, so the value reads as written. A cell that renders nothing shows its plain
+                         value. -->
+                    <template #cell-value="{ columnId, rowIndex }">
+                        <span v-if="constructValueDecimalPadding(columnId, rowIndex)" class="truncate text-sm text-emphasis dark:text-zinc-300"
+                            >{{ constructValueDecimalPadding(columnId, rowIndex)?.numberText
+                            }}<span aria-hidden="true" class="text-subtle">{{ constructValueDecimalPadding(columnId, rowIndex)?.shownPadding }}</span
+                            >{{ constructValueDecimalPadding(columnId, rowIndex)?.writtenEnding
+                            }}<span aria-hidden="true" class="invisible">{{ constructValueDecimalPadding(columnId, rowIndex)?.hiddenPadding }}</span></span
+                        >
                     </template>
                 </Table>
                 <!-- Columns ─ 'v-if', so the table measures its space when it opens rather than while hidden. With a column's

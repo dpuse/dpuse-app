@@ -50,7 +50,7 @@ export function constructStoredPreviewConfig({ issues, parsedRecords, size }: It
 }
 
 export function constructStoredContentAuditConfig(contentAuditConfig: ContentAuditConfig): StoredContentAuditConfig {
-    const { columns: _columns, ...storedContentAuditConfig } = contentAuditConfig;
+    const { columns: _columns, hasHeaders: _hasHeaders, ...storedContentAuditConfig } = contentAuditConfig; // Whether there is a header is kept in the read configuration.
     return storedContentAuditConfig;
 }
 
