@@ -91,3 +91,17 @@ HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement): voi
     this.removeAttribute('open');
     this.dispatchEvent(new Event('close'));
 };
+
+// jsdom has no popover API, which the app's menus use to open in the top layer. The menu is shown by Vue rendering it,
+// so the calls only need to exist. jsdom's own stylesheet hides every popover, because it never sees one as open, and a
+// hidden element cannot take focus. The style shows them, as a browser does once 'showPopover' is called. A plain
+// '[popover]' rule does not override jsdom's in tests, so it takes '!important'.
+HTMLElement.prototype.showPopover = function showPopover(): void {
+    // jsdom has no top layer to move the element into.
+};
+HTMLElement.prototype.hidePopover = function hidePopover(): void {
+    // As above.
+};
+const popoverStyleElement = document.createElement('style');
+popoverStyleElement.textContent = '[popover] { display: block !important; }';
+document.head.append(popoverStyleElement);

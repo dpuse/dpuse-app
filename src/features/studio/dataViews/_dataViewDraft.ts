@@ -28,7 +28,7 @@ export function changeDataView(dataViewConfig: DataViewConfig): void {
 
 // Save has written the draft: any records loaded for it become the data view's own.
 export function completeDataViewDraft(): void {
-    if (draftDataViewConfig.value != null) promoteDraftLoad(draftDataViewConfig.value.id);
+    if (draftDataViewConfig.value != null) promoteDraftLoad(draftDataViewConfig.value);
     draftDataViewConfig.value = undefined;
 }
 

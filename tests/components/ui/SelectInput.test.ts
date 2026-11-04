@@ -1,4 +1,5 @@
 // ── External Dependencies & Registrations
+import { h } from 'vue';
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
@@ -39,5 +40,23 @@ describe('SelectInput', () => {
 
         expect(classes).toEqual(expect.arrayContaining(['border-info-border', 'bg-info']));
         expect(classes).not.toContain('bg-surface');
+    });
+
+    it('draws an icon before each option label, leaving the label as its text', () => {
+        const wrapper = mount(SelectInput, {
+            props: {
+                label: 'Format',
+                modelValue: 'a',
+                options: [
+                    { id: 'a', label: 'A' },
+                    { groupLabel: 'Group', id: 'b', label: 'B' }
+                ]
+            },
+            slots: { 'option-icon': ({ option }: { option: { id: string } }) => h('img', { alt: '', 'data-option-id': option.id }) }
+        });
+        const options = wrapper.findAll('option');
+
+        expect(options.map((option) => option.find('img').attributes('data-option-id'))).toEqual(['a', 'b']);
+        expect(options.map((option) => option.text())).toEqual(['A', 'B']);
     });
 });

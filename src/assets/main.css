@@ -299,6 +299,101 @@
     }
 }
 
+/* Menus ─ One look for every list that opens from a button: the 'Menu' components and the open list of a select. A
+   chosen row has a tick and the selected tint. An on/off item has the tick only, because it is not a choice from a
+   set. Keyboard focus shows as hover, because focus moves row by row as it does in a native list. */
+@utility menu-panel {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-separator);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    color: var(--color-content);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    padding: --spacing(1);
+}
+@utility menu-item {
+    align-items: center;
+    background-color: transparent; /* Drops a select's own hover fill, which would darken the state layers. */
+    border-radius: var(--radius-md);
+    color: var(--color-content);
+    column-gap: --spacing(2);
+    cursor: pointer;
+    display: flex;
+    font-size: var(--text-sm);
+    font-style: normal; /* A select's open list would otherwise take the italics of a default value. */
+    font-weight: 400;
+    line-height: var(--text-sm--line-height);
+    padding: --spacing(1) --spacing(2);
+    text-align: left;
+    width: 100%;
+
+    &:is(:hover, :focus-visible) {
+        background-image: linear-gradient(var(--hover), var(--hover));
+        outline: none;
+    }
+    &:is([role='menuitemradio'][aria-checked='true'], :checked) {
+        background-image: linear-gradient(var(--selected), var(--selected));
+    }
+    &:is([role='menuitemradio'][aria-checked='true'], :checked):is(:hover, :focus-visible) {
+        background-image: linear-gradient(var(--selected-hover), var(--selected-hover));
+    }
+    &:is([aria-disabled='true'], :disabled) {
+        background-image: none;
+        color: var(--color-subtle);
+        cursor: not-allowed;
+    }
+}
+@utility menu-group-label {
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    line-height: var(--text-xs--line-height);
+    padding: --spacing(1) --spacing(2) --spacing(0.5);
+}
+@utility menu-separator {
+    border-color: var(--color-separator);
+    border-top-width: 1px;
+    margin: --spacing(1) 0;
+}
+
+/* Styles a select's open list as a menu. 'base-select' makes the list and its options styleable through
+   '::picker(select)'. Browsers without it, such as Firefox, show the native list. 'SelectInput' draws its own chevron,
+   so the browser's arrow is dropped either way. */
+@utility select-picker {
+    appearance: none;
+
+    @supports (appearance: base-select) {
+        appearance: base-select;
+    }
+}
+
+/* The open list's rules sit outside the utility, because the lint's CSS parser rejects rules nested in '@supports'
+   there. They stay inside '@supports', so a browser without 'base-select' does not apply them to its native list. */
+@supports (appearance: base-select) {
+    /* eslint-disable-next-line css/use-baseline -- Guarded by '@supports', so older browsers keep the native list. */
+    .select-picker::picker-icon {
+        display: none;
+    }
+    /* eslint-disable-next-line css/use-baseline -- Guarded by '@supports', so older browsers keep the native list. */
+    .select-picker::picker(select) {
+        @apply menu-panel;
+        appearance: base-select; /* eslint-disable-line css/no-invalid-properties -- The lint's property data predates 'base-select'. */
+        margin-block: --spacing(1);
+        max-block-size: min(24rem, 60dvh);
+    }
+    .select-picker optgroup {
+        @apply menu-group-label;
+        padding-inline: 0;
+    }
+    .select-picker option {
+        @apply menu-item;
+    }
+    .select-picker hr {
+        @apply menu-separator;
+    }
+}
+
 /* Hides the native scrollbar of an element that draws its own with 'ScrollThumb'. */
 @utility scrollbar-none {
     scrollbar-width: none;

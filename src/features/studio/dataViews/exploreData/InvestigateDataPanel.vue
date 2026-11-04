@@ -23,7 +23,8 @@ import {
     loadDataViewRecords,
     openDataViewStore,
     queryDataViewRecords,
-    resolveDataViewTablePath
+    resolveDataViewTablePath,
+    resolveStoreConnectorId
 } from '@/features/studio/dataViews/_dataViewStore';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 import { constructColumnSetVersion, constructDataTypeCellClass, constructLoadColumnConfigs, isEmptyUnitColumn } from '@/features/studio/dataViews/_dataViewColumns';
@@ -99,10 +100,12 @@ const invalidValueCounts = shallowRef<number[]>([]); // From this panel's last f
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const storeConnectorId = computed(() => resolveStoreConnectorId(dataViewConfig.value)); // The store the data view chose on the item step.
+
 const messageKey = computed(() => {
     return investigateState.value.typeId === 'notLoaded' && hasEarlierLoad.value ? 'load.changed.text' : MESSAGE_KEYS[investigateState.value.typeId];
 });
-const hasEarlierLoad = computed(() => dataViewConfig.value != null && hasDataViewLoad(dataViewConfig.value.id, draftIsCurrent.value));
+const hasEarlierLoad = computed(() => dataViewConfig.value != null && hasDataViewLoad(dataViewConfig.value, draftIsCurrent.value));
 const messageActionKey = computed(() => {
     if (investigateState.value.typeId !== 'notLoaded') return 'retry.label';
     return hasEarlierLoad.value ? 'load.again.label' : 'load.data.label';
@@ -132,7 +135,7 @@ const loadDurationText = computed(() => {
         minimumSignificantDigits: 1,
         roundingPriority: 'morePrecision'
     }).format(loadDuration.value / 1000);
-    return t(TEXT, 'load.duration.text', { seconds, store: findDataViewStoreLabel() });
+    return t(TEXT, 'load.duration.text', { seconds, store: findDataViewStoreLabel(storeConnectorId.value) });
 });
 
 // ── Table ─ One column for each of the data view's columns.
@@ -151,8 +154,8 @@ const hiddenColumnIds = computed(() =>
 
 // The records are read a block at a time as the table scrolls.
 const dataSource = computed<DataSource<DisplayRow>>(() => {
-    const dataViewId = dataViewConfig.value?.id;
-    const tablePath = dataViewId == null ? undefined : resolveDataViewTablePath(dataViewId, draftIsCurrent.value);
+    const tablePath = dataViewConfig.value == null ? undefined : resolveDataViewTablePath(dataViewConfig.value, draftIsCurrent.value);
+    const queriedStoreConnectorId = storeConnectorId.value;
     const dataSourceId = `${tablePath ?? ''}|${String(loadVersion.value)}`;
     return {
         id: dataSourceId,
@@ -161,7 +164,7 @@ const dataSource = computed<DataSource<DisplayRow>>(() => {
             if (tablePath == null) return { rows: [], totalCount: 0 };
             try {
                 const query = { aggregates: [], filters: [], groupColumnIndexes: [], limit: endRow - startRow, offset: startRow, sorts: [] };
-                const { records, totalCount } = await queryDataViewRecords(tablePath, query);
+                const { records, totalCount } = await queryDataViewRecords(queriedStoreConnectorId, tablePath, query);
                 const rows = records.map((storeRecord) => constructDisplayRow(storeRecord));
                 if (startRow === 0) fitColumnsToFirstPage(dataSourceId, rows);
                 return { rows, totalCount };
@@ -226,7 +229,7 @@ onBeforeUnmount(() => {
             raiseFailure(new AppError('Failed to stop loading the records.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
         });
     }
-    void closeDataViewStore().catch((error: unknown) => {
+    void closeDataViewStore(storeConnectorId.value).catch((error: unknown) => {
         raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
     });
 });
@@ -267,7 +270,7 @@ async function openAndLoad(isReloaded: boolean): Promise<void> {
     if (openedDataViewConfig == null || investigateState.value.typeId === 'loading') return;
     investigateState.value = { typeId: 'opening' };
     try {
-        const storeStateId = await openDataViewStore(draftIsCurrent.value ? openedDataViewConfig.id : undefined);
+        const storeStateId = await openDataViewStore(resolveStoreConnectorId(openedDataViewConfig), draftIsCurrent.value ? openedDataViewConfig.id : undefined);
         if (storeStateId !== 'ready') {
             investigateState.value = { typeId: storeStateId };
             return;

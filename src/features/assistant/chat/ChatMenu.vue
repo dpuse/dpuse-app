@@ -9,15 +9,13 @@
 
 // ── External Dependencies & Registrations
 import { GalleryVerticalEndIcon } from '@lucide/vue';
-import { onClickOutside } from '@vueuse/core';
-import { ref, useTemplateRef } from 'vue';
 
 import { t } from '@/state/locale';
 import { TEXT } from './ChatMenu_.json';
 
 // ── Static Components
 import IconButton from '@/components/ui/action/IconButton.vue';
-import ItemButton from '@/components/ui/action/ItemButton.vue';
+import { Menu } from '@/components/ui/menu';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -40,45 +38,32 @@ const SAMPLE_CHATS: ChatSummaryConfig[] = [
     { id: 'c5', title: 'Onboarding a first data source', timeLabel: '1 Sep' }
 ];
 
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const menuIsOpen = ref(false);
-const menuReference = useTemplateRef<HTMLElement>('menuReference');
-
-// ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
-
-onClickOutside(menuReference, () => {
-    menuIsOpen.value = false;
-});
-
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 // TODO: Open the chat this names. Nothing is switched yet — there is one session, so there is nothing to switch to.
 function handleSelectChat(): void {
-    menuIsOpen.value = false;
+    // The menu closes itself.
 }
 </script>
 
 <template>
-    <div ref="menuReference" class="relative">
+    <Menu.Root>
         <!-- Shaped like the composer's other round controls, so the bar reads as one row of actions. -->
-        <IconButton :accessible-label="t(TEXT, 'otherChats.aria')" :aria-expanded="menuIsOpen" aria-haspopup="true" shape="round" size="sm" @click="menuIsOpen = !menuIsOpen">
-            <GalleryVerticalEndIcon class="size-4!" stroke-width="2.5" />
-        </IconButton>
+        <template #trigger="{ triggerAttributes }">
+            <IconButton v-bind="triggerAttributes" :accessible-label="t(TEXT, 'otherChats.aria')" shape="round" size="sm">
+                <GalleryVerticalEndIcon class="size-4!" stroke-width="2.5" />
+            </IconButton>
+        </template>
 
         <!-- Opens upward, as the model menu does: this bar sits at the bottom of the pane, so there is no room beneath
              it. Capped and scrolled rather than left to grow, because the list has no natural length. -->
-        <div
-            v-if="menuIsOpen"
-            class="absolute bottom-full left-0 z-10 mb-1 flex max-h-80 w-72 flex-col rounded-md border border-separator bg-surface p-1 text-sm text-content shadow-md"
-            role="menu"
-        >
+        <Menu.Content class="flex w-72 flex-col [--menu-max-height:20rem]" :label="t(TEXT, 'chats.aria')" placement="top-start">
             <ScrollArea class="flex min-h-0 flex-1 flex-col" :scroll-area-padding-right="0">
-                <ItemButton v-for="chat in SAMPLE_CHATS" :key="chat.id" class="mt-0.5 flex flex-col items-start first:mt-0" role="menuitem" @click="handleSelectChat">
-                    <span class="w-full truncate">{{ chat.title }}</span>
-                    <span class="text-xs text-subtle">{{ chat.timeLabel }}</span>
-                </ItemButton>
+                <Menu.Item v-for="chat in SAMPLE_CHATS" :key="chat.id" class="mt-0.5 first:mt-0" @select="handleSelectChat">
+                    <span class="block w-full truncate">{{ chat.title }}</span>
+                    <span class="block text-xs text-subtle">{{ chat.timeLabel }}</span>
+                </Menu.Item>
             </ScrollArea>
-        </div>
-    </div>
+        </Menu.Content>
+    </Menu.Root>
 </template>

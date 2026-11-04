@@ -28,10 +28,11 @@ export type DataViewRecordQuery = Pick<QueryRecordsOptions, 'aggregates' | 'filt
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The store that investigate loads data views into. SQLite is the default, because it needs far less memory and a much
-// smaller download than DuckDB. Set it to 'dpuse-connector-duckdb-wasm' for DuckDB until the app has a setting for it.
+// The stores a data view can load into, in the order the store select lists them. A data view saved before it had a
+// choice loads into the default, SQLite, because it needs far less memory and a much smaller download than DuckDB.
 export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-sqlite-wasm';
 //export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-duckdb-wasm';
+const INVESTIGATE_STORE_CONNECTOR_IDS = ['dpuse-connector-sqlite-wasm', 'dpuse-connector-duckdb-wasm'];
 
 const DRAFT_LOAD_SUFFIX = '|draft';
 const OLDER_DRAFT_LOAD_SUFFIX = '|working'; // Left by a build that stored drafts.
@@ -55,25 +56,25 @@ const unwantedTablePaths = useLocalStorage<Partial<Record<string, string[]>>>('d
 
 // Only one tab can open the store, so a tab that cannot have it is told so rather than kept waiting. A draft lives only
 // in the page's memory, so a load for any draft but the open one was left by a reload or crash, and its table goes.
-export async function openDataViewStore(openDraftDataViewId?: string): Promise<StoreStateId> {
+export async function openDataViewStore(storeConnectorId: string, openDraftDataViewId?: string): Promise<StoreStateId> {
     const { processRequest } = await establishEngineWorker();
-    const { storeStateId } = (await processRequest('openStore', findStoreConnectionLocalisedConfig(), {})) as OpenStoreResult;
+    const { storeStateId } = (await processRequest('openStore', findStoreConnectionLocalisedConfig(storeConnectorId), {})) as OpenStoreResult;
     if (storeStateId === 'ready') {
         forgetAbandonedDraftLoads(openDraftDataViewId);
-        await dropUnwantedTables();
+        await dropUnwantedTables(storeConnectorId);
     }
     return storeStateId;
 }
 
 // Closing releases the store for other tabs, and frees the memory the store's engine holds.
-export async function closeDataViewStore(): Promise<void> {
+export async function closeDataViewStore(storeConnectorId: string): Promise<void> {
     const { processRequest } = await establishEngineWorker();
-    await processRequest('closeStore', findStoreConnectionLocalisedConfig(), {});
+    await processRequest('closeStore', findStoreConnectionLocalisedConfig(storeConnectorId), {});
 }
 
-export function isDataViewLoaded(dataViewConfig: Pick<DataViewConfig, 'columnSetConfig' | 'id'>, isDraft: boolean): boolean {
+export function isDataViewLoaded(dataViewConfig: Pick<DataViewConfig, 'columnSetConfig' | 'id' | 'storeConnectorId'>, isDraft: boolean): boolean {
     const columnSetVersion = constructColumnSetVersion(dataViewConfig.columnSetConfig);
-    return columnSetVersion != null && loadedColumnSetVersions.value[constructLoadKey(dataViewConfig.id, isDraft)] === columnSetVersion;
+    return columnSetVersion != null && loadedColumnSetVersions.value[constructDataViewLoadKey(dataViewConfig, isDraft)] === columnSetVersion;
 }
 
 // Reads the data view from its source again, the way its preview read it, and stores each value as its column's type.
@@ -84,12 +85,13 @@ export async function loadDataViewRecords(dataViewConfig: DataViewConfig, isDraf
     const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
     const readConfig = assertDefined(dataViewConfig.readConfig, 'No read configuration for this data view.');
     const sourceConnectionConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
-    const loadKey = constructLoadKey(dataViewConfig.id, isDraft);
+    const storeConnectorId = resolveStoreConnectorId(dataViewConfig);
+    const loadKey = constructLoadKey(storeConnectorId, dataViewConfig.id, isDraft);
     const options: EngineLoadObjectRecordsOptions = {
         columnConfigs: constructLoadColumnConfigs(dataViewConfig),
         hasHeaders: readConfig.hasHeaders === true,
         headerValues: readConfig.hasHeaders === true ? dataViewConfig.previewConfig?.parsedRecords[0]?.map((parsingValue) => parsingValue.value) : undefined,
-        path: establishTablePath(dataViewConfig.id, isDraft),
+        path: establishTablePath(storeConnectorId, dataViewConfig.id, isDraft),
         sourceConnectionConfig,
         sourceOptions: {
             chunkSize: undefined,
@@ -101,7 +103,7 @@ export async function loadDataViewRecords(dataViewConfig: DataViewConfig, isDraf
         }
     };
     const { processRequest } = await establishEngineWorker();
-    const loadResult = (await processRequest('loadObjectRecords', findStoreConnectionLocalisedConfig(), options, (callbackData) => {
+    const loadResult = (await processRequest('loadObjectRecords', findStoreConnectionLocalisedConfig(storeConnectorId), options, (callbackData) => {
         if (callbackData.typeId === 'progress') onProgress(Number(callbackData.properties.recordCount));
     })) as EngineLoadObjectRecordsResult;
     if (!loadResult.columnsHaveChanged) loadedColumnSetVersions.value = { ...loadedColumnSetVersions.value, [loadKey]: columnSetVersion };
@@ -116,28 +118,36 @@ export async function abortDataViewRecordLoad(dataViewConfig: DataViewConfig): P
     await processRequest('abort', sourceConnectionConfig, {});
 }
 
-export async function queryDataViewRecords(tablePath: string, query: DataViewRecordQuery): Promise<QueryRecordsResult> {
+export async function queryDataViewRecords(storeConnectorId: string, tablePath: string, query: DataViewRecordQuery): Promise<QueryRecordsResult> {
     const options: QueryRecordsOptions = { ...query, path: tablePath };
     const { processRequest } = await establishEngineWorker();
-    return (await processRequest('queryRecords', findStoreConnectionLocalisedConfig(), options)) as QueryRecordsResult;
+    return (await processRequest('queryRecords', findStoreConnectionLocalisedConfig(storeConnectorId), options)) as QueryRecordsResult;
 }
 
-export function hasDataViewLoad(dataViewId: string, isDraft: boolean): boolean {
-    return loadedColumnSetVersions.value[constructLoadKey(dataViewId, isDraft)] != null;
+export function hasDataViewLoad(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): boolean {
+    return loadedColumnSetVersions.value[constructDataViewLoadKey(dataViewConfig, isDraft)] != null;
 }
 
-export function resolveDataViewTablePath(dataViewId: string, isDraft: boolean): string {
-    return loadTablePaths.value[constructLoadKey(dataViewId, isDraft)] ?? dataViewId;
+export function resolveDataViewTablePath(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): string {
+    return loadTablePaths.value[constructDataViewLoadKey(dataViewConfig, isDraft)] ?? dataViewConfig.id;
 }
 
-// Save: the draft's load, if it has one, becomes the saved data view's load, and the saved table goes.
-export function promoteDraftLoad(dataViewId: string): void {
-    const draftKey = constructLoadKey(dataViewId, true);
+// Save: the draft's load, if it has one, becomes the saved data view's load, and the saved table goes. The draft can name
+// a different store, so loads left in the other stores go too, because the saved data view no longer reads them.
+export function promoteDraftLoad(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>): void {
+    const dataViewId = dataViewConfig.id;
+    const storeConnectorId = resolveStoreConnectorId(dataViewConfig);
+    for (const otherStoreConnectorId of INVESTIGATE_STORE_CONNECTOR_IDS) {
+        if (otherStoreConnectorId === storeConnectorId) continue;
+        forgetLoad(otherStoreConnectorId, constructLoadKey(otherStoreConnectorId, dataViewId, true));
+        forgetSavedLoad(otherStoreConnectorId, dataViewId);
+    }
+    const draftKey = constructLoadKey(storeConnectorId, dataViewId, true);
     const draftTablePath = loadTablePaths.value[draftKey];
     if (draftTablePath == null) return;
 
-    const savedKey = constructLoadKey(dataViewId, false);
-    addUnwantedTablePaths([resolveDataViewTablePath(dataViewId, false)]);
+    const savedKey = constructLoadKey(storeConnectorId, dataViewId, false);
+    addUnwantedTablePaths(storeConnectorId, [resolveSavedTablePath(storeConnectorId, dataViewId)]);
     const draftVersion = loadedColumnSetVersions.value[draftKey];
     const { [savedKey]: _savedVersion, [draftKey]: _draftVersion, ...otherVersions } = loadedColumnSetVersions.value;
     loadedColumnSetVersions.value = draftVersion == null ? otherVersions : { ...otherVersions, [savedKey]: draftVersion };
@@ -145,30 +155,51 @@ export function promoteDraftLoad(dataViewId: string): void {
     loadTablePaths.value = { ...otherTablePaths, [savedKey]: draftTablePath };
 }
 
-// Discard: the saved data view's load is untouched.
+// Discard: the saved data view's load is untouched. The draft can have loaded into any store.
 export function forgetDraftLoad(dataViewId: string): void {
-    forgetLoad(constructLoadKey(dataViewId, true));
+    for (const storeConnectorId of INVESTIGATE_STORE_CONNECTOR_IDS) forgetLoad(storeConnectorId, constructLoadKey(storeConnectorId, dataViewId, true));
 }
 
 export function forgetDataViewLoads(dataViewId: string): void {
     forgetDraftLoad(dataViewId);
-    const savedKey = constructLoadKey(dataViewId, false);
-    addUnwantedTablePaths([resolveDataViewTablePath(dataViewId, false)]);
-    forgetLoad(savedKey);
+    for (const storeConnectorId of INVESTIGATE_STORE_CONNECTOR_IDS) forgetSavedLoad(storeConnectorId, dataViewId);
 }
 
-export function findDataViewStoreLabel(): string {
-    return findStoreConnectionLocalisedConfig().label;
+export function findDataViewStoreLabel(storeConnectorId: string): string {
+    return findStoreConnectionLocalisedConfig(storeConnectorId).label;
+}
+
+// The stores this app can reach, for the store select. A store whose connector is not available is left out.
+export function listDataViewStoreConnections(): LocalisedConfig<ConnectionConfig>[] {
+    return INVESTIGATE_STORE_CONNECTOR_IDS.map((storeConnectorId) => findConnectionLocalisedConfig(storeConnectorId)).filter((connectionConfig) => connectionConfig != null);
+}
+
+export function resolveStoreConnectorId(dataViewConfig: Pick<DataViewConfig, 'storeConnectorId'> | undefined): string {
+    return dataViewConfig?.storeConnectorId ?? INVESTIGATE_STORE_CONNECTOR_ID;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function constructLoadKey(dataViewId: string, isDraft: boolean): string {
-    return `${INVESTIGATE_STORE_CONNECTOR_ID}|${String(LOAD_FORMAT_VERSION)}|${dataViewId}${isDraft ? DRAFT_LOAD_SUFFIX : ''}`;
+function constructLoadKey(storeConnectorId: string, dataViewId: string, isDraft: boolean): string {
+    return `${storeConnectorId}|${String(LOAD_FORMAT_VERSION)}|${dataViewId}${isDraft ? DRAFT_LOAD_SUFFIX : ''}`;
 }
 
-function establishTablePath(dataViewId: string, isDraft: boolean): string {
-    const loadKey = constructLoadKey(dataViewId, isDraft);
+function constructDataViewLoadKey(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): string {
+    return constructLoadKey(resolveStoreConnectorId(dataViewConfig), dataViewConfig.id, isDraft);
+}
+
+function resolveSavedTablePath(storeConnectorId: string, dataViewId: string): string {
+    return loadTablePaths.value[constructLoadKey(storeConnectorId, dataViewId, false)] ?? dataViewId;
+}
+
+function forgetSavedLoad(storeConnectorId: string, dataViewId: string): void {
+    const savedKey = constructLoadKey(storeConnectorId, dataViewId, false);
+    addUnwantedTablePaths(storeConnectorId, [resolveSavedTablePath(storeConnectorId, dataViewId)]);
+    forgetLoad(storeConnectorId, savedKey);
+}
+
+function establishTablePath(storeConnectorId: string, dataViewId: string, isDraft: boolean): string {
+    const loadKey = constructLoadKey(storeConnectorId, dataViewId, isDraft);
     const tablePath = loadTablePaths.value[loadKey];
     if (tablePath != null || !isDraft) return tablePath ?? dataViewId;
 
@@ -177,37 +208,41 @@ function establishTablePath(dataViewId: string, isDraft: boolean): string {
     return newTablePath;
 }
 
+// Every store's, because a draft can load into any of them. Each key starts with its store's id.
 function forgetAbandonedDraftLoads(openDraftDataViewId: string | undefined): void {
-    const openLoadKey = openDraftDataViewId == null ? undefined : constructLoadKey(openDraftDataViewId, true);
-    for (const loadKey of Object.keys(loadTablePaths.value)) {
-        if (loadKey !== openLoadKey && (loadKey.endsWith(DRAFT_LOAD_SUFFIX) || loadKey.endsWith(OLDER_DRAFT_LOAD_SUFFIX))) forgetLoad(loadKey);
+    for (const storeConnectorId of INVESTIGATE_STORE_CONNECTOR_IDS) {
+        const openLoadKey = openDraftDataViewId == null ? undefined : constructLoadKey(storeConnectorId, openDraftDataViewId, true);
+        for (const loadKey of Object.keys(loadTablePaths.value)) {
+            const isDraftLoadKey = loadKey.endsWith(DRAFT_LOAD_SUFFIX) || loadKey.endsWith(OLDER_DRAFT_LOAD_SUFFIX);
+            if (isDraftLoadKey && loadKey !== openLoadKey && loadKey.startsWith(`${storeConnectorId}|`)) forgetLoad(storeConnectorId, loadKey);
+        }
     }
 }
 
-function forgetLoad(loadKey: string): void {
+function forgetLoad(storeConnectorId: string, loadKey: string): void {
     const tablePath = loadTablePaths.value[loadKey];
-    if (tablePath != null) addUnwantedTablePaths([tablePath]);
+    if (tablePath != null) addUnwantedTablePaths(storeConnectorId, [tablePath]);
     const { [loadKey]: _version, ...otherVersions } = loadedColumnSetVersions.value;
     loadedColumnSetVersions.value = otherVersions;
     const { [loadKey]: _tablePath, ...otherTablePaths } = loadTablePaths.value;
     loadTablePaths.value = otherTablePaths;
 }
 
-function addUnwantedTablePaths(tablePaths: string[]): void {
-    const storeTablePaths = unwantedTablePaths.value[INVESTIGATE_STORE_CONNECTOR_ID] ?? [];
-    unwantedTablePaths.value = { ...unwantedTablePaths.value, [INVESTIGATE_STORE_CONNECTOR_ID]: [...new Set([...storeTablePaths, ...tablePaths])] };
+function addUnwantedTablePaths(storeConnectorId: string, tablePaths: string[]): void {
+    const storeTablePaths = unwantedTablePaths.value[storeConnectorId] ?? [];
+    unwantedTablePaths.value = { ...unwantedTablePaths.value, [storeConnectorId]: [...new Set([...storeTablePaths, ...tablePaths])] };
 }
 
 // A table that cannot be dropped stays on the list for the next time, because it only takes up space.
-async function dropUnwantedTables(): Promise<void> {
+async function dropUnwantedTables(storeConnectorId: string): Promise<void> {
     const { processRequest } = await establishEngineWorker();
-    const tablePaths = unwantedTablePaths.value[INVESTIGATE_STORE_CONNECTOR_ID] ?? [];
+    const tablePaths = unwantedTablePaths.value[storeConnectorId] ?? [];
     for (const tablePath of tablePaths) {
         try {
             const options: DropObjectOptions = { path: tablePath };
-            await processRequest('dropObject', findStoreConnectionLocalisedConfig(), options);
-            const storeTablePaths = unwantedTablePaths.value[INVESTIGATE_STORE_CONNECTOR_ID] ?? [];
-            unwantedTablePaths.value = { ...unwantedTablePaths.value, [INVESTIGATE_STORE_CONNECTOR_ID]: storeTablePaths.filter((candidate) => candidate !== tablePath) };
+            await processRequest('dropObject', findStoreConnectionLocalisedConfig(storeConnectorId), options);
+            const storeTablePaths = unwantedTablePaths.value[storeConnectorId] ?? [];
+            unwantedTablePaths.value = { ...unwantedTablePaths.value, [storeConnectorId]: storeTablePaths.filter((candidate) => candidate !== tablePath) };
         } catch (error) {
             console.warn(`Failed to drop store table '${tablePath}'.`, error);
         }
@@ -215,6 +250,6 @@ async function dropUnwantedTables(): Promise<void> {
 }
 
 // The store connector needs no sign-in, so its connection is known by the connector's own id.
-function findStoreConnectionLocalisedConfig(): LocalisedConfig<ConnectionConfig> {
-    return assertDefined(findConnectionLocalisedConfig(INVESTIGATE_STORE_CONNECTOR_ID), `The store '${INVESTIGATE_STORE_CONNECTOR_ID}' is not available.`);
+function findStoreConnectionLocalisedConfig(storeConnectorId: string): LocalisedConfig<ConnectionConfig> {
+    return assertDefined(findConnectionLocalisedConfig(storeConnectorId), `The store '${storeConnectorId}' is not available.`);
 }

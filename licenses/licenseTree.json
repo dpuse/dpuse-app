@@ -1,5 +1,5 @@
 {
-  "version": "1.0.251",
+  "version": "1.0.252",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -171,7 +171,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261103.1"
+              "version": "5.20261104.1"
             },
             "blake3-wasm": {
               "version": "2.1.5"
@@ -208,8 +208,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261103.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261103.1.tgz",
+      "version": "5.20261104.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261104.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -218,7 +218,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.179"
+          "version": "1.0.182"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1366,8 +1366,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.179",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.179.tgz",
+      "version": "1.0.182",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.182.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1453,7 +1453,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.179"
+          "version": "1.0.182"
         },
         "@tanstack/charts": {
           "version": "1.1.0",
@@ -3243,8 +3243,8 @@
           }
         },
         "eslint-plugin-jsdoc": {
-          "version": "65.4.2",
-          "resolved": "https://registry.npmjs.org/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-65.4.2.tgz",
+          "version": "65.4.3",
+          "resolved": "https://registry.npmjs.org/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-65.4.3.tgz",
           "overridden": false,
           "dependencies": {
             "@es-joy/escodegen": {
@@ -4313,16 +4313,16 @@
       "overridden": false
     },
     "@formkit/drag-and-drop": {
-      "version": "0.6.2",
-      "resolved": "https://registry.npmjs.org/@formkit/drag-and-drop/-/drag-and-drop-0.6.2.tgz",
+      "version": "0.6.3",
+      "resolved": "https://registry.npmjs.org/@formkit/drag-and-drop/-/drag-and-drop-0.6.3.tgz",
       "overridden": false,
       "dependencies": {
         "@marko/runtime-tags": {}
       }
     },
     "@lucide/vue": {
-      "version": "1.67.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.67.0.tgz",
+      "version": "1.68.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.68.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -6900,7 +6900,7 @@
         "@automerge/automerge-repo": {},
         "@capacitor-community/sqlite": {},
         "@cloudflare/workers-types": {
-          "version": "5.20261103.1"
+          "version": "5.20261104.1"
         },
         "@electric-sql/pglite": {},
         "@libsql/client": {},
@@ -7801,7 +7801,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261103.1"
+          "version": "5.20261104.1"
         },
         "@cspotcode/source-map-support": {
           "version": "0.8.1",

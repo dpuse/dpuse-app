@@ -65,7 +65,7 @@ describe('data view draft', () => {
         completeDataViewDraft();
 
         expect(dataViewHasChanges.value).toBe(false);
-        expect(promoteDraftLoad).toHaveBeenCalledWith('a');
+        expect(promoteDraftLoad).toHaveBeenCalledWith(expect.objectContaining({ id: 'a' }));
         expect(forgetDraftLoad).not.toHaveBeenCalled();
     });
 });

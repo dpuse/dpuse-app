@@ -49,6 +49,7 @@ const {
 
 defineSlots<{
     icon?(): unknown; // Rendered before the value, inside its hover fill and focus ring. Compact only.
+    'option-icon'?(properties: { option: SelectOption }): unknown; // Rendered before each option's label in the open list. Only browsers with 'base-select' show it, so the label must say everything.
 }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -80,24 +81,19 @@ const toneClass = computed(() => (tone ? TONE_CLASSES[tone] : undefined));
         <!-- Label -->
         <label :for="selectId" :class="labelHidden ? 'sr-only' : 'mb-1 block text-xs font-medium text-muted'">{{ label }}</label>
 
-        <!-- Select ─ The browser's own control, for its keyboard, screen reader and touch support. 'appearance-none' drops
-             its arrow, which cannot be styled, for a chevron drawn over it.
+        <!-- Select ─ The browser's own control, for its keyboard, screen reader and touch support. 'select-picker' drops
+             its arrow for a chevron drawn over it, and styles the open list where the browser allows.
              Compact ─ iOS Safari zooms into a form field whose text is under 16px, so 'main.css' sets every field to 16px
              there. A compact select shows its value in a span at the toolbar's small size instead, and lies over it
              unseen at full size, so a tap still opens the select and nothing zooms. The span also sizes it to its value.
              It takes the select's hover, focus ring and disabled look through 'peer-*'. The disabled look waits 200ms, so
-             a read that finishes quickly does not blink the whole toolbar.
-             TODO: Review 'appearance: base-select' later. The open list is drawn by the browser, and on macOS Chrome and
-             Safari it ignores CSS, so group labels and options cannot be styled (verified on Chrome 155). 'base-select'
-             makes the list and its options styleable through '::picker(select)'. It needs Chrome and Edge 135, and
-             Safari 27 is reported. Firefox does not have it. Older browsers show the native list, so it would only
-             enhance, not raise the browser floor. -->
+             a read that finishes quickly does not blink the whole toolbar. -->
         <div class="relative">
             <select
                 :id="selectId"
                 v-model="selectedOptionId"
                 :aria-describedby="description ? descriptionId : undefined"
-                class="cursor-pointer appearance-none disabled:cursor-not-allowed"
+                class="cursor-pointer select-picker disabled:cursor-not-allowed"
                 :class="
                     isCompact
                         ? 'peer absolute inset-0 size-full opacity-0'
@@ -111,10 +107,12 @@ const toneClass = computed(() => (tone ? TONE_CLASSES[tone] : undefined));
             >
                 <template v-for="optionGroup in optionGroups" :key="optionGroup.id">
                     <optgroup v-if="optionGroup.label" :label="optionGroup.label">
-                        <option v-for="option in optionGroup.options" :key="option.id" :disabled="option.isDisabled" :value="option.id">{{ option.label }}</option>
+                        <option v-for="option in optionGroup.options" :key="option.id" :disabled="option.isDisabled" :value="option.id">
+                            <slot name="option-icon" :option="option" />{{ option.label }}
+                        </option>
                     </optgroup>
                     <template v-for="option in optionGroup.options" v-else :key="option.id">
-                        <option :disabled="option.isDisabled" :value="option.id">{{ option.label }}</option>
+                        <option :disabled="option.isDisabled" :value="option.id"><slot name="option-icon" :option="option" />{{ option.label }}</option>
                         <hr v-if="option.hasSeparatorAfter" />
                     </template>
                 </template>

@@ -33,6 +33,8 @@ vi.mock('@/state/configs', async (importOriginal) => ({
 
 const processRequest = vi.fn<EngineWorker['processRequest']>();
 
+const DUCKDB_STORE_CONNECTOR_ID = 'dpuse-connector-duckdb-wasm';
+
 const DATA_VIEW = {
     connectionId: 'source1',
     connectionNodeConfig: { folderPath: '/data', id: 'sales.csv', label: 'sales.csv', name: 'sales.csv', typeId: 'object' },
@@ -57,14 +59,14 @@ describe('_dataViewStore', () => {
     it("names the store by its connection's label", () => {
         vi.mocked(findConnectionLocalisedConfig).mockReturnValue({ label: 'SQLite' } as ReturnType<typeof findConnectionLocalisedConfig>);
 
-        expect(findDataViewStoreLabel()).toBe('SQLite');
+        expect(findDataViewStoreLabel(INVESTIGATE_STORE_CONNECTOR_ID)).toBe('SQLite');
         expect(findConnectionLocalisedConfig).toHaveBeenCalledWith(INVESTIGATE_STORE_CONNECTOR_ID);
     });
 
     it('opens the investigate store and returns its state', async () => {
         processRequest.mockResolvedValueOnce({ storeStateId: 'heldElsewhere' });
 
-        await expect(openDataViewStore()).resolves.toBe('heldElsewhere');
+        await expect(openDataViewStore(INVESTIGATE_STORE_CONNECTOR_ID)).resolves.toBe('heldElsewhere');
         expect(processRequest).toHaveBeenCalledWith('openStore', { id: INVESTIGATE_STORE_CONNECTOR_ID }, {});
     });
 
@@ -123,29 +125,29 @@ describe('_dataViewStore', () => {
 
         await loadDataViewRecords(editedDataView, true, vi.fn());
 
-        const tablePath = resolveDataViewTablePath('dataView5', true);
+        const tablePath = resolveDataViewTablePath(editedDataView, true);
         expect(tablePath).toMatch(/^dataView5-/u);
         expect(processRequest.mock.calls[0]?.[2]).toMatchObject({ path: tablePath });
         expect(isDataViewLoaded(editedDataView, true)).toBe(true);
         expect(isDataViewLoaded(editedDataView, false)).toBe(false);
-        expect(resolveDataViewTablePath('dataView5', false)).toBe('dataView5');
+        expect(resolveDataViewTablePath(editedDataView, false)).toBe('dataView5');
     });
 
     it('makes the draft’s table the saved one on Save, and drops the old table when the store next opens', async () => {
         const editedDataView = { ...DATA_VIEW, id: 'dataView6' };
         processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
         await loadDataViewRecords(editedDataView, true, vi.fn());
-        const tablePath = resolveDataViewTablePath('dataView6', true);
+        const tablePath = resolveDataViewTablePath(editedDataView, true);
 
-        promoteDraftLoad('dataView6');
+        promoteDraftLoad(editedDataView);
 
-        expect(resolveDataViewTablePath('dataView6', false)).toBe(tablePath);
+        expect(resolveDataViewTablePath(editedDataView, false)).toBe(tablePath);
         expect(isDataViewLoaded(editedDataView, false)).toBe(true);
         expect(isDataViewLoaded(editedDataView, true)).toBe(false);
 
         processRequest.mockResolvedValueOnce({ storeStateId: 'ready' });
         processRequest.mockResolvedValue(undefined);
-        await openDataViewStore();
+        await openDataViewStore(INVESTIGATE_STORE_CONNECTOR_ID);
         expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: 'dataView6' });
     });
 
@@ -153,14 +155,14 @@ describe('_dataViewStore', () => {
         const editedDataView = { ...DATA_VIEW, id: 'dataView7' };
         processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
         await loadDataViewRecords(editedDataView, true, vi.fn());
-        const tablePath = resolveDataViewTablePath('dataView7', true);
+        const tablePath = resolveDataViewTablePath(editedDataView, true);
 
         forgetDraftLoad('dataView7');
 
-        expect(resolveDataViewTablePath('dataView7', false)).toBe('dataView7');
+        expect(resolveDataViewTablePath(editedDataView, false)).toBe('dataView7');
         processRequest.mockResolvedValueOnce({ storeStateId: 'ready' });
         processRequest.mockResolvedValue(undefined);
-        await openDataViewStore();
+        await openDataViewStore(INVESTIGATE_STORE_CONNECTOR_ID);
         expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: tablePath });
         expect(processRequest).not.toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: 'dataView7' });
     });
@@ -171,12 +173,12 @@ describe('_dataViewStore', () => {
         processRequest.mockResolvedValue({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
         await loadDataViewRecords(abandonedDataView, true, vi.fn());
         await loadDataViewRecords(openDataView, true, vi.fn());
-        const abandonedTablePath = resolveDataViewTablePath('dataView10', true);
-        const openTablePath = resolveDataViewTablePath('dataView11', true);
+        const abandonedTablePath = resolveDataViewTablePath(abandonedDataView, true);
+        const openTablePath = resolveDataViewTablePath(openDataView, true);
 
         processRequest.mockResolvedValueOnce({ storeStateId: 'ready' });
         processRequest.mockResolvedValue(undefined);
-        await openDataViewStore('dataView11');
+        await openDataViewStore(INVESTIGATE_STORE_CONNECTOR_ID, 'dataView11');
 
         expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: abandonedTablePath });
         expect(processRequest).not.toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: openTablePath });
@@ -188,16 +190,35 @@ describe('_dataViewStore', () => {
 
         processRequest.mockResolvedValueOnce({ storeStateId: 'ready' });
         processRequest.mockResolvedValue(undefined);
-        await openDataViewStore();
+        await openDataViewStore(INVESTIGATE_STORE_CONNECTOR_ID);
 
         expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: 'dataView8' });
+    });
+
+    it('loads into the store the data view chose, and drops its table in the default store on Save', async () => {
+        const chosenStoreDataView = { ...DATA_VIEW, id: 'dataView12', storeConnectorId: DUCKDB_STORE_CONNECTOR_ID };
+        processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
+
+        await loadDataViewRecords(chosenStoreDataView, true, vi.fn());
+
+        expect(processRequest.mock.calls[0]?.[1]).toEqual({ id: DUCKDB_STORE_CONNECTOR_ID });
+        expect(isDataViewLoaded(chosenStoreDataView, true)).toBe(true);
+        expect(isDataViewLoaded({ ...chosenStoreDataView, storeConnectorId: undefined }, true)).toBe(false);
+
+        promoteDraftLoad(chosenStoreDataView);
+        processRequest.mockResolvedValueOnce({ storeStateId: 'ready' });
+        processRequest.mockResolvedValue(undefined);
+        await openDataViewStore(INVESTIGATE_STORE_CONNECTOR_ID);
+
+        expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: 'dataView12' });
+        expect(isDataViewLoaded(chosenStoreDataView, false)).toBe(true);
     });
 
     it('queries a page of the data view by its id', async () => {
         processRequest.mockResolvedValueOnce({ records: [], totalCount: 0 });
         const query = { aggregates: [], filters: [], groupColumnIndexes: [], limit: 50, offset: 100, sorts: [] };
 
-        await queryDataViewRecords('dataView1', query);
+        await queryDataViewRecords(INVESTIGATE_STORE_CONNECTOR_ID, 'dataView1', query);
 
         expect(processRequest).toHaveBeenCalledWith('queryRecords', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { ...query, path: 'dataView1' });
     });

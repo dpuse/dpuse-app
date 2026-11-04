@@ -26,6 +26,8 @@ import { useSelectColumnSort } from './transformData/useSelectColumnSort.ts';
 // ── Static Components
 import Pill from '@/components/ui/Pill.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
+import SelectInput from '@/components/ui/SelectInput.vue';
+import type { SelectOption } from '@/components/ui/SelectInput.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -63,6 +65,9 @@ const COLUMNS: Column[] = [
 ];
 
 const OPS = ['=', '!=', '<', '<=', '>', '>=', 'LIKE', 'IS NULL', 'IS NOT NULL'] as const;
+
+const COLUMN_OPTIONS: SelectOption[] = COLUMNS.map((col) => ({ id: col.name, label: col.name }));
+const OPERATOR_OPTIONS: SelectOption[] = OPS.map((op) => ({ id: op, label: op }));
 
 const TYPE_CHIP: Record<string, string> = {
     id: 'bg-violet-100 text-violet-800 dark:bg-violet-400/20 dark:text-violet-300 inset-ring inset-ring-violet-300/60 dark:inset-ring-violet-500/30',
@@ -359,20 +364,8 @@ function typeIcon(name: string): Component {
                 <!-- Condition builder -->
                 <div v-if="pickerOpen.where" class="rounded-lg border border-separator bg-card p-3">
                     <div class="flex flex-col gap-2">
-                        <select
-                            v-model="whereDraft.column"
-                            :aria-label="t(TEXT, 'column.aria')"
-                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
-                        >
-                            <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
-                        </select>
-                        <select
-                            v-model="whereDraft.op"
-                            :aria-label="t(TEXT, 'operator.aria')"
-                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
-                        >
-                            <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
-                        </select>
+                        <SelectInput v-model="whereDraft.column" :label="t(TEXT, 'column.aria')" label-hidden :options="COLUMN_OPTIONS" />
+                        <SelectInput v-model="whereDraft.op" :label="t(TEXT, 'operator.aria')" label-hidden :options="OPERATOR_OPTIONS" />
                         <input
                             v-if="!['IS NULL', 'IS NOT NULL'].includes(whereDraft.op)"
                             v-model="whereDraft.value"
@@ -507,20 +500,8 @@ function typeIcon(name: string): Component {
                 <!-- Condition builder -->
                 <div v-if="pickerOpen.having" class="rounded-lg border border-separator bg-card p-3">
                     <div class="flex flex-col gap-2">
-                        <select
-                            v-model="havingDraft.column"
-                            :aria-label="t(TEXT, 'column.aria')"
-                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
-                        >
-                            <option v-for="col in COLUMNS" :key="col.name" :value="col.name">{{ col.name }}</option>
-                        </select>
-                        <select
-                            v-model="havingDraft.op"
-                            :aria-label="t(TEXT, 'operator.aria')"
-                            class="h-9 w-full rounded-md border border-separator bg-white px-2 text-sm text-content dark:bg-zinc-800 dark:text-zinc-200"
-                        >
-                            <option v-for="op in OPS" :key="op" :value="op">{{ op }}</option>
-                        </select>
+                        <SelectInput v-model="havingDraft.column" :label="t(TEXT, 'column.aria')" label-hidden :options="COLUMN_OPTIONS" />
+                        <SelectInput v-model="havingDraft.op" :label="t(TEXT, 'operator.aria')" label-hidden :options="OPERATOR_OPTIONS" />
                         <input
                             v-if="!['IS NULL', 'IS NOT NULL'].includes(havingDraft.op)"
                             v-model="havingDraft.value"

@@ -40,7 +40,8 @@ vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
     loadDataViewRecords: vi.fn(),
     openDataViewStore: vi.fn(),
     queryDataViewRecords: vi.fn(),
-    resolveDataViewTablePath: (dataViewId: string): string => dataViewId
+    resolveDataViewTablePath: ({ id }: { id: string }): string => id,
+    resolveStoreConnectorId: (): string => 'dpuse-connector-sqlite-wasm'
 }));
 vi.mock('@/components/ui/table/tableColumnWidth', () => ({ HEADER_MENU_WIDTH_PX: 24, constructFittedColumnWidth: vi.fn() }));
 
@@ -130,7 +131,7 @@ describe('InvestigateDataPanel', () => {
 
         expect(loadDataViewRecords).not.toHaveBeenCalled();
         expect(table.columnDefinitions.map((column) => column.header)).toEqual(['Id', 'Day']);
-        expect(queryDataViewRecords).toHaveBeenCalledWith('dataView1', { aggregates: [], filters: [], groupColumnIndexes: [], limit: 100, offset: 0, sorts: [] });
+        expect(queryDataViewRecords).toHaveBeenCalledWith('dpuse-connector-sqlite-wasm', 'dataView1', { aggregates: [], filters: [], groupColumnIndexes: [], limit: 100, offset: 0, sorts: [] });
         const expectedDateText = new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeZone: 'UTC' }).format(Date.UTC(2026, 9, 28));
         expect(page).toEqual({ rows: [{ c0: '7', c1: expectedDateText }], totalCount: 1 });
     });
