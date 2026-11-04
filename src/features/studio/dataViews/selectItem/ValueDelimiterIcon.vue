@@ -37,9 +37,10 @@ const mark = computed(() => (valueDelimiterId == null ? undefined : VALUE_DELIMI
 </script>
 
 <template>
-    <span aria-hidden="true" class="flex size-4 flex-none items-center justify-center text-muted" data-region="ValueDelimiterIcon">
+    <!-- 1.25 times the text beside it, as the closed select's icons are. -->
+    <span aria-hidden="true" class="flex size-[1.25em] flex-none items-center justify-center text-muted" data-region="ValueDelimiterIcon">
         <!-- Two-letter abbreviations are set smaller, so they fit the same square as a single character. -->
-        <span v-if="typeof mark === 'string'" class="font-mono leading-none font-semibold" :class="mark.length > 1 ? 'text-[0.5625rem]' : 'text-sm'">{{ mark }}</span>
-        <component :is="mark" v-else-if="mark" class="size-4" :stroke-width="1.5" />
+        <span v-if="typeof mark === 'string'" class="font-mono leading-none font-semibold" :class="mark.length > 1 ? 'text-[0.7em]' : 'text-[1.09em]'">{{ mark }}</span>
+        <component :is="mark" v-else-if="mark" class="size-full" :stroke-width="1.5" />
     </span>
 </template>

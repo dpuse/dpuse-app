@@ -32,6 +32,7 @@ const {
     disabled,
     isCompact,
     isDefault,
+    isValueHidden,
     label,
     labelHidden,
     options = [],
@@ -39,8 +40,9 @@ const {
 } = defineProps<{
     description?: string; // Read out after the value, for what the value alone does not say.
     disabled?: boolean;
-    isCompact?: boolean; // Sized and framed for a toolbar: small text, no border until hovered, as wide as its value. Keeps its small text on iOS too.
+    isCompact?: boolean; // Sized and framed for a toolbar: no border until hovered, as wide as its value. Its text is the size of the data and of the open list, so the value reads the same closed and open.
     isDefault?: boolean; // The value is a default the user has not chosen, so it shows in muted italics. The option's text must say so too.
+    isValueHidden?: boolean; // Compact only: shows just the icon and arrow, for a toolbar short of room. The value is still read out, and shows as a tooltip.
     label: string;
     labelHidden?: boolean;
     options?: SelectOption[];
@@ -84,8 +86,8 @@ const toneClass = computed(() => (tone ? TONE_CLASSES[tone] : undefined));
         <!-- Select ─ The browser's own control, for its keyboard, screen reader and touch support. 'select-picker' drops
              its arrow for a chevron drawn over it, and styles the open list where the browser allows.
              Compact ─ iOS Safari zooms into a form field whose text is under 16px, so 'main.css' sets every field to 16px
-             there. A compact select shows its value in a span at the toolbar's small size instead, and lies over it
-             unseen at full size, so a tap still opens the select and nothing zooms. The span also sizes it to its value.
+             there. A compact select shows its value in a span instead, and lies over it unseen, so a tap still opens
+             the select and nothing zooms. The span also sizes it to its value.
              It takes the select's hover, focus ring and disabled look through 'peer-*'. The disabled look waits 200ms, so
              a read that finishes quickly does not blink the whole toolbar. -->
         <div class="relative">
@@ -104,6 +106,7 @@ const toneClass = computed(() => (tone ? TONE_CLASSES[tone] : undefined));
                           ]
                 "
                 :disabled="disabled"
+                :title="isCompact && isValueHidden ? `${label}: ${selectedOptionLabel}` : undefined"
             >
                 <template v-for="optionGroup in optionGroups" :key="optionGroup.id">
                     <optgroup v-if="optionGroup.label" :label="optionGroup.label">
@@ -120,7 +123,7 @@ const toneClass = computed(() => (tone ? TONE_CLASSES[tone] : undefined));
             <span
                 v-if="isCompact"
                 aria-hidden="true"
-                class="flex h-7 max-w-full items-center gap-x-1 rounded-md border border-transparent pr-6 pl-1.5 text-xs leading-6.5 transition-[color,background-color,border-color,opacity] peer-focus-visible:outline-2 peer-focus-visible:outline-focus-ring peer-hover:peer-enabled:state-hover peer-disabled:opacity-50 peer-disabled:delay-200"
+                class="flex h-7 max-w-full items-center gap-x-1 rounded-md border border-transparent pr-6 pl-1.5 text-sm leading-6.5 transition-[color,background-color,border-color,opacity] peer-focus-visible:outline-2 peer-focus-visible:outline-focus-ring peer-hover:peer-enabled:state-hover peer-disabled:opacity-50 peer-disabled:delay-200"
             >
                 <!-- A dot rather than a tint, so a row of compact selects stays quiet. It sits outside the layout, so a
                      select keeps its width when the dot appears. -->
@@ -130,7 +133,7 @@ const toneClass = computed(() => (tone ? TONE_CLASSES[tone] : undefined));
                 </span>
                 <!-- '-mr-0.5 pr-0.5' widens what 'truncate' clips but not the layout, because italic letters lean past
                      their measured width. -->
-                <span class="-mr-0.5 truncate pr-0.5" :class="isDefault ? 'text-muted italic' : 'text-content'">{{ selectedOptionLabel }}</span>
+                <span v-if="!isValueHidden" class="-mr-0.5 truncate pr-0.5" :class="isDefault ? 'text-muted italic' : 'text-content'">{{ selectedOptionLabel }}</span>
             </span>
             <ChevronDownIcon
                 aria-hidden="true"

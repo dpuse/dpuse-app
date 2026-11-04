@@ -185,6 +185,13 @@ interface FormatSupport {
 
 type FormatSupportId = 'supported' | 'planned' | 'unsupported';
 
+interface PreviewToolbarStage {
+    auditStatusIsShort: boolean;
+    previewTabsAreFolded: boolean;
+    readChoicesAreFolded: boolean;
+    readChoiceValuesAreHidden: boolean;
+}
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // ── Preview Tabs ─ Ways to show the item. Only delimited text has a table of records and of columns to show.
@@ -284,12 +291,17 @@ const MINIMUM_PREVIEW_COLUMN_WIDTH_PX = 72; // Keeps the header's type icon and 
 const PREVIEW_COLUMN_MARKS_WIDTH_PX = 60; // The type icon before a name, 22px, the mandatory and key marks after it, 34px, and 4px so a measured name is never a pixel short.
 const PREVIEW_INVALID_ICON_WIDTH_PX = 20; // The icon beside an invalid value: 14px and the cell's 'gap-x-1.5'.
 
-// ── Toolbar Widths ─ The toolbar is one row, so as its pane narrows it gives up room in steps. Each select's value
-// truncates and then disappears, leaving its icon. Below these widths the audit status shortens, the read choices fold
-// into one button, and the tabs fold into a menu.
-const AUDIT_STATUS_SHORT_WIDTH_PX = 960;
-const READ_CHOICES_FOLD_WIDTH_PX = 640;
-const PREVIEW_TABS_FOLD_WIDTH_PX = 448;
+// ── Toolbar Stages ─ The toolbar is one row, so as it runs short of room it gives some up, a step at a time. First
+// the selects' values truncate, down to a few letters. Then the values go, leaving the icons, the audit status
+// shortens, the tabs fold into a menu, and last the read choices fold into one button. The first stage that fits is
+// shown, measured rather than set by width, because what fits depends on the values and the language.
+const PREVIEW_TOOLBAR_STAGES: PreviewToolbarStage[] = [
+    { auditStatusIsShort: false, previewTabsAreFolded: false, readChoicesAreFolded: false, readChoiceValuesAreHidden: false },
+    { auditStatusIsShort: false, previewTabsAreFolded: false, readChoicesAreFolded: false, readChoiceValuesAreHidden: true },
+    { auditStatusIsShort: true, previewTabsAreFolded: false, readChoicesAreFolded: false, readChoiceValuesAreHidden: true },
+    { auditStatusIsShort: true, previewTabsAreFolded: true, readChoicesAreFolded: false, readChoiceValuesAreHidden: true },
+    { auditStatusIsShort: true, previewTabsAreFolded: true, readChoicesAreFolded: true, readChoiceValuesAreHidden: false } // The folded choices have room to show their values.
+];
 const READ_CHOICES_GAP_PX = 4; // Between the toolbar and the folded read choices below it.
 const VIEWPORT_MARGIN_PX = 8; // Keeps the folded read choices clear of the window's edges.
 
@@ -374,6 +386,8 @@ const previewToolbarElement = useTemplateRef<HTMLDivElement>('previewToolbar');
 const readChoicesPopoverElement = useTemplateRef<HTMLDivElement>('readChoicesPopover');
 const readChoicesPopoverPosition = ref<CSSProperties>({});
 const { width: previewToolbarWidth } = useElementSize(previewToolbarElement);
+const previewToolbarStageIndex = ref(0);
+const previewToolbarFitId = ref(0); // Counts fits, so a fit that a newer one overtook stops.
 
 const previewIsPending = ref(false); // The preview table is empty until the engine answers, which reads as an empty item unless the wait is shown.
 const hasLastPreviewSucceeded = ref(false); // Whether the last preview to finish loaded, so the Audit button stays in place while the next item loads.
@@ -617,10 +631,13 @@ const storeConnectorId = computed({
     }
 });
 
-// ── Toolbar ─ Nothing folds before the toolbar is first measured, while its width is still 0.
-const auditStatusIsShort = computed(() => previewToolbarWidth.value > 0 && previewToolbarWidth.value < AUDIT_STATUS_SHORT_WIDTH_PX);
-const readChoicesAreFolded = computed(() => previewToolbarWidth.value > 0 && previewToolbarWidth.value < READ_CHOICES_FOLD_WIDTH_PX);
-const previewTabsAreFolded = computed(() => previewToolbarWidth.value > 0 && previewToolbarWidth.value < PREVIEW_TABS_FOLD_WIDTH_PX);
+// ── Toolbar
+const previewToolbarStage = computed(() => assertDefined(PREVIEW_TOOLBAR_STAGES[previewToolbarStageIndex.value], 'Expected a toolbar stage.'));
+const auditStatusIsShort = computed(() => previewToolbarStage.value.auditStatusIsShort);
+const readChoicesAreFolded = computed(() => previewToolbarStage.value.readChoicesAreFolded);
+const readChoiceValuesAreHidden = computed(() => previewToolbarStage.value.readChoiceValuesAreHidden);
+const previewTabsAreFolded = computed(() => previewToolbarStage.value.previewTabsAreFolded);
+const readChoiceSelectClass = computed(() => (readChoicesAreFolded.value || readChoiceValuesAreHidden.value ? 'flex-none' : 'min-w-22')); // Only a value in the row truncates.
 const readChoicesPopoverId = `${elementIdPrefix}-read-choices`;
 
 // How much of the item has been audited, in one form at every stage, with the running figures while an audit runs. A
@@ -649,7 +666,9 @@ const auditStatus = computed(() => {
         isComplete,
         percentage,
         shortText: isComplete ? records : t(TEXT, 'audit.short.text', { percentage: percentageText, records }),
-        text: isComplete ? t(TEXT, 'audit.amount.complete.text', { amount, records }) : t(TEXT, `audit.part.${stateId}.text`, { amount, percentage: percentageText, records, total })
+        text: isComplete
+            ? t(TEXT, 'audit.amount.complete.text', { amount, records })
+            : t(TEXT, `audit.part.${stateId}.text`, { amount, percentage: percentageText, records, total })
     };
 });
 const shownAuditStatusText = computed(() => (auditStatusIsShort.value ? auditStatus.value?.shortText : auditStatus.value?.text));
@@ -919,6 +938,23 @@ watch([activeItemReading, previewIsSelectable], ([itemReading]) => {
     changeDataView(constructEditedDataViewConfig() ?? constructItemlessDataViewConfig());
 });
 
+// Fits the toolbar again whenever its room or its content changes. 'post', so the toolbar shows the new content first.
+// Watches nothing a stage sets, such as the audit text it shows, or fitting would set off another fit without end.
+watch(
+    [
+        previewToolbarWidth,
+        previewFormatText,
+        parserIsChoosable,
+        storeIsChoosable,
+        previewHeadersAreChoosable,
+        (): string | undefined => auditStatus.value?.text,
+        auditIsRunning,
+        localeId
+    ],
+    fitPreviewToolbar,
+    { flush: 'post' }
+);
+
 // Widening the toolbar puts the read choices back in its row, which would leave their popover open and empty.
 watch(readChoicesAreFolded, (areFolded) => {
     if (!areFolded && readChoicesPopoverElement.value?.matches(':popover-open') === true) readChoicesPopoverElement.value.hidePopover();
@@ -1170,6 +1206,20 @@ function handleItemAudited(contentAuditConfig: ContentAuditConfig): void {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Shows the first stage whose content fits the toolbar's width, trying each in turn from the fullest. Each stage is laid
+// out and measured before the browser paints, so the stages tried and passed over never show. The last stage stays
+// even if it still does not fit, because there is nothing more to give up.
+async function fitPreviewToolbar(): Promise<void> {
+    const toolbarElement = previewToolbarElement.value;
+    if (toolbarElement == null || previewToolbarWidth.value === 0) return;
+    const fitId = ++previewToolbarFitId.value;
+    for (const stageIndex of PREVIEW_TOOLBAR_STAGES.keys()) {
+        previewToolbarStageIndex.value = stageIndex;
+        await nextTick();
+        if (fitId !== previewToolbarFitId.value || toolbarElement.scrollWidth <= toolbarElement.clientWidth) return;
+    }
+}
 
 // The data view as the current pick and preview would leave it. Undefined until there is something that can be kept.
 function constructEditedDataViewConfig(): DataViewConfig | undefined {
@@ -1906,10 +1956,10 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         :style="{ width: `${auditStatus.percentage}%` }"
                     />
                 </div>
-                <!-- Read Choices ─ How the item is read and where it loads. Each select stops at 'min-w-12.75', the width of
-                     its icon and arrow, so its value truncates and then disappears, and the arrow never covers the icon.
-                     In a narrow toolbar they fold into a popover below one button. 'Teleport' moves the same selects
-                     there, so they keep their state. -->
+                <!-- Read Choices ─ How the item is read and where it loads. A value truncates as the row narrows, but
+                     only to 'min-w-22', a few letters, because less says nothing. Past that the toolbar's next stage
+                     hides the values, and in the last the selects fold into a popover below one button. 'Teleport'
+                     moves the same selects there, so they keep their state. -->
                 <ActionWrapper
                     v-if="previewFormatText && readChoicesAreFolded"
                     :aria-label="t(TEXT, 'readChoices.aria', { label: item.label })"
@@ -1921,7 +1971,9 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     <ChevronDownIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
                 </ActionWrapper>
                 <Teleport v-if="previewFormatText" defer :disabled="!readChoicesAreFolded" :to="`#${readChoicesPopoverId}`">
-                    <div class="flex min-w-0" :class="readChoicesAreFolded ? 'flex-col items-start gap-y-1' : 'items-center gap-x-1'">
+                    <!-- In the row the wrapper takes no box of its own ('contents'), so each select is one of the toolbar's
+                         own items, and the toolbar overflows, and moves to its next stage, once they can shrink no more. -->
+                    <div :class="readChoicesAreFolded ? 'flex flex-col items-start gap-y-1' : 'contents'">
                         <!-- Format, Encoding, Parser and Value Delimiter ─ Choosing any of them reads the item again
                              that way. A binary file has no encoding to choose, the parser is offered only when more
                              than one reads the format, and only delimited text has a value delimiter. -->
@@ -1931,10 +1983,12 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             v-if="previewFormatText"
                             v-model="previewDataFormatId"
                             :is-default="selectedDataFormatId == null"
-                            class="-ml-1.75 min-w-12.75"
+                            class="-ml-1.75"
+                            :class="readChoiceSelectClass"
                             :description="previewFormatSupport ? t(TEXT, previewFormatSupport.ariaKey) : undefined"
                             :disabled="readChoicesAreLocked"
                             is-compact
+                            :is-value-hidden="readChoiceValuesAreHidden"
                             :label="t(TEXT, 'format.label')"
                             label-hidden
                             :options="dataFormatOptions"
@@ -1959,12 +2013,12 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                     :stroke-width="2.5"
                                 />
                             </template>
-                            <!-- Each format's icon in the open list. The box keeps its size when there is no icon, so every
-                                 label lines up. -->
+                            <!-- Each format's icon in the open list, 1.25 times its text as the closed select's is. The box keeps
+                                 its size when there is no icon, so every label lines up. -->
                             <template #option-icon="{ option }">
-                                <span class="flex size-4 flex-none">
+                                <span class="flex size-[1.25em] flex-none">
                                     <ConfigIcon
-                                        class="size-4"
+                                        class="size-full"
                                         :class="{ 'opacity-60 grayscale': constructDataFormatOptionIcon(option.id).isPlanned }"
                                         :icon="constructDataFormatOptionIcon(option.id).iconConfig?.icon"
                                         :icon-dark="constructDataFormatOptionIcon(option.id).iconConfig?.iconDark"
@@ -1976,9 +2030,10 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             v-if="activeItemReading?.encodingId != null"
                             v-model="previewEncodingId"
                             :is-default="selectedEncodingId == null"
-                            class="min-w-12.75"
+                            :class="readChoiceSelectClass"
                             :disabled="readChoicesAreLocked"
                             is-compact
+                            :is-value-hidden="readChoiceValuesAreHidden"
                             :label="t(TEXT, 'encoding.label')"
                             label-hidden
                             :options="encodingOptions"
@@ -1989,9 +2044,10 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         <SelectInput
                             v-if="parserIsChoosable"
                             v-model="previewParserId"
-                            class="min-w-12.75"
+                            :class="readChoiceSelectClass"
                             :disabled="readChoicesAreLocked"
                             is-compact
+                            :is-value-hidden="readChoiceValuesAreHidden"
                             :label="t(TEXT, 'parser.label')"
                             label-hidden
                             :options="parserOptions"
@@ -2008,8 +2064,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 <ScanTextIcon v-else aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
                             </template>
                             <template #option-icon="{ option }">
-                                <span class="flex size-4 flex-none">
-                                    <ConfigIcon class="size-4" :icon="findParserToolConfig(option.id)?.icon" :icon-dark="findParserToolConfig(option.id)?.iconDark" />
+                                <span class="flex size-[1.25em] flex-none">
+                                    <ConfigIcon class="size-full" :icon="findParserToolConfig(option.id)?.icon" :icon-dark="findParserToolConfig(option.id)?.iconDark" />
                                 </span>
                             </template>
                         </SelectInput>
@@ -2017,9 +2073,10 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             v-if="valueDelimiterIsChoosable"
                             v-model="previewValueDelimiterId"
                             :is-default="selectedValueDelimiterId == null"
-                            class="min-w-12.75"
+                            :class="readChoiceSelectClass"
                             :disabled="readChoicesAreLocked"
                             is-compact
+                            :is-value-hidden="readChoiceValuesAreHidden"
                             :label="t(TEXT, 'valueDelimiter.label')"
                             label-hidden
                             :options="valueDelimiterOptions"
@@ -2034,9 +2091,10 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         <SelectInput
                             v-if="previewHeadersAreChoosable"
                             v-model="previewHeadersId"
-                            class="min-w-12.75"
+                            :class="readChoiceSelectClass"
                             :disabled="readChoicesAreLocked"
                             is-compact
+                            :is-value-hidden="readChoiceValuesAreHidden"
                             :is-default="selectedHasHeaders == null"
                             :label="t(TEXT, 'hasHeaders.label')"
                             label-hidden
@@ -2051,9 +2109,10 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         <SelectInput
                             v-if="storeIsChoosable"
                             v-model="storeConnectorId"
-                            class="min-w-12.75"
+                            :class="readChoiceSelectClass"
                             :disabled="readChoicesAreLocked"
                             is-compact
+                            :is-value-hidden="readChoiceValuesAreHidden"
                             :is-default="dataViewConfig?.storeConnectorId == null"
                             :label="t(TEXT, 'store.label')"
                             label-hidden
@@ -2071,8 +2130,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 <DatabaseIcon v-else aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
                             </template>
                             <template #option-icon="{ option }">
-                                <span class="flex size-4 flex-none">
-                                    <ConfigIcon class="size-4" :icon="findStoreConnection(option.id)?.icon" :icon-dark="findStoreConnection(option.id)?.iconDark" />
+                                <span class="flex size-[1.25em] flex-none">
+                                    <ConfigIcon class="size-full" :icon="findStoreConnection(option.id)?.icon" :icon-dark="findStoreConnection(option.id)?.iconDark" />
                                 </span>
                             </template>
                         </SelectInput>
@@ -2098,21 +2157,21 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <template v-if="auditStatus">
                     <ActionWrapper
                         v-if="!auditIsRunning && auditActionIsShown && auditStatus.isComplete"
-                        class="flex h-7 min-w-0 items-center gap-x-1 rounded-md px-1.5 text-accent hover:state-hover active:state-press disabled:text-muted"
+                        class="flex h-7 flex-none items-center gap-x-1 rounded-md px-1.5 text-accent hover:state-hover active:state-press disabled:text-muted"
                         :disabled="readChoicesAreLocked"
                         :title="t(TEXT, 'audit.again.label')"
                         @click="handleStartAudit(undefined)"
                     >
                         <RotateCwIcon aria-hidden="true" class="size-[1.25em] flex-none" :stroke-width="1.5" />
                         <span class="sr-only">{{ t(TEXT, 'audit.again.label') }}</span>
-                        <span aria-hidden="true" class="truncate">{{ shownAuditStatusText }}</span>
+                        <span aria-hidden="true" class="whitespace-nowrap">{{ shownAuditStatusText }}</span>
                         <span class="sr-only">{{ auditStatus.text }}</span>
                     </ActionWrapper>
                     <AuditMenu v-else-if="!auditIsRunning && auditActionIsShown" :audit-choices="auditChoices" :disabled="readChoicesAreLocked" @select="handleStartAudit">
-                        <span aria-hidden="true" class="truncate">{{ shownAuditStatusText }}</span>
+                        <span aria-hidden="true" class="whitespace-nowrap">{{ shownAuditStatusText }}</span>
                         <span class="sr-only">{{ auditStatus.text }}</span>
                     </AuditMenu>
-                    <p v-else class="min-w-0 truncate">
+                    <p v-else class="flex-none whitespace-nowrap">
                         <span aria-hidden="true">{{ shownAuditStatusText }}</span>
                         <span class="sr-only">{{ auditStatus.text }}</span>
                     </p>

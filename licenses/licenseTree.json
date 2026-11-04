@@ -1,5 +1,5 @@
 {
-  "version": "1.0.252",
+  "version": "1.0.253",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -218,7 +218,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.182"
+          "version": "1.0.183"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1366,8 +1366,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.182",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.182.tgz",
+      "version": "1.0.183",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.183.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1453,7 +1453,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.182"
+          "version": "1.0.183"
         },
         "@tanstack/charts": {
           "version": "1.1.0",
@@ -4483,13 +4483,13 @@
       }
     },
     "@tanstack/ai-client": {
-      "version": "1.0.1",
-      "resolved": "https://registry.npmjs.org/@tanstack/ai-client/-/ai-client-1.0.1.tgz",
+      "version": "1.1.0",
+      "resolved": "https://registry.npmjs.org/@tanstack/ai-client/-/ai-client-1.1.0.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/ai-event-client": {
-          "version": "1.0.0",
-          "resolved": "https://registry.npmjs.org/@tanstack/ai-event-client/-/ai-event-client-1.0.0.tgz",
+          "version": "1.0.1",
+          "resolved": "https://registry.npmjs.org/@tanstack/ai-event-client/-/ai-event-client-1.0.1.tgz",
           "overridden": false,
           "dependencies": {
             "@tanstack/devtools-event-client": {
@@ -4500,12 +4500,12 @@
           }
         },
         "@tanstack/ai-utils": {
-          "version": "1.0.0",
-          "resolved": "https://registry.npmjs.org/@tanstack/ai-utils/-/ai-utils-1.0.0.tgz",
+          "version": "1.0.1",
+          "resolved": "https://registry.npmjs.org/@tanstack/ai-utils/-/ai-utils-1.0.1.tgz",
           "overridden": false
         },
         "@tanstack/ai": {
-          "version": "1.0.1"
+          "version": "1.1.0"
         },
         "@tanstack/store": {
           "version": "0.11.2",
@@ -4515,8 +4515,8 @@
       }
     },
     "@tanstack/ai": {
-      "version": "1.0.1",
-      "resolved": "https://registry.npmjs.org/@tanstack/ai/-/ai-1.0.1.tgz",
+      "version": "1.1.0",
+      "resolved": "https://registry.npmjs.org/@tanstack/ai/-/ai-1.1.0.tgz",
       "overridden": false,
       "dependencies": {
         "@ag-ui/core": {
@@ -4539,10 +4539,10 @@
           "overridden": false
         },
         "@tanstack/ai-event-client": {
-          "version": "1.0.0"
+          "version": "1.0.1"
         },
         "@tanstack/ai-utils": {
-          "version": "1.0.0"
+          "version": "1.0.1"
         },
         "fast-json-patch": {
           "version": "3.1.1",

@@ -375,12 +375,33 @@
     .select-picker::picker-icon {
         display: none;
     }
+    /* The open list goes below its select and shrinks to the room left, so a long list scrolls rather than running off
+       the screen. Below 10rem it stops shrinking and opens above instead, because WebKit ignores 'position-try-order'
+       and only tries another side when the list overflows. The page draws under the iPhone's status bar and home
+       indicator ('viewport-fit=cover'), so the list keeps clear of the safe areas. '100%' is the room on its side. */
     /* eslint-disable-next-line css/use-baseline -- Guarded by '@supports', so older browsers keep the native list. */
     .select-picker::picker(select) {
         @apply menu-panel;
         appearance: base-select; /* eslint-disable-line css/no-invalid-properties -- The lint's property data predates 'base-select'. */
-        margin-block: --spacing(1);
-        max-block-size: min(24rem, 60dvh);
+        margin-block: --spacing(1) calc(--spacing(1) + env(safe-area-inset-bottom));
+        max-block-size: min(24rem, max(calc(100% - --spacing(2) - env(safe-area-inset-bottom)), 10rem));
+        overflow-y: auto;
+        overscroll-behavior: none; /* A list scrolled to its end neither bounces nor scrolls the page behind it. */
+        position-area: block-end span-inline-end; /* eslint-disable-line css/use-baseline -- Guarded by '@supports', so older browsers keep the native list. */
+        /* eslint-disable-next-line css/use-baseline -- Guarded by '@supports', so older browsers keep the native list. */
+        position-try-fallbacks:
+            --select-picker-above,
+            flip-inline,
+            --select-picker-above flip-inline;
+        position-try-order: most-block-size; /* eslint-disable-line css/use-baseline -- Chromium opens on the roomier side straight away. WebKit ignores it. */
+    }
+    /* The open list above its select, kept clear of the status bar. It shrinks as far as it must, because there is no
+       side left to try. */
+    /* eslint-disable-next-line css/use-baseline -- Guarded by '@supports', so older browsers keep the native list. */
+    @position-try --select-picker-above {
+        margin-block: calc(--spacing(1) + env(safe-area-inset-top)) --spacing(1);
+        max-block-size: min(24rem, calc(100% - --spacing(2) - env(safe-area-inset-top)));
+        position-area: block-start span-inline-end; /* eslint-disable-line css/no-invalid-at-rules -- The lint's at-rule data predates 'position-area' in '@position-try'. */
     }
     .select-picker optgroup {
         @apply menu-group-label;
