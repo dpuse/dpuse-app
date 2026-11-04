@@ -1978,13 +1978,13 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                              that way. A binary file has no encoding to choose, the parser is offered only when more
                              than one reads the format, and only delimited text has a value delimiter. -->
                         <!-- '-ml-1.75' cancels the select's own padding and border, so its icon lines up with the page
-                             edge. -->
+                             edge. Only in the row, because in the folded popover it would put this icon out of line with
+                             the icons below it. -->
                         <SelectInput
                             v-if="previewFormatText"
                             v-model="previewDataFormatId"
                             :is-default="selectedDataFormatId == null"
-                            class="-ml-1.75"
-                            :class="readChoiceSelectClass"
+                            :class="[readChoiceSelectClass, { '-ml-1.75': !readChoicesAreFolded }]"
                             :description="previewFormatSupport ? t(TEXT, previewFormatSupport.ariaKey) : undefined"
                             :disabled="readChoicesAreLocked"
                             is-compact
@@ -2113,7 +2113,6 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             :disabled="readChoicesAreLocked"
                             is-compact
                             :is-value-hidden="readChoiceValuesAreHidden"
-                            :is-default="dataViewConfig?.storeConnectorId == null"
                             :label="t(TEXT, 'store.label')"
                             label-hidden
                             :options="storeOptions"
