@@ -49,7 +49,7 @@ export const TOGGLED_CLASSES = 'bg-black/6 hover:bg-black/12 active:bg-black/18 
 export const SEGMENT_SELECTED_CLASSES = 'bg-white shadow-xs inset-ring inset-ring-black/8 hover:state-hover active:state-press dark:bg-white/14 dark:inset-ring-white/8';
 
 // The blue pill of a page's floating primary action — open, select, add. Fill kept apart so a host can swap it.
-export const PILL_CLASSES = 'rounded-full border border-selected-border text-selected-text';
+export const PILL_CLASSES = 'rounded-full border border-pill-border text-selected-text';
 export const PILL_FILL_CLASSES = 'bg-pill hover:bg-pill-hover';
 
 // Icon buttons size by padding around a glyph rather than by a fixed box, so a button is always its icon plus the same

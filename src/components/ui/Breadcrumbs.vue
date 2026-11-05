@@ -24,14 +24,15 @@ defineEmits<{ select: [index: number, item: T] }>();
 const enrichedItems = computed(() =>
     items.map((item, index) => ({
         item,
-        isDisabled: index === disabledIndex || (index === items.length - 1 && disableLast)
+        isDisabled: index === disabledIndex || (index === items.length - 1 && disableLast),
+        isLast: index === items.length - 1
     }))
 );
 </script>
 
 <template>
     <div class="flex min-w-0 items-center overflow-hidden" data-region="Breadcrumbs">
-        <template v-for="({ item, isDisabled }, index) in enrichedItems" :key="item.id">
+        <template v-for="({ item, isDisabled, isLast }, index) in enrichedItems" :key="item.id">
             <!-- Breadcrumb Separator -->
             <span v-if="index > 0" class="mx-1.5 flex-none text-subtle">/</span>
 
@@ -47,7 +48,10 @@ const enrichedItems = computed(() =>
                     item.icon ? 'flex-none' : 'max-w-full min-w-0 overflow-hidden',
                     isDisabled
                         ? 'cursor-default text-muted'
-                        : 'cursor-pointer text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring'
+                        : 'cursor-pointer transition-colors focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
+                    // The last crumb is the current item, so it reads as text and turns blue only on hover, while still
+                    // working as a link, e.g. one that scrolls a list back to the item.
+                    isDisabled ? '' : isLast ? 'text-content hover:text-accent' : 'text-accent hover:text-accent-hover'
                 ]"
                 @click="!isDisabled ? $emit('select', index, item) : undefined"
             >

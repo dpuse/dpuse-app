@@ -116,6 +116,7 @@
        translucent fill. */
     --color-pill: var(--pill);
     --color-pill-hover: var(--pill-hover);
+    --color-pill-border: var(--pill-border); /* Its outline and the lines between its buttons. */
 }
 
 /* Light mode colors. 'color-scheme' follows the app's appearance rather than the OS, so native scrollbars and form
@@ -134,7 +135,7 @@
     /* Primary text dark grey (about 10:1 on white), two steps below emphasis so headings stand out; muted is the
        secondary step down. */
     --content: var(--color-zinc-700); /* NOTE: Also 'index.html'. */
-    --muted: var(--color-zinc-500);
+    --muted: var(--color-zinc-600); /* zinc-500 fell below 4.5:1 under the hover, press and selected layers. */
     --subtle: var(--color-zinc-400);
     --emphasis: var(--color-zinc-900);
     --accent: var(--color-blue-600);
@@ -189,6 +190,7 @@
     --selected-border: var(--color-blue-200);
     --pill: var(--color-blue-50);
     --pill-hover: var(--color-blue-100);
+    --pill-border: var(--color-blue-200);
 }
 
 /* Dark mode colors. */
@@ -249,12 +251,13 @@
     /* Dark mode states. */
     --hover: color-mix(in srgb, white 8%, transparent);
     --press: color-mix(in srgb, white 14%, transparent);
-    --selected: color-mix(in srgb, var(--color-blue-400) 20%, transparent);
-    --selected-hover: color-mix(in srgb, var(--color-blue-400) 28%, transparent);
+    --selected: color-mix(in srgb, white 12%, transparent); /* Grey, because a blue fill on near-black reads as muddy. */
+    --selected-hover: color-mix(in srgb, white 16%, transparent);
     --selected-text: var(--color-blue-200);
     --selected-border: var(--color-blue-700);
-    --pill: var(--color-blue-900);
-    --pill-hover: var(--color-blue-800);
+    --pill: var(--color-zinc-700); /* Neutral, because a dark blue reads as muddy navy on the near-black surface. */
+    --pill-hover: var(--color-zinc-600);
+    --pill-border: var(--color-zinc-600);
 }
 
 /* Dark mode softens Tailwind's colours: the same steps with their chroma halved, lightness and hue kept, so contrast is

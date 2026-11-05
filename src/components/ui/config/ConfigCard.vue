@@ -117,6 +117,14 @@ defineOptions({ inheritAttrs: false });
             v-bind="$attrs"
         />
 
+        <!-- Selected Bar ─ A compact row has no border to show it is selected, and its fill alone is faint on a dark page,
+             so a short accent bar on its left edge marks it, as in GitHub's Primer lists. -->
+        <span
+            v-if="isCompact && selected && !isDisabled"
+            aria-hidden="true"
+            class="pointer-events-none absolute top-1/2 left-0 h-2/3 w-0.75 -translate-y-1/2 rounded-full bg-accent"
+        />
+
         <!-- Header ─ One line only: the label truncates rather than wraps, because the card cannot grow. -->
         <div
             class="flex min-w-0 items-center gap-x-2"

@@ -25,7 +25,7 @@ const { icon, isSeparated, isStepAction, label } = defineProps<{
     <ActionWrapper
         :aria-label="label"
         class="inline-flex h-full items-center gap-x-1 px-3 focus-visible:-outline-offset-2! disabled:opacity-100! disabled:hover:bg-pill! [&:disabled>*]:opacity-40"
-        :class="[PILL_FILL_CLASSES, { 'border-l border-selected-border': isSeparated }]"
+        :class="[PILL_FILL_CLASSES, { 'border-l border-pill-border': isSeparated }]"
         :title="label"
     >
         <component :is="icon" v-if="!isStepAction" aria-hidden="true" class="size-5" :stroke-width="1.25" />
