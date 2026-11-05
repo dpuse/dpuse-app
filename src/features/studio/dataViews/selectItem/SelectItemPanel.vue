@@ -16,6 +16,7 @@ import {
     ChevronDownIcon,
     CircleAlertIcon,
     CircleOffIcon,
+    CircleStopIcon,
     Columns3CogIcon,
     DatabaseIcon,
     FileIcon,
@@ -290,6 +291,7 @@ const MINIMUM_FITTED_PREVIEW_COLUMN_WIDTH_PX = 72; // A column of short values w
 const MINIMUM_PREVIEW_COLUMN_WIDTH_PX = 72; // Keeps the header's type icon and the start of its name in view.
 const PREVIEW_COLUMN_MARKS_WIDTH_PX = 60; // The type icon before a name, 22px, the mandatory and key marks after it, 34px, and 4px so a measured name is never a pixel short.
 const PREVIEW_INVALID_ICON_WIDTH_PX = 20; // The icon beside an invalid value: 14px and the cell's 'gap-x-1.5'.
+const PREVIEW_SCROLL_PADDING_BOTTOM = 'calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))'; // The usual room after the last row, less the status bar's height, because the preview already ends above it.
 
 // ── Toolbar Stages ─ The toolbar is one row, so as it runs short of room it gives some up, a step at a time. First
 // the selects' values truncate, down to a few letters. Then the values go, leaving the icons, the audit status
@@ -703,11 +705,14 @@ const auditChoices = computed<AuditChoice[]>(() => {
     return [...sizeChoices, { byteLimit: undefined, id: 'all', label: t(TEXT, 'audit.all.label') }];
 });
 
-// The records and text only hold the start of the item, however much of it has been audited.
+// The records and text only hold the start of the item, however much of it has been audited. Said only when the audit
+// covered more than the preview holds, because until then the audited amount beside it already says the same.
 const previewExtentText = computed(() => {
     const previewSize = activeItemReading.value?.size;
     const itemSize = activeConnectionObjectConfig.value?.size;
     if (previewSize == null || previewSize === 0 || previewSize === itemSize || currentPreviewTabId.value === 'columns' || currentPreviewTabId.value === 'details') return;
+    const auditedSize = auditIsRunning.value ? auditedByteCount.value : activeContentAuditConfig.value?.byteCount;
+    if (auditedSize != null && auditedSize <= previewSize) return;
     return t(TEXT, 'preview.extent.text', { size: formatNumberAsStorageSize(previewSize) });
 });
 
@@ -1915,7 +1920,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 <template>
     <ErrorNotice v-if="listFailure" :failures="[listFailure]" @retry="handleRetryList" />
 
-    <GridDetailPanel v-else :selected-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="400px">
+    <GridDetailPanel v-else :selected-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="320px">
         <template #header="{ isSplit, revealSelectedItem }">
             <div class="flex h-full min-w-0 items-center gap-x-3 border-b border-separator px-page text-sm">
                 <!-- Back Button ─ Narrow screens show the preview in place of the list, so the trail gives way to
@@ -1972,31 +1977,6 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
             <ErrorNotice v-if="itemFailure" :failures="[itemFailure]" @retry="handleRetryItem" />
             <!-- Preview Toolbar ─ One row over the preview only, so the breadcrumbs keep the whole header row. -->
             <div v-if="itemFailure == null" ref="previewToolbar" class="relative flex h-9.25 flex-none items-center gap-x-2 border-b border-separator px-page text-xs text-muted">
-                <!-- Audit Bar ─ Along the top edge, clear of the selected tab's underline at the bottom. Only when the item's
-                     size is known. Green when the whole item was audited. The grey track shows how much was not. Any amount
-                     keeps a minimum width, so a sliver of a large item is still visible rather than looking like nothing. A
-                     progress bar while an audit runs, and otherwise a meter, because it then shows a settled amount. -->
-                <div
-                    v-if="auditStatus?.percentage != null"
-                    :aria-label="t(TEXT, 'audit.aria')"
-                    aria-valuemax="100"
-                    aria-valuemin="0"
-                    :aria-valuenow="Math.round(auditStatus.percentage)"
-                    :aria-valuetext="auditStatus.text"
-                    class="absolute inset-x-0 top-0 h-0.75 bg-separator/50"
-                    :role="auditIsRunning ? 'progressbar' : 'meter'"
-                >
-                    <div
-                        class="h-full"
-                        :class="[
-                            auditStatus.isComplete
-                                ? 'bg-[color-mix(in_srgb,var(--color-success-text)_40%,var(--color-card))]'
-                                : 'bg-[color-mix(in_srgb,var(--color-accent)_40%,var(--color-card))]',
-                            { 'min-w-0.75': auditStatus.percentage > 0 }
-                        ]"
-                        :style="{ width: `${auditStatus.percentage}%` }"
-                    />
-                </div>
                 <!-- Read Choices ─ How the item is read and where it loads. A value truncates as the row narrows, but
                      only to 'min-w-22', a few letters, because less says nothing. Past that the toolbar's next stage
                      hides the values, and in the last the selects fold into a popover below one button. 'Teleport'
@@ -2175,6 +2155,43 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 </span>
                             </template>
                         </SelectInput>
+                        <!-- Audit ─ After the read choices, as it reads the item the way they set. Audits again for a
+                             whole item, or offers a choice of sizes for part of one, and Stop replaces it while an
+                             audit runs. It truncates and folds with the selects. The amount audited shows in the status
+                             bar, because a button there would sit where a phone's own swipes start. -->
+                        <template v-if="auditIsRunning || (auditStatus && auditActionIsShown)">
+                            <ActionWrapper
+                                v-if="auditIsRunning"
+                                class="flex h-7 max-w-full min-w-0 items-center gap-x-1 rounded-md px-1.5 text-sm text-content hover:state-hover active:state-press"
+                                :class="readChoiceSelectClass"
+                                :title="readChoiceValuesAreHidden ? t(TEXT, 'audit.stop.label') : undefined"
+                                @click="stopAudit"
+                            >
+                                <CircleStopIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" :stroke-width="1.5" />
+                                <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ t(TEXT, 'audit.stop.label') }}</span>
+                            </ActionWrapper>
+                            <ActionWrapper
+                                v-else-if="auditStatus?.isComplete"
+                                class="flex h-7 max-w-full min-w-0 items-center gap-x-1 rounded-md px-1.5 text-sm text-content hover:state-hover active:state-press disabled:opacity-50"
+                                :class="readChoiceSelectClass"
+                                :disabled="readChoicesAreLocked"
+                                :title="readChoiceValuesAreHidden ? t(TEXT, 'audit.again.label') : undefined"
+                                @click="handleStartAudit(undefined)"
+                            >
+                                <RotateCwIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" :stroke-width="1.5" />
+                                <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ t(TEXT, 'audit.again.label') }}</span>
+                            </ActionWrapper>
+                            <AuditMenu
+                                v-else
+                                :audit-choices="auditChoices"
+                                :class="readChoiceSelectClass"
+                                :disabled="readChoicesAreLocked"
+                                :is-label-hidden="readChoiceValuesAreHidden"
+                                @select="handleStartAudit"
+                            >
+                                <RotateCwIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" :stroke-width="1.5" />
+                            </AuditMenu>
+                        </template>
                     </div>
                 </Teleport>
                 <!-- Folded Read Choices ─ In the top layer, so the preview cannot cover them. The browser closes them on
@@ -2190,33 +2207,6 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     @beforetoggle="handlePlaceReadChoices"
                 />
                 <span class="flex-1" />
-
-                <!-- Audit Status ─ The amount audited is the button that audits more: again for a whole item, or a choice
-                     of sizes for part of one. The running figures change too often to read out, so only the bar announces
-                     them. -->
-                <template v-if="auditStatus">
-                    <ActionWrapper
-                        v-if="!auditIsRunning && auditActionIsShown && auditStatus.isComplete"
-                        class="flex h-7 flex-none items-center gap-x-1 rounded-md px-1.5 text-accent hover:state-hover active:state-press disabled:text-muted"
-                        :disabled="readChoicesAreLocked"
-                        :title="t(TEXT, 'audit.again.label')"
-                        @click="handleStartAudit(undefined)"
-                    >
-                        <RotateCwIcon aria-hidden="true" class="size-[1.25em] flex-none" :stroke-width="1.5" />
-                        <span class="sr-only">{{ t(TEXT, 'audit.again.label') }}</span>
-                        <span aria-hidden="true" class="whitespace-nowrap">{{ shownAuditStatusText }}</span>
-                        <span class="sr-only">{{ auditStatus.text }}</span>
-                    </ActionWrapper>
-                    <AuditMenu v-else-if="!auditIsRunning && auditActionIsShown" :audit-choices="auditChoices" :disabled="readChoicesAreLocked" @select="handleStartAudit">
-                        <span aria-hidden="true" class="whitespace-nowrap">{{ shownAuditStatusText }}</span>
-                        <span class="sr-only">{{ auditStatus.text }}</span>
-                    </AuditMenu>
-                    <p v-else class="flex-none whitespace-nowrap">
-                        <span aria-hidden="true">{{ shownAuditStatusText }}</span>
-                        <span class="sr-only">{{ auditStatus.text }}</span>
-                    </p>
-                </template>
-                <ActionWrapper v-if="auditIsRunning" class="flex-none text-accent hover:underline" @click="stopAudit">{{ t(TEXT, 'audit.stop.label') }}</ActionWrapper>
 
                 <!-- Preview Tabs ─ Icons rather than words, to leave the toolbar room. '-mr-1.5' centres the last icon 30px
                      from the edge, under the assistant toggle. -->
@@ -2313,7 +2303,6 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 class="relative flex min-h-0 flex-1 flex-col"
                 :role="previewTabsAreFolded ? undefined : 'tabpanel'"
             >
-                <p v-if="previewExtentText" class="flex-none px-page pt-1 text-xs text-muted">{{ previewExtentText }}</p>
                 <!-- Busy Bar ─ Over the content, because taking up height would nudge the preview down on every read. -->
                 <BusyBar v-if="previewIsPending" class="absolute inset-x-0 top-0 z-10 mx-page" />
                 <!-- Table ─ A column's detail slides up over the rows and leaves the header in view, so the column names stay
@@ -2329,6 +2318,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     is-column-menu-hidden
                     is-column-picker-hidden
                     is-header-tabbed
+                    :scroll-area-padding-bottom="PREVIEW_SCROLL_PADDING_BOTTOM"
                     :selected-column-id="selectedColumnIndex == null ? undefined : String(selectedColumnIndex)"
                 >
                     <!-- Column Name ─ Opens the column's detail over the rows, or closes it on the selected tab. The
@@ -2364,7 +2354,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             v-if="columnValueCounts[Number(columnId)]"
                             :column-label="String(previewTableColumnDefinitions[Number(columnId)]?.header)"
                             :column-value-counts="columnValueCounts[Number(columnId)]!"
-                            :is-emphasised="selectedColumnIndex != null"
+                            :is-emphasised="selectedColumnIndex == null || Number(columnId) === selectedColumnIndex"
                             @click="handleToggleColumnDetail(Number(columnId))"
                         />
                         <!-- Type Icon ─ Shows the column's type after its name. The type is chosen in the column's
@@ -2454,6 +2444,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         is-column-picker-hidden
                         :label="t(TEXT, 'detail.columns.title')"
                         :pinned-column-ids="['label']"
+                        :scroll-area-padding-bottom="PREVIEW_SCROLL_PADDING_BOTTOM"
                         :selected-row-index="selectedColumnRowIndex"
                     >
                         <template #cell-icon="{ columnId, rowIndex }">
@@ -2510,18 +2501,18 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     ref="textViewer"
                     class="flex-1"
                     :line-highlights="previewLineHighlights"
-                    scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)"
+                    :scroll-area-padding-bottom="PREVIEW_SCROLL_PADDING_BOTTOM"
                     :text="text"
                 />
                 <!-- Markdown ─ Rendered only while shown, as rendering parses the whole preview. 'renderMarkdown' sanitises
                      the HTML, which comes from the file itself. -->
-                <ScrollArea v-if="currentPreviewTabId === 'text' && previewIsMarkdown" class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)">
+                <ScrollArea v-if="currentPreviewTabId === 'text' && previewIsMarkdown" class="flex-1" :scroll-area-padding-bottom="PREVIEW_SCROLL_PADDING_BOTTOM">
                     <div class="dpuse-prose px-page py-3 text-sm" v-html="renderMarkdown(text ?? '')" />
                 </ScrollArea>
                 <ScrollArea
                     v-show="currentPreviewTabId === 'details' && activeItemReading != null"
                     class="flex-1"
-                    scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)"
+                    :scroll-area-padding-bottom="PREVIEW_SCROLL_PADDING_BOTTOM"
                     scroll-area-padding-left="var(--spacing-page)"
                     @initialised="documentScrollElement = $event"
                 >
@@ -2557,6 +2548,54 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <Teleport defer :to="`#${DATA_VIEW_SCROLL_ACTIONS_ID}`">
                     <ScrollEndButtons v-if="currentPreviewTabId === 'details'" :scroll-element="documentScrollElement" />
                 </Teleport>
+            </div>
+            <!-- Status Bar ─ In the safe area along the bottom of a device that has one, and 24px high in the page
+                 where there is none, so a sideways scroll bar always sits above the safe area. It only shows what is
+                 read, never a button, because a phone's own swipes start at its bottom edge. The running figures change
+                 too often to read out, so only the audit bar announces them. -->
+            <div
+                v-if="itemFailure == null"
+                class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-t border-separator bg-card px-page pt-0.75 text-xs text-muted"
+            >
+                <!-- Audit Bar ─ Along the status bar's top edge, beside the audit status it measures. Only when the
+                     item's size is known. Green when the whole item was audited, the same green as valid values in the
+                     column headers' value bars, and blue in the same strength for part of it. The grey track shows how
+                     much was not. Any amount keeps a minimum width, so a sliver of a large item is still visible rather
+                     than looking like nothing. A progress bar while an audit runs, and otherwise a meter, because it
+                     then shows a settled amount. -->
+                <div
+                    v-if="auditStatus?.percentage != null"
+                    :aria-label="t(TEXT, 'audit.aria')"
+                    aria-valuemax="100"
+                    aria-valuemin="0"
+                    :aria-valuenow="Math.round(auditStatus.percentage)"
+                    :aria-valuetext="auditStatus.text"
+                    class="absolute inset-x-0 top-0 h-0.75 bg-separator/50"
+                    :role="auditIsRunning ? 'progressbar' : 'meter'"
+                >
+                    <div
+                        class="h-full"
+                        :class="[
+                            auditStatus.isComplete
+                                ? 'bg-[color-mix(in_srgb,var(--color-success-text)_40%,var(--color-card))]'
+                                : 'bg-[color-mix(in_srgb,var(--color-accent)_40%,var(--color-card))]',
+                            { 'min-w-0.75': auditStatus.percentage > 0 }
+                        ]"
+                        :style="{ width: `${auditStatus.percentage}%` }"
+                    />
+                </div>
+                <!-- Centred in the space below the audit bar ('pt-0.75' clears its 3px), and trimmed to its letters so
+                     it is centred on them rather than sitting high in its line box. Long text is cut off sideways only
+                     ('overflow-x: clip'), because hiding overflow on both axes would clip the tails of letters like 'g'
+                     below the trimmed box. -->
+                <p class="min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap [text-box:trim-both_cap_alphabetic]">
+                    <template v-if="auditStatus">
+                        <span aria-hidden="true">{{ shownAuditStatusText }}</span>
+                        <span class="sr-only">{{ auditStatus.text }}</span>
+                    </template>
+                    <span v-if="auditStatus && previewExtentText" aria-hidden="true"> · </span>
+                    <template v-if="previewExtentText">{{ previewExtentText }}</template>
+                </p>
             </div>
         </template>
 

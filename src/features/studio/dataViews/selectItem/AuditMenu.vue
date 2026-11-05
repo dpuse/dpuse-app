@@ -20,13 +20,14 @@ export interface AuditChoice {
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { auditChoices, disabled } = defineProps<{
+const { auditChoices, disabled, isLabelHidden } = defineProps<{
     auditChoices: AuditChoice[];
     disabled: boolean;
+    isLabelHidden?: boolean; // Shows just the icon and arrow, for a toolbar short of room. The label is still read out, and shows as a tooltip.
 }>();
 
 defineSlots<{
-    default(): unknown; // The trigger's text: how much of the item has been audited, so the amount is the button that audits more.
+    default(): unknown; // The trigger's icon.
 }>();
 
 const emit = defineEmits<{
@@ -35,20 +36,21 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <Menu.Root class="flex-none">
+    <!-- Looks like the toolbar's compact selects beside it: an icon, a label that truncates, and an arrow. -->
+    <Menu.Root class="flex">
         <template #trigger="{ triggerAttributes }">
             <ActionWrapper
                 v-bind="triggerAttributes"
-                class="flex h-7 min-w-0 items-center gap-x-0.5 rounded-md px-1.5 text-accent hover:state-hover active:state-press disabled:text-muted"
+                class="flex h-7 max-w-full min-w-0 items-center gap-x-1 rounded-md px-1.5 text-sm text-content hover:state-hover active:state-press disabled:opacity-50"
                 :disabled="disabled"
-                :title="t(TEXT, 'audit.label')"
+                :title="isLabelHidden ? t(TEXT, 'audit.label') : undefined"
             >
-                <span class="sr-only">{{ t(TEXT, 'audit.label') }}</span>
                 <slot />
-                <ChevronDownIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                <span class="min-w-0 truncate" :class="{ 'sr-only': isLabelHidden }">{{ t(TEXT, 'audit.label') }}</span>
+                <ChevronDownIcon aria-hidden="true" class="size-3.5 flex-none text-muted" :stroke-width="1.5" />
             </ActionWrapper>
         </template>
-        <Menu.Content :label="t(TEXT, 'audit.aria')" placement="bottom-end">
+        <Menu.Content :label="t(TEXT, 'audit.aria')" placement="bottom-start">
             <Menu.Item v-for="auditChoice in auditChoices" :key="auditChoice.id" @select="emit('select', auditChoice.byteLimit)">{{ auditChoice.label }}</Menu.Item>
         </Menu.Content>
     </Menu.Root>

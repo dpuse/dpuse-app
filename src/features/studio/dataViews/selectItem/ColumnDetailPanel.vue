@@ -278,7 +278,7 @@ function constructChartRows(rows: { count: number; countText: string; id: string
             </div>
         </header>
 
-        <div class="min-h-0 flex-1 overflow-y-auto px-4 pt-3 pb-(--vertical-scroll-bottom-screen-inset) text-sm" role="tabpanel">
+        <div class="min-h-0 flex-1 overflow-y-auto px-4 pt-3 pb-[calc(var(--vertical-scroll-bottom-screen-inset)-var(--status-bar-height))] text-sm" role="tabpanel">
             <!-- Overview ─ The charts first, as what people most often want, then the choices, then the figures. The
                  blocks flow into columns when the panel is wide, as it is over the table. -->
             <div v-if="currentTabId === 'overview'" class="grid items-start gap-x-8 gap-y-4 @3xl:grid-cols-2 @6xl:grid-cols-3">

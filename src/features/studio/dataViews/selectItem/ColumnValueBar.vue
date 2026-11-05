@@ -15,7 +15,7 @@ import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 const { columnLabel, columnValueCounts, isEmphasised } = defineProps<{
     columnLabel: string;
     columnValueCounts: ColumnValueCounts;
-    isEmphasised?: boolean; // While a column's detail is open, when the bars underline the headers as tabs. Lighter over the records, where they only summarise.
+    isEmphasised?: boolean; // Full strength over the records, and on the selected tab while a column's detail is open. Lighter on the other tabs then, so the selected one stands out.
 }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -44,7 +44,7 @@ const countsText = computed(() => {
          a few bad values in a large item are still visible. '-inset-x-px' reaches over the tab's 1px side borders, so
          the bar is as wide as the tab and sits on its bottom edge. -->
     <ActionWrapper :aria-label="countsText" class="absolute -inset-x-px bottom-0 flex pt-1" :title="countsText">
-        <span aria-hidden="true" class="flex h-0.75 w-full gap-px overflow-hidden" :class="{ 'opacity-50': !isEmphasised }">
+        <span aria-hidden="true" class="flex h-0.75 w-full gap-px overflow-hidden" :class="{ 'opacity-70': !isEmphasised }">
             <span v-for="segment in shownSegments" :key="segment.id" class="min-w-0.5 basis-0" :class="segment.colorClass" :style="{ flexGrow: segment.count }" />
         </span>
     </ActionWrapper>
