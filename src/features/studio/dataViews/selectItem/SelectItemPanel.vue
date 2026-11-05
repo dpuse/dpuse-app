@@ -2287,6 +2287,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     :data-source="previewTableDataSource"
                     is-column-menu-hidden
                     is-column-picker-hidden
+                    is-header-tabbed
                     :selected-column-id="selectedColumnIndex == null ? undefined : String(selectedColumnIndex)"
                 >
                     <!-- Column Name ─ Opens the column's detail over the rows. -->
@@ -2315,6 +2316,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             v-if="columnValueCounts[Number(columnId)]"
                             :column-label="String(previewTableColumnDefinitions[Number(columnId)]?.header)"
                             :column-value-counts="columnValueCounts[Number(columnId)]!"
+                            :is-emphasised="selectedColumnIndex != null"
                             @click="handleShowColumnDetail(Number(columnId))"
                         />
                         <!-- Column Menu ─ The type icon opens the column's type and options, so the header needs only one

@@ -30,12 +30,12 @@
         "path": "node_modules/@formkit/drag-and-drop",
         "licenseFile": "downloads/@formkit/drag-and-drop@0.6.3-LICENSE.txt"
     },
-    "@lucide/vue@1.68.0": {
+    "@lucide/vue@1.69.0": {
         "licenses": "ISC",
         "repository": "https://github.com/lucide-icons/lucide",
         "publisher": "Eric Fennis",
         "path": "node_modules/@lucide/vue",
-        "licenseFile": "downloads/@lucide/vue@1.68.0-LICENSE.txt"
+        "licenseFile": "downloads/@lucide/vue@1.69.0-LICENSE.txt"
     },
     "@tanstack/ai-client@1.1.0": {
         "licenses": "MIT",
@@ -44,26 +44,19 @@
         "path": "node_modules/@tanstack/ai-client",
         "licenseFile": "downloads/@tanstack/ai-client@1.1.0-LICENSE.txt"
     },
-    "@tanstack/ai-utils@1.0.1": {
-        "licenses": "MIT",
-        "repository": "https://github.com/TanStack/ai",
-        "publisher": "Tanner Linsley",
-        "path": "node_modules/@tanstack/ai-utils",
-        "licenseFile": "downloads/@tanstack/ai-utils@1.0.1-LICENSE.txt"
-    },
-    "@tanstack/ai@1.1.0": {
+    "@tanstack/ai@1.2.0": {
         "licenses": "MIT",
         "repository": "https://github.com/TanStack/ai",
         "publisher": "Tanner Linsley",
         "path": "node_modules/@tanstack/ai",
-        "licenseFile": "downloads/@tanstack/ai@1.1.0-LICENSE.txt"
+        "licenseFile": "downloads/@tanstack/ai@1.2.0-LICENSE.txt"
     },
-    "@tanstack/query-core@5.105.3": {
+    "@tanstack/query-core@5.106.1": {
         "licenses": "MIT",
         "repository": "https://github.com/TanStack/query",
         "publisher": "tannerlinsley",
         "path": "node_modules/@tanstack/query-core",
-        "licenseFile": "downloads/@tanstack/query-core@5.105.3-LICENSE.txt"
+        "licenseFile": "downloads/@tanstack/query-core@5.106.1-LICENSE.txt"
     },
     "@tanstack/store@0.11.2": {
         "licenses": "MIT",
@@ -86,12 +79,12 @@
         "path": "node_modules/@tanstack/virtual-core",
         "licenseFile": "downloads/@tanstack/virtual-core@3.19.11-LICENSE.txt"
     },
-    "@tanstack/vue-query@5.105.3": {
+    "@tanstack/vue-query@5.106.1": {
         "licenses": "MIT",
         "repository": "https://github.com/TanStack/query",
         "publisher": "Damian Osipiuk",
         "path": "node_modules/@tanstack/vue-query",
-        "licenseFile": "downloads/@tanstack/vue-query@5.105.3-LICENSE.txt"
+        "licenseFile": "downloads/@tanstack/vue-query@5.106.1-LICENSE.txt"
     },
     "@tanstack/vue-table@9.3.1": {
         "licenses": "MIT",
@@ -115,33 +108,33 @@
         "path": "node_modules/@teamhanko/hanko-frontend-sdk",
         "licenseFile": "downloads/@teamhanko/hanko-frontend-sdk@3.1.0-LICENSE.txt"
     },
-    "@vue/reactivity@3.5.44": {
+    "@vue/reactivity@3.5.45": {
         "licenses": "MIT",
         "repository": "https://github.com/vuejs/core",
         "publisher": "Evan You",
         "path": "node_modules/@vue/reactivity",
-        "licenseFile": "downloads/@vue/reactivity@3.5.44-LICENSE.txt"
+        "licenseFile": "downloads/@vue/reactivity@3.5.45-LICENSE.txt"
     },
-    "@vue/runtime-core@3.5.44": {
+    "@vue/runtime-core@3.5.45": {
         "licenses": "MIT",
         "repository": "https://github.com/vuejs/core",
         "publisher": "Evan You",
         "path": "node_modules/@vue/runtime-core",
-        "licenseFile": "downloads/@vue/runtime-core@3.5.44-LICENSE.txt"
+        "licenseFile": "downloads/@vue/runtime-core@3.5.45-LICENSE.txt"
     },
-    "@vue/runtime-dom@3.5.44": {
+    "@vue/runtime-dom@3.5.45": {
         "licenses": "MIT",
         "repository": "https://github.com/vuejs/core",
         "publisher": "Evan You",
         "path": "node_modules/@vue/runtime-dom",
-        "licenseFile": "downloads/@vue/runtime-dom@3.5.44-LICENSE.txt"
+        "licenseFile": "downloads/@vue/runtime-dom@3.5.45-LICENSE.txt"
     },
-    "@vue/shared@3.5.44": {
+    "@vue/shared@3.5.45": {
         "licenses": "MIT",
         "repository": "https://github.com/vuejs/core",
         "publisher": "Evan You",
         "path": "node_modules/@vue/shared",
-        "licenseFile": "downloads/@vue/shared@3.5.44-LICENSE.txt"
+        "licenseFile": "downloads/@vue/shared@3.5.45-LICENSE.txt"
     },
     "@vueuse/core@15.0.0": {
         "licenses": "MIT",

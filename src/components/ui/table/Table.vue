@@ -40,6 +40,7 @@ interface Properties {
     isColumnMenuHidden?: boolean; // Leaves out each column's pin and hide menu, for a table that must show every column as it is.
     isColumnPickerHidden?: boolean; // Leaves out the toolbar that shows and hides columns, for a table that only previews data.
     isCollapsedToPinned?: boolean; // Shows only the pinned columns, for a table sharing its space with a detail panel. The rest stay defined, so they return as they were.
+    isHeaderTabbed?: boolean; // Draws each column's header as a tab, for a table whose headers also choose the column a detail panel shows.
     label?: string; // Names the table for screen readers.
     hiddenColumnIds?: string[]; // Columns hidden from the start. The column picker can show them.
     pinnedColumnIds?: string[]; // Columns pinned to the left from the start.
@@ -58,6 +59,7 @@ const {
     isColumnFitToVisibleRows,
     isColumnMenuHidden,
     isColumnPickerHidden,
+    isHeaderTabbed,
     label,
     hiddenColumnIds = [],
     pinnedColumnIds = [],
@@ -87,6 +89,7 @@ const scrollElementId = useId();
 const innerScrollElement = useTemplateRef<HTMLDivElement>('innerScroller');
 const innerScrollElementId = useId();
 const headerViewport = useTemplateRef<HTMLDivElement>('headerViewport');
+const mirroredScrollLeft = ref(0); // Where the body last put the header, so the header's scroll event that follows is not sent back to the body.
 const savedScrollLeft = ref(0); // Where the table was left, because a browser can reset a hidden element's scroll position.
 const savedScrollTop = ref(0);
 const verticalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('verticalThumb');
@@ -243,7 +246,15 @@ defineExpose({ scrollColumnIntoView });
 function syncHeaderScroll(): void {
     if (!headerViewport.value || !innerScrollElement.value) return;
     headerViewport.value.scrollLeft = innerScrollElement.value.scrollLeft;
+    mirroredScrollLeft.value = headerViewport.value.scrollLeft;
     if (innerScrollElement.value.clientWidth > 0) savedScrollLeft.value = innerScrollElement.value.scrollLeft;
+}
+
+// The header scrolls by itself only when the user swipes or wheels over it, and the body then follows. A position the
+// body set is skipped, because sending it back would stop a smooth scroll of the body partway.
+function syncBodyScroll(): void {
+    if (!headerViewport.value || !innerScrollElement.value || Math.abs(headerViewport.value.scrollLeft - mirroredScrollLeft.value) < 1) return;
+    innerScrollElement.value.scrollLeft = headerViewport.value.scrollLeft;
 }
 
 function saveVerticalScroll(): void {
@@ -270,11 +281,14 @@ function handleBodyWheel(wheelEvent: WheelEvent): void {
     scrollElement.value?.scrollBy({ top: wheelEvent.deltaY });
 }
 
-// The header viewport has no scroll interaction of its own (overflow: hidden, position mirrored from the body) —
-// forward horizontal wheel input over it to the body's horizontal scroller so hovering the header still scrolls columns.
-function handleHeaderWheel(wheelEvent: WheelEvent): void {
-    if (wheelEvent.deltaX === 0) return;
-    innerScrollElement.value?.scrollBy({ left: wheelEvent.deltaX });
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A tabbed header draws its tab on a layer inside the column, so the gap either side, where the resize handle sits,
+// shows the header row behind it. The tab stays white with an outline for its shape, so only the selected tab is filled.
+function constructHeaderClass(columnId: string): string | undefined {
+    const isSelected = columnId === selectedColumnId;
+    if (!isHeaderTabbed) return isSelected ? 'state-selected' : undefined;
+    return `before:absolute before:inset-x-0.5 before:top-1.5 before:bottom-0 before:rounded-t-md before:border before:border-b-0 before:border-boundary ${isSelected ? 'before:state-selected' : ''}`;
 }
 </script>
 
@@ -289,17 +303,27 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
             <!-- Header ─ A separate viewport from the scrolling body, kept in horizontal sync via scrollLeft mirroring
              (syncHeaderScroll) rather than CSS `sticky`: sticky always resolves against the *nearest* scroll-container
              ancestor, and inside the body below that would be the horizontal-only inner scroller, which never scrolls
-             vertically, so a sticky header nested in there would just scroll away with the rows instead of pinning. -->
-            <div ref="headerViewport" class="overflow-hidden" role="rowgroup" @wheel.passive="handleHeaderWheel">
-                <div class="flex border-b border-boundary bg-backdrop" :class="$slots['header-detail'] ? 'h-17' : 'h-10'" :style="{ minWidth: contentMinWidth }" role="row">
+             vertically, so a sticky header nested in there would just scroll away with the rows instead of pinning. The
+             header scrolls sideways too, so a swipe over the column names moves the columns (syncBodyScroll). -->
+            <div ref="headerViewport" class="scrollbar-none overflow-x-auto overflow-y-hidden overscroll-none" role="rowgroup" @scroll.passive="syncBodyScroll">
+                <div
+                    class="flex border-b border-boundary"
+                    :class="[$slots['header-detail'] ? 'h-17' : 'h-10', isHeaderTabbed ? 'bg-surface' : 'bg-backdrop']"
+                    :style="{ minWidth: contentMinWidth }"
+                    role="row"
+                >
                     <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
 
                     <!-- Left pinned headers -->
                     <div
                         v-for="leftLeafHeader in leftLeafHeaders"
                         :key="leftLeafHeader.id"
-                        class="sticky bg-backdrop"
-                        :class="[isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary', { 'state-selected': leftLeafHeader.column.id === selectedColumnId }]"
+                        class="sticky"
+                        :class="[
+                            isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary',
+                            isHeaderTabbed ? 'bg-surface' : 'bg-backdrop',
+                            constructHeaderClass(leftLeafHeader.column.id)
+                        ]"
                         role="columnheader"
                         :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: isCollapsedToPinned ? undefined : leftLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                     >
@@ -321,8 +345,8 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                         <div
                             v-for="centerLeafHeader in centerLeafHeaders"
                             :key="centerLeafHeader.id"
-                            class="h-full shrink-0"
-                            :class="{ 'state-selected': centerLeafHeader.column.id === selectedColumnId }"
+                            class="relative h-full shrink-0"
+                            :class="constructHeaderClass(centerLeafHeader.column.id)"
                             role="columnheader"
                             :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
                         >
@@ -340,7 +364,7 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                             v-for="virtualColumn in virtualColumns"
                             :key="virtualColumn.index"
                             class="absolute top-0 h-full"
-                            :class="{ 'state-selected': centerLeafHeaders[virtualColumn.index]?.column.id === selectedColumnId }"
+                            :class="constructHeaderClass(centerLeafHeaders[virtualColumn.index]!.column.id)"
                             role="columnheader"
                             :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
                         >
@@ -365,7 +389,8 @@ function handleHeaderWheel(wheelEvent: WheelEvent): void {
                     <div
                         v-for="rightLeafHeader in rightLeafHeaders"
                         :key="rightLeafHeader.id"
-                        class="sticky shrink-0 border-l border-boundary bg-backdrop"
+                        class="sticky shrink-0 border-l border-boundary"
+                        :class="[isHeaderTabbed ? 'bg-surface' : 'bg-backdrop', constructHeaderClass(rightLeafHeader.column.id)]"
                         role="columnheader"
                         :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                     >

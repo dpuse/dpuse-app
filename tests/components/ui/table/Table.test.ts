@@ -107,7 +107,7 @@ describe('Table', () => {
         });
         await nextTick(); // The scroll listeners attach once the elements exist.
         const outerScroller = wrapper.get('[class*="overflow-y-auto"]');
-        const innerScroller = wrapper.get('[class*="overflow-x-auto"]');
+        const innerScroller = wrapper.get('[class*="overflow-x-auto"]:not([role="rowgroup"])'); // The header scrolls sideways too, and is a row group.
         const outerElement = outerScroller.element as HTMLElement;
         const innerElement = innerScroller.element as HTMLElement;
 

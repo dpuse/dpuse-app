@@ -47,6 +47,7 @@ defineSlots<{
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const revealedActiveItem = shallowRef<HTMLElement>(); // The active item last scrolled into view, so it only scrolls again when it changes.
+const revealedRowScrollWidth = ref(0); // The row's content width when the active item was last scrolled into view, so it scrolls again when the items move.
 const rowCanScrollLeft = ref(false);
 const rowCanScrollRight = ref(false);
 const rowElement = useTemplateRef<HTMLElement>('row');
@@ -68,10 +69,14 @@ onMounted(() => {
 // different item becomes active. This runs after the change is on screen.
 onUpdated(() => {
     updateScrollState();
-    revealActiveItem('smooth');
+    revealMovedActiveItem('smooth');
 });
 
-useResizeObserver(rowElement, updateScrollState);
+// A resize can switch the items between their long and short labels, which moves the active item.
+useResizeObserver(rowElement, () => {
+    updateScrollState();
+    revealMovedActiveItem('instant');
+});
 
 // The row listens for clicks and focus on the items inside it, which are the real buttons and links. The listeners are
 // added here because a click listener on the row itself in the template is flagged as a control with no keyboard
@@ -153,7 +158,17 @@ function revealActiveItem(behavior: ScrollBehavior): void {
     const activeItem = ([...row.children] as HTMLElement[]).find((item) => item.matches(ACTIVE_ITEM_SELECTOR) || item.querySelector(ACTIVE_ITEM_SELECTOR) !== null);
     if (!activeItem || activeItem === revealedActiveItem.value) return;
     revealedActiveItem.value = activeItem;
+    revealedRowScrollWidth.value = row.scrollWidth;
     revealItem(row, activeItem, behavior);
+}
+
+// Scrolls the active item into view again when the items have changed width since it was last scrolled into view, for
+// example when an earlier item's label grows once its data loads after a page reload. A change that leaves the widths
+// alone keeps wherever the user has scrolled to.
+function revealMovedActiveItem(behavior: ScrollBehavior): void {
+    const row = rowElement.value;
+    if (row && row.scrollWidth !== revealedRowScrollWidth.value) revealedActiveItem.value = undefined;
+    revealActiveItem(behavior);
 }
 
 function revealItem(row: HTMLElement, item: HTMLElement, behavior: ScrollBehavior = 'smooth'): void {
