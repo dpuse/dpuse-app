@@ -20,7 +20,7 @@ test.describe('Data views', () => {
         await expect(page).toHaveURL(/\/dataViews\/new\/connections/);
         await expect(page.getByRole('heading', { level: 1, name: 'New Data View' })).toBeVisible();
 
-        await page.getByRole('button', { name: 'Application Emulator', exact: true }).click();
+        await page.getByRole('button', { name: 'DPUse Application Emulator', exact: true }).click();
         await page.getByRole('button', { name: 'Select', exact: true }).click();
 
         await expect(page).toHaveURL(/\/dataViews\/(?!new\/)[^/]+\/items/);
@@ -46,7 +46,7 @@ test.describe('Data views', () => {
         const pill = page.locator('[data-region="DataViewPill"]');
         await expect(pill.getByRole('button', { name: 'Discard' })).toBeDisabled();
 
-        await page.getByRole('button', { name: 'Application Emulator', exact: true }).click();
+        await page.getByRole('button', { name: 'DPUse Application Emulator', exact: true }).click();
         await expect(pill.getByRole('button', { name: 'Discard' })).toBeEnabled();
         await expect(pill.getByRole('button', { name: 'Save' })).toBeDisabled(); // A connection alone is not a whole data view.
 
