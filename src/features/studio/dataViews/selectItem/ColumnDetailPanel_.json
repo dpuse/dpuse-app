@@ -1,6 +1,10 @@
 {
     "TEXT": {
         "close.aria": { "en": "Close column details", "es": "Cerrar los detalles de la columna" },
+        "columnAttention.aria": { "en": "Needs checking", "es": "Conviene revisarla" },
+        "columnSearch.aria": { "en": "Find a column", "es": "Buscar una columna" },
+        "columnSearch.empty.text": { "en": "No columns match", "es": "Ninguna columna coincide" },
+        "columnSearch.placeholder": { "en": "Find column", "es": "Buscar columna" },
         "decimalSeparator.label": { "en": "Decimal separator", "es": "Separador decimal" },
         "detected.text": { "en": "Detected as {type}", "es": "Detectado como {type}" },
         "formatChart.label": { "en": "Most common formats", "es": "Formatos más comunes" },

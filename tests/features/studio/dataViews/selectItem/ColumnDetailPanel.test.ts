@@ -142,4 +142,19 @@ describe('ColumnDetailPanel', () => {
                 .exists()
         ).toBe(true);
     });
+
+    it('opens the column chosen in the search between Previous and Next', async () => {
+        const columnSearchOptions = [
+            { id: '0', label: 'Amount', needsAttention: false },
+            { id: '2', label: 'City', needsAttention: true }
+        ];
+        const wrapper = mountPanel([buildColumn({})], { canStepColumns: true, columnSearchOptions });
+        const input = wrapper.get(`input[aria-label="${t(TEXT, 'columnSearch.aria')}"]`);
+
+        await input.setValue('cit');
+        expect(wrapper.find(`[role="option"] [aria-label="${t(TEXT, 'columnAttention.aria')}"]`).exists()).toBe(true);
+        await input.trigger('keydown', { key: 'Enter' });
+
+        expect(wrapper.emitted('select')).toStrictEqual([[2]]);
+    });
 });

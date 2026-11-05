@@ -39,7 +39,8 @@ const {
 
 defineSlots<{
     busy?(): unknown;
-    header(properties: { isSplit: boolean }): unknown;
+    header(properties: { isSplit: boolean; revealSelectedItem: () => void }): unknown; // 'revealSelectedItem' scrolls the list back to the selected item.
+
     item(properties: { item: T; isSplit: boolean; openDetail: () => void }): unknown; // 'openDetail' shows the selected item's detail again after the user closed it.
     'no-items'(): unknown;
     detail(properties: { item: T; close: () => void }): unknown;
@@ -52,6 +53,7 @@ defineEmits<{ add: [] }>();
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const bodyElement = useTemplateRef<HTMLElement>('bodyElement');
+const gridComponent = useTemplateRef<{ scrollToTarget: () => void }>('grid');
 const detailIsOpen = ref(false); // Whether the detail has been opened and not since dismissed, which is intent rather than visibility.
 const firstSelectionIsClosed = ref(isDetailInitiallyClosed); // Cleared once the first selection arrives, which may be after the list loads.
 const shownNarrowPaneId = ref<'detail' | 'grid'>(); // The pane shown on a narrow screen. Unset while the old pane fades out.
@@ -117,7 +119,7 @@ function handleShowNarrowPane(): void {
     <div class="flex h-full flex-col" data-region="GridDetailPanel">
         <!-- Header -->
         <header class="flex-none">
-            <slot name="header" :is-split="isSplit" />
+            <slot name="header" :is-split="isSplit" :reveal-selected-item="() => gridComponent?.scrollToTarget()" />
         </header>
 
         <!-- Body -->
@@ -128,6 +130,7 @@ function handleShowNarrowPane(): void {
             <Transition name="dpuse-action-fade" @after-leave="handleShowNarrowPane">
                 <Grid
                     v-show="gridPaneIsVisible"
+                    ref="grid"
                     :add-label="addLabel"
                     class="flex-1"
                     :data-source="dataSource"

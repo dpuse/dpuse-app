@@ -22,7 +22,7 @@ import {
     studioPaneIsVisible,
     studioPaneWasOpened
 } from '@/state/appPanes';
-import { initialiseServices, signInFollowsGuestUse } from '@/state/session';
+import { initialiseServices, sessionStartFailureIsVisible, signInFollowsGuestUse } from '@/state/session';
 import { isPWA, isSafariBrowser, viewportIsWide } from '@/state/device';
 import { loadAssistantLayout, prefetchAssistant } from '@/features/assistant/assistantLoaders';
 import { moduleUpdateIsAvailable, newAppVersionIsAvailable } from '@/state/appVersion';
@@ -181,6 +181,18 @@ function syncPaneQuery(): void {
     <div class="flex bg-surface pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] text-content" :class="isPWA ? 'h-screen w-screen' : 'h-dvh w-dvw'" data-region="App">
         <!-- App Failures ─ Failures that no pane or panel shows itself, in the app-level failure dialog. -->
         <ErrorDialog v-if="appFailures.length > 0" :can-retry="appFailuresCanRetry" :failures="appFailures" is-dismissible @dismiss="clearAppFailures" @retry="retryAppFailures" />
+
+        <!-- Session Start Failure ─ Informational, so closed with its ✕. The app carries on signed out. -->
+        <Dialog
+            v-if="sessionStartFailureIsVisible"
+            is-open
+            max-width="28rem"
+            sizing="reserved"
+            :title="t(TEXT, 'sessionStartFailure.title')"
+            @close="sessionStartFailureIsVisible = false"
+        >
+            <p class="p-4">{{ t(TEXT, 'sessionStartFailure.text') }}</p>
+        </Dialog>
 
         <!-- Notices ─ Stacked above the bottom row of controls, so two at once never overlap. The stack spans the width
              but lets clicks through, so the page beside a notice still works. -->

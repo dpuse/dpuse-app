@@ -41,10 +41,10 @@ const countsText = computed(() => {
 <template>
     <!-- Value Bar ─ Along the bottom of the header, positioned on the header cell. A button, because the counts in its title
          only show on hover, and it opens the column's detail for touch and keyboard. Each segment keeps a minimum width, so
-         a few bad values in a large item are still visible. 'inset-x-0.5' is the inset of the tint on an invalid cell and of
-         a tabbed header, so the bar is as wide as the tints in its column and sits on the tab's bottom edge. -->
-    <ActionWrapper :aria-label="countsText" class="absolute inset-x-0.5 bottom-0 flex pt-1" :title="countsText">
-        <span aria-hidden="true" class="flex h-1 w-full gap-px overflow-hidden rounded-full" :class="{ 'opacity-50': !isEmphasised }">
+         a few bad values in a large item are still visible. '-inset-x-px' reaches over the tab's 1px side borders, so
+         the bar is as wide as the tab and sits on its bottom edge. -->
+    <ActionWrapper :aria-label="countsText" class="absolute -inset-x-px bottom-0 flex pt-1" :title="countsText">
+        <span aria-hidden="true" class="flex h-0.75 w-full gap-px overflow-hidden" :class="{ 'opacity-50': !isEmphasised }">
             <span v-for="segment in shownSegments" :key="segment.id" class="min-w-0.5 basis-0" :class="segment.colorClass" :style="{ flexGrow: segment.count }" />
         </span>
     </ActionWrapper>

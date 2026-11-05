@@ -42,6 +42,19 @@ describe('initialiseServices', () => {
         expect(session.sessionIsAuthenticated.value).toBe(false);
     });
 
+    it('signs the user out and shows the session start notice, not a failure, when the session cannot be checked', async () => {
+        vi.doMock('@/services/auth', () => ({ loadAuthClient: vi.fn(() => Promise.resolve()), validateAuthSession: vi.fn(() => Promise.reject(new Error('Technical error.'))) }));
+        const errors = await import('@/state/errors');
+        const session = await import('@/state/session');
+
+        session.initialiseServices();
+        await flushPromises();
+
+        expect(errors.appFailures.value).toStrictEqual([]);
+        expect(session.sessionIsAuthenticated.value).toBe(false);
+        expect(session.sessionStartFailureIsVisible.value).toBe(true);
+    });
+
     it("shows the failure when a signed-in user's account code cannot be fetched", async () => {
         const claims = { expiration: new Date(Date.now() + 60_000).toISOString(), session_id: 'session-1', subject: 'user-1' };
         vi.doMock('@/services/auth', () => ({ loadAuthClient: vi.fn(() => Promise.resolve()), validateAuthSession: vi.fn(() => Promise.resolve(claims)) }));

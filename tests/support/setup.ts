@@ -32,6 +32,11 @@ Object.defineProperties(globalThis, {
     }
 });
 
+// jsdom has no 'scrollIntoView' either, and a list that keeps its current option in view calls it as the arrow keys move.
+Element.prototype.scrollIntoView = (): void => {
+    // jsdom has no layout, so there is nowhere to scroll to.
+};
+
 // jsdom implements neither observer. Components that measure themselves construct one on mount, so without these the
 // mount throws and the failure surfaces as something unrelated further up — a navigation error, or a component that
 // looks like it failed to render. No callback ever fires: nothing under test depends on a resize or an intersection,

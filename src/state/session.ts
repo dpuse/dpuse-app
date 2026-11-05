@@ -30,6 +30,7 @@ const expiryIntervalMs = ref(EXPIRE_INTERVAL_SLOW_MS);
 export const sessionIsAuthenticated = ref<boolean | undefined>(); // Undefined while Hanko checks the session, then true when signed in and false when signed out.
 export const lifetime = ref<number | undefined>();
 const sessionId = ref<string | undefined>();
+export const sessionStartFailureIsVisible = ref(false); // True when Hanko could not check the session at page load, so 'App.vue' explains why the user is signed out.
 export const signInFollowsGuestUse = ref(false); // True once a user signs in after using this page signed out, so their guest work can be offered to the account.
 const state = { accountMonitorIsStarted: false }; // A visitor who never signed in has no account monitor, so signing out skips loading its code.
 
@@ -79,12 +80,11 @@ async function initialiseHanko(): Promise<void> {
         establishSession('validated', await validateAuthSession());
         void initialisePerformanceTracking();
     } catch (error) {
-        // The same capability as a failed SDK load, and for the user the same loss: they cannot sign in. Named
-        // alike so a session that is offline for both reasons is one entry rather than two.
-        raiseAppFailure(new AppError('Session validation failed.', 'dpuse-app.session.initialiseHanko', { typeId: 'handled' }, { cause: error }), {
-            capability: 'authentication'
-        });
+        // Logged and reported, but not shown as a failure: the usual cause is a lost connection, which leaves the app
+        // working for a signed-out user. A notice explains why they are signed out instead.
+        void hasReportedAppError(new AppError('Session validation failed.', 'dpuse-app.session.initialiseHanko', { typeId: 'handled' }, { cause: error }));
         establishSession('validationFailure');
+        sessionStartFailureIsVisible.value = true;
     }
 }
 

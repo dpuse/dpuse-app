@@ -13,8 +13,10 @@ import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 interface Properties {
     items?: T[];
     disableLast?: boolean;
+    disabledIndex?: number; // Shows the crumb at this position as plain text, such as the open folder before a chosen item.
 }
-const { items = [], disableLast } = defineProps<Properties>();
+const { items = [], disableLast, disabledIndex } = defineProps<Properties>();
+defineSlots<{ icon?(properties: { item: T }): unknown }>(); // Rendered in place of a crumb's icon component, e.g. a config's own SVG icon.
 defineEmits<{ select: [index: number, item: T] }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -22,7 +24,7 @@ defineEmits<{ select: [index: number, item: T] }>();
 const enrichedItems = computed(() =>
     items.map((item, index) => ({
         item,
-        isDisabled: index === items.length - 1 && disableLast
+        isDisabled: index === disabledIndex || (index === items.length - 1 && disableLast)
     }))
 );
 </script>
@@ -40,6 +42,7 @@ const enrichedItems = computed(() =>
                 :aria-disabled="isDisabled || undefined"
                 :aria-label="item.label"
                 class="flex items-center"
+                :title="item.icon ? item.label : undefined"
                 :class="[
                     item.icon ? 'flex-none' : 'max-w-full min-w-0 overflow-hidden',
                     isDisabled
@@ -48,9 +51,12 @@ const enrichedItems = computed(() =>
                 ]"
                 @click="!isDisabled ? $emit('select', index, item) : undefined"
             >
-                <!-- Display as icon. -->
+                <!-- Display as icon. An icon crumb is named by its tooltip, because the icon alone may not say what it
+                     is. -->
                 <span v-if="item.icon">
-                    <component :is="item.icon" aria-hidden="true" class="size-5!" :stroke-width="1.5" />
+                    <slot name="icon" :item="item">
+                        <component :is="item.icon" aria-hidden="true" class="size-5!" :stroke-width="1.5" />
+                    </slot>
                 </span>
 
                 <!-- Display as label. -->

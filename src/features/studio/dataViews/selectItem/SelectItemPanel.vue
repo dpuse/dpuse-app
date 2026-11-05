@@ -81,7 +81,6 @@ import type { AuditChoice } from './AuditMenu.vue';
 import AuditMenu from './AuditMenu.vue';
 import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
 import ColumnValueBar from './ColumnValueBar.vue';
-import { constructFittedColumnWidth } from '@/components/ui/table/tableColumnWidth';
 import type { DataSource } from '@/composables/useDataWindow';
 import { establishEngineWorker } from '@/services/engine';
 import { getColumnTypeIcon } from '../_columnTypeIcons';
@@ -132,6 +131,7 @@ import {
     type PreviewColumnRow
 } from '../_previewColumnRows';
 import { constructDataViewConnection, constructItemPath } from '../dataViewSummary';
+import { constructFittedColumnWidth, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
 import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
 import { listDataViewStoreConnections, resolveStoreConnectorId } from '../_dataViewStore';
@@ -142,7 +142,7 @@ import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
 import ColumnDetailPanel from './ColumnDetailPanel.vue';
-import ColumnMenu from './ColumnMenu.vue';
+import type { ColumnSearchOption } from './ColumnDetailPanel.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import DataViewSource from '../DataViewSource.vue';
@@ -415,9 +415,6 @@ const text = ref<string | undefined>();
 // ── Scrolling
 const documentScrollElement = shallowRef<HTMLElement>();
 
-// TODO: Fix this icon data type compatibility issue.
-const homeBreadcrumb = { id: 'home', icon: markRaw(HouseIcon), label: 'Home' } as unknown as ConnectionNodeConfig;
-
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The saved connection, which this step lists the items of. Looked up again from the list, so it follows a change of
@@ -434,7 +431,19 @@ const itemTypeIcon = computed(() => {
     return itemTypeId === 'file' ? FileIcon : SheetIcon; // A connector released before it named its kind of item shows tables, as the summary row does.
 });
 
-const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [homeBreadcrumb, ...currentFolderNodes.value]);
+// The trail starts at the connection, which its tooltip and screen readers name. The house icon stands in only until
+// the connection is known, because the trail draws the connector's own icon in its place.
+// TODO: Fix this icon data type compatibility issue.
+const rootBreadcrumb = computed(
+    () => ({ id: 'home', icon: markRaw(HouseIcon), label: activeDataViewConnection.value?.label ?? t(TEXT, 'home.label') }) as unknown as ConnectionNodeConfig
+);
+const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [rootBreadcrumb.value, ...currentFolderNodes.value]);
+// The trail ends with the chosen item, so its name stays on screen after the list scrolls it out of view. The item's
+// own icon is left out, because the trail draws icons as components and an item's icon is an SVG string.
+const shownBreadcrumbs = computed<ConnectionNodeConfig[]>(() => {
+    const itemConfig = activeConnectionObjectConfig.value;
+    return itemConfig == null ? breadcrumbs.value : [...breadcrumbs.value, { ...itemConfig, icon: null }];
+});
 const backLabel = computed(() => currentFolderNodes.value.at(-1)?.label ?? t(TEXT, 'home.label')); // Names the folder the back button returns to.
 
 // ── Preview ─ A file the preview could not read as text says so on the details tab.
@@ -817,6 +826,15 @@ const selectedColumnRowIndex = computed(() => {
 const tableColumnIndexes = computed(() =>
     (activeItemReading.value?.columnConfigs ?? []).map((columnConfig, index) => (isDerivedColumn(columnConfig) ? undefined : index)).filter((index) => index !== undefined)
 );
+// The columns a column's detail can search for: the table's own, because a derived column only holds values for another.
+const columnSearchOptions = computed((): ColumnSearchOption[] => {
+    const columnRows = activeItemReading.value == null ? [] : constructPreviewColumnRows(activeItemReading.value);
+    return tableColumnIndexes.value.map((columnIndex) => ({
+        id: String(columnIndex),
+        label: columnRows[columnIndex]?.label ?? '',
+        needsAttention: columnRowsNeedingAttention.value.has(columnIndex)
+    }));
+});
 const steppedColumnIndexes = computed(() => (currentPreviewTabId.value === 'table' ? tableColumnIndexes.value : shownColumnIndexes.value));
 const selectedColumnStepIndex = computed(() => {
     const stepIndex = selectedColumnIndex.value == null ? -1 : steppedColumnIndexes.value.indexOf(selectedColumnIndex.value);
@@ -1134,9 +1152,15 @@ function isKeyColumn(columnId: string): boolean {
     return isRequiredColumn(columnId) && activeItemReading.value?.columnConfigs[Number(columnId)]?.isUnique === true;
 }
 
-// The detail opens in the tab the user is in, so they keep their place.
-function handleShowColumnDetail(columnIndex: number): void {
+// The detail opens in the tab the user is in, so they keep their place. The table scrolls the clicked column's tab into
+// view, as it does for Previous and Next. A click on the selected column's tab closes its detail, as the ✕ does.
+function handleToggleColumnDetail(columnIndex: number): void {
+    if (selectedColumnIndex.value === columnIndex) {
+        selectedColumnIndex.value = undefined;
+        return;
+    }
     selectedColumnIndex.value = columnIndex;
+    if (currentPreviewTabId.value === 'table') previewTableComponent.value?.scrollColumnIntoView(String(columnIndex));
 }
 
 // Previous and Next step through the columns the current tab shows: the item's own in the table, and the rows of the
@@ -1149,6 +1173,12 @@ function handleStepColumn(direction: -1 | 1): void {
     if (nextColumnIndex == null) return;
     selectedColumnIndex.value = nextColumnIndex;
     if (currentPreviewTabId.value === 'table') previewTableComponent.value?.scrollColumnIntoView(String(nextColumnIndex));
+}
+
+// A column found with the search in a column's detail, which the table scrolls to, as it does for Previous and Next.
+function handleSelectColumn(columnIndex: number): void {
+    selectedColumnIndex.value = columnIndex;
+    if (currentPreviewTabId.value === 'table') previewTableComponent.value?.scrollColumnIntoView(String(columnIndex));
 }
 
 // The folded read choices open below the toolbar, lined up with its start, where their button is. Placed before they
@@ -1784,7 +1814,7 @@ function constructPreviewColumnWidth(itemReading: ItemReading, label: string, co
     });
     const fittedWidth = constructFittedColumnWidth(label, values, {
         cellExtraPx: (columnValueCounts.value[columnIndex]?.invalidCount ?? 0) > 0 ? PREVIEW_INVALID_ICON_WIDTH_PX : 0,
-        headerExtraPx: PREVIEW_COLUMN_MARKS_WIDTH_PX,
+        headerExtraPx: PREVIEW_COLUMN_MARKS_WIDTH_PX + HEADER_TAB_INSET_PX,
         maximumWidthPx: isNumeric ? Infinity : undefined
     });
     return Math.max(fittedWidth, MINIMUM_FITTED_PREVIEW_COLUMN_WIDTH_PX);
@@ -1886,29 +1916,40 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
     <ErrorNotice v-if="listFailure" :failures="[listFailure]" @retry="handleRetryList" />
 
     <GridDetailPanel v-else :selected-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="400px">
-        <template #header="{ isSplit }">
+        <template #header="{ isSplit, revealSelectedItem }">
             <div class="flex h-full min-w-0 items-center gap-x-3 border-b border-separator px-page text-sm">
-                <!-- The last crumb is the item on show. It leads back to the list, so it stays live only while the list
-                     is hidden; 'isSplit' comes from the panel below so the two cannot disagree about that. -->
                 <!-- Back Button ─ Narrow screens show the preview in place of the list, so the trail gives way to
                      one button back to it. The arrow and 'gap-x-2' match the icon and gap of each row in
                      'DataViewSource', so the arrow centres under those icons and the label lines up with theirs. -->
-                <ActionWrapper
-                    v-if="!isSplit && activeConnectionObjectConfig != null"
-                    :aria-label="t(TEXT, 'back.aria', { label: backLabel })"
-                    class="flex h-9.25 min-w-0 flex-1 cursor-pointer items-center gap-x-2 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-                    @click="handleReturnToList"
-                >
-                    <ArrowLeftIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
-                    <span class="min-w-0 truncate">{{ backLabel }}</span>
-                </ActionWrapper>
+                <template v-if="!isSplit && activeConnectionObjectConfig != null">
+                    <ActionWrapper
+                        :aria-label="t(TEXT, 'back.aria', { label: backLabel })"
+                        class="flex h-9.25 min-w-0 shrink cursor-pointer items-center gap-x-2 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                        @click="handleReturnToList"
+                    >
+                        <ArrowLeftIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
+                        <span class="min-w-0 truncate">{{ backLabel }}</span>
+                    </ActionWrapper>
+                    <!-- The chosen item's name follows the folder the button returns to, as in the trail.
+                         '-mx-1.5' cancels part of the row's gap, so the slash is spaced as the trail spaces its own. -->
+                    <span aria-hidden="true" class="-mx-1.5 flex-none text-subtle">/</span>
+                    <span class="min-w-0 flex-1 truncate text-muted">{{ activeConnectionObjectConfig.label }}</span>
+                </template>
+                <!-- The open folder is plain text while an item is chosen, because the item's crumb follows it. The
+                     item's crumb scrolls the list back to the item. -->
                 <Breadcrumbs
                     v-else
                     class="h-9.25 min-w-0 flex-1"
-                    :items="breadcrumbs"
-                    :disable-last="isSplit || activeConnectionObjectConfig == null"
-                    @select="handleSelectBreadcrumb"
-                />
+                    :items="shownBreadcrumbs"
+                    :disable-last="activeConnectionObjectConfig == null"
+                    :disabled-index="activeConnectionObjectConfig == null ? undefined : breadcrumbs.length - 1"
+                    @select="(index, connectionNodeConfig) => (index === breadcrumbs.length ? revealSelectedItem() : handleSelectBreadcrumb(index, connectionNodeConfig))"
+                >
+                    <template #icon>
+                        <ConfigIcon v-if="activeDataViewConnection" class="size-5" :icon="activeDataViewConnection.icon" :icon-dark="activeDataViewConnection.iconDark" />
+                        <HouseIcon v-else aria-hidden="true" class="size-5" :stroke-width="1.5" />
+                    </template>
+                </Breadcrumbs>
             </div>
         </template>
 
@@ -2290,13 +2331,20 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     is-header-tabbed
                     :selected-column-id="selectedColumnIndex == null ? undefined : String(selectedColumnIndex)"
                 >
-                    <!-- Column Name ─ Opens the column's detail over the rows. -->
+                    <!-- Column Name ─ Opens the column's detail over the rows, or closes it on the selected tab. The
+                         button's overlay covers the whole tab, so a click anywhere on it does the same, while the name
+                         stays the button's accessible name. -->
                     <template #header-label="{ columnId }">
                         <ActionWrapper
                             :aria-current="Number(columnId) === selectedColumnIndex ? 'true' : undefined"
-                            class="min-w-0 flex-1 truncate text-left text-sm font-medium text-muted hover:underline"
-                            :title="t(TEXT, 'columnDetail.label', { label: String(previewTableColumnDefinitions[Number(columnId)]?.header) })"
-                            @click="handleShowColumnDetail(Number(columnId))"
+                            class="min-w-0 flex-1 truncate text-left text-sm font-medium after:absolute after:inset-0"
+                            :class="Number(columnId) === selectedColumnIndex ? 'text-emphasis' : 'text-muted'"
+                            :title="
+                                t(TEXT, Number(columnId) === selectedColumnIndex ? 'columnDetail.close.label' : 'columnDetail.label', {
+                                    label: String(previewTableColumnDefinitions[Number(columnId)]?.header)
+                                })
+                            "
+                            @click="handleToggleColumnDetail(Number(columnId))"
                             >{{ previewTableColumnDefinitions[Number(columnId)]?.header }}</ActionWrapper
                         >
                     </template>
@@ -2317,28 +2365,16 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             :column-label="String(previewTableColumnDefinitions[Number(columnId)]?.header)"
                             :column-value-counts="columnValueCounts[Number(columnId)]!"
                             :is-emphasised="selectedColumnIndex != null"
-                            @click="handleShowColumnDetail(Number(columnId))"
+                            @click="handleToggleColumnDetail(Number(columnId))"
                         />
-                        <!-- Column Menu ─ The type icon opens the column's type and options, so the header needs only one
-                             row. It comes last, after the name it describes. Choosing a type changes how the column is
-                             read, not the records, so nothing is read again. -->
-                        <ColumnMenu
-                            :column-label="String(previewTableColumnDefinitions[Number(columnId)]?.header)"
-                            :decimal-separator-options="constructDecimalSeparatorOptions(columnId)"
-                            :decimal-separator-value="constructDecimalSeparatorValue(columnId)"
-                            :is-disabled="readChoicesAreLocked"
-                            :is-type-chosen="selectedColumnTypes[columnId] != null"
-                            :null-word-reading="constructNullWordReading(columnId)"
-                            :null-word-value-count="activeItemReading?.columnConfigs[Number(columnId)]?.nullWordValueCount"
-                            :type-icon="constructColumnTypeIcon(columnId)"
-                            :type-options="constructColumnTypeOptions(columnId)"
-                            :type-text="constructColumnTypeText(columnId)"
-                            :type-value="constructColumnTypeValue(columnId)"
-                            @show-detail="handleShowColumnDetail(Number(columnId))"
-                            @update:decimal-separator-value="handleSelectDecimalSeparator(columnId, $event)"
-                            @update:null-words-are-empty="handleSelectNullWords(columnId, $event)"
-                            @update:type-value="handleSelectColumnType(columnId, $event)"
-                        />
+                        <!-- Type Icon ─ Shows the column's type after its name. The type is chosen in the column's
+                             detail, so a click on the icon opens the detail like the rest of the tab. The dot marks a
+                             type the user chose. 'pointer-events-none' lets a click through to the tab, because the
+                             dot's positioning would otherwise lift the icon above the tab's overlay. -->
+                        <span :aria-label="constructColumnTypeText(columnId)" class="pointer-events-none relative ml-1.5 flex flex-none items-center text-sm text-muted" role="img">
+                            <component :is="constructColumnTypeIcon(columnId)" aria-hidden="true" class="size-[1.25em] flex-none" />
+                            <span v-if="selectedColumnTypes[columnId] != null" aria-hidden="true" class="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-muted" />
+                        </span>
                     </template>
                     <!-- Value Marks ─ A shape as well as the tint, so an invalid value does not rely on colour. It goes at the far
                          end of the cell from the value, so the value never moves. Blank and missing values have nothing to
@@ -2376,9 +2412,10 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <Transition name="dpuse-sheet">
                     <ColumnDetailPanel
                         v-if="selectedColumnIndex != null && activeItemReading != null"
-                        class="absolute inset-x-0 top-10 bottom-0 z-10 border-t border-separator bg-surface shadow-md"
+                        class="absolute inset-x-0 top-10 bottom-0 z-10 bg-surface shadow-md"
                         can-step-columns
                         :column-index="selectedColumnIndex"
+                        :column-search-options="columnSearchOptions"
                         :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
                         :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
                         :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
@@ -2391,6 +2428,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
                         :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
                         @close="selectedColumnIndex = undefined"
+                        @select="handleSelectColumn"
                         @step="handleStepColumn"
                         @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
                         @update:null-words-are-empty="handleSelectNullWords(String(selectedColumnIndex), $event)"
@@ -2446,6 +2484,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         class="min-w-0 flex-1 border-l border-separator"
                         :can-step-columns="columnDetailFillsSpace"
                         :column-index="selectedColumnIndex"
+                        :column-search-options="columnSearchOptions"
                         :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
                         :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
                         :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
@@ -2458,6 +2497,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
                         :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
                         @close="selectedColumnIndex = undefined"
+                        @select="handleSelectColumn"
                         @step="handleStepColumn"
                         @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
                         @update:null-words-are-empty="handleSelectNullWords(String(selectedColumnIndex), $event)"

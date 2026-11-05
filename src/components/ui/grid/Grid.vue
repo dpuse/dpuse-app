@@ -50,6 +50,7 @@ const {
 defineSlots<{ busy?(): unknown; default?(properties: { index: number; item: T }): unknown; 'no-items'?(): unknown }>();
 
 defineEmits<{ add: []; select: [item: T | undefined] }>();
+defineExpose({ scrollToTarget });
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -132,6 +133,13 @@ watch(
 
 function handleScrollAreaInitialised(viewport: HTMLElement): void {
     scrollElement.value = viewport;
+}
+
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Scrolls the target row into view again, for a user who scrolled away and asks to see the selection.
+function scrollToTarget(): void {
+    scrolledToTarget.value = undefined;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

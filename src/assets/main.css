@@ -475,16 +475,23 @@
     opacity: 0;
     transform: scaleY(0.75) translateY(6px);
 }
-.dpuse-sheet-enter-active,
-.dpuse-sheet-leave-active {
+.dpuse-sheet-enter-active {
     transition:
         transform 0.3s var(--ease-sheet),
         opacity 0.2s ease;
     will-change: transform, opacity;
 }
-.dpuse-sheet-enter-from,
-.dpuse-sheet-leave-to {
+.dpuse-sheet-enter-from {
     opacity: 0;
+    transform: translateY(100%);
+}
+/* A sheet leaves by sliding only, starting slowly. A fade would turn it see-through while it still covers the content
+   behind, which shows through as a flash. */
+.dpuse-sheet-leave-active {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1);
+    will-change: transform;
+}
+.dpuse-sheet-leave-to {
     transform: translateY(100%);
 }
 .dpuse-sheet-leave-active::backdrop,

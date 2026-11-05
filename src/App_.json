@@ -1,5 +1,10 @@
 {
     "TEXT": {
-        "assistantPane.aria": { "en": "Assistant", "es": "Asistente" }
+        "assistantPane.aria": { "en": "Assistant", "es": "Asistente" },
+        "sessionStartFailure.text": {
+            "en": "DPUse could not check whether you are signed in, usually because there is no internet connection. You can carry on without signing in. Sign in again once you are back online.",
+            "es": "DPUse no pudo comprobar si has iniciado sesión, normalmente porque no hay conexión a internet. Puedes continuar sin iniciar sesión. Vuelve a iniciar sesión cuando tengas conexión."
+        },
+        "sessionStartFailure.title": { "en": "Failed to Start Session", "es": "No se pudo iniciar la sesión" }
     }
 }

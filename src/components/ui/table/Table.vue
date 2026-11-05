@@ -6,7 +6,7 @@ import { computed, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
 import { useEventListener, useResizeObserver } from '@vueuse/core';
 
 // ── Local Framework
-import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX } from './tableColumnWidth';
+import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX, HEADER_TAB_INSET_PX } from './tableColumnWidth';
 import { type DataSource, useDataWindow } from '@/composables/useDataWindow';
 
 // ── Static Components
@@ -184,6 +184,8 @@ const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value
 // scrolls sideways.
 const contentMinWidth = computed(() => (isCollapsedToPinned ? '100%' : `${String(totalWidth.value)}px`));
 const virtualColumns = computed(() => (columnVirtualisationIsRequired.value ? columnVirtualizer.value.getVirtualItems() : []));
+// A column's detail covers the rows while a tab is selected, so a resize there would change nothing the user can see.
+const columnResizeIsHidden = computed(() => isCollapsedToPinned || (isHeaderTabbed && selectedColumnId != null));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -218,14 +220,16 @@ function handleFitColumn(columnId: string): void {
         return;
     }
     const values = visibleRowData.value.map((row) => String(row?.[columnId] ?? ''));
-    const fittedWidth = constructFittedColumnWidth(String(column?.columnDef.header), values, { headerExtraPx: isColumnMenuHidden ? 0 : HEADER_MENU_WIDTH_PX });
+    const fittedWidth = constructFittedColumnWidth(String(column?.columnDef.header), values, {
+        headerExtraPx: (isColumnMenuHidden ? 0 : HEADER_MENU_WIDTH_PX) + (isHeaderTabbed ? HEADER_TAB_INSET_PX : 0)
+    });
     table.setColumnSizing((columnSizing) => ({ ...columnSizing, [columnId]: fittedWidth }));
 }
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Scrolls sideways just far enough to show a column chosen outside the table, such as by a detail panel's Previous and
-// Next. A pinned column is always in view.
+// Scrolls sideways just far enough to show a chosen column, such as by a detail panel's Previous and Next or a click on
+// a tabbed header. A column wider than the view shows from its start. A pinned column is always in view.
 function scrollColumnIntoView(columnId: string): void {
     const scroller = innerScrollElement.value;
     const column = table.getColumn(columnId);
@@ -234,7 +238,7 @@ function scrollColumnIntoView(columnId: string): void {
     const columnEnd = columnStart + column.getSize();
     const visibleWidth = scroller.clientWidth - leftPinnedWidth.value - rightPinnedWidth.value - EDGE_INSET_PX - END_INSET_PX;
     if (columnStart < scroller.scrollLeft) scroller.scrollTo({ behavior: 'smooth', left: columnStart });
-    else if (columnEnd > scroller.scrollLeft + visibleWidth) scroller.scrollTo({ behavior: 'smooth', left: columnEnd - visibleWidth });
+    else if (columnEnd > scroller.scrollLeft + visibleWidth) scroller.scrollTo({ behavior: 'smooth', left: Math.min(columnStart, columnEnd - visibleWidth) });
 }
 
 defineExpose({ scrollColumnIntoView });
@@ -283,12 +287,11 @@ function handleBodyWheel(wheelEvent: WheelEvent): void {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A tabbed header draws its tab on a layer inside the column, so the gap either side, where the resize handle sits,
-// shows the header row behind it. The tab stays white with an outline for its shape, so only the selected tab is filled.
+// A tabbed header's cell is the tab, padded in from its column so the gap either side, where the resize handle sits,
+// shows the header row behind it.
 function constructHeaderClass(columnId: string): string | undefined {
-    const isSelected = columnId === selectedColumnId;
-    if (!isHeaderTabbed) return isSelected ? 'state-selected' : undefined;
-    return `before:absolute before:inset-x-0.5 before:top-1.5 before:bottom-0 before:rounded-t-md before:border before:border-b-0 before:border-boundary ${isSelected ? 'before:state-selected' : ''}`;
+    if (isHeaderTabbed) return 'px-1 pt-1.5';
+    return columnId === selectedColumnId ? 'state-selected' : undefined;
 }
 </script>
 
@@ -307,8 +310,8 @@ function constructHeaderClass(columnId: string): string | undefined {
              header scrolls sideways too, so a swipe over the column names moves the columns (syncBodyScroll). -->
             <div ref="headerViewport" class="scrollbar-none overflow-x-auto overflow-y-hidden overscroll-none" role="rowgroup" @scroll.passive="syncBodyScroll">
                 <div
-                    class="flex border-b border-boundary"
-                    :class="[$slots['header-detail'] ? 'h-17' : 'h-10', isHeaderTabbed ? 'bg-surface' : 'bg-backdrop']"
+                    class="flex border-b bg-backdrop"
+                    :class="[$slots['header-detail'] ? 'h-17' : 'h-10', isHeaderTabbed ? 'border-separator' : 'border-boundary']"
                     :style="{ minWidth: contentMinWidth }"
                     role="row"
                 >
@@ -318,19 +321,17 @@ function constructHeaderClass(columnId: string): string | undefined {
                     <div
                         v-for="leftLeafHeader in leftLeafHeaders"
                         :key="leftLeafHeader.id"
-                        class="sticky"
-                        :class="[
-                            isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary',
-                            isHeaderTabbed ? 'bg-surface' : 'bg-backdrop',
-                            constructHeaderClass(leftLeafHeader.column.id)
-                        ]"
+                        class="sticky bg-backdrop"
+                        :class="[isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary', constructHeaderClass(leftLeafHeader.column.id)]"
                         role="columnheader"
                         :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: isCollapsedToPinned ? undefined : leftLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                     >
                         <TableHeaderCell
                             :header="leftLeafHeader"
                             :is-menu-hidden="isColumnMenuHidden"
-                            :is-resize-hidden="isCollapsedToPinned"
+                            :is-resize-hidden="columnResizeIsHidden"
+                            :is-selected="leftLeafHeader.column.id === selectedColumnId"
+                            :is-tabbed="isHeaderTabbed"
                             @fit-width="handleFitColumn(leftLeafHeader.column.id)"
                         >
                             <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="leftLeafHeader.column.id" /></template>
@@ -350,7 +351,7 @@ function constructHeaderClass(columnId: string): string | undefined {
                             role="columnheader"
                             :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
                         >
-                            <TableHeaderCell :header="centerLeafHeader" :is-menu-hidden="isColumnMenuHidden" @fit-width="handleFitColumn(centerLeafHeader.column.id)">
+                            <TableHeaderCell :header="centerLeafHeader" :is-menu-hidden="isColumnMenuHidden" :is-resize-hidden="columnResizeIsHidden" :is-selected="centerLeafHeader.column.id === selectedColumnId" :is-tabbed="isHeaderTabbed" @fit-width="handleFitColumn(centerLeafHeader.column.id)">
                                 <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="centerLeafHeader.column.id" /></template>
                                 <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="centerLeafHeader.column.id" /></template>
                                 <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="centerLeafHeader.column.id" /></template>
@@ -371,6 +372,9 @@ function constructHeaderClass(columnId: string): string | undefined {
                             <TableHeaderCell
                                 :header="centerLeafHeaders[virtualColumn.index]!"
                                 :is-menu-hidden="isColumnMenuHidden"
+                                :is-resize-hidden="columnResizeIsHidden"
+                                :is-selected="centerLeafHeaders[virtualColumn.index]!.column.id === selectedColumnId"
+                                :is-tabbed="isHeaderTabbed"
                                 @fit-width="handleFitColumn(centerLeafHeaders[virtualColumn.index]!.column.id)"
                             >
                                 <template v-if="$slots['header-detail']" #detail
@@ -389,12 +393,12 @@ function constructHeaderClass(columnId: string): string | undefined {
                     <div
                         v-for="rightLeafHeader in rightLeafHeaders"
                         :key="rightLeafHeader.id"
-                        class="sticky shrink-0 border-l border-boundary"
-                        :class="[isHeaderTabbed ? 'bg-surface' : 'bg-backdrop', constructHeaderClass(rightLeafHeader.column.id)]"
+                        class="sticky shrink-0 border-l border-boundary bg-backdrop"
+                        :class="constructHeaderClass(rightLeafHeader.column.id)"
                         role="columnheader"
                         :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                     >
-                        <TableHeaderCell :header="rightLeafHeader" :is-menu-hidden="isColumnMenuHidden" @fit-width="handleFitColumn(rightLeafHeader.column.id)">
+                        <TableHeaderCell :header="rightLeafHeader" :is-menu-hidden="isColumnMenuHidden" :is-resize-hidden="columnResizeIsHidden" :is-selected="rightLeafHeader.column.id === selectedColumnId" :is-tabbed="isHeaderTabbed" @fit-width="handleFitColumn(rightLeafHeader.column.id)">
                             <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="rightLeafHeader.column.id" /></template>
                             <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="rightLeafHeader.column.id" /></template>
                             <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="rightLeafHeader.column.id" /></template>

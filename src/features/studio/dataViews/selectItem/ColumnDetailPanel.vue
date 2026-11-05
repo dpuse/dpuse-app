@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
+import { ChevronLeftIcon, ChevronRightIcon, TriangleAlertIcon } from '@lucide/vue';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
@@ -21,12 +21,19 @@ import { localeId, t } from '@/state/locale';
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import CloseButton from '@/components/ui/action/CloseButton.vue';
+import ComboboxInput from '@/components/ui/ComboboxInput.vue';
 import SelectInput from '@/components/ui/SelectInput.vue';
 import type { SelectOption } from '@/components/ui/SelectInput.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 type DetailTabId = 'formats' | 'frequent' | 'overview' | 'samples';
+
+export interface ColumnSearchOption {
+    id: string; // The column's position in the item, as text.
+    label: string;
+    needsAttention: boolean; // Has invalid values or an ambiguous number format, so the list marks it as the table does.
+}
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -38,6 +45,7 @@ const CHART_ROW_COUNT = 5; // Bars in each Overview chart. The Frequent and Form
 const {
     canStepColumns,
     columnIndex,
+    columnSearchOptions = [],
     decimalSeparatorOptions = [],
     decimalSeparatorValue,
     detectedColumnType,
@@ -52,6 +60,7 @@ const {
 } = defineProps<{
     canStepColumns?: boolean; // Filling the space hides the table, so Previous and Next take its place.
     columnIndex: number;
+    columnSearchOptions?: ColumnSearchOption[]; // The columns the search between Previous and Next can open.
     decimalSeparatorOptions?: SelectOption[]; // Only a column of numbers has any.
     decimalSeparatorValue?: string;
     detectedColumnType: ColumnType | undefined;
@@ -66,6 +75,7 @@ const {
 }>();
 const emit = defineEmits<{
     close: [];
+    select: [columnIndex: number];
     step: [direction: -1 | 1];
     'update:decimalSeparatorValue': [decimalSeparatorValue: string];
     'update:nullWordsAreEmpty': [nullWordsAreEmpty: boolean];
@@ -224,6 +234,25 @@ function constructChartRows(rows: { count: number; countText: string; id: string
                     <ActionWrapper :aria-label="t(TEXT, 'previous.aria')" class="rounded-md p-1 enabled:hover:state-hover" :disabled="!hasPreviousColumn" @click="emit('step', -1)">
                         <ChevronLeftIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
                     </ActionWrapper>
+                    <ComboboxInput
+                        v-if="columnSearchOptions.length > 1"
+                        class="w-40 min-w-0 flex-none"
+                        :empty-text="t(TEXT, 'columnSearch.empty.text')"
+                        :label="t(TEXT, 'columnSearch.aria')"
+                        :options="columnSearchOptions"
+                        :placeholder="t(TEXT, 'columnSearch.placeholder')"
+                        @select="emit('select', Number($event.id))"
+                    >
+                        <template #option-icon="{ option }">
+                            <TriangleAlertIcon
+                                v-if="option.needsAttention"
+                                :aria-label="t(TEXT, 'columnAttention.aria')"
+                                class="size-4 flex-none text-warning-text"
+                                role="img"
+                                :stroke-width="1.5"
+                            />
+                        </template>
+                    </ComboboxInput>
                     <ActionWrapper :aria-label="t(TEXT, 'next.aria')" class="rounded-md p-1 enabled:hover:state-hover" :disabled="!hasNextColumn" @click="emit('step', 1)">
                         <ChevronRightIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
                     </ActionWrapper>

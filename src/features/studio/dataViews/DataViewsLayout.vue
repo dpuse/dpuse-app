@@ -308,14 +308,15 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
 
         <!-- Summary ─ What the data view is built from so far, under its name as on its card. The row is always there,
              even when empty, so the first choice does not push the panel down. Screen readers skip it, because they hear
-             each saved choice with its task. -->
+             each saved choice with its task. The item task leaves it out, because that task's trail already names the
+             connection and the chosen item. -->
         <!-- Summary and Task Bar ─ Fade in with the first task's panel, and go at once when the list comes back, so the
              list never sits below them. The current task follows the route, so between tasks it moves on the click. While
              they wait for the data view after a reload, 'invisible' keeps their space, so nothing below them moves when
              they fade in. -->
         <Transition enter-active-class="dpuse-action-fade-enter-active" enter-from-class="dpuse-action-fade-enter-from">
             <div v-if="taskIdOnScreen" class="flex flex-none flex-col transition-opacity duration-250 ease-[ease]" :class="{ 'invisible opacity-0': summaryAndTaskBarArePending }">
-                <div class="flex h-7 flex-none items-start gap-x-3 px-page pb-2 text-sm">
+                <div v-if="taskIdOnScreen !== 'item'" class="flex h-7 flex-none items-start gap-x-3 px-page pb-2 text-sm">
                     <DataViewSource
                         aria-hidden="true"
                         class="min-w-0 flex-1"
