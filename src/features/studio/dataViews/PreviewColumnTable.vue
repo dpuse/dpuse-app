@@ -15,7 +15,7 @@ import ScrollRegion from '@/components/ui/scroll/ScrollRegion.vue';
 
 const { isLabelShown, itemReading, rowLimit } = defineProps<{
     isLabelShown?: boolean; // Shows the table's title above it. Leave it off where a heading already names the table.
-    itemReading: ItemReading;
+    itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders'>;
     rowLimit?: number; // The first rows to show. Every row when undefined.
 }>();
 

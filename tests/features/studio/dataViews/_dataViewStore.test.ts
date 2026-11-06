@@ -38,10 +38,11 @@ const DUCKDB_STORE_CONNECTOR_ID = 'dpuse-connector-duckdb-wasm';
 const DATA_VIEW = {
     connectionId: 'source1',
     connectionNodeConfig: { folderPath: '/data', id: 'sales.csv', label: 'sales.csv', name: 'sales.csv', typeId: 'object' },
-    columnSetConfig: { asAt: 5, columnConfigs: [{ dataTypeId: 'string', label: { en: 'Name' } }] },
+    columnChoiceConfigs: {},
+    contentAuditConfig: { asAt: 5, columns: [{ dataTypeId: 'string', label: { en: 'Name' } }] },
     id: 'dataView1',
-    previewConfig: { parsedRecords: [[{ value: 'Name', valueWasQuoted: false }]] },
-    readConfig: { dataFormatId: 'dsv', encodingId: 'utf-8', hasHeaders: true, parserId: 'parser1', valueDelimiterId: ',' }
+    readingConfig: { dataFormatId: 'dsv', encodingId: 'utf-8', hasHeaders: true, parserId: 'parser1', valueDelimiterId: ',' },
+    sampleConfig: { parsedRecords: [[{ value: 'Name', valueWasQuoted: false }]] }
 } as unknown as DataViewConfig;
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -82,7 +83,7 @@ describe('_dataViewStore', () => {
 
         expect(processRequest.mock.calls[0]?.[0]).toBe('loadObjectRecords');
         expect(processRequest.mock.calls[0]?.[2]).toMatchObject({
-            columnConfigs: DATA_VIEW.columnSetConfig?.columnConfigs,
+            columnConfigs: DATA_VIEW.contentAuditConfig?.columns,
             hasHeaders: true,
             headerValues: ['Name'],
             path: 'dataView1',
@@ -91,7 +92,7 @@ describe('_dataViewStore', () => {
         });
         expect(onProgress).toHaveBeenCalledWith(10);
         expect(isDataViewLoaded(DATA_VIEW, false)).toBe(true);
-        expect(isDataViewLoaded({ ...DATA_VIEW, columnSetConfig: { ...DATA_VIEW.columnSetConfig, asAt: 6 } } as DataViewConfig, false)).toBe(false);
+        expect(isDataViewLoaded({ ...DATA_VIEW, contentAuditConfig: { ...DATA_VIEW.contentAuditConfig, asAt: 6 } } as DataViewConfig, false)).toBe(false);
     });
 
     it('does not count a data view as loaded when a chosen type changes after its load', async () => {
@@ -99,8 +100,8 @@ describe('_dataViewStore', () => {
         processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
         await loadDataViewRecords(typedDataView, false, vi.fn());
 
-        const columnConfigs = [{ chosenDataTypeId: 'numeric', dataTypeId: 'string', label: { en: 'Name' } }];
-        expect(isDataViewLoaded({ ...typedDataView, columnSetConfig: { asAt: 5, columnConfigs } } as DataViewConfig, false)).toBe(false);
+        const columnChoiceConfigs = { 0: { dataTypeId: 'numeric' } } as const;
+        expect(isDataViewLoaded({ ...typedDataView, columnChoiceConfigs }, false)).toBe(false);
     });
 
     it('keeps the earlier load when the columns have moved', async () => {

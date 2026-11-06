@@ -67,9 +67,9 @@ interface TableProperties {
 }
 
 const AUDITED_DATA_VIEW = {
-    columnSetConfig: {
+    contentAuditConfig: {
         asAt: 1,
-        columnConfigs: [
+        columns: [
             { dataSubtypeId: 'integer', dataTypeId: 'numeric', label: { en: 'Id' } },
             { dataSubtypeId: 'date', dataTypeId: 'temporal', label: { en: 'Day' } }
         ]
@@ -112,7 +112,7 @@ describe('InvestigateDataPanel', () => {
     });
 
     it('asks for a preview, and opens no store, when the data view has no columns', async () => {
-        dataView.config = { columnSetConfig: undefined, id: 'dataView1' };
+        dataView.config = { contentAuditConfig: undefined, id: 'dataView1' };
         const wrapper = mountPanel();
         await settle();
 
@@ -131,7 +131,14 @@ describe('InvestigateDataPanel', () => {
 
         expect(loadDataViewRecords).not.toHaveBeenCalled();
         expect(table.columnDefinitions.map((column) => column.header)).toEqual(['Id', 'Day']);
-        expect(queryDataViewRecords).toHaveBeenCalledWith('dpuse-connector-sqlite-wasm', 'dataView1', { aggregates: [], filters: [], groupColumnIndexes: [], limit: 100, offset: 0, sorts: [] });
+        expect(queryDataViewRecords).toHaveBeenCalledWith('dpuse-connector-sqlite-wasm', 'dataView1', {
+            aggregates: [],
+            filters: [],
+            groupColumnIndexes: [],
+            limit: 100,
+            offset: 0,
+            sorts: []
+        });
         const expectedDateText = new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeZone: 'UTC' }).format(Date.UTC(2026, 9, 28));
         expect(page).toEqual({ rows: [{ c0: '7', c1: expectedDateText }], totalCount: 1 });
     });
@@ -139,7 +146,7 @@ describe('InvestigateDataPanel', () => {
     it('shows numbers to the right with their column’s decimals, never rounding a longer one', async () => {
         dataView.config = {
             ...AUDITED_DATA_VIEW,
-            columnSetConfig: { asAt: 1, columnConfigs: [{ dataSubtypeId: 'decimal', dataTypeId: 'numeric', label: { en: 'Score' }, maxDecimals: 2 }] }
+            contentAuditConfig: { asAt: 1, columns: [{ dataSubtypeId: 'decimal', dataTypeId: 'numeric', label: { en: 'Score' }, maxDecimals: 2 }] }
         };
         vi.mocked(queryDataViewRecords).mockResolvedValue({ records: [[50], [87.1], [1.2345]], totalCount: 3 });
         const wrapper = mountPanel();

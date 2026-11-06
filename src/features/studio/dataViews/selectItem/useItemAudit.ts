@@ -4,7 +4,7 @@ import { onBeforeUnmount, type Ref, ref } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
-import type { ContentAuditConfig, DataViewConfig } from '@dpuse/dpuse-shared';
+import type { AuditObjectContentResult, DataViewConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { raiseAppFailure } from '@/state/errors';
@@ -30,7 +30,7 @@ interface ItemAudit {
 // user chose if there is a header, so the audit only checks again for one that was detected as absent.
 export function useItemAudit(
     constructDataViewConfig: () => DataViewConfig | undefined,
-    handleAudited: (contentAuditConfig: ContentAuditConfig) => void,
+    handleAudited: (auditResult: AuditObjectContentResult) => void,
     areHeadersChosen: () => boolean
 ): ItemAudit {
     const auditIsRunning = ref(false);
@@ -54,7 +54,7 @@ export function useItemAudit(
         auditStartedAt.value = Date.now();
         auditedConnectionId.value = dataViewConfig.connectionId;
         try {
-            const contentAuditConfig = await auditDataViewContent(
+            const auditResult = await auditDataViewContent(
                 dataViewConfig,
                 byteLimit,
                 (recordCount, byteCount) => {
@@ -63,7 +63,7 @@ export function useItemAudit(
                 },
                 areHeadersChosen()
             );
-            if (!wasAuditAborted()) handleAudited(contentAuditConfig);
+            if (!wasAuditAborted()) handleAudited(auditResult);
         } catch (error) {
             if (wasAuditAborted()) return;
             raiseAppFailure(new AppError('Failed to audit this item.', 'dpuse-app.useItemAudit.startAudit', { typeId: 'handled' }, { cause: error }));

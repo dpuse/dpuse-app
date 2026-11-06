@@ -499,6 +499,18 @@
     background-color: transparent;
 }
 
+/* Slides a panel down from the edge it hangs from, such as a column's detail under the table header. The panel needs a
+   clipping parent along that edge, or it passes over what is above it. Used as a 'Transition' name. */
+.dpuse-slide-down-enter-active,
+.dpuse-slide-down-leave-active {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Even, unlike '--ease-sheet', which covers half a tall panel in the first frames, so it looks like a jump. */
+    will-change: transform;
+}
+.dpuse-slide-down-enter-from,
+.dpuse-slide-down-leave-to {
+    transform: translateY(-100%);
+}
+
 /* Slides a panel in from the right edge, such as a column's detail beside the names that choose it. Used as a
    'Transition' name. */
 .dpuse-slide-from-right-enter-active,
@@ -519,6 +531,8 @@
     .dpuse-slide-up-leave-active,
     .dpuse-sheet-enter-active,
     .dpuse-sheet-leave-active,
+    .dpuse-slide-down-enter-active,
+    .dpuse-slide-down-leave-active,
     .dpuse-slide-from-right-enter-active,
     .dpuse-slide-from-right-leave-active {
         transition: none;

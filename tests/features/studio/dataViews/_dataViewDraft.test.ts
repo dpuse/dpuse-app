@@ -22,7 +22,7 @@ vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({ forgetDraftLoad: 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const INCOMPLETE_DATA_VIEW = { connectionId: 'one', id: 'a' } as DataViewConfig;
-const COMPLETE_DATA_VIEW = { ...INCOMPLETE_DATA_VIEW, connectionNodeConfig: { name: 'sales' }, previewConfig: { parsedRecords: [] } } as unknown as DataViewConfig;
+const COMPLETE_DATA_VIEW = { ...INCOMPLETE_DATA_VIEW, connectionNodeConfig: { name: 'sales' }, sampleConfig: { parsedRecords: [] } } as unknown as DataViewConfig;
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

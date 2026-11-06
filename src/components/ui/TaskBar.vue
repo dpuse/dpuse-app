@@ -50,7 +50,7 @@ function localiseLine(line: LocaleLabel): string {
 </script>
 
 <template>
-    <nav :aria-label="t(TEXT, 'steps.aria')" class="@container flex-none border-b border-separator" data-region="TaskBar">
+    <nav :aria-label="t(TEXT, 'steps.aria')" class="@container flex-none" data-region="TaskBar">
         <!-- The arrows sit level with the number and label line. -->
         <ScrollRow arrow-align-class="items-start pt-1" is-borderless keep-active-item-in-view row-tag="ol">
             <!-- 'relative' keeps each step's screen-reader text inside the scrolling row. Without it that text, which is

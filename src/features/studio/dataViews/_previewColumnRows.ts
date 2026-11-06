@@ -155,7 +155,7 @@ export function constructPreviewColumnHeaders(): PreviewColumnRow {
 
 // One row per column of the preview. The match is the share of sampled values, the header excluded, that fitted the
 // column's type, as the engine counts it when it chooses.
-export function constructPreviewColumnRows(itemReading: ItemReading): PreviewColumnRow[] {
+export function constructPreviewColumnRows(itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders'>): PreviewColumnRow[] {
     const percentFormat = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 });
     const numberFormat = new Intl.NumberFormat(localeId.value);
     return itemReading.columnConfigs.map((columnConfig, index) => {
@@ -206,7 +206,7 @@ export function constructColumnValueCounts(itemReading: ItemReading): ColumnValu
 }
 
 // The icons beside a row's type and subtype labels, kept apart from the rows because the table's cells hold only text.
-export function constructPreviewColumnIcons(itemReading: ItemReading): PreviewColumnIcons[] {
+export function constructPreviewColumnIcons(itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders'>): PreviewColumnIcons[] {
     return itemReading.columnConfigs.map(({ dataSubtypeId, dataTypeId }) => ({
         dataSubtypeIcon: dataSubtypeId === undefined || dataSubtypeId === 'plain' ? undefined : DATA_SUBTYPE_ICONS[dataSubtypeId],
         dataTypeIcon: DATA_TYPE_ICONS[dataTypeId]

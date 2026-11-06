@@ -21,7 +21,7 @@ vi.mock('@/features/studio/dataViews/_dataViews', () => ({ abortDataViewContentA
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DATA_VIEW = { connectionId: 'source1' } as DataViewConfig;
-const AUDIT = { recordCount: 2 } as ContentAuditConfig;
+const AUDIT = { contentAuditConfig: { recordCount: 2 } as ContentAuditConfig, hasHeaders: false };
 
 function renderNothing(): ReturnType<typeof h> {
     return h('div');

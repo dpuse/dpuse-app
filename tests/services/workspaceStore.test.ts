@@ -81,7 +81,7 @@ describe('workspace store', () => {
     it('saves, lists, opens and removes a config, keeping the whole object in one cell', async () => {
         const app = await importApp();
         await signIn(app, undefined);
-        const config = { id: 'a', label: { en: 'Sales' }, previewConfig: { hasHeaders: true } };
+        const config = { id: 'a', label: { en: 'Sales' }, sampleConfig: { size: 4 } };
 
         expect(await app.workspaceStore.upsertWorkspaceStoreRecord('dataViews', config)).toBe('dpuseWorkspaceStore');
         expect(await app.workspaceStore.getWorkspaceStoreRecord('dataViews', 'a')).toStrictEqual(config);

@@ -1,5 +1,6 @@
 // ── DPUse Framework
-import type { DecimalSeparatorId, ObjectColumnConfig } from '@dpuse/dpuse-shared';
+import { DATA_TYPE_CONFIGS } from '@dpuse/dpuse-shared';
+import type { DataSubtypeId, DecimalSeparatorId, ObjectColumnConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { ChosenColumnTypes, ChosenDecimalSeparators, ChosenNullWords, ColumnType, ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
@@ -11,24 +12,12 @@ export type DetectedColumnType = ColumnType & Partial<Pick<ObjectColumnConfig, '
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// What a column can be read as, in the order the type select lists them. 'unknown' is only ever detected, so it is not
-// offered. A boolean has no subtypes.
-export const CHOOSABLE_COLUMN_TYPES: ColumnType[] = [
-    { dataSubtypeId: 'plain', dataTypeId: 'string' },
-    { dataSubtypeId: 'email', dataTypeId: 'string' },
-    { dataSubtypeId: 'url', dataTypeId: 'string' },
-    { dataSubtypeId: 'uuid', dataTypeId: 'string' },
-    { dataSubtypeId: 'ulid', dataTypeId: 'string' },
-    { dataSubtypeId: 'ipv4', dataTypeId: 'string' },
-    { dataSubtypeId: 'ipv6', dataTypeId: 'string' },
-    { dataSubtypeId: 'integer', dataTypeId: 'numeric' },
-    { dataSubtypeId: 'decimal', dataTypeId: 'numeric' },
-    { dataSubtypeId: 'bigint', dataTypeId: 'numeric' },
-    { dataSubtypeId: 'date', dataTypeId: 'temporal' },
-    { dataSubtypeId: 'dateTime', dataTypeId: 'temporal' },
-    { dataSubtypeId: 'time', dataTypeId: 'temporal' },
-    { dataSubtypeId: undefined, dataTypeId: 'boolean' }
-];
+// What a column can be read as, in the order the type select lists them. A type with no subtypes, such as boolean, is
+// offered on its own.
+export const CHOOSABLE_COLUMN_TYPES: ColumnType[] = DATA_TYPE_CONFIGS.filter(({ isChoosable }) => isChoosable).flatMap(({ id, subtypeIds }): ColumnType[] => {
+    const dataSubtypeIds: readonly DataSubtypeId[] = subtypeIds;
+    return dataSubtypeIds.length === 0 ? [{ dataSubtypeId: undefined, dataTypeId: id }] : dataSubtypeIds.map((dataSubtypeId) => ({ dataSubtypeId, dataTypeId: id }));
+});
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -102,7 +91,12 @@ export function applyPreviewDecimalSeparators(itemReading: ItemReading, chosenDe
 
 // The preview with one column's numbers read with the decimal separator given, and the figures the audit measured for
 // that separator in place of the others. A subtype the user chose stays, because a chosen type outranks a measured one.
-export function applyPreviewDecimalSeparator(itemReading: ItemReading, columnIndex: number, decimalSeparatorId: DecimalSeparatorId | undefined, isSubtypeChosen = false): ItemReading {
+export function applyPreviewDecimalSeparator(
+    itemReading: ItemReading,
+    columnIndex: number,
+    decimalSeparatorId: DecimalSeparatorId | undefined,
+    isSubtypeChosen = false
+): ItemReading {
     return {
         ...itemReading,
         columnConfigs: itemReading.columnConfigs.map((columnConfig, index) =>
@@ -154,7 +148,12 @@ function applyNullWordChoice(columnConfig: ObjectColumnConfig, areNullWordsEmpty
 }
 
 // The preview with one column read as the type the user chose, or as detected when they chose none.
-export function applyPreviewColumnType(itemReading: ItemReading, columnIndex: number, chosenColumnType: ColumnType | undefined, detectedColumnType: DetectedColumnType): ItemReading {
+export function applyPreviewColumnType(
+    itemReading: ItemReading,
+    columnIndex: number,
+    chosenColumnType: ColumnType | undefined,
+    detectedColumnType: DetectedColumnType
+): ItemReading {
     const columnType = chosenColumnType ?? detectedColumnType;
     return {
         ...itemReading,

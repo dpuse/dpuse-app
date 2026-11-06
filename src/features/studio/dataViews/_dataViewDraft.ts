@@ -18,7 +18,7 @@ export const draftDataViewConfig = shallowRef<DataViewConfig>();
 export const dataViewHasChanges = computed(() => draftDataViewConfig.value != null);
 
 // A data view is saved whole, so a change of connection or item can be discarded but not saved until an item is previewed.
-export const dataViewCanBeSaved = computed(() => draftDataViewConfig.value?.connectionNodeConfig != null && draftDataViewConfig.value.previewConfig != null);
+export const dataViewCanBeSaved = computed(() => draftDataViewConfig.value?.connectionNodeConfig != null && draftDataViewConfig.value.sampleConfig != null);
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

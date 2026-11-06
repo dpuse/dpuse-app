@@ -6,7 +6,7 @@ import { type RouteLocationRaw, useRoute } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError, formatNumberAsStorageSize } from '@dpuse/dpuse-shared';
-import type { DataFormatId, DataViewConfig, LocalisedConfig, RecordDelimiterId, ValueDelimiterId } from '@dpuse/dpuse-shared';
+import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { defineLazyComponent } from '@/utilities/index.ts';
@@ -15,6 +15,7 @@ import { renderMarkdown } from '@/services/useMarkedTool';
 import { restoreItemReading } from './_dataViewColumns';
 import { TEXT } from './DataViewPanel_.json';
 import { useUnsavedWork } from '@/state/unsavedWork';
+import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from './_readingLabels';
 import type { DataViewConnection, DataViewStepId } from './dataViewSummary';
 import { localeId, t } from '@/state/locale';
 import { useDataView, useUpdateDataView } from '@/features/studio/dataViews/_dataViews';
@@ -40,42 +41,6 @@ const StudioDescriptorsPanel = defineLazyComponent(() => import('@/features/stud
 
 const COLLAPSED_TABLE_ROW_COUNT = 10; // Rows a long table shows until the user asks for the rest.
 const NON_BREAKING_SPACE = '\u{A0}'; // Gives a cell with no value a line of text, so its row keeps its height.
-
-const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
-    arrow: 'dataFormat.arrow.label',
-    avro: 'dataFormat.avro.label',
-    dtv: 'dataFormat.dtv.label',
-    json: 'dataFormat.json.label',
-    jsonl: 'dataFormat.jsonl.label',
-    markdown: 'dataFormat.markdown.label',
-    ods: 'dataFormat.ods.label',
-    parquet: 'dataFormat.parquet.label',
-    sav: 'dataFormat.sav.label',
-    sqlite: 'dataFormat.sqlite.label',
-    unknown: 'dataFormat.unknown.label',
-    xlsx: 'dataFormat.xlsx.label',
-    xml: 'dataFormat.xml.label'
-};
-
-const RECORD_DELIMITER_LABEL_KEYS: Record<RecordDelimiterId, keyof typeof TEXT> = {
-    '\n': 'recordDelimiter.newline.label',
-    '\r': 'recordDelimiter.carriageReturn.label',
-    '\r\n': 'recordDelimiter.carriageReturnNewline.label'
-};
-
-const VALUE_DELIMITER_LABEL_KEYS: Record<ValueDelimiterId, keyof typeof TEXT> = {
-    '': 'valueDelimiter.other.label',
-    ':': 'valueDelimiter.colon.label',
-    ',': 'valueDelimiter.comma.label',
-    '!': 'valueDelimiter.exclamationMark.label',
-    '0x1E': 'valueDelimiter.recordSeparator.label',
-    ';': 'valueDelimiter.semicolon.label',
-    ' ': 'valueDelimiter.space.label',
-    '\t': 'valueDelimiter.tab.label',
-    _: 'valueDelimiter.underscore.label',
-    '0x1F': 'valueDelimiter.unitSeparator.label',
-    '|': 'valueDelimiter.verticalBar.label'
-};
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -132,11 +97,11 @@ const itemDescription = computed(() => {
 // The encoding the preview detected, with how sure the detection was. Without a confidence level nothing was detected and
 // the preview fell back to UTF-8, so the encoding is marked as assumed.
 const itemEncodingText = computed(() => {
-    const readConfig = dataViewLocalisedConfig.readConfig;
-    if (readConfig?.encodingId == null) return;
-    const encoding = readConfig.encodingId;
-    if (readConfig.encodingConfidenceLevel == null) return t(TEXT, 'item.encoding.assumed.text', { encoding });
-    const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(readConfig.encodingConfidenceLevel);
+    const readingConfig = dataViewLocalisedConfig.readingConfig;
+    if (readingConfig?.encodingId == null) return;
+    const encoding = readingConfig.encodingId;
+    if (readingConfig.encodingConfidenceLevel == null) return t(TEXT, 'item.encoding.assumed.text', { encoding });
+    const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(readingConfig.encodingConfidenceLevel);
     return t(TEXT, 'item.encoding.text', { confidence, encoding });
 });
 
@@ -144,14 +109,14 @@ const itemEncodingText = computed(() => {
 // shows whichever of its parts there are.
 const itemTypeText = computed(() => formatListOfParts([dataViewLocalisedConfig.connectionNodeConfig?.mimeType, itemEncodingText.value]));
 const itemDataFormatText = computed(() => {
-    const readConfig = dataViewLocalisedConfig.readConfig;
-    if (!readConfig) return;
+    const readingConfig = dataViewLocalisedConfig.readingConfig;
+    if (!readingConfig) return;
     let headerRowText: string | undefined;
-    if (readConfig.hasHeaders != null) headerRowText = t(TEXT, readConfig.hasHeaders ? 'item.headerRow.text' : 'item.noHeaderRow.text');
+    if (readingConfig.hasHeaders != null) headerRowText = t(TEXT, readingConfig.hasHeaders ? 'item.headerRow.text' : 'item.noHeaderRow.text');
     return formatListOfParts([
-        t(TEXT, DATA_FORMAT_LABEL_KEYS[readConfig.dataFormatId]),
-        readConfig.valueDelimiterId == null ? undefined : t(TEXT, VALUE_DELIMITER_LABEL_KEYS[readConfig.valueDelimiterId]),
-        readConfig.recordDelimiterId == null ? undefined : t(TEXT, RECORD_DELIMITER_LABEL_KEYS[readConfig.recordDelimiterId]),
+        constructDataFormatLabel(readingConfig.dataFormatId),
+        readingConfig.valueDelimiterId == null ? undefined : constructValueDelimiterLabel(readingConfig.valueDelimiterId),
+        readingConfig.recordDelimiterId == null ? undefined : constructRecordDelimiterLabel(readingConfig.recordDelimiterId),
         headerRowText
     ]);
 });
@@ -165,8 +130,8 @@ const previewColumnLabels = computed(
     () => columnTableItemReading.value?.columnConfigs.map((config, index) => config.label[localeId.value] ?? config.label.en ?? String(index + 1)) ?? []
 );
 
-// ── Data ─ The rows of the preview saved with the item. Its first record is the header row, as SelectItemPanel treats it.
-const previewRows = computed(() => dataViewLocalisedConfig.previewConfig?.parsedRecords.slice(1) ?? []);
+// ── Data ─ The rows of the sample saved with the item. Its first record is the header row, as SelectItemPanel treats it.
+const previewRows = computed(() => dataViewLocalisedConfig.sampleConfig?.parsedRecords.slice(1) ?? []);
 
 // ── Tables
 const shownPreviewRows = computed(() => (dataTableIsExpanded.value ? previewRows.value : previewRows.value.slice(0, COLLAPSED_TABLE_ROW_COUNT)));
@@ -249,7 +214,7 @@ function formatDateTime(timestamp: number): string {
                     class="mt-1 mb-4 text-sm"
                     :connection-id="dataViewLocalisedConfig.connectionId"
                     :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig"
-                    :data-format-id="dataViewLocalisedConfig.readConfig?.dataFormatId"
+                    :data-format-id="dataViewLocalisedConfig.readingConfig?.dataFormatId"
                     :data-view-connection="dataViewConnection"
                     :item-type-id="dataViewConnection?.itemTypeId"
                 />
@@ -380,7 +345,7 @@ function formatDateTime(timestamp: number): string {
                             {{ dataTableIsExpanded ? t(TEXT, 'data.showFewer.label') : t(TEXT, 'data.showAll.label', { count: previewRows.length }) }}
                         </ActionWrapper>
                         <RouterLink
-                            v-if="dataViewLocalisedConfig.connectionNodeConfig && dataViewLocalisedConfig.previewConfig"
+                            v-if="dataViewLocalisedConfig.connectionNodeConfig && dataViewLocalisedConfig.sampleConfig"
                             class="col-start-2 justify-self-end text-right"
                             :to="constructStepRoute('data')"
                             >{{ t(TEXT, 'data.open.label') }}</RouterLink

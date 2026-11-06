@@ -39,20 +39,20 @@ import { useRoute, useRouter } from 'vue-router';
 // ── DPUse Framework
 import {
     AppError,
-    DATA_FORMAT_ICON_CONFIGS,
+    DATA_FORMAT_CONFIGS,
     formatNumberAsDecimalNumber,
     formatNumberAsStorageSize,
     getEncodingTypeConfigs,
     listParserToolConfigs,
     localiseConfigs,
-    ORDERED_VALUE_DELIMITER_IDS
+    VALUE_DELIMITER_CONFIGS
 } from '@dpuse/dpuse-shared';
 import type {
+    AuditObjectContentResult,
     ClassifyPreviewValuesOptions,
     ConnectionConfig,
     ConnectionNodeConfig,
     ContentAuditConfig,
-    DataFormatIconConfig,
     DataFormatId,
     DataViewConfig,
     DecimalSeparatorId,
@@ -62,15 +62,13 @@ import type {
     ListNodesResult,
     LocalisedConfig,
     ObjectColumnConfig,
-    PreviewIssue,
-    PreviewIssueSeverityId,
     PreviewObjectOptions,
     PreviewObjectResult,
     PreviewValueStateId,
-    ReadConfig,
-    RecordDelimiterId,
+    ReadingConfig,
     RecountPreviewColumnsOptions,
-    StoredContentAuditConfig,
+    SampleIssue,
+    SampleIssueSeverityId,
     ToolConfig,
     ValueDelimiterId
 } from '@dpuse/dpuse-shared';
@@ -109,14 +107,13 @@ import {
     constructChosenColumnTypes,
     constructChosenDecimalSeparators,
     constructChosenNullWords,
+    constructColumnChoiceConfigs,
     constructColumnTypeId,
     constructDataTypeCellClass,
-    constructItemColumnSetConfig,
     constructItemReading,
     constructPreviewContentAuditConfig,
-    constructReadConfig,
-    constructStoredContentAuditConfig,
-    constructStoredPreviewConfig,
+    constructReadingConfig,
+    constructSampleConfig,
     isDerivedColumn,
     isEmptyUnitColumn,
     type ItemReading
@@ -131,9 +128,11 @@ import {
     PREVIEW_COLUMN_SUMMARY_KEYS,
     type PreviewColumnRow
 } from '../_previewColumnRows';
+import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from '../_readingLabels';
 import { constructDataViewConnection, constructItemPath } from '../dataViewSummary';
 import { constructFittedColumnWidth, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
-import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
+import { DATA_FORMAT_ICON_CONFIGS, type DataFormatIconConfig } from '../_dataFormatIcons';
+import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, DATA_VIEW_TRAIL_ID, useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
 import { listDataViewStoreConnections, resolveStoreConnectorId } from '../_dataViewStore';
 import { localeId, t } from '@/state/locale';
@@ -206,10 +205,10 @@ const PREVIEW_TABS: PreviewTab[] = [
 // ── Data Formats ─ The formats the app can read today. Only delimited text is data. Markdown is a document, so it is
 // not parsed and its table tab is disabled. JSON, JSON Lines and the other planned formats wait for their own reader, so
 // they show as text and cannot be selected.
-const TEXT_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv', 'markdown']);
-const TABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv']);
-const READABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(['dtv']); // Marked as supported in the toolbar, and the formats the user can choose to read an item as data.
-const PLANNED_DATA_FORMAT_IDS = new Set<DataFormatId>(['arrow', 'avro', 'json', 'jsonl', 'ods', 'parquet', 'sav', 'sqlite', 'xlsx', 'xml']); // Data the app means to read once each has a reader.
+const TEXT_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ isText }) => isText).map(({ id }) => id));
+const TABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ isTable }) => isTable).map(({ id }) => id));
+const READABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ supportId }) => supportId === 'supported').map(({ id }) => id)); // Marked as supported in the toolbar, and the formats the user can choose to read an item as data.
+const PLANNED_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ supportId }) => supportId === 'planned').map(({ id }) => id)); // Data the app means to read once each has a reader.
 
 // ── Format Supports ─ How the toolbar marks the format: readable, planned but with no reader yet, or not data at all.
 const FORMAT_SUPPORTS: FormatSupport[] = [
@@ -221,7 +220,7 @@ const FORMAT_SUPPORTS: FormatSupport[] = [
 // ── Preview Issues ─ The app's own wording for the issues it knows, by the parser's code. Any other issue shows the
 // parser's message, which is in English. Each severity has its own icon and colour, as status tags do.
 const COLUMN_TYPES_RESET_ISSUE_ID = 'columnTypesReset'; // The app's own issue, because a new reading can change the columns the user's choices were for.
-const PREVIEW_ISSUE_TEXT_KEYS: Partial<Record<string, keyof typeof TEXT>> = {
+const SAMPLE_ISSUE_TEXT_KEYS: Partial<Record<string, keyof typeof TEXT>> = {
     CSV_INVALID_CLOSING_QUOTE: 'issue.invalidClosingQuote.text',
     CSV_NON_TRIMABLE_CHAR_AFTER_CLOSING_QUOTE: 'issue.charAfterClosingQuote.text',
     CSV_QUOTE_NOT_CLOSED: 'issue.quoteNotClosed.text',
@@ -229,49 +228,16 @@ const PREVIEW_ISSUE_TEXT_KEYS: Partial<Record<string, keyof typeof TEXT>> = {
     empty: 'issue.empty.text',
     INVALID_OPENING_QUOTE: 'issue.invalidOpeningQuote.text'
 };
-const PREVIEW_ISSUE_SEVERITIES: Record<PreviewIssueSeverityId, { bandClass: string; colorClass: string; icon: Component; lineHighlightId: LineHighlightId }> = {
+const SAMPLE_ISSUE_SEVERITIES: Record<SampleIssueSeverityId, { bandClass: string; colorClass: string; icon: Component; lineHighlightId: LineHighlightId }> = {
     error: { bandClass: 'bg-danger', colorClass: 'text-danger-text', icon: markRaw(CircleAlertIcon), lineHighlightId: 'danger' },
     info: { bandClass: 'bg-info', colorClass: 'text-info-text', icon: markRaw(InfoIcon), lineHighlightId: 'info' },
     warning: { bandClass: 'bg-warning', colorClass: 'text-warning-text', icon: markRaw(TriangleAlertIcon), lineHighlightId: 'warning' }
 };
-const PREVIEW_ISSUE_SEVERITY_IDS: PreviewIssueSeverityId[] = ['error', 'warning', 'info']; // Most serious first.
+const SAMPLE_ISSUE_SEVERITY_IDS: SampleIssueSeverityId[] = ['error', 'warning', 'info']; // Most serious first.
 
 const AUTO_OPTION_ID = 'auto'; // The selects' value for 'read it as detected'. No format, encoding or value delimiter has this id.
 const HEADERS_OPTION_IDS = { no: 'no', yes: 'yes' }; // The headers select's other values.
 const CONTAINER_FILE_TYPE_EXTENSIONS = new Set(['cfb']); // Detected types that only name a container, e.g. a legacy Excel or Word file, so the item's own extension names it better.
-const DATA_FORMAT_LABEL_KEYS: Record<DataFormatId, keyof typeof TEXT> = {
-    arrow: 'dataFormat.arrow.label',
-    avro: 'dataFormat.avro.label',
-    dtv: 'dataFormat.dtv.label',
-    json: 'dataFormat.json.label',
-    jsonl: 'dataFormat.jsonl.label',
-    markdown: 'dataFormat.markdown.label',
-    ods: 'dataFormat.ods.label',
-    parquet: 'dataFormat.parquet.label',
-    sav: 'dataFormat.sav.label',
-    sqlite: 'dataFormat.sqlite.label',
-    unknown: 'dataFormat.unknown.label',
-    xlsx: 'dataFormat.xlsx.label',
-    xml: 'dataFormat.xml.label'
-};
-const RECORD_DELIMITER_LABEL_KEYS: Record<RecordDelimiterId, keyof typeof TEXT> = {
-    '\n': 'recordDelimiter.newline.label',
-    '\r': 'recordDelimiter.carriageReturn.label',
-    '\r\n': 'recordDelimiter.carriageReturnNewline.label'
-};
-const VALUE_DELIMITER_LABEL_KEYS: Record<ValueDelimiterId, keyof typeof TEXT> = {
-    '': 'valueDelimiter.other.label',
-    ':': 'valueDelimiter.colon.label',
-    ',': 'valueDelimiter.comma.label',
-    '!': 'valueDelimiter.exclamationMark.label',
-    '0x1E': 'valueDelimiter.recordSeparator.label',
-    ';': 'valueDelimiter.semicolon.label',
-    ' ': 'valueDelimiter.space.label',
-    '\t': 'valueDelimiter.tab.label',
-    _: 'valueDelimiter.underscore.label',
-    '0x1F': 'valueDelimiter.unitSeparator.label',
-    '|': 'valueDelimiter.verticalBar.label'
-};
 
 // useDataWindow's retry-with-backoff (~900ms total) is tuned for transient blips, not a cold app boot — on a fresh
 // deploy in particular, downloading new bundles, waking configMonitor/accountMonitor's Durable Objects, and then
@@ -352,7 +318,7 @@ const columnsPaneElement = useTemplateRef<HTMLDivElement>('columnsPane');
 const previewTableComponent = useTemplateRef<{ scrollColumnIntoView: (columnId: string) => void }>('previewTable'); // Typed by what it exposes, because 'Table' is generic.
 const { width: columnsPaneWidth } = useElementSize(columnsPaneElement);
 const activeItemReading = shallowRef<ItemReading>(); // Goes into the draft with the item.
-const activeContentAuditConfig = shallowRef<StoredContentAuditConfig>(); // How much of the item has been audited, starting from what opening it read.
+const activeContentAuditConfig = shallowRef<ContentAuditConfig>(); // What the latest audit found, starting from what opening the item read. Its columns are as detected, before any choice of the user's.
 const readingIsChanged = ref(false); // The user changed the item or how it is read. Opening the step, or a preview arriving, does not count.
 
 // ── Read Choices ─ How the user chose to read the item, in place of what the preview detected. Cleared for each item.
@@ -472,41 +438,41 @@ const previewFormatSupport = computed(() => {
 // ── Preview Issues ─ Not failures: the preview still holds what was read, so the toolbar, text and details stay usable
 // and the user can try another reading. A connector that does not report issues sends none. The band behind the list
 // takes the colour of the most serious one.
-const previewIssues = computed(() => activeItemReading.value?.issues ?? []);
-const previewHasErrorIssue = computed(() => previewIssues.value.some((issue) => issue.severityId === 'error'));
+const sampleIssues = computed(() => activeItemReading.value?.issues ?? []);
+const sampleHasErrorIssue = computed(() => sampleIssues.value.some((issue) => issue.severityId === 'error'));
 // Each issue says all it can about where it is: its lines, its record and its value within the record, each as its own
 // phrase, so a language can order its words. The value at fault shows as it appears in the file.
-const previewIssueItems = computed(() =>
-    previewIssues.value.map((issue, index) => ({
-        ...PREVIEW_ISSUE_SEVERITIES[issue.severityId],
+const sampleIssueItems = computed(() =>
+    sampleIssues.value.map((issue, index) => ({
+        ...SAMPLE_ISSUE_SEVERITIES[issue.severityId],
         fieldText: issue.fieldNumber == null ? undefined : t(TEXT, 'issue.field.text', { field: formatCount(issue.fieldNumber) }),
         key: `${String(index)}-${issue.id}`,
         lineNumber: issue.lineNumber,
-        lineText: constructPreviewIssueLineText(issue),
+        lineText: constructSampleIssueLineText(issue),
         recordText: issue.recordNumber == null ? undefined : t(TEXT, 'issue.record.text', { record: formatCount(issue.recordNumber) }),
-        text: constructPreviewIssueText(issue),
+        text: constructSampleIssueText(issue),
         value: issue.value,
-        valueName: constructPreviewIssueValueName(issue.value)
+        valueName: constructSampleIssueValueName(issue.value)
     }))
 );
-const previewIssueCountText = computed(() => {
-    const count = previewIssues.value.length;
+const sampleIssueCountText = computed(() => {
+    const count = sampleIssues.value.length;
     if (count === 0) return;
     return t(TEXT, count === 1 ? 'issue.one.text' : 'issue.other.text', { count });
 });
-const previewIssueBandClass = computed(() => {
-    const severityId = PREVIEW_ISSUE_SEVERITY_IDS.find((id) => previewIssues.value.some((issue) => issue.severityId === id));
-    return severityId == null ? undefined : PREVIEW_ISSUE_SEVERITIES[severityId].bandClass;
+const sampleIssueBandClass = computed(() => {
+    const severityId = SAMPLE_ISSUE_SEVERITY_IDS.find((id) => sampleIssues.value.some((issue) => issue.severityId === id));
+    return severityId == null ? undefined : SAMPLE_ISSUE_SEVERITIES[severityId].bandClass;
 });
 // The text tab colours each line an issue names. A line with several issues takes the colour of the most serious.
 // Every line an issue covers, from where it starts to where it ends, e.g. all the lines a quote never closed runs over.
 const previewLineHighlights = computed(() => {
     const lineHighlights = new Map<number, LineHighlightId>();
-    for (const severityId of PREVIEW_ISSUE_SEVERITY_IDS.toReversed()) {
-        for (const issue of previewIssues.value) {
+    for (const severityId of SAMPLE_ISSUE_SEVERITY_IDS.toReversed()) {
+        for (const issue of sampleIssues.value) {
             if (issue.severityId !== severityId || issue.lineNumber == null) continue;
             for (let lineNumber = issue.lineNumber; lineNumber <= (issue.endLineNumber ?? issue.lineNumber); lineNumber++) {
-                lineHighlights.set(lineNumber, PREVIEW_ISSUE_SEVERITIES[severityId].lineHighlightId);
+                lineHighlights.set(lineNumber, SAMPLE_ISSUE_SEVERITIES[severityId].lineHighlightId);
             }
         }
     }
@@ -521,9 +487,9 @@ const dataFormatOptions = computed<SelectOption[]>(() => {
     const plannedGroupLabel = t(TEXT, 'formatGroup.planned.label');
     const documentGroupLabel = t(TEXT, 'formatGroup.document.label');
     const options: SelectOption[] = [
-        ...sortOptionsByLabel(Array.from(READABLE_DATA_FORMAT_IDS, (id) => ({ groupLabel: supportedGroupLabel, id, label: t(TEXT, DATA_FORMAT_LABEL_KEYS[id]) }))),
-        ...sortOptionsByLabel(Array.from(PLANNED_DATA_FORMAT_IDS, (id) => ({ groupLabel: plannedGroupLabel, id, isDisabled: true, label: t(TEXT, DATA_FORMAT_LABEL_KEYS[id]) }))),
-        { groupLabel: documentGroupLabel, id: 'markdown', label: t(TEXT, DATA_FORMAT_LABEL_KEYS.markdown) } // Shown rendered, so a file read another way can be read as markdown again.
+        ...sortOptionsByLabel(Array.from(READABLE_DATA_FORMAT_IDS, (id) => ({ groupLabel: supportedGroupLabel, id, label: constructDataFormatLabel(id) }))),
+        ...sortOptionsByLabel(Array.from(PLANNED_DATA_FORMAT_IDS, (id) => ({ groupLabel: plannedGroupLabel, id, isDisabled: true, label: constructDataFormatLabel(id) }))),
+        { groupLabel: documentGroupLabel, id: 'markdown', label: constructDataFormatLabel('markdown') } // Shown rendered, so a file read another way can be read as markdown again.
     ];
     const detectedText = detectedDataFormatId.value == null ? undefined : constructDataFormatText(detectedDataFormatId.value);
     return [constructAutoOption(detectedText), ...options];
@@ -557,8 +523,8 @@ const encodingSelectTone = computed(() => {
 // Delimited text is the only format split by a value delimiter. Auto names the one detected.
 const valueDelimiterOptions = computed<SelectOption[]>(() => {
     const detectedId = detectedValueDelimiterId.value;
-    const options: SelectOption[] = ORDERED_VALUE_DELIMITER_IDS.map((id) => ({ id, label: t(TEXT, VALUE_DELIMITER_LABEL_KEYS[id]) }));
-    return [constructAutoOption(detectedId == null ? undefined : t(TEXT, VALUE_DELIMITER_LABEL_KEYS[detectedId])), ...options];
+    const options: SelectOption[] = VALUE_DELIMITER_CONFIGS.map(({ id }) => ({ id, label: constructValueDelimiterLabel(id) }));
+    return [constructAutoOption(detectedId == null ? undefined : constructValueDelimiterLabel(detectedId)), ...options];
 });
 const valueDelimiterIsChoosable = computed(() => activeItemReading.value?.dataFormatId === 'dtv');
 const previewHeadersAreChoosable = computed(() => activeItemReading.value?.dataFormatId === 'dtv' && activeItemReading.value.parsedRecords.length > 0);
@@ -730,7 +696,7 @@ const currentPreviewTab = computed(() =>
 // JSON Lines and gave at least one row.
 const previewIsSelectable = computed(() => {
     const itemReading = activeItemReading.value;
-    if (itemReading == null || itemReading.parsedRecords.length === 0 || previewHasErrorIssue.value) return false;
+    if (itemReading == null || itemReading.parsedRecords.length === 0 || sampleHasErrorIssue.value) return false;
     const isOpenedAsTable = TEXT_DATA_FORMAT_IDS.has(itemReading.dataFormatId) && currentPreviewTabId.value === 'table';
     return TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId) || isOpenedAsTable;
 });
@@ -740,7 +706,7 @@ const previewUnsupportedText = computed(() => {
     const itemReading = activeItemReading.value;
     if (itemReading?.size === 0) return t(TEXT, 'item.empty.text');
     if (itemReading == null || itemReading.dataFormatId === 'unknown') return t(TEXT, 'item.unsupported.text');
-    return t(TEXT, 'item.unsupportedFormat.text', { format: t(TEXT, DATA_FORMAT_LABEL_KEYS[itemReading.dataFormatId]) });
+    return t(TEXT, 'item.unsupportedFormat.text', { format: constructDataFormatLabel(itemReading.dataFormatId) });
 });
 
 // The details tab is a read-only document of what the toolbar's choices produced. It lists only the facts there are: a
@@ -781,7 +747,7 @@ const itemDetailGroups = computed(() => {
             details: [
                 { labelKey: 'detail.dataFormat.label', value: previewFormatText.value },
                 { labelKey: 'detail.encoding.label', value: constructEncodingText(itemReading) },
-                { labelKey: 'detail.issues.label', value: previewIssueCountText.value } // Listed in the band above the tabs.
+                { labelKey: 'detail.issues.label', value: sampleIssueCountText.value } // Listed in the band above the tabs.
             ]
         },
         {
@@ -866,7 +832,7 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
                     limit: end - start,
                     offset: start
                 } as ListNodesOptions)) as ListNodesResult;
-                return { rows: result.connectionNodeConfigs as unknown as LocalisedConfig<ConnectionNodeConfig>[], totalCount: result.totalCount };
+                return { rows: result.connectionNodeConfigs, totalCount: result.totalCount };
             } catch (error) {
                 // Settled with an empty page as well as raised: the window is waiting on this promise, and a rejection
                 // would leave it loading behind the failure it is being told about.
@@ -933,12 +899,12 @@ watch(
             ].some((choice) => choice != null);
             selectedColumnTypes.value = isNewReadChoice ? {} : constructSavedColumnTypes(newActiveItem); // A new reading can change the columns, but reopening the saved item keeps its types.
             selectedDecimalSeparators.value = isNewReadChoice ? {} : constructSavedDecimalSeparators(newActiveItem);
-            selectedNullWords.value = isNewReadChoice || !isSavedItem(newActiveItem) ? {} : constructChosenNullWords(dataViewConfig.value?.columnSetConfig);
+            selectedNullWords.value = isNewReadChoice || !isSavedItem(newActiveItem) ? {} : constructChosenNullWords(dataViewConfig.value?.columnChoiceConfigs);
             detectedColumnTypes.value = constructDetectedColumnTypes(headedItemReading);
             if (isNewReadChoice) selectedColumnIndex.value = undefined; // A new reading can change the columns.
             activeContentAuditConfig.value = constructFirstContentAuditConfig(previewObjectResult.contentAuditConfig, headedItemReading);
             const typedItemReading = isNewReadChoice ? headedItemReading : applySavedAudit(headedItemReading, newActiveItem);
-            applyPreviewConfig(isNewReadChoice && wereColumnTypesChosen ? addColumnTypesResetIssue(typedItemReading) : typedItemReading, isNewReadChoice);
+            applyItemReading(isNewReadChoice && wereColumnTypesChosen ? addColumnTypesResetIssue(typedItemReading) : typedItemReading, isNewReadChoice);
             recordDetectedValues(itemReading);
             hasLastPreviewSucceeded.value = true;
         } catch (error) {
@@ -1216,9 +1182,9 @@ function handleMoveToExploreStep(): void {
 // audits it too, so a size no larger than the preview needs nothing more.
 async function handleStartAudit(byteLimit: number | undefined): Promise<void> {
     try {
-        const previewObjectResult = await readLargerPreview();
+        const auditResult = await readLargerPreview();
         if (byteLimit !== PREVIEW_BYTE_LIMIT) await startAudit(byteLimit);
-        else if (previewObjectResult) handleItemAudited(previewObjectResult.contentAuditConfig);
+        else if (auditResult) handleItemAudited(auditResult);
     } catch (error) {
         itemFailure.value = raiseFailure(new AppError('Failed to preview this item.', 'dpuse-app.SelectItemPanel.handleStartAudit', { typeId: 'handled' }, { cause: error }));
     }
@@ -1226,14 +1192,17 @@ async function handleStartAudit(byteLimit: number | undefined): Promise<void> {
 
 // An audit reads more records than the preview, so it can find a header the preview missed. The first record then moves
 // out of the table's rows and names the columns.
-function handleItemAudited(contentAuditConfig: ContentAuditConfig): void {
+// A parser that only counts records returns no columns, so the columns already detected stay.
+function handleItemAudited({ contentAuditConfig, hasHeaders }: AuditObjectContentResult): void {
     const itemReading = activeItemReading.value;
     if (itemReading == null) return;
-    const headersAreFound = contentAuditConfig.hasHeaders && itemReading.hasHeaders !== true;
+    const headersAreFound = hasHeaders && itemReading.hasHeaders !== true;
     if (headersAreFound && selectedHasHeaders.value == null) detectedHasHeaders.value = true;
     const auditedItemReading = headersAreFound ? { ...itemReading, hasHeaders: true } : itemReading;
-    activeContentAuditConfig.value = constructStoredContentAuditConfig(contentAuditConfig);
-    activeItemReading.value = applyAuditColumns(auditedItemReading, contentAuditConfig.columns.length > 0 ? contentAuditConfig.columns : itemReading.columnConfigs);
+    const columnConfigs = contentAuditConfig.columns.length > 0 ? contentAuditConfig.columns : (activeContentAuditConfig.value?.columns ?? []);
+    const detectedItemReading = applyPreviewHeaders({ ...auditedItemReading, columnConfigs }, auditedItemReading.hasHeaders === true);
+    activeContentAuditConfig.value = { ...contentAuditConfig, columns: detectedItemReading.columnConfigs };
+    activeItemReading.value = applyAuditColumns(auditedItemReading, columnConfigs);
     if (headersAreFound) showPreviewTable(activeItemReading.value);
     else showPreviewColumns(activeItemReading.value);
     const auditedDataViewConfig = constructEditedDataViewConfig();
@@ -1263,25 +1232,17 @@ function constructEditedDataViewConfig(): DataViewConfig | undefined {
     const contentAuditConfig = activeContentAuditConfig.value;
     if (connectionNodeConfig == null || itemReading == null || contentAuditConfig == null || !previewIsSelectable.value || dataViewConfig.value == null) return;
 
-    const readConfig: ReadConfig = {
-        ...constructReadConfig(itemReading),
+    const readingConfig: ReadingConfig = {
+        ...constructReadingConfig(itemReading),
         dataFormatId: TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId) ? itemReading.dataFormatId : 'dtv' // Markdown opened as a table was parsed as delimited text, so it is saved as that.
     };
     return {
         ...dataViewConfig.value,
-        connectionNodeConfig: constructStorableNodeConfig(connectionNodeConfig),
-        readConfig,
-        previewConfig: constructStoredPreviewConfig(itemReading),
+        connectionNodeConfig,
+        readingConfig,
+        sampleConfig: constructSampleConfig(itemReading),
         contentAuditConfig,
-        columnSetConfig: constructItemColumnSetConfig(
-            itemReading,
-            contentAuditConfig.asAt,
-            detectedColumnTypes.value,
-            selectedColumnTypes.value,
-            selectedDecimalSeparators.value,
-            selectedNullWords.value
-        ),
-        relationshipsAuditConfig: undefined
+        columnChoiceConfigs: constructColumnChoiceConfigs(selectedColumnTypes.value, selectedDecimalSeparators.value, selectedNullWords.value)
     };
 }
 
@@ -1305,8 +1266,8 @@ async function waitForActiveConnectionConfig(): Promise<LocalisedConfig<Connecti
 // read it afresh.
 function constructPreviewOptions(connectionNodeConfig: ConnectionNodeConfig, isNewReadChoice: boolean): PreviewObjectOptions {
     const isOwnItem = !isNewReadChoice && isDataViewItem(connectionNodeConfig);
-    const dataViewReading = isOwnItem ? dataViewConfig.value?.readConfig : undefined;
-    const savedPreviewSize = isOwnItem ? dataViewConfig.value?.previewConfig?.size : undefined;
+    const dataViewReading = isOwnItem ? dataViewConfig.value?.readingConfig : undefined;
+    const savedPreviewSize = isOwnItem ? dataViewConfig.value?.sampleConfig?.size : undefined;
     return {
         chunkSize: savedPreviewSize != null && savedPreviewSize > 0 ? savedPreviewSize : undefined, // A preview that grew reads as much again.
         dataFormatId: selectedDataFormatId.value ?? dataViewReading?.dataFormatId,
@@ -1340,11 +1301,10 @@ function constructItemlessDataViewConfig(): DataViewConfig {
     return {
         ...assertDefined(dataViewConfig.value, 'No data view to change.'),
         connectionNodeConfig: undefined,
-        readConfig: undefined,
-        previewConfig: undefined,
+        readingConfig: undefined,
+        sampleConfig: undefined,
         contentAuditConfig: undefined,
-        columnSetConfig: undefined,
-        relationshipsAuditConfig: undefined
+        columnChoiceConfigs: undefined
     };
 }
 
@@ -1364,10 +1324,8 @@ function constructFolderNodeConfigs(folderPath: string): ConnectionNodeConfig[] 
         icon: null,
         iconDark: null,
         childCount: undefined,
-        childNodes: [],
         extension: undefined,
         folderPath: index === 0 ? '' : `/${names.slice(0, index).join('/')}`,
-        handle: undefined,
         lastModifiedAt: undefined,
         mimeType: undefined,
         name,
@@ -1422,12 +1380,12 @@ function constructHeadersText({ dataFormatId, hasHeaders }: ItemReading): string
 
 function constructRecordDelimiterText({ dataFormatId, recordDelimiterId }: ItemReading): string | undefined {
     if (dataFormatId !== 'dtv') return;
-    return t(TEXT, recordDelimiterId == null ? 'detail.notDetected.text' : RECORD_DELIMITER_LABEL_KEYS[recordDelimiterId]);
+    return recordDelimiterId == null ? t(TEXT, 'detail.notDetected.text') : constructRecordDelimiterLabel(recordDelimiterId);
 }
 
 function constructValueDelimiterText({ dataFormatId, valueDelimiterId }: ItemReading): string | undefined {
     if (dataFormatId !== 'dtv') return;
-    return t(TEXT, valueDelimiterId == null ? 'detail.notDetected.text' : VALUE_DELIMITER_LABEL_KEYS[valueDelimiterId]);
+    return valueDelimiterId == null ? t(TEXT, 'detail.notDetected.text') : constructValueDelimiterLabel(valueDelimiterId);
 }
 
 // A column's Auto names the type detected for it.
@@ -1496,7 +1454,7 @@ function constructPreviewColumnCellIcon(columnId: string, rowIndex: number): Com
 }
 
 function addColumnTypesResetIssue(itemReading: ItemReading): ItemReading {
-    const issue: PreviewIssue = { id: COLUMN_TYPES_RESET_ISSUE_ID, lineNumber: undefined, message: 'The column types were reset by the new reading.', severityId: 'info' };
+    const issue: SampleIssue = { id: COLUMN_TYPES_RESET_ISSUE_ID, lineNumber: undefined, message: 'The column types were reset by the new reading.', severityId: 'info' };
     return { ...itemReading, issues: [...(itemReading.issues ?? []), issue] };
 }
 
@@ -1512,7 +1470,7 @@ function constructAutoOption(detectedText?: string, isAssumed = false): SelectOp
 // detected names it instead. A container type names it by the item's extension, so a legacy Excel file reads 'XLS'.
 function constructDataFormatText(dataFormatId: DataFormatId): string {
     const fileType = activeItemReading.value?.fileType;
-    if (fileType == null || dataFormatId !== 'unknown') return t(TEXT, DATA_FORMAT_LABEL_KEYS[dataFormatId]);
+    if (fileType == null || dataFormatId !== 'unknown') return constructDataFormatLabel(dataFormatId);
     const itemExtension = activeConnectionObjectConfig.value?.extension;
     const isNamedByItem = itemExtension != null && itemExtension !== '' && CONTAINER_FILE_TYPE_EXTENSIONS.has(fileType.ext);
     return (isNamedByItem ? itemExtension : fileType.ext).toUpperCase();
@@ -1522,7 +1480,9 @@ function constructDataFormatText(dataFormatId: DataFormatId): string {
 // format with no reader yet. Auto shows the format detected.
 function constructDataFormatOptionIcon(optionId: string): { iconConfig: DataFormatIconConfig | undefined; isPlanned: boolean } {
     const dataFormatId = optionId === AUTO_OPTION_ID ? detectedDataFormatId.value : (optionId as DataFormatId);
-    return dataFormatId == null || !Object.hasOwn(DATA_FORMAT_ICON_CONFIGS, dataFormatId) ? { iconConfig: undefined, isPlanned: false } : { iconConfig: DATA_FORMAT_ICON_CONFIGS[dataFormatId as Exclude<DataFormatId, 'unknown'>], isPlanned: PLANNED_DATA_FORMAT_IDS.has(dataFormatId) };
+    return dataFormatId == null || !Object.hasOwn(DATA_FORMAT_ICON_CONFIGS, dataFormatId)
+        ? { iconConfig: undefined, isPlanned: false }
+        : { iconConfig: DATA_FORMAT_ICON_CONFIGS[dataFormatId as Exclude<DataFormatId, 'unknown'>], isPlanned: PLANNED_DATA_FORMAT_IDS.has(dataFormatId) };
 }
 
 function findParserToolConfig(parserId: string | undefined): LocalisedConfig<ToolConfig> | undefined {
@@ -1535,7 +1495,7 @@ function findStoreConnection(storeConnectorId: string): LocalisedConfig<Connecti
 
 // The delimiter an option in the value delimiter select stands for. Auto stands for the one detected.
 function resolveValueDelimiterId(optionId: string): ValueDelimiterId | undefined {
-    return optionId === AUTO_OPTION_ID ? detectedValueDelimiterId.value : ORDERED_VALUE_DELIMITER_IDS.find((valueDelimiterId) => valueDelimiterId === optionId);
+    return optionId === AUTO_OPTION_ID ? detectedValueDelimiterId.value : VALUE_DELIMITER_CONFIGS.find(({ id }) => id === optionId)?.id;
 }
 
 // Sorted by label in the current language, because translation changes the order.
@@ -1551,7 +1511,7 @@ function isPreviewTabDisabled(previewTabId: PreviewTabId): boolean {
     return (
         (previewTabId === 'table' || previewTabId === 'columns') &&
         itemReading != null &&
-        (previewHasErrorIssue.value || itemReading.parsedRecords.length === 0 || !READABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId))
+        (sampleHasErrorIssue.value || itemReading.parsedRecords.length === 0 || !READABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId))
     );
 }
 
@@ -1568,26 +1528,21 @@ function createPreviewTabElementId(previewTabId: PreviewTabId): string {
     return `${elementIdPrefix}-${previewTabId}-tab`;
 }
 
-// A file handle cannot be stored, and children are listed afresh.
-function constructStorableNodeConfig(connectionNodeConfig: ConnectionNodeConfig): ConnectionNodeConfig {
-    return { ...connectionNodeConfig, childNodes: [], handle: undefined };
-}
-
 // Whether the item is the data view's own, unchanged since, and read the same way, so the data view's audit still applies.
-function isSameAsSavedItem(dataViewConfig: DataViewConfig, connectionNodeConfig: ConnectionNodeConfig, readConfig: ReadConfig): boolean {
+function isSameAsSavedItem(dataViewConfig: DataViewConfig, connectionNodeConfig: ConnectionNodeConfig, readingConfig: ReadingConfig): boolean {
     const savedNodeConfig = dataViewConfig.connectionNodeConfig;
-    const savedReadConfig = dataViewConfig.readConfig;
+    const savedReadingConfig = dataViewConfig.readingConfig;
     return (
         savedNodeConfig != null &&
-        savedReadConfig != null &&
+        savedReadingConfig != null &&
         constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig) &&
         savedNodeConfig.lastModifiedAt === connectionNodeConfig.lastModifiedAt &&
-        savedReadConfig.dataFormatId === readConfig.dataFormatId &&
-        savedReadConfig.encodingId === readConfig.encodingId &&
-        savedReadConfig.parserId === readConfig.parserId &&
-        savedReadConfig.hasHeaders === readConfig.hasHeaders &&
-        savedReadConfig.recordDelimiterId === readConfig.recordDelimiterId &&
-        savedReadConfig.valueDelimiterId === readConfig.valueDelimiterId
+        savedReadingConfig.dataFormatId === readingConfig.dataFormatId &&
+        savedReadingConfig.encodingId === readingConfig.encodingId &&
+        savedReadingConfig.parserId === readingConfig.parserId &&
+        savedReadingConfig.hasHeaders === readingConfig.hasHeaders &&
+        savedReadingConfig.recordDelimiterId === readingConfig.recordDelimiterId &&
+        savedReadingConfig.valueDelimiterId === readingConfig.valueDelimiterId
     );
 }
 
@@ -1614,7 +1569,7 @@ function applyHeaderChoice(itemReading: ItemReading, connectionNodeConfig: Conne
 function findChosenHasHeaders(connectionNodeConfig: ConnectionNodeConfig): boolean | undefined {
     const savedNodeConfig = dataViewConfig.value?.connectionNodeConfig;
     const savedHasHeaders =
-        savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig) ? dataViewConfig.value?.readConfig?.hasHeaders : undefined;
+        savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig) ? dataViewConfig.value?.readingConfig?.hasHeaders : undefined;
     return selectedHasHeaders.value ?? savedHasHeaders;
 }
 
@@ -1669,14 +1624,14 @@ async function recountActivePreview(hasHeaders: boolean): Promise<void> {
 function applySavedAudit(itemReading: ItemReading, connectionNodeConfig: ConnectionNodeConfig): ItemReading {
     const savedConfig = dataViewConfig.value;
     const savedContentAuditConfig = savedConfig?.contentAuditConfig;
-    if (savedConfig == null || savedContentAuditConfig == null || !isSameAsSavedItem(savedConfig, connectionNodeConfig, constructReadConfig(itemReading))) {
+    if (savedConfig == null || savedContentAuditConfig == null || !isSameAsSavedItem(savedConfig, connectionNodeConfig, constructReadingConfig(itemReading))) {
         return applyChosenColumns(itemReading);
     }
     activeContentAuditConfig.value = savedContentAuditConfig;
-    selectedColumnTypes.value = constructChosenColumnTypes(savedConfig.columnSetConfig);
-    selectedDecimalSeparators.value = constructChosenDecimalSeparators(savedConfig.columnSetConfig);
-    selectedNullWords.value = constructChosenNullWords(savedConfig.columnSetConfig);
-    return applyAuditColumns(itemReading, savedConfig.columnSetConfig?.columnConfigs ?? []);
+    selectedColumnTypes.value = constructChosenColumnTypes(savedConfig);
+    selectedDecimalSeparators.value = constructChosenDecimalSeparators(savedConfig.columnChoiceConfigs);
+    selectedNullWords.value = constructChosenNullWords(savedConfig.columnChoiceConfigs);
+    return applyAuditColumns(itemReading, savedContentAuditConfig.columns);
 }
 
 // Puts an audit's columns on the item, keeping the types and decimal separators the user chose.
@@ -1694,7 +1649,7 @@ function applyChosenColumns(itemReading: ItemReading): ItemReading {
 
 // Reads up to the preview's limit, the same way the item is read now, and shows the larger records and text. Nothing to do
 // once the preview has reached the limit or holds the whole item.
-async function readLargerPreview(): Promise<PreviewObjectResult | undefined> {
+async function readLargerPreview(): Promise<AuditObjectContentResult | undefined> {
     const itemReading = activeItemReading.value;
     const connectionNodeConfig = activeConnectionObjectConfig.value;
     if (itemReading == null || connectionNodeConfig == null || !activeConnectionConfig.value) return;
@@ -1728,23 +1683,22 @@ async function readLargerPreview(): Promise<PreviewObjectResult | undefined> {
         );
         text.value = largerReading.text;
         showPreviewTable(activeItemReading.value);
-        const contentAuditConfig = constructFirstContentAuditConfig(previewObjectResult.contentAuditConfig, largerReading);
-        return { ...previewObjectResult, contentAuditConfig: { ...contentAuditConfig, columns: largerReading.columnConfigs } };
+        return { contentAuditConfig: constructFirstContentAuditConfig(previewObjectResult.contentAuditConfig, largerReading), hasHeaders: largerReading.hasHeaders === true };
     } finally {
         if (currentRequestId === previewRequestId.value) previewIsPending.value = false; // A newer selection owns the busy state now.
     }
 }
 
-// What opening an item audited, with its records counted the way the headers are now set.
+// What opening an item audited, with its columns named and its records counted the way the headers are now set.
 function constructFirstContentAuditConfig(contentAuditConfig: ContentAuditConfig, itemReading: ItemReading): ContentAuditConfig {
     return {
         ...contentAuditConfig,
-        hasHeaders: itemReading.hasHeaders === true,
+        columns: itemReading.columnConfigs,
         recordCount: Math.max(0, itemReading.parsedRecords.length - (itemReading.hasHeaders === true ? 1 : 0))
     };
 }
 
-function constructAuditDetailGroup(contentAuditConfig: StoredContentAuditConfig): {
+function constructAuditDetailGroup(contentAuditConfig: ContentAuditConfig): {
     details: { labelKey: keyof typeof TEXT; value: string | undefined }[];
     id: string;
     title: string;
@@ -1775,7 +1729,7 @@ function constructAuditDetailGroup(contentAuditConfig: StoredContentAuditConfig)
 function constructSavedColumnTypes(connectionNodeConfig: ConnectionNodeConfig): ChosenColumnTypes {
     const savedNodeConfig = dataViewConfig.value?.connectionNodeConfig;
     const isSavedItem = savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig);
-    return isSavedItem ? constructChosenColumnTypes(dataViewConfig.value?.columnSetConfig) : {};
+    return isSavedItem ? constructChosenColumnTypes(dataViewConfig.value) : {};
 }
 
 // The decimal separators saved with this item. A different item starts with none.
@@ -1787,7 +1741,7 @@ function isSavedItem(connectionNodeConfig: ConnectionNodeConfig): boolean {
 function constructSavedDecimalSeparators(connectionNodeConfig: ConnectionNodeConfig): ChosenDecimalSeparators {
     const savedNodeConfig = dataViewConfig.value?.connectionNodeConfig;
     const isSavedItem = savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig);
-    return isSavedItem ? constructChosenDecimalSeparators(dataViewConfig.value?.columnSetConfig) : {};
+    return isSavedItem ? constructChosenDecimalSeparators(dataViewConfig.value?.columnChoiceConfigs) : {};
 }
 
 function constructDetectedColumnTypes({ columnConfigs }: ItemReading): DetectedColumnType[] {
@@ -1795,7 +1749,7 @@ function constructDetectedColumnTypes({ columnConfigs }: ItemReading): DetectedC
 }
 
 // A new read choice stays on the current tab, so the user can compare the readings, unless the new reading disables it.
-function applyPreviewConfig(itemReading: ItemReading, isNewReadChoice: boolean): void {
+function applyItemReading(itemReading: ItemReading, isNewReadChoice: boolean): void {
     activeItemReading.value = itemReading;
     if (!isNewReadChoice || isPreviewTabDisabled(currentPreviewTabId.value)) currentPreviewTabId.value = establishFirstPreviewTabId(itemReading);
     text.value = itemReading.text;
@@ -1868,14 +1822,14 @@ function establishFirstPreviewTabId(itemReading: ItemReading): PreviewTabId {
     return tableIsUsable && TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId) ? 'table' : 'text';
 }
 
-function constructPreviewIssueLineText(issue: PreviewIssue): string | undefined {
+function constructSampleIssueLineText(issue: SampleIssue): string | undefined {
     if (issue.lineNumber == null) return;
     if (issue.endLineNumber == null) return t(TEXT, 'issue.line.text', { line: formatCount(issue.lineNumber) });
     return t(TEXT, 'issue.lines.text', { end: formatCount(issue.endLineNumber), start: formatCount(issue.lineNumber) });
 }
 
 // A value of only spaces or tabs cannot be seen, so it is named instead.
-function constructPreviewIssueValueName(value: string | undefined): string | undefined {
+function constructSampleIssueValueName(value: string | undefined): string | undefined {
     if (value?.trim() !== '') return;
     if (value === ' ') return t(TEXT, 'issue.value.space.text');
     if (value === '\t') return t(TEXT, 'issue.value.tab.text');
@@ -1886,8 +1840,12 @@ function formatCount(count: number): string {
     return formatNumberAsDecimalNumber(count, 0, 0, localeId.value);
 }
 
-function constructPreviewIssueText(issue: PreviewIssue): string {
-    const textKey = PREVIEW_ISSUE_TEXT_KEYS[issue.id];
+function constructChildCountText(childCount: number): string {
+    return t(TEXT, childCount === 1 ? 'folder.childCount.one.text' : 'folder.childCount.other.text', { count: formatCount(childCount) });
+}
+
+function constructSampleIssueText(issue: SampleIssue): string {
+    const textKey = SAMPLE_ISSUE_TEXT_KEYS[issue.id];
     return textKey ? t(TEXT, textKey) : issue.message;
 }
 
@@ -1921,41 +1879,45 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
     <ErrorNotice v-if="listFailure" :failures="[listFailure]" @retry="handleRetryList" />
 
     <GridDetailPanel v-else :selected-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="320px">
+        <!-- Trail ─ In the data view header's trail row, which every step shares, so the header does not change between
+             steps. This step's own trail replaces the header's, because its folders can be opened. -->
         <template #header="{ isSplit, revealSelectedItem }">
-            <div class="flex h-full min-w-0 items-center gap-x-3 border-b border-separator px-page text-sm">
-                <!-- Back Button ─ Narrow screens show the preview in place of the list, so the trail gives way to
-                     one button back to it. The arrow and 'gap-x-2' match the icon and gap of each row in
-                     'DataViewSource', so the arrow centres under those icons and the label lines up with theirs. -->
-                <template v-if="!isSplit && activeConnectionObjectConfig != null">
-                    <ActionWrapper
-                        :aria-label="t(TEXT, 'back.aria', { label: backLabel })"
-                        class="flex h-9.25 min-w-0 shrink cursor-pointer items-center gap-x-2 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-                        @click="handleReturnToList"
-                    >
-                        <ArrowLeftIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
-                        <span class="min-w-0 truncate">{{ backLabel }}</span>
-                    </ActionWrapper>
-                    <!-- The chosen item's name follows the folder the button returns to, as in the trail.
-                         '-mx-1.5' cancels part of the row's gap, so the slash is spaced as the trail spaces its own. -->
-                    <span aria-hidden="true" class="-mx-1.5 flex-none text-subtle">/</span>
-                    <span class="min-w-0 flex-1 truncate text-muted">{{ activeConnectionObjectConfig.label }}</span>
-                </template>
-                <!-- The open folder is plain text while an item is chosen, because the item's crumb follows it. The
-                     item's crumb scrolls the list back to the item. -->
-                <Breadcrumbs
-                    v-else
-                    class="h-9.25 min-w-0 flex-1"
-                    :items="shownBreadcrumbs"
-                    :disable-last="activeConnectionObjectConfig == null"
-                    :disabled-index="activeConnectionObjectConfig == null ? undefined : breadcrumbs.length - 1"
-                    @select="(index, connectionNodeConfig) => (index === breadcrumbs.length ? revealSelectedItem() : handleSelectBreadcrumb(index, connectionNodeConfig))"
-                >
-                    <template #icon>
-                        <ConfigIcon v-if="activeDataViewConnection" class="size-5" :icon="activeDataViewConnection.icon" :icon-dark="activeDataViewConnection.iconDark" />
-                        <HouseIcon v-else aria-hidden="true" class="size-5" :stroke-width="1.5" />
+            <Teleport defer :to="`#${DATA_VIEW_TRAIL_ID}`">
+                <div class="flex h-full min-w-0 flex-1 items-center gap-x-3">
+                    <!-- Back Button ─ Narrow screens show the preview in place of the list, so the trail gives way to
+                         one button back to it. The arrow and 'gap-x-2' match the icon and gap of each row in
+                         'DataViewSource', so the arrow centres under those icons and the label lines up with theirs. -->
+                    <template v-if="!isSplit && activeConnectionObjectConfig != null">
+                        <ActionWrapper
+                            :aria-label="t(TEXT, 'back.aria', { label: backLabel })"
+                            class="flex h-9.25 min-w-0 shrink cursor-pointer items-center gap-x-2 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                            @click="handleReturnToList"
+                        >
+                            <ArrowLeftIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
+                            <span class="min-w-0 truncate">{{ backLabel }}</span>
+                        </ActionWrapper>
+                        <!-- The chosen item's name follows the folder the button returns to, as in the trail.
+                             '-mx-1.5' cancels part of the row's gap, so the slash is spaced as the trail spaces its own. -->
+                        <span aria-hidden="true" class="-mx-1.5 flex-none text-subtle">/</span>
+                        <span class="min-w-0 flex-1 truncate text-muted">{{ activeConnectionObjectConfig.label }}</span>
                     </template>
-                </Breadcrumbs>
-            </div>
+                    <!-- The open folder is plain text while an item is chosen, because the item's crumb follows it. The
+                         item's crumb scrolls the list back to the item. -->
+                    <Breadcrumbs
+                        v-else
+                        class="h-9.25 min-w-0 flex-1"
+                        :items="shownBreadcrumbs"
+                        :disable-last="activeConnectionObjectConfig == null"
+                        :disabled-index="activeConnectionObjectConfig == null ? undefined : breadcrumbs.length - 1"
+                        @select="(index, connectionNodeConfig) => (index === breadcrumbs.length ? revealSelectedItem() : handleSelectBreadcrumb(index, connectionNodeConfig))"
+                    >
+                        <template #icon>
+                            <ConfigIcon v-if="activeDataViewConnection" class="size-5" :icon="activeDataViewConnection.icon" :icon-dark="activeDataViewConnection.iconDark" />
+                            <HouseIcon v-else aria-hidden="true" class="size-5" :stroke-width="1.5" />
+                        </template>
+                    </Breadcrumbs>
+                </div>
+            </Teleport>
         </template>
 
         <template #item="{ item }">
@@ -1970,7 +1932,14 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 :overline="t(TEXT, item.typeId === 'folder' ? 'folder.label' : `${itemSubject}.label`)"
                 :selected="item.id === activeConnectionObjectConfig?.id"
                 @click="handleSelectConnectionNode(item)"
-            />
+            >
+                <!-- Child Count ─ Only the number on screen, because a folder holds nothing but items. Screen readers hear
+                     the whole phrase, so the number is not read out alone. -->
+                <template v-if="item.typeId === 'folder' && item.childCount != null" #note>
+                    <span aria-hidden="true">{{ formatCount(item.childCount) }}</span>
+                    <span class="sr-only">{{ constructChildCountText(item.childCount) }}</span>
+                </template>
+            </ConfigCard>
         </template>
 
         <template #detail="{ item }">
@@ -2268,13 +2237,13 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
             <!-- Preview Issues ─ Between the toolbar and the tabs, so they show on every tab without hiding the text or details.
                  A long list scrolls rather than pushing the preview out of view. -->
             <div
-                v-if="itemFailure == null && previewIssueItems.length > 0"
+                v-if="itemFailure == null && sampleIssueItems.length > 0"
                 class="max-h-32 flex-none overflow-y-auto border-b border-separator px-page py-2 text-sm"
-                :class="previewIssueBandClass"
+                :class="sampleIssueBandClass"
                 role="status"
             >
                 <ul :aria-label="t(TEXT, 'issues.aria')" class="flex flex-col gap-y-1">
-                    <li v-for="issueItem in previewIssueItems" :key="issueItem.key" class="flex items-start gap-x-2">
+                    <li v-for="issueItem in sampleIssueItems" :key="issueItem.key" class="flex items-start gap-x-2">
                         <component :is="issueItem.icon" aria-hidden="true" class="mt-0.5 size-4 flex-none" :class="issueItem.colorClass" :stroke-width="2" />
                         <!-- Where it is, then what it is, then the value at fault. The lines link to the text, except in markdown,
                              which shows rendered rather than as lines. -->
@@ -2305,126 +2274,134 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
             >
                 <!-- Busy Bar ─ Over the content, because taking up height would nudge the preview down on every read. -->
                 <BusyBar v-if="previewIsPending" class="absolute inset-x-0 top-0 z-10 mx-page" />
-                <!-- Table ─ A column's detail slides up over the rows and leaves the header in view, so the column names stay
+                <!-- Table ─ A column's detail opens down over the rows and leaves the header in view, so the column names stay
                      on screen to choose another, as the names do beside the detail in the Columns tab. -->
                 <div v-show="currentPreviewTabId === 'table' && activeItemReading != null" class="relative flex min-h-0 flex-1 flex-col overflow-hidden">
-                <Table
-                    ref="previewTable"
-                    class="flex-1"
-                    :column-definitions="previewTableColumnDefinitions"
-                    :construct-cell-class="constructValueCellClass"
-                    :construct-cell-title="constructValueCellTitle"
-                    :data-source="previewTableDataSource"
-                    is-column-menu-hidden
-                    is-column-picker-hidden
-                    is-header-tabbed
-                    :scroll-area-padding-bottom="PREVIEW_SCROLL_PADDING_BOTTOM"
-                    :selected-column-id="selectedColumnIndex == null ? undefined : String(selectedColumnIndex)"
-                >
-                    <!-- Column Name ─ Opens the column's detail over the rows, or closes it on the selected tab. The
+                    <Table
+                        ref="previewTable"
+                        class="flex-1"
+                        :column-definitions="previewTableColumnDefinitions"
+                        :construct-cell-class="constructValueCellClass"
+                        :construct-cell-title="constructValueCellTitle"
+                        :data-source="previewTableDataSource"
+                        is-column-menu-hidden
+                        is-column-picker-hidden
+                        is-header-tabbed
+                        :scroll-area-padding-bottom="PREVIEW_SCROLL_PADDING_BOTTOM"
+                        :selected-column-id="selectedColumnIndex == null ? undefined : String(selectedColumnIndex)"
+                    >
+                        <!-- Column Name ─ Opens the column's detail over the rows, or closes it on the selected tab. The
                          button's overlay covers the whole tab, so a click anywhere on it does the same, while the name
                          stays the button's accessible name. -->
-                    <template #header-label="{ columnId }">
-                        <ActionWrapper
-                            :aria-current="Number(columnId) === selectedColumnIndex ? 'true' : undefined"
-                            class="min-w-0 flex-1 truncate text-left text-sm font-medium after:absolute after:inset-0"
-                            :class="Number(columnId) === selectedColumnIndex ? 'text-emphasis' : 'text-muted'"
-                            :title="
-                                t(TEXT, Number(columnId) === selectedColumnIndex ? 'columnDetail.close.label' : 'columnDetail.label', {
-                                    label: String(previewTableColumnDefinitions[Number(columnId)]?.header)
-                                })
-                            "
-                            @click="handleToggleColumnDetail(Number(columnId))"
-                            >{{ previewTableColumnDefinitions[Number(columnId)]?.header }}</ActionWrapper
-                        >
-                    </template>
-                    <!-- Mandatory and Key ─ Only after a whole audit, because the rest of the item could still lack or repeat a
+                        <template #header-label="{ columnId }">
+                            <ActionWrapper
+                                :aria-current="Number(columnId) === selectedColumnIndex ? 'true' : undefined"
+                                class="min-w-0 flex-1 truncate text-left text-sm font-medium after:absolute after:inset-0"
+                                :class="Number(columnId) === selectedColumnIndex ? 'text-emphasis' : 'text-muted'"
+                                :title="
+                                    t(TEXT, Number(columnId) === selectedColumnIndex ? 'columnDetail.close.label' : 'columnDetail.label', {
+                                        label: String(previewTableColumnDefinitions[Number(columnId)]?.header)
+                                    })
+                                "
+                                @click="handleToggleColumnDetail(Number(columnId))"
+                                >{{ previewTableColumnDefinitions[Number(columnId)]?.header }}</ActionWrapper
+                            >
+                        </template>
+                        <!-- Mandatory and Key ─ Only after a whole audit, because the rest of the item could still lack or repeat a
                          value. A key is always mandatory, so 'isRequiredColumn' covers both. The value bar is placed on the
                          header cell, along its bottom edge, so it sits here only to be in the cell. -->
-                    <template #header-label-end="{ columnId }">
-                        <span v-if="isRequiredColumn(columnId)" class="ml-1 flex flex-none items-center gap-x-0.5 text-muted">
-                            <span :aria-label="t(TEXT, 'columnRequired.aria')" role="img" :title="t(TEXT, 'columnRequired.aria')">
-                                <AsteriskIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                        <template #header-label-end="{ columnId }">
+                            <span v-if="isRequiredColumn(columnId)" class="ml-1 flex flex-none items-center gap-x-0.5 text-muted">
+                                <span :aria-label="t(TEXT, 'columnRequired.aria')" role="img" :title="t(TEXT, 'columnRequired.aria')">
+                                    <AsteriskIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                                </span>
+                                <span v-if="isKeyColumn(columnId)" :aria-label="t(TEXT, 'columnKey.aria')" role="img" :title="t(TEXT, 'columnKey.aria')">
+                                    <KeyRoundIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                                </span>
                             </span>
-                            <span v-if="isKeyColumn(columnId)" :aria-label="t(TEXT, 'columnKey.aria')" role="img" :title="t(TEXT, 'columnKey.aria')">
-                                <KeyRoundIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
-                            </span>
-                        </span>
-                        <ColumnValueBar
-                            v-if="columnValueCounts[Number(columnId)]"
-                            :column-label="String(previewTableColumnDefinitions[Number(columnId)]?.header)"
-                            :column-value-counts="columnValueCounts[Number(columnId)]!"
-                            :is-emphasised="selectedColumnIndex == null || Number(columnId) === selectedColumnIndex"
-                            @click="handleToggleColumnDetail(Number(columnId))"
-                        />
-                        <!-- Type Icon ─ Shows the column's type after its name. The type is chosen in the column's
+                            <ColumnValueBar
+                                v-if="columnValueCounts[Number(columnId)]"
+                                :column-label="String(previewTableColumnDefinitions[Number(columnId)]?.header)"
+                                :column-value-counts="columnValueCounts[Number(columnId)]!"
+                                :is-emphasised="selectedColumnIndex == null || Number(columnId) === selectedColumnIndex"
+                                @click="handleToggleColumnDetail(Number(columnId))"
+                            />
+                            <!-- Type Icon ─ Shows the column's type after its name. The type is chosen in the column's
                              detail, so a click on the icon opens the detail like the rest of the tab. The dot marks a
                              type the user chose. 'pointer-events-none' lets a click through to the tab, because the
                              dot's positioning would otherwise lift the icon above the tab's overlay. -->
-                        <span :aria-label="constructColumnTypeText(columnId)" class="pointer-events-none relative ml-1.5 flex flex-none items-center text-sm text-muted" role="img">
-                            <component :is="constructColumnTypeIcon(columnId)" aria-hidden="true" class="size-[1.25em] flex-none" />
-                            <span v-if="selectedColumnTypes[columnId] != null" aria-hidden="true" class="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-muted" />
-                        </span>
-                    </template>
-                    <!-- Value Marks ─ A shape as well as the tint, so an invalid value does not rely on colour. It goes at the far
+                            <span
+                                :aria-label="constructColumnTypeText(columnId)"
+                                class="pointer-events-none relative ml-1.5 flex flex-none items-center text-sm text-muted"
+                                role="img"
+                            >
+                                <component :is="constructColumnTypeIcon(columnId)" aria-hidden="true" class="size-[1.25em] flex-none" />
+                                <span v-if="selectedColumnTypes[columnId] != null" aria-hidden="true" class="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-muted" />
+                            </span>
+                        </template>
+                        <!-- Value Marks ─ A shape as well as the tint, so an invalid value does not rely on colour. It goes at the far
                          end of the cell from the value, so the value never moves. Blank and missing values have nothing to
                          show, so a mark in the middle of the tint says they are empty rather than not loaded: '""' for blank
                          and a dash for missing, so they differ by shape as well as colour. -->
-                    <template #cell-icon="{ columnId, rowIndex }">
-                        <template v-if="constructValueState(columnId, rowIndex) === 'invalid'">
-                            <TriangleAlertIcon
-                                aria-hidden="true"
-                                class="size-3.5 flex-none text-danger-text"
-                                :class="isNumericColumn(columnId) ? 'mr-auto' : 'order-1 ml-auto'"
-                                :stroke-width="1.5"
-                            />
-                            <span class="sr-only">{{ t(TEXT, 'value.invalid.aria') }}</span>
+                        <template #cell-icon="{ columnId, rowIndex }">
+                            <template v-if="constructValueState(columnId, rowIndex) === 'invalid'">
+                                <TriangleAlertIcon
+                                    aria-hidden="true"
+                                    class="size-3.5 flex-none text-danger-text"
+                                    :class="isNumericColumn(columnId) ? 'mr-auto' : 'order-1 ml-auto'"
+                                    :stroke-width="1.5"
+                                />
+                                <span class="sr-only">{{ t(TEXT, 'value.invalid.aria') }}</span>
+                            </template>
+                            <span v-else-if="isValueEmpty(columnId, rowIndex)" class="absolute inset-0 flex items-center justify-center text-sm text-subtle">
+                                <span aria-hidden="true">{{ constructValueState(columnId, rowIndex) === 'blank' ? '""' : '–' }}</span>
+                                <span class="sr-only">{{ t(TEXT, constructValueState(columnId, rowIndex) === 'blank' ? 'value.blank.aria' : 'value.missing.aria') }}</span>
+                            </span>
                         </template>
-                        <span v-else-if="isValueEmpty(columnId, rowIndex)" class="absolute inset-0 flex items-center justify-center text-sm text-subtle">
-                            <span aria-hidden="true">{{ constructValueState(columnId, rowIndex) === 'blank' ? '""' : '–' }}</span>
-                            <span class="sr-only">{{ t(TEXT, constructValueState(columnId, rowIndex) === 'blank' ? 'value.blank.aria' : 'value.missing.aria') }}</span>
-                        </span>
-                    </template>
-                    <!-- Decimal Padding ─ A number's missing separator and zeros show in a light colour straight after its last
+                        <!-- Decimal Padding ─ A number's missing separator and zeros show in a light colour straight after its last
                          digit, before any ending such as the ')' of '(3.2)', so the decimals line up and read as implied
                          rather than written. The room for a missing ending such as '%' stays 'invisible'. Both are hidden
                          from screen readers, so the value reads as written. A cell that renders nothing shows its plain
                          value. -->
-                    <template #cell-value="{ columnId, rowIndex }">
-                        <span v-if="constructValueDecimalPadding(columnId, rowIndex)" class="truncate text-sm text-emphasis dark:text-zinc-300"
-                            >{{ constructValueDecimalPadding(columnId, rowIndex)?.numberText
-                            }}<span aria-hidden="true" class="text-subtle">{{ constructValueDecimalPadding(columnId, rowIndex)?.shownPadding }}</span
-                            >{{ constructValueDecimalPadding(columnId, rowIndex)?.writtenEnding
-                            }}<span aria-hidden="true" class="invisible">{{ constructValueDecimalPadding(columnId, rowIndex)?.hiddenPadding }}</span></span
-                        >
-                    </template>
-                </Table>
-                <Transition name="dpuse-sheet">
-                    <ColumnDetailPanel
-                        v-if="selectedColumnIndex != null && activeItemReading != null"
-                        class="absolute inset-x-0 top-10 bottom-0 z-10 bg-surface shadow-md"
-                        can-step-columns
-                        :column-index="selectedColumnIndex"
-                        :column-search-options="columnSearchOptions"
-                        :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
-                        :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
-                        :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
-                        :has-next-column="selectedColumnStepIndex != null && selectedColumnStepIndex < steppedColumnIndexes.length - 1"
-                        :has-previous-column="selectedColumnStepIndex != null && selectedColumnStepIndex > 0"
-                        :is-type-disabled="readChoicesAreLocked || isDerivedColumn(activeItemReading.columnConfigs[selectedColumnIndex]!)"
-                        :item-reading="activeItemReading"
-                        :null-word-reading="constructNullWordReading(String(selectedColumnIndex))"
-                        :source-text="auditStatus?.shortText ?? ''"
-                        :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
-                        :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
-                        @close="selectedColumnIndex = undefined"
-                        @select="handleSelectColumn"
-                        @step="handleStepColumn"
-                        @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
-                        @update:null-words-are-empty="handleSelectNullWords(String(selectedColumnIndex), $event)"
-                        @update:type-value="handleSelectColumnType(String(selectedColumnIndex), $event)"
-                    />
-                </Transition>
+                        <template #cell-value="{ columnId, rowIndex }">
+                            <span v-if="constructValueDecimalPadding(columnId, rowIndex)" class="truncate text-sm text-emphasis dark:text-zinc-300"
+                                >{{ constructValueDecimalPadding(columnId, rowIndex)?.numberText
+                                }}<span aria-hidden="true" class="text-subtle">{{ constructValueDecimalPadding(columnId, rowIndex)?.shownPadding }}</span
+                                >{{ constructValueDecimalPadding(columnId, rowIndex)?.writtenEnding
+                                }}<span aria-hidden="true" class="invisible">{{ constructValueDecimalPadding(columnId, rowIndex)?.hiddenPadding }}</span></span
+                            >
+                        </template>
+                    </Table>
+                    <!-- Column Detail ─ Slides down from under the header. The box below the header clips it, so it never passes
+                     over the header. The box lets clicks through to the rows when the detail is closed. -->
+                    <div class="pointer-events-none absolute inset-x-0 top-10 bottom-0 z-10 overflow-hidden">
+                        <Transition name="dpuse-slide-down">
+                            <ColumnDetailPanel
+                                v-if="selectedColumnIndex != null && activeItemReading != null"
+                                class="pointer-events-auto absolute inset-0 bg-surface shadow-md"
+                                can-step-columns
+                                :column-index="selectedColumnIndex"
+                                :column-search-options="columnSearchOptions"
+                                :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
+                                :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
+                                :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
+                                :has-next-column="selectedColumnStepIndex != null && selectedColumnStepIndex < steppedColumnIndexes.length - 1"
+                                :has-previous-column="selectedColumnStepIndex != null && selectedColumnStepIndex > 0"
+                                :is-type-disabled="readChoicesAreLocked || isDerivedColumn(activeItemReading.columnConfigs[selectedColumnIndex]!)"
+                                :item-reading="activeItemReading"
+                                :null-word-reading="constructNullWordReading(String(selectedColumnIndex))"
+                                :source-text="auditStatus?.shortText ?? ''"
+                                :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
+                                :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
+                                @close="selectedColumnIndex = undefined"
+                                @select="handleSelectColumn"
+                                @step="handleStepColumn"
+                                @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
+                                @update:null-words-are-empty="handleSelectNullWords(String(selectedColumnIndex), $event)"
+                                @update:type-value="handleSelectColumnType(String(selectedColumnIndex), $event)"
+                            />
+                        </Transition>
+                    </div>
                 </div>
                 <!-- Columns ─ 'v-if', so the table measures its space when it opens rather than while hidden. With a column's
                      detail open the table drops back to its names, and 'v-show' keeps its scroll position where the
@@ -2470,30 +2447,30 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     </Table>
                     <!-- Column Detail ─ Slides in from the right, beside the names that choose it. -->
                     <Transition name="dpuse-slide-from-right">
-                    <ColumnDetailPanel
-                        v-if="selectedColumnIndex != null"
-                        class="min-w-0 flex-1 border-l border-separator"
-                        :can-step-columns="columnDetailFillsSpace"
-                        :column-index="selectedColumnIndex"
-                        :column-search-options="columnSearchOptions"
-                        :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
-                        :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
-                        :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
-                        :has-next-column="selectedColumnStepIndex != null && selectedColumnStepIndex < steppedColumnIndexes.length - 1"
-                        :has-previous-column="selectedColumnStepIndex != null && selectedColumnStepIndex > 0"
-                        :null-word-reading="constructNullWordReading(String(selectedColumnIndex))"
-                        :is-type-disabled="readChoicesAreLocked || isDerivedColumn(activeItemReading.columnConfigs[selectedColumnIndex]!)"
-                        :item-reading="activeItemReading"
-                        :source-text="auditStatus?.shortText ?? ''"
-                        :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
-                        :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
-                        @close="selectedColumnIndex = undefined"
-                        @select="handleSelectColumn"
-                        @step="handleStepColumn"
-                        @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
-                        @update:null-words-are-empty="handleSelectNullWords(String(selectedColumnIndex), $event)"
-                        @update:type-value="handleSelectColumnType(String(selectedColumnIndex), $event)"
-                    />
+                        <ColumnDetailPanel
+                            v-if="selectedColumnIndex != null"
+                            class="min-w-0 flex-1 border-l border-separator"
+                            :can-step-columns="columnDetailFillsSpace"
+                            :column-index="selectedColumnIndex"
+                            :column-search-options="columnSearchOptions"
+                            :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
+                            :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
+                            :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
+                            :has-next-column="selectedColumnStepIndex != null && selectedColumnStepIndex < steppedColumnIndexes.length - 1"
+                            :has-previous-column="selectedColumnStepIndex != null && selectedColumnStepIndex > 0"
+                            :null-word-reading="constructNullWordReading(String(selectedColumnIndex))"
+                            :is-type-disabled="readChoicesAreLocked || isDerivedColumn(activeItemReading.columnConfigs[selectedColumnIndex]!)"
+                            :item-reading="activeItemReading"
+                            :source-text="auditStatus?.shortText ?? ''"
+                            :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
+                            :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
+                            @close="selectedColumnIndex = undefined"
+                            @select="handleSelectColumn"
+                            @step="handleStepColumn"
+                            @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
+                            @update:null-words-are-empty="handleSelectNullWords(String(selectedColumnIndex), $event)"
+                            @update:type-value="handleSelectColumnType(String(selectedColumnIndex), $event)"
+                        />
                     </Transition>
                 </div>
                 <TextViewer

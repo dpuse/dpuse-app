@@ -27,7 +27,7 @@ import {
     resolveStoreConnectorId
 } from '@/features/studio/dataViews/_dataViewStore';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
-import { constructColumnSetVersion, constructDataTypeCellClass, constructLoadColumnConfigs, isEmptyUnitColumn } from '@/features/studio/dataViews/_dataViewColumns';
+import { constructColumnsVersion, constructDataTypeCellClass, constructLoadColumnConfigs, isEmptyUnitColumn } from '@/features/studio/dataViews/_dataViewColumns';
 import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX } from '@/components/ui/table/tableColumnWidth';
 import { localeId, t } from '@/state/locale';
 
@@ -85,7 +85,7 @@ const route = useRoute();
 const { data: dataViewConfig, draftIsCurrent } = useCurrentDataView(() => route.params.dataViewId);
 const columnsAreFromPartialAudit = computed(() => dataViewConfig.value?.contentAuditConfig?.isComplete === false);
 const columnConfigs = computed(() =>
-    constructLoadColumnConfigs({ columnSetConfig: dataViewConfig.value?.columnSetConfig, contentAuditConfig: dataViewConfig.value?.contentAuditConfig })
+    constructLoadColumnConfigs({ columnChoiceConfigs: dataViewConfig.value?.columnChoiceConfigs, contentAuditConfig: dataViewConfig.value?.contentAuditConfig })
 );
 
 // ── Store
@@ -189,12 +189,7 @@ const unitColumnIndexes = computed(() => {
     return indexes;
 });
 const percentageColumnIndexes = computed(
-    () =>
-        new Set(
-            [...unitColumnIndexes.value]
-                .filter(([, unitIndex]) => (columnConfigs.value[unitIndex]?.formats['%'] ?? 0) > 0)
-                .map(([sourceIndex]) => sourceIndex)
-        )
+    () => new Set([...unitColumnIndexes.value].filter(([, unitIndex]) => (columnConfigs.value[unitIndex]?.formats['%'] ?? 0) > 0).map(([sourceIndex]) => sourceIndex))
 );
 
 // ── Number Formats ─ One for each column. Every number shows at least its column's most decimals, so the decimal points
@@ -211,9 +206,9 @@ const numberFormats = computed(() =>
 
 // Opens the store once the data view has columns, and again when they change, which needs a new load.
 watch(
-    () => constructColumnSetVersion(dataViewConfig.value?.columnSetConfig),
-    (columnSetVersion) => {
-        if (columnSetVersion == null) investigateState.value = { typeId: 'columnsRequired' };
+    () => constructColumnsVersion(dataViewConfig.value),
+    (columnsVersion) => {
+        if (columnsVersion == null) investigateState.value = { typeId: 'columnsRequired' };
         else if (wasLoadRequested() || isDataViewLoaded(assertDefined(dataViewConfig.value), draftIsCurrent.value)) void openAndLoad(false);
         else investigateState.value = { typeId: 'notLoaded' };
     },
@@ -406,7 +401,6 @@ function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig, n
                     {{ t(TEXT, 'load.again.label') }}
                 </ActionWrapper>
             </div>
-
             <!-- Mismatches ─ Between the toolbar and the records, so they show before anyone reads a blank as missing data. A
                  long list scrolls rather than pushing the records out of view. -->
             <div
@@ -440,7 +434,9 @@ function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig, n
                      line up. -->
                 <template #cell-icon="{ columnId, row }">
                     <span v-if="findCurrencyUnit(columnId, row)" class="mr-auto text-sm text-muted">{{ findCurrencyUnit(columnId, row) }}</span>
-                    <span v-if="isPercentageColumn(columnId) && row != null" class="order-1 -ml-1 text-sm text-muted" :class="{ invisible: row[`u${columnId.slice(1)}`] !== '%' }">%</span>
+                    <span v-if="isPercentageColumn(columnId) && row != null" class="order-1 -ml-1 text-sm text-muted" :class="{ invisible: row[`u${columnId.slice(1)}`] !== '%' }"
+                        >%</span
+                    >
                 </template>
             </Table>
             <!-- Announced as it changes, because the count is the only sign that a long load is still going. -->

@@ -20,7 +20,7 @@ import { assertDefined } from '@/utilities/index.ts';
 import { constructItemPath } from './dataViewSummary';
 import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
-import { constructColumnSetVersion, constructLoadColumnConfigs } from './_dataViewColumns';
+import { constructColumnsVersion, constructLoadColumnConfigs } from './_dataViewColumns';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -42,7 +42,7 @@ const LOAD_FORMAT_VERSION = 2; // Raised when stored values change meaning, so t
 
 // The columns each data view was loaded with, by store and data view, kept in this browser because the store is too. A
 // data view whose columns have changed since is loaded again.
-const loadedColumnSetVersions = useLocalStorage<Partial<Record<string, number | string>>>('dpuse-investigate-loads', {});
+const loadedColumnsVersions = useLocalStorage<Partial<Record<string, number | string>>>('dpuse-investigate-loads', {});
 
 // The table each load went into. A saved data view with no entry is in the table named by its id. A draft has a table
 // of its own, so loading it leaves the saved data view's records alone. Save makes that table the saved one.
@@ -72,41 +72,41 @@ export async function closeDataViewStore(storeConnectorId: string): Promise<void
     await processRequest('closeStore', findStoreConnectionLocalisedConfig(storeConnectorId), {});
 }
 
-export function isDataViewLoaded(dataViewConfig: Pick<DataViewConfig, 'columnSetConfig' | 'id' | 'storeConnectorId'>, isDraft: boolean): boolean {
-    const columnSetVersion = constructColumnSetVersion(dataViewConfig.columnSetConfig);
-    return columnSetVersion != null && loadedColumnSetVersions.value[constructDataViewLoadKey(dataViewConfig, isDraft)] === columnSetVersion;
+export function isDataViewLoaded(dataViewConfig: Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig' | 'id' | 'storeConnectorId'>, isDraft: boolean): boolean {
+    const columnsVersion = constructColumnsVersion(dataViewConfig);
+    return columnsVersion != null && loadedColumnsVersions.value[constructDataViewLoadKey(dataViewConfig, isDraft)] === columnsVersion;
 }
 
 // Reads the data view from its source again, the way its preview read it, and stores each value as its column's type.
 // The records go from the source connector to the store inside the engine, never through the app. An item whose columns
 // have moved since the preview loads nothing, so the earlier load stays.
 export async function loadDataViewRecords(dataViewConfig: DataViewConfig, isDraft: boolean, onProgress: (recordCount: number) => void): Promise<EngineLoadObjectRecordsResult> {
-    const columnSetVersion = assertDefined(constructColumnSetVersion(dataViewConfig.columnSetConfig), 'No columns for this data view.');
+    const columnsVersion = assertDefined(constructColumnsVersion(dataViewConfig), 'No columns for this data view.');
     const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
-    const readConfig = assertDefined(dataViewConfig.readConfig, 'No read configuration for this data view.');
+    const readingConfig = assertDefined(dataViewConfig.readingConfig, 'No reading configuration for this data view.');
     const sourceConnectionConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
     const storeConnectorId = resolveStoreConnectorId(dataViewConfig);
     const loadKey = constructLoadKey(storeConnectorId, dataViewConfig.id, isDraft);
     const options: EngineLoadObjectRecordsOptions = {
         columnConfigs: constructLoadColumnConfigs(dataViewConfig),
-        hasHeaders: readConfig.hasHeaders === true,
-        headerValues: readConfig.hasHeaders === true ? dataViewConfig.previewConfig?.parsedRecords[0]?.map((parsingValue) => parsingValue.value) : undefined,
+        hasHeaders: readingConfig.hasHeaders === true,
+        headerValues: readingConfig.hasHeaders === true ? dataViewConfig.sampleConfig?.parsedRecords[0]?.map((parsedValue) => parsedValue.value) : undefined,
         path: establishTablePath(storeConnectorId, dataViewConfig.id, isDraft),
         sourceConnectionConfig,
         sourceOptions: {
             chunkSize: undefined,
-            dataFormatId: readConfig.dataFormatId,
-            encodingId: assertDefined(readConfig.encodingId, 'No encoding in the read configuration.'),
-            parserId: readConfig.parserId,
+            dataFormatId: readingConfig.dataFormatId,
+            encodingId: assertDefined(readingConfig.encodingId, 'No encoding in the reading configuration.'),
+            parserId: readingConfig.parserId,
             path: constructItemPath(connectionNodeConfig),
-            valueDelimiterId: assertDefined(readConfig.valueDelimiterId, 'No value delimiter in the read configuration.')
+            valueDelimiterId: assertDefined(readingConfig.valueDelimiterId, 'No value delimiter in the reading configuration.')
         }
     };
     const { processRequest } = await establishEngineWorker();
     const loadResult = (await processRequest('loadObjectRecords', findStoreConnectionLocalisedConfig(storeConnectorId), options, (callbackData) => {
         if (callbackData.typeId === 'progress') onProgress(Number(callbackData.properties.recordCount));
     })) as EngineLoadObjectRecordsResult;
-    if (!loadResult.columnsHaveChanged) loadedColumnSetVersions.value = { ...loadedColumnSetVersions.value, [loadKey]: columnSetVersion };
+    if (!loadResult.columnsHaveChanged) loadedColumnsVersions.value = { ...loadedColumnsVersions.value, [loadKey]: columnsVersion };
     return loadResult;
 }
 
@@ -125,7 +125,7 @@ export async function queryDataViewRecords(storeConnectorId: string, tablePath: 
 }
 
 export function hasDataViewLoad(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): boolean {
-    return loadedColumnSetVersions.value[constructDataViewLoadKey(dataViewConfig, isDraft)] != null;
+    return loadedColumnsVersions.value[constructDataViewLoadKey(dataViewConfig, isDraft)] != null;
 }
 
 export function resolveDataViewTablePath(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): string {
@@ -148,9 +148,9 @@ export function promoteDraftLoad(dataViewConfig: Pick<DataViewConfig, 'id' | 'st
 
     const savedKey = constructLoadKey(storeConnectorId, dataViewId, false);
     addUnwantedTablePaths(storeConnectorId, [resolveSavedTablePath(storeConnectorId, dataViewId)]);
-    const draftVersion = loadedColumnSetVersions.value[draftKey];
-    const { [savedKey]: _savedVersion, [draftKey]: _draftVersion, ...otherVersions } = loadedColumnSetVersions.value;
-    loadedColumnSetVersions.value = draftVersion == null ? otherVersions : { ...otherVersions, [savedKey]: draftVersion };
+    const draftVersion = loadedColumnsVersions.value[draftKey];
+    const { [savedKey]: _savedVersion, [draftKey]: _draftVersion, ...otherVersions } = loadedColumnsVersions.value;
+    loadedColumnsVersions.value = draftVersion == null ? otherVersions : { ...otherVersions, [savedKey]: draftVersion };
     const { [draftKey]: _draftTablePath, ...otherTablePaths } = loadTablePaths.value;
     loadTablePaths.value = { ...otherTablePaths, [savedKey]: draftTablePath };
 }
@@ -222,8 +222,8 @@ function forgetAbandonedDraftLoads(openDraftDataViewId: string | undefined): voi
 function forgetLoad(storeConnectorId: string, loadKey: string): void {
     const tablePath = loadTablePaths.value[loadKey];
     if (tablePath != null) addUnwantedTablePaths(storeConnectorId, [tablePath]);
-    const { [loadKey]: _version, ...otherVersions } = loadedColumnSetVersions.value;
-    loadedColumnSetVersions.value = otherVersions;
+    const { [loadKey]: _version, ...otherVersions } = loadedColumnsVersions.value;
+    loadedColumnsVersions.value = otherVersions;
     const { [loadKey]: _tablePath, ...otherTablePaths } = loadTablePaths.value;
     loadTablePaths.value = otherTablePaths;
 }

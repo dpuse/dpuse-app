@@ -4,10 +4,10 @@ import { BracesIcon, CableIcon, ChevronRightIcon, FileIcon, SheetIcon, SquareDas
 import { type Component, computed } from 'vue';
 
 // ── DPUse Framework
-import { DATA_FORMAT_ICON_CONFIGS } from '@dpuse/dpuse-shared';
 import type { ConnectionNodeConfig, ConnectorItemTypeId, DataFormatId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { DATA_FORMAT_ICON_CONFIGS } from './_dataFormatIcons';
 import { t } from '@/state/locale';
 import { TEXT } from './DataViewSource_.json';
 import { constructItemPath, type DataViewConnection } from './dataViewSummary';

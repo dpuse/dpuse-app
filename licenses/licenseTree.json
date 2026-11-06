@@ -1,5 +1,5 @@
 {
-  "version": "1.0.260",
+  "version": "1.0.261",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -13,8 +13,8 @@
           "overridden": false
         },
         "playwright-core": {
-          "version": "1.64.1",
-          "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.64.1.tgz",
+          "version": "1.65.0",
+          "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.65.0.tgz",
           "overridden": false
         }
       }
@@ -171,7 +171,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261104.1"
+              "version": "5.20261106.1"
             },
             "blake3-wasm": {
               "version": "2.1.5"
@@ -208,8 +208,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261104.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261104.1.tgz",
+      "version": "5.20261106.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261106.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -218,7 +218,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.183"
+          "version": "1.0.187"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -284,7 +284,7 @@
                       "version": "7.0.5"
                     },
                     "glob": {
-                      "version": "13.0.6"
+                      "version": "13.0.7"
                     },
                     "minimatch": {
                       "version": "10.2.6"
@@ -491,7 +491,7 @@
                       }
                     },
                     "glob": {
-                      "version": "13.0.6"
+                      "version": "13.0.7"
                     },
                     "lru-cache": {
                       "version": "11.5.3"
@@ -1155,7 +1155,7 @@
                   }
                 },
                 "glob": {
-                  "version": "13.0.6"
+                  "version": "13.0.7"
                 },
                 "hosted-git-info": {
                   "version": "9.0.3"
@@ -1366,8 +1366,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.183",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.183.tgz",
+      "version": "1.0.187",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.187.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1453,7 +1453,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.183"
+          "version": "1.0.187"
         },
         "@tanstack/charts": {
           "version": "1.1.0",
@@ -4320,8 +4320,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.69.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.69.0.tgz",
+      "version": "1.70.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.70.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -4330,30 +4330,30 @@
       }
     },
     "@playwright/test": {
-      "version": "1.64.1",
-      "resolved": "https://registry.npmjs.org/@playwright/test/-/test-1.64.1.tgz",
+      "version": "1.65.0",
+      "resolved": "https://registry.npmjs.org/@playwright/test/-/test-1.65.0.tgz",
       "overridden": false,
       "dependencies": {
         "playwright": {
-          "version": "1.64.1",
-          "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.64.1.tgz",
+          "version": "1.65.0",
+          "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.65.0.tgz",
           "overridden": false,
           "dependencies": {
             "playwright-core": {
-              "version": "1.64.1"
+              "version": "1.65.0"
             }
           }
         }
       }
     },
     "@tailwindcss/vite": {
-      "version": "4.3.4",
-      "resolved": "https://registry.npmjs.org/@tailwindcss/vite/-/vite-4.3.4.tgz",
+      "version": "4.3.5",
+      "resolved": "https://registry.npmjs.org/@tailwindcss/vite/-/vite-4.3.5.tgz",
       "overridden": false,
       "dependencies": {
         "@tailwindcss/node": {
-          "version": "4.3.4",
-          "resolved": "https://registry.npmjs.org/@tailwindcss/node/-/node-4.3.4.tgz",
+          "version": "4.3.5",
+          "resolved": "https://registry.npmjs.org/@tailwindcss/node/-/node-4.3.5.tgz",
           "overridden": false,
           "dependencies": {
             "@jridgewell/remapping": {
@@ -4382,19 +4382,19 @@
               "version": "1.2.2"
             },
             "tailwindcss": {
-              "version": "4.3.4"
+              "version": "4.3.5"
             }
           }
         },
         "@tailwindcss/oxide": {
-          "version": "4.3.4",
-          "resolved": "https://registry.npmjs.org/@tailwindcss/oxide/-/oxide-4.3.4.tgz",
+          "version": "4.3.5",
+          "resolved": "https://registry.npmjs.org/@tailwindcss/oxide/-/oxide-4.3.5.tgz",
           "overridden": false,
           "dependencies": {
             "@tailwindcss/oxide-android-arm64": {},
             "@tailwindcss/oxide-darwin-arm64": {
-              "version": "4.3.4",
-              "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-darwin-arm64/-/oxide-darwin-arm64-4.3.4.tgz",
+              "version": "4.3.5",
+              "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-darwin-arm64/-/oxide-darwin-arm64-4.3.5.tgz",
               "overridden": false
             },
             "@tailwindcss/oxide-darwin-x64": {},
@@ -4405,8 +4405,8 @@
             "@tailwindcss/oxide-linux-x64-gnu": {},
             "@tailwindcss/oxide-linux-x64-musl": {},
             "@tailwindcss/oxide-wasm32-wasi": {
-              "version": "4.3.4",
-              "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-wasm32-wasi/-/oxide-wasm32-wasi-4.3.4.tgz",
+              "version": "4.3.5",
+              "resolved": "https://registry.npmjs.org/@tailwindcss/oxide-wasm32-wasi/-/oxide-wasm32-wasi-4.3.5.tgz",
               "overridden": false,
               "dependencies": {
                 "@emnapi/core": {
@@ -4474,7 +4474,7 @@
           }
         },
         "tailwindcss": {
-          "version": "4.3.4"
+          "version": "4.3.5"
         },
         "vite": {
           "version": "8.3.6"
@@ -5500,8 +5500,8 @@
               }
             },
             "glob": {
-              "version": "13.0.6",
-              "resolved": "https://registry.npmjs.org/glob/-/glob-13.0.6.tgz",
+              "version": "13.0.7",
+              "resolved": "https://registry.npmjs.org/glob/-/glob-13.0.7.tgz",
               "overridden": false,
               "dependencies": {
                 "minimatch": {
@@ -5875,12 +5875,12 @@
               "version": "1.2.1"
             },
             "tailwindcss": {
-              "version": "4.3.4"
+              "version": "4.3.5"
             }
           }
         },
         "tailwindcss": {
-          "version": "4.3.4"
+          "version": "4.3.5"
         }
       }
     },
@@ -6810,8 +6810,8 @@
       }
     },
     "tailwindcss": {
-      "version": "4.3.4",
-      "resolved": "https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.3.4.tgz",
+      "version": "4.3.5",
+      "resolved": "https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.3.5.tgz",
       "overridden": false
     },
     "tinybase": {
@@ -6822,7 +6822,7 @@
         "@automerge/automerge-repo": {},
         "@capacitor-community/sqlite": {},
         "@cloudflare/workers-types": {
-          "version": "5.20261104.1"
+          "version": "5.20261106.1"
         },
         "@electric-sql/pglite": {},
         "@libsql/client": {},
@@ -7723,7 +7723,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261104.1"
+          "version": "5.20261106.1"
         },
         "@cspotcode/source-map-support": {
           "version": "0.8.1",

@@ -30,23 +30,21 @@ export async function executePreviewConnectorItem(arguments_: unknown): Promise<
             path,
             valueDelimiterId: undefined
         }; // The assistant names only a path, so the extension decides the format and the first tool that reads it parses it.
-        const { contentAuditConfig, previewConfig, readConfig } = (await engine.processRequest('previewObject', connection, options)) as PreviewObjectResult;
-
-        if (previewConfig.errorMessage != null) return { error: previewConfig.errorMessage };
+        const { contentAuditConfig, readingConfig, sampleConfig } = (await engine.processRequest('previewObject', connection, options)) as PreviewObjectResult;
 
         const columnNames = contentAuditConfig.columns.map((col, index) => col.label.en ?? col.label.es ?? String(index));
 
-        const dataOffset = (readConfig.hasHeaders ?? false) ? 1 : 0;
-        const sampleRows = previewConfig.parsedRecords
+        const dataOffset = (readingConfig.hasHeaders ?? false) ? 1 : 0;
+        const sampleRows = sampleConfig.parsedRecords
             .slice(dataOffset, dataOffset + 10)
             .map((record) => Object.fromEntries(record.map((cell, index) => [columnNames[index] ?? String(index), cell.value])));
 
         return {
-            dataFormatId: readConfig.dataFormatId,
-            size: previewConfig.size,
+            dataFormatId: readingConfig.dataFormatId,
+            size: sampleConfig.size,
             columns: columnNames,
             rows: sampleRows,
-            text: previewConfig.text
+            text: sampleConfig.text
         };
     } catch (error) {
         const failure = raiseFailure(

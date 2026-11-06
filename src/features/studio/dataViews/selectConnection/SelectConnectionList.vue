@@ -158,11 +158,10 @@ function constructDraftDataViewConfig(connectionId: string): DataViewConfig {
         ...dataViewConfig.value,
         connectionId,
         connectionNodeConfig: undefined,
-        readConfig: undefined,
-        previewConfig: undefined,
+        readingConfig: undefined,
+        sampleConfig: undefined,
         contentAuditConfig: undefined,
-        columnSetConfig: undefined,
-        relationshipsAuditConfig: undefined
+        columnChoiceConfigs: undefined
     };
 }
 
