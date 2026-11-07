@@ -12,7 +12,7 @@ const DEFAULT_MINIMUM_COLUMN_WIDTH_PX = 20; // TanStack Table's own default, for
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { headerViewportElement, table } = defineProps<{ headerViewportElement: HTMLDivElement | null; table: Table<TableFeatureSet, T> }>();
+const { scrollElement, table } = defineProps<{ scrollElement: HTMLDivElement | null; table: Table<TableFeatureSet, T> }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -20,10 +20,10 @@ const { headerViewportElement, table } = defineProps<{ headerViewportElement: HT
 // component because the drag updates the resize state on every frame, and only the line should re-render for that.
 const linePosition = computed(() => {
     const { deltaOffset, isResizingColumn, startSize } = table.atoms.columnResizing.get();
-    if (!headerViewportElement || deltaOffset === null || startSize === null || isResizingColumn === false) return;
+    if (!scrollElement || deltaOffset === null || startSize === null || isResizingColumn === false) return;
 
     // The grab area is wider than the handle, so the cursor can start off to one side. The line starts on the handle instead.
-    const handles = headerViewportElement.querySelectorAll<HTMLElement>('[data-region="TableResizeHandle"]');
+    const handles = scrollElement.querySelectorAll<HTMLElement>('[data-region="TableResizeHandle"]');
     const handle = [...handles].find((element) => element.dataset.columnId === isResizingColumn);
     if (!handle) return;
 
@@ -31,7 +31,7 @@ const linePosition = computed(() => {
     const { maxSize, minSize } = table.getColumn(isResizingColumn)?.columnDef ?? {};
     const width = Math.min(Math.max(startSize + deltaOffset, minSize ?? DEFAULT_MINIMUM_COLUMN_WIDTH_PX), maxSize ?? Number.MAX_SAFE_INTEGER);
 
-    return { left: handle.getBoundingClientRect().left - headerViewportElement.getBoundingClientRect().left + width - startSize, top: headerViewportElement.offsetTop };
+    return { left: handle.getBoundingClientRect().left - scrollElement.getBoundingClientRect().left + width - startSize, top: scrollElement.offsetTop };
 });
 </script>
 

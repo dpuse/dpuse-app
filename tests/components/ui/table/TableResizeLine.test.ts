@@ -26,7 +26,7 @@ function mountHarness(): ReturnType<typeof mount> {
     return mount(
         defineComponent({
             setup() {
-                const headerViewportElement = shallowRef<HTMLDivElement | null>(null);
+                const scrollElement = shallowRef<HTMLDivElement | null>(null);
                 const table = useTable<typeof tableFeatureSet, RowData>({
                     features: tableFeatureSet,
                     data: [],
@@ -36,8 +36,8 @@ function mountHarness(): ReturnType<typeof mount> {
                 });
                 return () => [
                     h('p', { 'data-region': 'Width' }, String(table.getColumn('name')?.getSize())),
-                    h('div', { ref: headerViewportElement }, [h(TableHeaderCell, { header: table.getCenterLeafHeaders()[0], isMenuHidden: true })]),
-                    h(TableResizeLine, { headerViewportElement: headerViewportElement.value, table })
+                    h('div', { ref: scrollElement }, [h(TableHeaderCell, { header: table.getCenterLeafHeaders()[0], isMenuHidden: true })]),
+                    h(TableResizeLine, { scrollElement: scrollElement.value, table })
                 ];
             }
         })

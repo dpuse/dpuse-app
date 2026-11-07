@@ -3,7 +3,7 @@
 import { useVirtualizer } from '@tanstack/vue-virtual';
 import { type ColumnDef, type ColumnPinningState, type ColumnSizingState, type ColumnVisibilityState, useTable } from '@tanstack/vue-table';
 import { computed, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
-import { useEventListener, useResizeObserver } from '@vueuse/core';
+import { useElementSize, useEventListener, useResizeObserver } from '@vueuse/core';
 
 // ── Local Framework
 import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX, HEADER_TAB_INSET_PX } from './tableColumnWidth';
@@ -79,17 +79,13 @@ defineSlots<{
 }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-// Outer scrolls vertically only (drives the row virtualizer), inner scrolls horizontally only (drives the column
-// virtualizer) — no single element is ever scrollable on both axes, which is what keeps a diagonal touch gesture
-// from blending into simultaneous x/y scroll on iOS. The header lives in its own separate viewport rather than as
-// sticky content inside the body: see the template comment above it and syncHeaderScroll below for why.
 
+// One element scrolls both ways and drives both the row and the column virtualizers. It holds the header as sticky
+// content, so the header never lags behind the columns as a separately scrolled header would.
 const scrollElement = useTemplateRef<HTMLDivElement>('scroller');
 const scrollElementId = useId();
-const innerScrollElement = useTemplateRef<HTMLDivElement>('innerScroller');
-const innerScrollElementId = useId();
-const headerViewport = useTemplateRef<HTMLDivElement>('headerViewport');
-const mirroredScrollLeft = ref(0); // Where the body last put the header, so the header's scroll event that follows is not sent back to the body.
+const headerElement = useTemplateRef<HTMLDivElement>('header');
+const { height: headerHeight } = useElementSize(headerElement, undefined, { box: 'border-box' });
 const savedScrollLeft = ref(0); // Where the table was left, because a browser can reset a hidden element's scroll position.
 const savedScrollTop = ref(0);
 const verticalThumb = useTemplateRef<InstanceType<typeof ScrollThumb>>('verticalThumb');
@@ -165,7 +161,7 @@ const columnVirtualizer = useVirtualizer({
         return columnVirtualisationIsRequired.value ? centerLeafHeaders.value.length : 0;
     },
     estimateSize: (index) => centerLeafHeaders.value[index]?.column.getSize() ?? 150,
-    getScrollElement: () => innerScrollElement.value,
+    getScrollElement: () => scrollElement.value,
     horizontal: true,
     overscan: 3
 });
@@ -189,10 +185,8 @@ const columnResizeIsHidden = computed(() => isCollapsedToPinned || (isHeaderTabb
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-useEventListener(innerScrollElement, 'scroll', syncHeaderScroll, { passive: true });
-useEventListener(scrollElement, 'scroll', saveVerticalScroll, { passive: true });
+useEventListener(scrollElement, 'scroll', saveScroll, { passive: true });
 useResizeObserver(scrollElement, restoreScroll);
-useEventListener(scrollElement, 'wheel', handleBodyWheel, { passive: true });
 
 // Only a change to which columns start hidden resets them, so a column the user showed stays shown as the rows load.
 watch(
@@ -231,7 +225,7 @@ function handleFitColumn(columnId: string): void {
 // Scrolls sideways just far enough to show a chosen column, such as by a detail panel's Previous and Next or a click on
 // a tabbed header. A column wider than the view shows from its start. A pinned column is always in view.
 function scrollColumnIntoView(columnId: string): void {
-    const scroller = innerScrollElement.value;
+    const scroller = scrollElement.value;
     const column = table.getColumn(columnId);
     if (!scroller || column?.getIsPinned() !== false) return;
     const columnStart = column.getStart('center');
@@ -245,44 +239,20 @@ defineExpose({ scrollColumnIntoView });
 
 // ── Scroll Handlers ──────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Keeps the header viewport's horizontal position matched to the body's — the header is a separate element (see
-// template) rather than sticky content inside the scrolling body, so nothing else keeps them in sync.
-function syncHeaderScroll(): void {
-    if (!headerViewport.value || !innerScrollElement.value) return;
-    headerViewport.value.scrollLeft = innerScrollElement.value.scrollLeft;
-    mirroredScrollLeft.value = headerViewport.value.scrollLeft;
-    if (innerScrollElement.value.clientWidth > 0) savedScrollLeft.value = innerScrollElement.value.scrollLeft;
-}
-
-// The header scrolls by itself only when the user swipes or wheels over it, and the body then follows. A position the
-// body set is skipped, because sending it back would stop a smooth scroll of the body partway.
-function syncBodyScroll(): void {
-    if (!headerViewport.value || !innerScrollElement.value || Math.abs(headerViewport.value.scrollLeft - mirroredScrollLeft.value) < 1) return;
-    innerScrollElement.value.scrollLeft = headerViewport.value.scrollLeft;
-}
-
-function saveVerticalScroll(): void {
-    if (scrollElement.value && scrollElement.value.clientHeight > 0) savedScrollTop.value = scrollElement.value.scrollTop;
+// A hidden table has no size, and the position a browser gives it then is not the user's.
+function saveScroll(): void {
+    if (!scrollElement.value || scrollElement.value.clientWidth === 0) return;
+    savedScrollLeft.value = scrollElement.value.scrollLeft;
+    savedScrollTop.value = scrollElement.value.scrollTop;
 }
 
 // A table hidden with 'v-show' can come back with its scroll position reset, and no scroll event says so. The virtualizers
 // would then keep drawing the rows and columns of the old position, off screen, and leave the table looking empty. Putting
 // the position back fixes that, and keeps the user's place.
 function restoreScroll(): void {
-    if (!scrollElement.value || !innerScrollElement.value || scrollElement.value.clientWidth === 0) return;
+    if (!scrollElement.value || scrollElement.value.clientWidth === 0) return;
     scrollElement.value.scrollTop = savedScrollTop.value;
-    innerScrollElement.value.scrollLeft = savedScrollLeft.value;
-    syncHeaderScroll();
-}
-
-// ── Wheel Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-// Wheeling over the body hits the horizontal-only inner scroller first. Because it's a scroll container even with
-// overflow-y: hidden, it claims the wheel event and drops the vertical component instead of letting it bubble to
-// the vertical-only outer scroller natively, so the vertical component is routed here explicitly.
-function handleBodyWheel(wheelEvent: WheelEvent): void {
-    if (wheelEvent.deltaY === 0) return;
-    scrollElement.value?.scrollBy({ top: wheelEvent.deltaY });
+    scrollElement.value.scrollLeft = savedScrollLeft.value;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -302,254 +272,239 @@ function constructHeaderClass(columnId: string): string | undefined {
             <TableColumnPicker :table="table" />
         </div>
 
-        <div :aria-label="label" class="flex min-h-0 flex-1 flex-col" role="table">
-            <!-- Header ─ A separate viewport from the scrolling body, kept in horizontal sync via scrollLeft mirroring
-             (syncHeaderScroll) rather than CSS `sticky`: sticky always resolves against the *nearest* scroll-container
-             ancestor, and inside the body below that would be the horizontal-only inner scroller, which never scrolls
-             vertically, so a sticky header nested in there would just scroll away with the rows instead of pinning. The
-             header scrolls sideways too, so a swipe over the column names moves the columns (syncBodyScroll). -->
-            <div ref="headerViewport" class="scrollbar-none overflow-x-auto overflow-y-hidden overscroll-none" role="rowgroup" @scroll.passive="syncBodyScroll">
-                <div
-                    class="flex border-b bg-backdrop"
-                    :class="[$slots['header-detail'] ? 'h-17' : 'h-10', isHeaderTabbed ? 'border-separator' : 'border-boundary']"
-                    :style="{ minWidth: contentMinWidth }"
-                    role="row"
-                >
-                    <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
-
-                    <!-- Left pinned headers -->
-                    <div
-                        v-for="leftLeafHeader in leftLeafHeaders"
-                        :key="leftLeafHeader.id"
-                        class="sticky bg-backdrop"
-                        :class="[isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary', constructHeaderClass(leftLeafHeader.column.id)]"
-                        role="columnheader"
-                        :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: isCollapsedToPinned ? undefined : leftLeafHeader.column.getSize() + 'px', zIndex: 2 }"
-                    >
-                        <TableHeaderCell
-                            :header="leftLeafHeader"
-                            :is-menu-hidden="isColumnMenuHidden"
-                            :is-resize-hidden="columnResizeIsHidden"
-                            :is-selected="leftLeafHeader.column.id === selectedColumnId"
-                            :is-tabbed="isHeaderTabbed"
-                            @fit-width="handleFitColumn(leftLeafHeader.column.id)"
-                        >
-                            <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="leftLeafHeader.column.id" /></template>
-                            <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="leftLeafHeader.column.id" /></template>
-                            <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="leftLeafHeader.column.id" /></template>
-                            <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="leftLeafHeader.column.id" /></template>
-                        </TableHeaderCell>
-                    </div>
-
-                    <!-- Center headers: flat when below threshold, virtualised when above -->
-                    <template v-if="!columnVirtualisationIsRequired">
+        <div :aria-label="label" class="relative flex min-h-0 flex-1 flex-col" role="table">
+            <!-- Room at the end, as a grid's scroll area has, so the last rows can scroll up clear of a floating button. -->
+            <div :id="scrollElementId" ref="scroller" class="min-h-0 flex-1 scrollbar-none overflow-auto overscroll-none" :style="{ paddingBottom: scrollAreaPaddingBottom }">
+                <div :style="{ minWidth: contentMinWidth }">
+                    <!-- Header ─ Sticky inside the one scroller, so the browser moves it sideways with the columns in the same frame
+                     and keeps it at the top as the rows scroll. Above the rows, whose pinned cells are sticky too. -->
+                    <div ref="header" class="sticky top-0 z-3" role="rowgroup">
                         <div
-                            v-for="centerLeafHeader in centerLeafHeaders"
-                            :key="centerLeafHeader.id"
-                            class="relative h-full shrink-0"
-                            :class="constructHeaderClass(centerLeafHeader.column.id)"
-                            role="columnheader"
-                            :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
+                            class="flex border-b bg-backdrop"
+                            :class="[$slots['header-detail'] ? 'h-17' : 'h-10', isHeaderTabbed ? 'border-separator' : 'border-boundary']"
+                            :style="{ minWidth: contentMinWidth }"
+                            role="row"
                         >
-                            <TableHeaderCell :header="centerLeafHeader" :is-menu-hidden="isColumnMenuHidden" :is-resize-hidden="columnResizeIsHidden" :is-selected="centerLeafHeader.column.id === selectedColumnId" :is-tabbed="isHeaderTabbed" @fit-width="handleFitColumn(centerLeafHeader.column.id)">
-                                <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="centerLeafHeader.column.id" /></template>
-                                <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="centerLeafHeader.column.id" /></template>
-                                <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="centerLeafHeader.column.id" /></template>
-                                <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="centerLeafHeader.column.id" /></template>
-                            </TableHeaderCell>
-                        </div>
-                    </template>
+                            <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
 
-                    <div v-else class="relative shrink-0" :style="{ width: totalCenterWidth + 'px' }">
-                        <div
-                            v-for="virtualColumn in virtualColumns"
-                            :key="virtualColumn.index"
-                            class="absolute top-0 h-full"
-                            :class="constructHeaderClass(centerLeafHeaders[virtualColumn.index]!.column.id)"
-                            role="columnheader"
-                            :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
-                        >
-                            <TableHeaderCell
-                                :header="centerLeafHeaders[virtualColumn.index]!"
-                                :is-menu-hidden="isColumnMenuHidden"
-                                :is-resize-hidden="columnResizeIsHidden"
-                                :is-selected="centerLeafHeaders[virtualColumn.index]!.column.id === selectedColumnId"
-                                :is-tabbed="isHeaderTabbed"
-                                @fit-width="handleFitColumn(centerLeafHeaders[virtualColumn.index]!.column.id)"
+                            <!-- Left pinned headers -->
+                            <div
+                                v-for="leftLeafHeader in leftLeafHeaders"
+                                :key="leftLeafHeader.id"
+                                class="sticky bg-backdrop"
+                                :class="[isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary', constructHeaderClass(leftLeafHeader.column.id)]"
+                                role="columnheader"
+                                :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: isCollapsedToPinned ? undefined : leftLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                             >
-                                <template v-if="$slots['header-detail']" #detail
-                                    ><slot name="header-detail" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id"
-                                /></template>
-                                <template v-if="$slots['header-label-end']" #label-end
-                                    ><slot name="header-label-end" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id"
-                                /></template>
-                                <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" /></template>
-                                <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" /></template>
-                            </TableHeaderCell>
-                        </div>
-                    </div>
-
-                    <!-- Right pinned headers -->
-                    <div
-                        v-for="rightLeafHeader in rightLeafHeaders"
-                        :key="rightLeafHeader.id"
-                        class="sticky shrink-0 border-l border-boundary bg-backdrop"
-                        :class="constructHeaderClass(rightLeafHeader.column.id)"
-                        role="columnheader"
-                        :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 2 }"
-                    >
-                        <TableHeaderCell :header="rightLeafHeader" :is-menu-hidden="isColumnMenuHidden" :is-resize-hidden="columnResizeIsHidden" :is-selected="rightLeafHeader.column.id === selectedColumnId" :is-tabbed="isHeaderTabbed" @fit-width="handleFitColumn(rightLeafHeader.column.id)">
-                            <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="rightLeafHeader.column.id" /></template>
-                            <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="rightLeafHeader.column.id" /></template>
-                            <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="rightLeafHeader.column.id" /></template>
-                            <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="rightLeafHeader.column.id" /></template>
-                        </TableHeaderCell>
-                    </div>
-
-                    <div v-if="!isCollapsedToPinned" class="shrink-0" :style="{ width: END_INSET_PX + 'px' }" />
-                </div>
-            </div>
-
-            <!-- Body ─ Outer (vertical-only) drives the row virtualizer, inner (horizontal-only, nested) drives the
-             column virtualizer. Wrapped in its own position:relative container so the ScrollThumb tracks below
-             are scoped to this region, not the toolbar/header above it. -->
-            <div class="relative flex min-h-0 flex-1 flex-col">
-                <!-- Room at the end, as a grid's scroll area has, so the last rows can scroll up clear of a floating button. -->
-                <div
-                    :id="scrollElementId"
-                    ref="scroller"
-                    class="flex-1 scrollbar-none overflow-x-hidden overflow-y-auto overscroll-none"
-                    :style="{ paddingBottom: scrollAreaPaddingBottom }"
-                >
-                    <div :id="innerScrollElementId" ref="innerScroller" class="scrollbar-none overflow-x-auto overflow-y-hidden overscroll-none">
-                        <div :style="{ minWidth: contentMinWidth }">
-                            <!-- Virtual rows spacer -->
-                            <div class="relative" role="rowgroup" :style="{ height: totalSize + 'px' }">
-                                <div
-                                    v-for="(vRow, i) in virtualRows"
-                                    :key="vRow.index"
-                                    class="group absolute top-0 flex border-b border-boundary bg-surface"
-                                    role="row"
-                                    :style="{ transform: `translateY(${vRow.start}px)`, height: vRow.size + 'px', minWidth: contentMinWidth, width: '100%' }"
+                                <TableHeaderCell
+                                    :header="leftLeafHeader"
+                                    :is-menu-hidden="isColumnMenuHidden"
+                                    :is-resize-hidden="columnResizeIsHidden"
+                                    :is-selected="leftLeafHeader.column.id === selectedColumnId"
+                                    :is-tabbed="isHeaderTabbed"
+                                    @fit-width="handleFitColumn(leftLeafHeader.column.id)"
                                 >
-                                    <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
+                                    <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="leftLeafHeader.column.id" /></template>
+                                    <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="leftLeafHeader.column.id" /></template>
+                                    <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="leftLeafHeader.column.id" /></template>
+                                    <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="leftLeafHeader.column.id" /></template>
+                                </TableHeaderCell>
+                            </div>
 
-                                    <!-- Left pinned cells -->
-                                    <TableCell
-                                        v-for="leftLeafHeader in leftLeafHeaders"
-                                        :key="leftLeafHeader.id"
-                                        :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
-                                        :loading="visibleRowData[i] === undefined"
-                                        class="sticky bg-surface group-hover:bg-card"
-                                        :class="[
-                                            isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary',
-                                            { 'state-selected': vRow.index === selectedRowIndex },
-                                            constructCellClass?.(leftLeafHeader.column.id, vRow.index)
-                                        ]"
-                                        :title="constructCellTitle?.(leftLeafHeader.column.id, vRow.index)"
-                                        :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: isCollapsedToPinned ? undefined : leftLeafHeader.column.getSize() + 'px', zIndex: 1 }"
+                            <!-- Center headers: flat when below threshold, virtualised when above -->
+                            <template v-if="!columnVirtualisationIsRequired">
+                                <div
+                                    v-for="centerLeafHeader in centerLeafHeaders"
+                                    :key="centerLeafHeader.id"
+                                    class="relative h-full shrink-0"
+                                    :class="constructHeaderClass(centerLeafHeader.column.id)"
+                                    role="columnheader"
+                                    :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
+                                >
+                                    <TableHeaderCell :header="centerLeafHeader" :is-menu-hidden="isColumnMenuHidden" :is-resize-hidden="columnResizeIsHidden" :is-selected="centerLeafHeader.column.id === selectedColumnId" :is-tabbed="isHeaderTabbed" @fit-width="handleFitColumn(centerLeafHeader.column.id)">
+                                        <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="centerLeafHeader.column.id" /></template>
+                                        <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="centerLeafHeader.column.id" /></template>
+                                        <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="centerLeafHeader.column.id" /></template>
+                                        <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="centerLeafHeader.column.id" /></template>
+                                    </TableHeaderCell>
+                                </div>
+                            </template>
+
+                            <div v-else class="relative shrink-0" :style="{ width: totalCenterWidth + 'px' }">
+                                <div
+                                    v-for="virtualColumn in virtualColumns"
+                                    :key="virtualColumn.index"
+                                    class="absolute top-0 h-full"
+                                    :class="constructHeaderClass(centerLeafHeaders[virtualColumn.index]!.column.id)"
+                                    role="columnheader"
+                                    :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
+                                >
+                                    <TableHeaderCell
+                                        :header="centerLeafHeaders[virtualColumn.index]!"
+                                        :is-menu-hidden="isColumnMenuHidden"
+                                        :is-resize-hidden="columnResizeIsHidden"
+                                        :is-selected="centerLeafHeaders[virtualColumn.index]!.column.id === selectedColumnId"
+                                        :is-tabbed="isHeaderTabbed"
+                                        @fit-width="handleFitColumn(centerLeafHeaders[virtualColumn.index]!.column.id)"
                                     >
-                                        <template v-if="$slots['pinned-cell']" #value
-                                            ><slot
-                                                name="pinned-cell"
-                                                :column-id="leftLeafHeader.column.id"
-                                                :row-index="vRow.index"
-                                                :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
+                                        <template v-if="$slots['header-detail']" #detail
+                                            ><slot name="header-detail" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id"
                                         /></template>
-                                        <template v-else-if="$slots['cell-value']" #value
-                                            ><slot name="cell-value" :column-id="leftLeafHeader.column.id" :row-index="vRow.index" :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
+                                        <template v-if="$slots['header-label-end']" #label-end
+                                            ><slot name="header-label-end" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id"
                                         /></template>
-                                        <template v-if="$slots['cell-icon']" #icon
-                                            ><slot name="cell-icon" :column-id="leftLeafHeader.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
-                                        /></template>
-                                    </TableCell>
-
-                                    <!-- Center cells: flat when below threshold, virtualised when above -->
-                                    <template v-if="!columnVirtualisationIsRequired">
-                                        <TableCell
-                                            v-for="centerLeafHeader in centerLeafHeaders"
-                                            :key="centerLeafHeader.id"
-                                            :value="visibleRowData[i]?.[centerLeafHeader.column.id]"
-                                            :loading="visibleRowData[i] === undefined"
-                                            class="relative shrink-0"
-                                            :class="constructCellClass?.(centerLeafHeader.column.id, vRow.index)"
-                                            :title="constructCellTitle?.(centerLeafHeader.column.id, vRow.index)"
-                                            :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
-                                        >
-                                            <template v-if="$slots['cell-value']" #value
-                                                ><slot name="cell-value" :column-id="centerLeafHeader.column.id" :row-index="vRow.index" :value="visibleRowData[i]?.[centerLeafHeader.column.id]"
-                                            /></template>
-                                            <template v-if="$slots['cell-icon']" #icon
-                                                ><slot name="cell-icon" :column-id="centerLeafHeader.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
-                                            /></template>
-                                        </TableCell>
-                                    </template>
-
-                                    <div v-else class="relative shrink-0 group-hover:bg-card" :style="{ width: totalCenterWidth + 'px' }">
-                                        <TableCell
-                                            v-for="virtualColumn in virtualColumns"
-                                            :key="virtualColumn.index"
-                                            :value="visibleRowData[i]?.[centerLeafHeaders[virtualColumn.index]!.column.id]"
-                                            :loading="visibleRowData[i] === undefined"
-                                            class="absolute top-0 h-full"
-                                            :class="constructCellClass?.(centerLeafHeaders[virtualColumn.index]!.column.id, vRow.index)"
-                                            :title="constructCellTitle?.(centerLeafHeaders[virtualColumn.index]!.column.id, vRow.index)"
-                                            :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
-                                        >
-                                            <template v-if="$slots['cell-value']" #value
-                                                ><slot
-                                                    name="cell-value"
-                                                    :column-id="centerLeafHeaders[virtualColumn.index]!.column.id"
-                                                    :row-index="vRow.index"
-                                                    :value="visibleRowData[i]?.[centerLeafHeaders[virtualColumn.index]!.column.id]"
-                                            /></template>
-                                            <template v-if="$slots['cell-icon']" #icon
-                                                ><slot name="cell-icon" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
-                                            /></template>
-                                        </TableCell>
-                                    </div>
-
-                                    <!-- Right pinned cells -->
-                                    <TableCell
-                                        v-for="rightLeafHeader in rightLeafHeaders"
-                                        :key="rightLeafHeader.id"
-                                        :value="visibleRowData[i]?.[rightLeafHeader.column.id]"
-                                        :loading="visibleRowData[i] === undefined"
-                                        class="sticky shrink-0 border-l border-boundary bg-surface group-hover:bg-card"
-                                        :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 1 }"
-                                    >
-                                        <template v-if="$slots['cell-value']" #value
-                                            ><slot name="cell-value" :column-id="rightLeafHeader.column.id" :row-index="vRow.index" :value="visibleRowData[i]?.[rightLeafHeader.column.id]"
-                                        /></template>
-                                        <template v-if="$slots['cell-icon']" #icon
-                                            ><slot name="cell-icon" :column-id="rightLeafHeader.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
-                                        /></template>
-                                    </TableCell>
-
-                                    <div v-if="!isCollapsedToPinned" class="shrink-0" :style="{ width: END_INSET_PX + 'px' }" />
+                                        <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" /></template>
+                                        <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" /></template>
+                                    </TableHeaderCell>
                                 </div>
                             </div>
+
+                            <!-- Right pinned headers -->
+                            <div
+                                v-for="rightLeafHeader in rightLeafHeaders"
+                                :key="rightLeafHeader.id"
+                                class="sticky shrink-0 border-l border-boundary bg-backdrop"
+                                :class="constructHeaderClass(rightLeafHeader.column.id)"
+                                role="columnheader"
+                                :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 2 }"
+                            >
+                                <TableHeaderCell :header="rightLeafHeader" :is-menu-hidden="isColumnMenuHidden" :is-resize-hidden="columnResizeIsHidden" :is-selected="rightLeafHeader.column.id === selectedColumnId" :is-tabbed="isHeaderTabbed" @fit-width="handleFitColumn(rightLeafHeader.column.id)">
+                                    <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="rightLeafHeader.column.id" /></template>
+                                    <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="rightLeafHeader.column.id" /></template>
+                                    <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="rightLeafHeader.column.id" /></template>
+                                    <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="rightLeafHeader.column.id" /></template>
+                                </TableHeaderCell>
+                            </div>
+
+                            <div v-if="!isCollapsedToPinned" class="shrink-0" :style="{ width: END_INSET_PX + 'px' }" />
+                        </div>
+                    </div>
+
+                    <!-- Virtual rows spacer -->
+                    <div class="relative" role="rowgroup" :style="{ height: totalSize + 'px' }">
+                        <div
+                            v-for="(vRow, i) in virtualRows"
+                            :key="vRow.index"
+                            class="group absolute top-0 flex border-b border-boundary bg-surface"
+                            role="row"
+                            :style="{ transform: `translateY(${vRow.start}px)`, height: vRow.size + 'px', minWidth: contentMinWidth, width: '100%' }"
+                        >
+                            <div class="shrink-0" :style="{ width: EDGE_INSET_PX + 'px' }" />
+
+                            <!-- Left pinned cells -->
+                            <TableCell
+                                v-for="leftLeafHeader in leftLeafHeaders"
+                                :key="leftLeafHeader.id"
+                                :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
+                                :loading="visibleRowData[i] === undefined"
+                                class="sticky bg-surface group-hover:bg-card"
+                                :class="[
+                                    isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary',
+                                    { 'state-selected': vRow.index === selectedRowIndex },
+                                    constructCellClass?.(leftLeafHeader.column.id, vRow.index)
+                                ]"
+                                :title="constructCellTitle?.(leftLeafHeader.column.id, vRow.index)"
+                                :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: isCollapsedToPinned ? undefined : leftLeafHeader.column.getSize() + 'px', zIndex: 1 }"
+                            >
+                                <template v-if="$slots['pinned-cell']" #value
+                                    ><slot
+                                        name="pinned-cell"
+                                        :column-id="leftLeafHeader.column.id"
+                                        :row-index="vRow.index"
+                                        :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
+                                /></template>
+                                <template v-else-if="$slots['cell-value']" #value
+                                    ><slot name="cell-value" :column-id="leftLeafHeader.column.id" :row-index="vRow.index" :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
+                                /></template>
+                                <template v-if="$slots['cell-icon']" #icon
+                                    ><slot name="cell-icon" :column-id="leftLeafHeader.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
+                                /></template>
+                            </TableCell>
+
+                            <!-- Center cells: flat when below threshold, virtualised when above -->
+                            <template v-if="!columnVirtualisationIsRequired">
+                                <TableCell
+                                    v-for="centerLeafHeader in centerLeafHeaders"
+                                    :key="centerLeafHeader.id"
+                                    :value="visibleRowData[i]?.[centerLeafHeader.column.id]"
+                                    :loading="visibleRowData[i] === undefined"
+                                    class="relative shrink-0"
+                                    :class="constructCellClass?.(centerLeafHeader.column.id, vRow.index)"
+                                    :title="constructCellTitle?.(centerLeafHeader.column.id, vRow.index)"
+                                    :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
+                                >
+                                    <template v-if="$slots['cell-value']" #value
+                                        ><slot name="cell-value" :column-id="centerLeafHeader.column.id" :row-index="vRow.index" :value="visibleRowData[i]?.[centerLeafHeader.column.id]"
+                                    /></template>
+                                    <template v-if="$slots['cell-icon']" #icon
+                                        ><slot name="cell-icon" :column-id="centerLeafHeader.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
+                                    /></template>
+                                </TableCell>
+                            </template>
+
+                            <div v-else class="relative shrink-0 group-hover:bg-card" :style="{ width: totalCenterWidth + 'px' }">
+                                <TableCell
+                                    v-for="virtualColumn in virtualColumns"
+                                    :key="virtualColumn.index"
+                                    :value="visibleRowData[i]?.[centerLeafHeaders[virtualColumn.index]!.column.id]"
+                                    :loading="visibleRowData[i] === undefined"
+                                    class="absolute top-0 h-full"
+                                    :class="constructCellClass?.(centerLeafHeaders[virtualColumn.index]!.column.id, vRow.index)"
+                                    :title="constructCellTitle?.(centerLeafHeaders[virtualColumn.index]!.column.id, vRow.index)"
+                                    :style="{ left: virtualColumn.start + 'px', width: virtualColumn.size + 'px' }"
+                                >
+                                    <template v-if="$slots['cell-value']" #value
+                                        ><slot
+                                            name="cell-value"
+                                            :column-id="centerLeafHeaders[virtualColumn.index]!.column.id"
+                                            :row-index="vRow.index"
+                                            :value="visibleRowData[i]?.[centerLeafHeaders[virtualColumn.index]!.column.id]"
+                                    /></template>
+                                    <template v-if="$slots['cell-icon']" #icon
+                                        ><slot name="cell-icon" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
+                                    /></template>
+                                </TableCell>
+                            </div>
+
+                            <!-- Right pinned cells -->
+                            <TableCell
+                                v-for="rightLeafHeader in rightLeafHeaders"
+                                :key="rightLeafHeader.id"
+                                :value="visibleRowData[i]?.[rightLeafHeader.column.id]"
+                                :loading="visibleRowData[i] === undefined"
+                                class="sticky shrink-0 border-l border-boundary bg-surface group-hover:bg-card"
+                                :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 1 }"
+                            >
+                                <template v-if="$slots['cell-value']" #value
+                                    ><slot name="cell-value" :column-id="rightLeafHeader.column.id" :row-index="vRow.index" :value="visibleRowData[i]?.[rightLeafHeader.column.id]"
+                                /></template>
+                                <template v-if="$slots['cell-icon']" #icon
+                                    ><slot name="cell-icon" :column-id="rightLeafHeader.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
+                                /></template>
+                            </TableCell>
+
+                            <div v-if="!isCollapsedToPinned" class="shrink-0" :style="{ width: END_INSET_PX + 'px' }" />
                         </div>
                     </div>
                 </div>
-
-                <ScrollThumb
-                    ref="verticalThumb"
-                    orientation="vertical"
-                    :scroll-element="scrollElement"
-                    :cross-scroll-element="innerScrollElement"
-                    :cross-inset-end="horizontalThumb?.visible ? SCROLL_THUMB_CROSS_INSET : 0"
-                />
-                <ScrollThumb
-                    ref="horizontalThumb"
-                    orientation="horizontal"
-                    :scroll-element="innerScrollElement"
-                    :cross-scroll-element="scrollElement"
-                    :cross-inset-end="verticalThumb?.visible ? SCROLL_THUMB_CROSS_INSET : 0"
-                />
             </div>
-        </div>
 
-        <TableResizeLine :header-viewport-element="headerViewport" :table="table" />
+            <!-- Vertical Scroll Thumb ─ Starts below the header, because the header never scrolls out of view. -->
+            <ScrollThumb
+                ref="verticalThumb"
+                orientation="vertical"
+                :scroll-element="scrollElement"
+                :cross-inset-end="horizontalThumb?.visible ? SCROLL_THUMB_CROSS_INSET : 0"
+                :inset-start="headerHeight"
+            />
+            <ScrollThumb
+                ref="horizontalThumb"
+                orientation="horizontal"
+                :scroll-element="scrollElement"
+                :cross-inset-end="verticalThumb?.visible ? SCROLL_THUMB_CROSS_INSET : 0"
+            />
+
+            <TableResizeLine :scroll-element="scrollElement" :table="table" />
+        </div>
     </div>
 </template>

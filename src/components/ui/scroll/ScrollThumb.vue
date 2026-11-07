@@ -25,12 +25,11 @@ type Orientation = 'vertical' | 'horizontal';
 interface Properties {
     orientation: Orientation;
     scrollElement: HTMLElement | null; // The element this thumb measures and scrolls.
-    crossScrollElement?: HTMLElement | null; // The perpendicular axis's element — wheeling this track also forwards the orthogonal delta, so a plain vertical mouse wheel still does something sensible over the horizontal track.
     crossInsetEnd?: number; // px to shrink this track by at its trailing edge — see SCROLL_THUMB_CROSS_INSET.
     insetStart?: number; // px to shrink this track by at its leading edge, e.g. to start it past a column that does not scroll.
     alwaysVisible?: boolean;
 }
-const { orientation, scrollElement, crossScrollElement = null, crossInsetEnd = 0, insetStart = 0, alwaysVisible } = defineProps<Properties>();
+const { orientation, scrollElement, crossInsetEnd = 0, insetStart = 0, alwaysVisible } = defineProps<Properties>();
 
 const isVertical = orientation === 'vertical';
 
@@ -160,9 +159,9 @@ function handleScroll(): void {
 
 // ── Wheel Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Both directions, so a plain mouse wheel over the horizontal track still scrolls the content up and down.
 function handleWheel(wheelEvent: WheelEvent): void {
-    scrollElement?.scrollBy(isVertical ? { top: wheelEvent.deltaY } : { left: wheelEvent.deltaX });
-    crossScrollElement?.scrollBy(isVertical ? { left: wheelEvent.deltaX } : { top: wheelEvent.deltaY });
+    scrollElement?.scrollBy({ left: wheelEvent.deltaX, top: wheelEvent.deltaY });
 }
 
 // ── Orientation Helpers ──────────────────────────────────────────────────────────────────────────────────────────────

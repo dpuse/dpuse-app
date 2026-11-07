@@ -74,9 +74,9 @@ defineExpose({ scrollToLine });
         :scroll-area-padding-bottom="scrollAreaPaddingBottom"
         :scroll-area-padding-right="0"
     >
-        <!-- Gutter Line ─ Runs the number column's dividing line to the bottom of the view, below the last line too. Held
-             outside the sideways scroller, so it stays put as the numbers do. The numbers, drawn after it, cover it where
-             there are lines. -->
+        <!-- Gutter Line ─ Runs the number column's dividing line to the bottom of the view, below the last line too. Placed
+             against the scroll area's frame rather than the scrolled lines, so it stays put as the numbers do. The
+             numbers, drawn after it, cover it where there are lines. -->
         <template #header>
             <div
                 v-if="lineItems.length > 0"
