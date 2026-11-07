@@ -13,6 +13,7 @@ import {
     constructPreviewColumnHeaders,
     constructPreviewColumnIcons,
     constructPreviewColumnRows,
+    countChosenTypeMisfits,
     PREVIEW_COLUMN_KEYS
 } from '@/features/studio/dataViews/_previewColumnRows';
 import { DATA_SUBTYPE_ICONS, DATA_TYPE_ICONS, getColumnTypeIcon } from '@/features/studio/dataViews/_columnTypeIcons';
@@ -159,5 +160,25 @@ describe('constructPreviewColumnRows', () => {
 
     it('shows no match for a column with no sampled values', () => {
         expect(constructPreviewColumnRows(buildItemReading(false, {}))[0]?.matchText).toBe('');
+    });
+});
+
+describe('countChosenTypeMisfits', () => {
+    const inferenceCounts = { 'numeric.integer': 6, 'string.plain': 3 };
+    const detectedText = { dataSubtypeId: 'plain', dataTypeId: 'string' } as const;
+
+    it('counts the values that do not fit a chosen type, leaving out a header', () => {
+        const itemReading = buildItemReading(true, { dataSubtypeId: 'integer', dataTypeId: 'numeric', inferenceCounts, leadingInferenceCounts: { 'string.plain': 1 } });
+
+        expect(countChosenTypeMisfits(itemReading, 0, detectedText)).toBe(2);
+    });
+
+    it('counts none for the detected type, a text type or a column that is not there', () => {
+        const numericReading = buildItemReading(false, { dataSubtypeId: 'integer', dataTypeId: 'numeric', inferenceCounts });
+
+        expect(countChosenTypeMisfits(numericReading, 0, { dataSubtypeId: 'integer', dataTypeId: 'numeric' })).toBe(0);
+        expect(countChosenTypeMisfits(buildItemReading(false, { dataSubtypeId: 'email', dataTypeId: 'string', inferenceCounts }), 0, detectedText)).toBe(0);
+        expect(countChosenTypeMisfits(numericReading, 1, detectedText)).toBe(0);
+        expect(countChosenTypeMisfits(numericReading, 0, undefined)).toBe(0);
     });
 });

@@ -6,6 +6,14 @@
         "columnSearch.empty.text": { "en": "No columns match", "es": "Ninguna columna coincide" },
         "columnSearch.placeholder": { "en": "Find column", "es": "Buscar columna" },
         "decimalSeparator.label": { "en": "Decimal separator", "es": "Separador decimal" },
+        "detected.misfit.one.text": {
+            "en": "1 value does not fit the chosen type and will load empty. Detected as {type}",
+            "es": "1 valor no encaja en el tipo elegido y se cargará vacío. Detectado como {type}"
+        },
+        "detected.misfit.other.text": {
+            "en": "{count} values do not fit the chosen type and will load empty. Detected as {type}",
+            "es": "{count} valores no encajan en el tipo elegido y se cargarán vacíos. Detectado como {type}"
+        },
         "detected.text": { "en": "Detected as {type}", "es": "Detectado como {type}" },
         "formatChart.label": { "en": "Most common formats", "es": "Formatos más comunes" },
         "frequentChart.label": { "en": "Most frequent values", "es": "Valores más frecuentes" },

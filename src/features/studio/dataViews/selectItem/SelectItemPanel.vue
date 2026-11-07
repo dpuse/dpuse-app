@@ -125,6 +125,7 @@ import {
     constructPreviewColumnHeaders,
     constructPreviewColumnIcons,
     constructPreviewColumnRows,
+    countChosenTypeMisfits,
     PREVIEW_COLUMN_SUMMARY_KEYS,
     type PreviewColumnRow
 } from '../_previewColumnRows';
@@ -761,10 +762,19 @@ const previewColumnTableColumnDefinitions = computed<ColumnDef<TableFeatureSet, 
     return PREVIEW_COLUMN_SUMMARY_KEYS.map((key) => ({ accessorKey: key, header: headers[key], size: key === 'label' ? COLUMN_NAME_WIDTH_PX : undefined }));
 });
 const columnDetailFillsSpace = computed(() => columnsPaneWidth.value < COLUMN_DETAIL_SIDE_BY_SIDE_WIDTH_PX); // Too narrow for the names and the detail together.
+// A column also needs checking when values do not fit a type the user chose, because a load stores them as empty.
 const columnRowsNeedingAttention = computed(() => {
-    const columnConfigs = activeItemReading.value?.columnConfigs ?? [];
+    const itemReading = activeItemReading.value;
+    const columnConfigs = itemReading?.columnConfigs ?? [];
     const columnIndexes = columnConfigs.map((_config, index) => index);
-    return new Set(columnIndexes.filter((index) => (columnConfigs[index]?.invalidValueCount ?? 0) > 0 || columnConfigs[index]?.isFormatAmbiguous === true));
+    return new Set(
+        columnIndexes.filter(
+            (index) =>
+                (columnConfigs[index]?.invalidValueCount ?? 0) > 0 ||
+                columnConfigs[index]?.isFormatAmbiguous === true ||
+                (itemReading != null && countChosenTypeMisfits(itemReading, index, detectedColumnTypes.value[index]) > 0)
+        )
+    );
 });
 const previewValueStates = shallowRef<PreviewValueStateId[][]>([]); // For each record shown, what each value is. Only the engine can tell whether a value fits its type.
 const columnValueCounts = computed(() => (activeItemReading.value == null ? [] : constructColumnValueCounts(activeItemReading.value)));

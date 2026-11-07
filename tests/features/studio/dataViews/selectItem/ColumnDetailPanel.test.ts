@@ -102,6 +102,13 @@ describe('ColumnDetailPanel', () => {
         ).toBe(true);
     });
 
+    it('warns how many values a chosen type will load as empty', () => {
+        const column = buildColumn({ dataSubtypeId: 'integer', inferenceCounts: { 'numeric.integer': 9, 'string.plain': 4 }, leadingInferenceCounts: { 'string.plain': 1 } });
+        const wrapper = mountPanel([column], { detectedColumnType: { dataSubtypeId: 'plain', dataTypeId: 'string' } });
+
+        expect(wrapper.find('[role="status"]').text()).toBe(t(TEXT, 'detected.misfit.other.text', { count: '3', type: 'Plain text' }));
+    });
+
     it('shows the first ten of a long list, then the rest when asked', async () => {
         const frequentValues = Object.fromEntries(Array.from({ length: 12 }, (_value, index) => [`value${String(index)}`, 12 - index]));
         const wrapper = mountPanel([buildColumn({ frequentValues })]);
@@ -121,7 +128,11 @@ describe('ColumnDetailPanel', () => {
     });
 
     it('offers to read null words as empty only when given the choice', async () => {
-        expect(mountPanel([buildColumn({ dataTypeId: 'string', nullWordValueCount: 3 })]).find('input[type="checkbox"]').exists()).toBe(false);
+        expect(
+            mountPanel([buildColumn({ dataTypeId: 'string', nullWordValueCount: 3 })])
+                .find('input[type="checkbox"]')
+                .exists()
+        ).toBe(false);
         const wrapper = mountPanel([buildColumn({ dataTypeId: 'string', nullWordValueCount: 3 })], { nullWordReading: 'text' });
         const checkbox = wrapper.get('input[type="checkbox"]');
 

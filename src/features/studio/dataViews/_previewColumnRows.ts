@@ -5,8 +5,8 @@ import type { Component } from 'vue';
 import type { DataSubtypeId, DataTypeId, ObjectColumnConfig, StorageTypeId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import type { ItemReading } from './_dataViewColumns';
 import { TEXT } from './_previewColumnRows_.json';
+import { type ColumnType, constructColumnTypeId, type ItemReading } from './_dataViewColumns';
 import { DATA_SUBTYPE_ICONS, DATA_TYPE_ICONS } from './_columnTypeIcons';
 import { localeId, t } from '@/state/locale';
 
@@ -213,6 +213,21 @@ export function constructColumnValueCounts(itemReading: ItemReading): ColumnValu
         const { count, total } = countColumnValues(columnConfig, itemReading.hasHeaders === true);
         return { blankCount: columnConfig.blankValueCount ?? 0, invalidCount: total - count, missingCount: columnConfig.missingValueCount ?? 0, validCount: count };
     });
+}
+
+// How many of a column's values do not fit a type the user chose in place of the detected one. A load stores them as
+// empty, so they are lost unless the user notices. Text fits any value, so a text type has none.
+export function countChosenTypeMisfits(itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders'>, columnIndex: number, detectedColumnType: ColumnType | undefined): number {
+    const columnConfig = itemReading.columnConfigs.at(columnIndex);
+    if (
+        columnConfig == null ||
+        detectedColumnType == null ||
+        columnConfig.dataTypeId === 'string' ||
+        constructColumnTypeId(columnConfig) === constructColumnTypeId(detectedColumnType)
+    )
+        return 0;
+    const { count, total } = countColumnValues(columnConfig, itemReading.hasHeaders === true);
+    return total - count;
 }
 
 // The icons beside a row's type and subtype labels, kept apart from the rows because the table's cells hold only text.

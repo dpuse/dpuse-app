@@ -13,6 +13,7 @@ import {
     constructColumnTypeLabel,
     constructPreviewColumnHeaders,
     constructPreviewColumnRows,
+    countChosenTypeMisfits,
     type PreviewColumnRow
 } from '@/features/studio/dataViews/_previewColumnRows';
 import { type ColumnType, constructColumnTypeId, type ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
@@ -97,9 +98,14 @@ const headers = computed(() => constructPreviewColumnHeaders());
 const summaryText = computed(() => [columnRow.value?.dataTypeLabel, columnRow.value?.dataSubtypeLabel, sourceText].filter(Boolean).join(' · '));
 
 // The detected type, shown only when it differs from the type in use, so a choice that disagrees with the data is seen.
+// Values that do not fit the chosen type load as empty, so then it is a warning that says how many.
+const misfitCount = computed(() => countChosenTypeMisfits(itemReading, columnIndex, detectedColumnType));
 const detectedTypeText = computed(() => {
     if (detectedColumnType == null || columnConfig.value == null || constructColumnTypeId(detectedColumnType) === constructColumnTypeId(columnConfig.value)) return;
-    return t(TEXT, 'detected.text', { type: constructColumnTypeLabel(detectedColumnType) });
+    const type = constructColumnTypeLabel(detectedColumnType);
+    if (misfitCount.value === 0) return t(TEXT, 'detected.text', { type });
+    const count = new Intl.NumberFormat(localeId.value).format(misfitCount.value);
+    return t(TEXT, misfitCount.value === 1 ? 'detected.misfit.one.text' : 'detected.misfit.other.text', { count, type });
 });
 
 // ── Lists
@@ -326,7 +332,10 @@ function constructChartRows(rows: { count: number; countText: string; id: string
                         :options="typeOptions"
                         @update:model-value="emit('update:typeValue', $event)"
                     />
-                    <p v-if="detectedTypeText" class="mt-1 mb-0 text-muted" role="status">{{ detectedTypeText }}</p>
+                    <p v-if="detectedTypeText" class="mt-1 mb-0 flex items-start gap-x-1.5" :class="misfitCount > 0 ? 'text-warning-text' : 'text-muted'" role="status">
+                        <TriangleAlertIcon v-if="misfitCount > 0" aria-hidden="true" class="mt-0.5 size-4 flex-none" :stroke-width="1.5" />
+                        {{ detectedTypeText }}
+                    </p>
                     <SelectInput
                         v-if="decimalSeparatorOptions.length > 0 && decimalSeparatorValue != null"
                         class="mt-2"
