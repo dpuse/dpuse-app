@@ -371,7 +371,7 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
              the pane's width, not the screen's, because the splitter resizes the pane. -->
         <div
             v-show="routeIsTask"
-            class="@container pointer-events-none absolute inset-x-0 bottom-(--safe-bottom-offset) flex items-center justify-end gap-x-2 pr-6"
+            class="@container pointer-events-none absolute inset-x-0 bottom-(--safe-bottom-offset) z-10 flex items-center justify-end gap-x-2 pr-6"
             data-region="DataViewActions"
         >
             <div :id="DATA_VIEW_SCROLL_ACTIONS_ID" class="pointer-events-auto contents" />

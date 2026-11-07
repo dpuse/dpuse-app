@@ -61,14 +61,13 @@ function handleComplete(): void {
         <!-- Studio options scroller -->
         <ScrollArea class="flex-1" :scroll-area-padding-right="0">
             <div class="flex flex-col items-center gap-y-2 py-2">
-                <!-- Current Option Bar ─ A grey bar at the rail's edge marks the current option, because its light fill alone
-                     is easy to miss. The row is positioned so the bar stays inside the scroller. -->
+                <!-- Current Option Bar ─ A bar in the text colour at the rail's edge, as tall as the option, marks the
+                     current option without a fill. Not blue, because blue means a link. The row is positioned so the bar stays inside the scroller. -->
                 <div class="relative flex w-full justify-center">
-                    <span v-if="selectedOptionId === 'home'" aria-hidden="true" class="absolute inset-y-2 left-0 w-0.75 rounded-r-full bg-zinc-400" />
+                    <span v-if="selectedOptionId === 'home'" aria-hidden="true" class="absolute inset-y-0 left-0 w-0.5 bg-content" />
                     <IconButton
                         :accessible-label="t(TEXT, 'home.aria')"
                         :aria-current="selectedOptionId === 'home' ? 'page' : undefined"
-                        :is-active="selectedOptionId === 'home'"
                         :to="{ name: 'studio', query: $route.query }"
                         @click="handleComplete"
                     >
@@ -77,11 +76,10 @@ function handleComplete(): void {
                 </div>
 
                 <div v-for="config in workflowOptionConfigs" :key="config.id" class="relative flex w-full justify-center">
-                    <span v-if="selectedOptionId === config.id" aria-hidden="true" class="absolute inset-y-2 left-0 w-0.75 rounded-r-full bg-zinc-400" />
+                    <span v-if="selectedOptionId === config.id" aria-hidden="true" class="absolute inset-y-0 left-0 w-0.5 bg-content" />
                     <IconButton
                         :accessible-label="config.label"
                         :aria-current="selectedOptionId === config.id ? 'page' : undefined"
-                        :is-active="selectedOptionId === config.id"
                         :to="{ name: config.id, query: $route.query }"
                         @click="handleComplete"
                     >

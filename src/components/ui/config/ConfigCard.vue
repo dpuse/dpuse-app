@@ -88,14 +88,14 @@ defineOptions({ inheritAttrs: false });
         class="relative flex size-full border"
         :class="[
             isCompact ? 'items-center gap-x-2 rounded-md pr-2 pl-1.75' : 'flex-col gap-y-3 rounded-lg p-3', // 'pl-1.75' with the 1px border puts the icon on the 8px the row is inset by.
-            // Compact is a plain list row rather than a boxed card: no border or fill until hovered or selected. The border
-            // stays, transparent, so a row is the same size in every state. Hover, press and selected are layers over the
-            // card's own fill, the same as everywhere else in the app.
+            // Compact is a plain list row rather than a boxed card: no border, and no fill until hovered. A selected row
+            // is marked by its bar alone, as the rail's current option is. The border stays, transparent, so a row is the
+            // same size in every state. Hover and press are layers over the card's own fill, as everywhere else in the app.
             isCompact
                 ? isDisabled
                     ? 'border-transparent'
                     : selected
-                      ? ['border-transparent state-selected', { 'hover:state-selected-hover': !isInert }]
+                      ? ['border-transparent', { 'hover:state-hover active:state-press': !isInert }]
                       : 'border-transparent hover:state-hover active:state-press'
                 : selected
                   ? ['border-selected-border bg-card state-selected', { 'hover:state-selected-hover': !isInert }]
@@ -117,12 +117,13 @@ defineOptions({ inheritAttrs: false });
             v-bind="$attrs"
         />
 
-        <!-- Selected Bar ─ A compact row has no border to show it is selected, and its fill alone is faint on a dark page,
-             so a short accent bar on its left edge marks it, as in GitHub's Primer lists. -->
+        <!-- Selected Bar ─ A compact row has no border or fill to show it is selected, so a bar in the text colour, as
+             tall as the row, marks it. Not blue, because blue means a link. '-left-2.25' moves it past the row's 8px
+             inset and 1px border onto the list's edge, where the rail's bar also sits. -->
         <span
             v-if="isCompact && selected && !isDisabled"
             aria-hidden="true"
-            class="pointer-events-none absolute top-1/2 left-0 h-2/3 w-0.75 -translate-y-1/2 rounded-full bg-accent"
+            class="pointer-events-none absolute inset-y-0 -left-2.25 w-0.5 bg-content"
         />
 
         <!-- Header ─ One line only: the label truncates rather than wraps, because the card cannot grow. -->

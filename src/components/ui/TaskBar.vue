@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import { CheckIcon } from '@lucide/vue';
 import type { RouteLocationRaw } from 'vue-router';
 
 // ── DPUse Framework
@@ -63,19 +64,20 @@ function localiseLine(line: LocaleLabel): string {
                     class="group flex items-start gap-x-1.5 text-sm"
                     :to="item.to"
                 >
-                    <!-- Marker beside the label rather than above it, which keeps the bar to two lines. Pale blue circle
-                         for the current step, matching the pill buttons, because a solid blue one was the only strong blue
-                         on the screen. Outlined for the others: accent when it can be opened, muted when it is locked. -->
+                    <!-- Marker beside the label rather than above it, which keeps the bar to two lines. Solid blue circle
+                         for the current step. Outlined for the others: accent when it can be opened, muted when it is
+                         locked. A step whose choice is made shows a tick instead of its number, as a done step. -->
                     <div
                         aria-hidden="true"
                         class="flex size-5 flex-none items-center justify-center rounded-full border-[1.25px] text-xs font-semibold"
                         :class="[
-                            currentId === item.id ? 'border-accent bg-pill text-accent' : 'bg-surface',
+                            currentId === item.id ? 'border-accent bg-accent text-surface' : 'bg-surface',
                             currentId !== item.id && (item.disabled ? 'border-muted text-muted' : 'border-accent text-accent')
                         ]"
                     >
                         <!-- 'text-box' trims the font's empty space above and below the digits, so they sit in the middle of the circle. -->
-                        <span class="[text-box:trim-both_cap_alphabetic]">{{ item.number }}</span>
+                        <CheckIcon v-if="currentId !== item.id && !item.disabled && item.detail != null" class="size-3" :stroke-width="3" />
+                        <span v-else class="[text-box:trim-both_cap_alphabetic]">{{ item.number }}</span>
                     </div>
 
                     <!-- The full label once the bar itself is wide enough, which is not the same as the viewport being

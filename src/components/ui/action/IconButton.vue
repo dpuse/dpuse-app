@@ -14,7 +14,7 @@ import ActionWrapper from './ActionWrapper.vue';
 interface Properties {
     accessibleLabel: string;
     disabled?: boolean;
-    isActive?: boolean; // Chosen from a set, or the current place, e.g. the open option on the rail.
+    isActive?: boolean; // Chosen from a set, or the current place, e.g. the open account section.
     isPressed?: boolean; // An on/off toggle that is on, e.g. bold. Sets 'aria-pressed'.
     label?: string;
     shape?: ButtonShape;

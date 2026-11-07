@@ -26,7 +26,7 @@ defineEmits<{ select: [item: T] }>();
                 :aria-current="activeId === item.id ? 'page' : undefined"
                 :aria-label="item.ariaLabel"
                 class="border-y-2 border-t-transparent py-1"
-                :class="[activeId === item.id ? 'border-b-accent text-accent' : 'border-b-transparent', item.rightAligned ? 'ml-auto' : '']"
+                :class="[activeId === item.id ? 'border-b-content text-emphasis' : 'border-b-transparent', item.rightAligned ? 'ml-auto' : '']"
                 :to="item.to"
                 @click="$emit('select', item)"
             >

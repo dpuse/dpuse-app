@@ -36,7 +36,7 @@ export const PRESS_CLASSES = 'touch-manipulation duration-200 active:scale-[92%]
 // Hover and press for an icon button that is not selected.
 export const UNSELECTED_CLASSES = 'hover:state-hover active:state-press';
 
-// An icon button the user chose from a set, or the place they are, e.g. the current option on the rail. Grey rather
+// An icon button the user chose from a set, or the place they are, e.g. the current account section. Grey rather
 // than the blue of a selected card, because a blue fill clashes with coloured icons.
 export const SELECTED_CLASSES = 'state-selected-icon hover:state-selected-icon-hover';
 

@@ -259,14 +259,17 @@ Each state looks the same everywhere, by meaning. The states are layers over an 
 
 - **Hover and press** ─ `hover:state-hover active:state-press`, a translucent grey, on every interactive element.
 - **Selected and current** ─ `state-selected hover:state-selected-hover`, a translucent blue, for what the user chose
-  from a set or where they are: list cards, table rows and selected columns.
+  from a set or where they are: boxed cards, table rows and selected columns.
 - **Selected icon buttons** ─ `state-selected-icon hover:state-selected-icon-hover`, a translucent grey, because a
-  blue fill clashes with coloured icons: the rail, account navigation, menu choices (`IconButton` `is-active`). The
-  rail also marks the current option with a grey bar at its edge, because the light fill alone is easy to miss.
+  blue fill clashes with coloured icons: account navigation, menu choices (`IconButton` `is-active`).
+- **Rail and list rows** ─ no fill. The current option on the rail and the selected row of a compact list
+  (`ConfigCard` `is-compact`) have a square 2px `bg-content` bar, as tall as the item, on the left edge of the rail
+  or list rather than of the item. Not blue, because blue means a link.
 - **On/off toggles** ─ a darker grey (`IconButton` `is-pressed`, which sets `aria-pressed`), e.g. bold, because they
   are not a choice from a set.
 - **Floating pill** ─ solid `bg-pill`, because a translucent fill would show the content it floats over.
-- **Segmented controls and tabs** keep their own look: a raised white segment, an accent underline.
+- **Tabs** ─ a `border-b-content` underline and `text-emphasis` label, the same dark bar as rows, turned on its side.
+- **Segmented controls** keep their own look: a raised white segment.
 
 ### Accessibility
 

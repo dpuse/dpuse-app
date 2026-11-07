@@ -1,5 +1,6 @@
 {
     "TEXT": {
+        "bin.label": { "en": "{lower} to {upper}", "es": "{lower} a {upper}" },
         "close.aria": { "en": "Close column details", "es": "Cerrar los detalles de la columna" },
         "columnAttention.aria": { "en": "Needs checking", "es": "Conviene revisarla" },
         "columnSearch.aria": { "en": "Find a column", "es": "Buscar una columna" },
@@ -15,20 +16,32 @@
             "es": "{count} valores no encajan en el tipo elegido y se cargarán vacíos. Detectado como {type}"
         },
         "detected.text": { "en": "Detected as {type}", "es": "Detectado como {type}" },
-        "formatChart.label": { "en": "Most common formats", "es": "Formatos más comunes" },
-        "frequentChart.label": { "en": "Most frequent values", "es": "Valores más frecuentes" },
+        "highestValues.label": { "en": "Highest values", "es": "Valores más altos" },
+        "invalidValues.label": { "en": "Invalid values {count}", "es": "Valores no válidos {count}" },
+        "legend.invalid.label": { "en": "Invalid", "es": "No válidos" },
+        "legend.percent.above.text": { "en": ">{percent}", "es": ">{percent}" },
+        "legend.percent.below.text": { "en": "<{percent}", "es": "<{percent}" },
+        "legend.valid.label": { "en": "Valid", "es": "Válidos" },
+        "length.text": { "en": "Values are {range} characters long.", "es": "Los valores tienen {range} caracteres." },
+        "lowestValues.label": { "en": "Lowest values", "es": "Valores más bajos" },
         "next.aria": { "en": "Next column", "es": "Columna siguiente" },
         "nullWords.label": { "en": "Read NA, N/A, None and the like as empty ({count} found)", "es": "Leer NA, N/A, None y similares como vacíos ({count} encontrados)" },
+        "otherFormats.text": { "en": "{count} other formats, {valueCount} values", "es": "{count} formatos más, {valueCount} valores" },
+        "otherValues.text": { "en": "{count} other values", "es": "{count} valores más" },
         "previous.aria": { "en": "Previous column", "es": "Columna anterior" },
-        "showAll.label": { "en": "Show all", "es": "Mostrar todo" },
-        "showFewer.label": { "en": "Show fewer", "es": "Mostrar menos" },
+        "singleValues.text": { "en": "{listed} of the {count} values seen only once are listed.", "es": "Se muestran {listed} de los {count} valores que aparecen una sola vez." },
         "tab.formats.label": { "en": "Formats", "es": "Formatos" },
-        "tab.frequent.label": { "en": "Frequent", "es": "Frecuentes" },
         "tab.overview.label": { "en": "Overview", "es": "Resumen" },
-        "tab.samples.count.label": { "en": "Samples ({count})", "es": "Muestras ({count})" },
-        "tab.samples.label": { "en": "Samples", "es": "Muestras" },
+        "tab.values.count.label": { "en": "Values ({count})", "es": "Valores ({count})" },
+        "tab.values.label": { "en": "Values", "es": "Valores" },
         "tabs.aria": { "en": "Column details", "es": "Detalles de la columna" },
+        "tooManyValues.text": {
+            "en": "More than {limit} distinct values, so only the lowest and highest are listed.",
+            "es": "Más de {limit} valores distintos, así que solo se muestran los más bajos y los más altos."
+        },
         "type.label": { "en": "Data type", "es": "Tipo de dato" },
+        "validValues.distinct.label": { "en": "Valid values {count}, distinct values {distinctCount}", "es": "Valores válidos {count}, valores distintos {distinctCount}" },
+        "validValues.label": { "en": "Valid values {count}", "es": "Valores válidos {count}" },
         "valueChart.label": { "en": "Values", "es": "Valores" }
     }
 }
