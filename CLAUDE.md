@@ -259,8 +259,10 @@ Each state looks the same everywhere, by meaning. The states are layers over an 
 
 - **Hover and press** ─ `hover:state-hover active:state-press`, a translucent grey, on every interactive element.
 - **Selected and current** ─ `state-selected hover:state-selected-hover`, a translucent blue, for what the user chose
-  from a set or where they are: list cards and rows, the rail, account navigation, menu choices (`IconButton`
-  `is-active`).
+  from a set or where they are: list cards, table rows and selected columns.
+- **Selected icon buttons** ─ `state-selected-icon hover:state-selected-icon-hover`, a translucent grey, because a
+  blue fill clashes with coloured icons: the rail, account navigation, menu choices (`IconButton` `is-active`). The
+  rail also marks the current option with a grey bar at its edge, because the light fill alone is easy to miss.
 - **On/off toggles** ─ a darker grey (`IconButton` `is-pressed`, which sets `aria-pressed`), e.g. bold, because they
   are not a choice from a set.
 - **Floating pill** ─ solid `bg-pill`, because a translucent fill would show the content it floats over.

@@ -33,7 +33,9 @@ const STATE_LAYERS = [
     { id: 'hover', className: 'state-hover' },
     { id: 'press', className: 'state-press' },
     { id: 'selected', className: 'state-selected' },
-    { id: 'selectedHover', className: 'state-selected-hover' }
+    { id: 'selectedHover', className: 'state-selected-hover' },
+    { id: 'selectedIcon', className: 'state-selected-icon' },
+    { id: 'selectedIconHover', className: 'state-selected-icon-hover' }
 ] as const;
 const STATE_SURFACES = [
     { id: 'backdrop', className: 'bg-backdrop' },

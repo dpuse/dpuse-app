@@ -186,6 +186,8 @@
     --press: color-mix(in srgb, black 10%, transparent);
     --selected: color-mix(in srgb, var(--color-blue-500) 8%, transparent);
     --selected-hover: color-mix(in srgb, var(--color-blue-500) 12%, transparent);
+    --selected-icon: color-mix(in srgb, black 4%, transparent); /* Grey, because a blue fill clashes with coloured icons. */
+    --selected-icon-hover: color-mix(in srgb, black 6%, transparent);
     --selected-text: var(--color-blue-700);
     --selected-border: var(--color-blue-200);
     --pill: var(--color-blue-50);
@@ -253,6 +255,8 @@
     --press: color-mix(in srgb, white 14%, transparent);
     --selected: color-mix(in srgb, white 12%, transparent); /* Grey, because a blue fill on near-black reads as muddy. */
     --selected-hover: color-mix(in srgb, white 16%, transparent);
+    --selected-icon: var(--selected);
+    --selected-icon-hover: var(--selected-hover);
     --selected-text: var(--color-blue-200);
     --selected-border: var(--color-blue-700);
     --pill: var(--color-zinc-700); /* Neutral, because a dark blue reads as muddy navy on the near-black surface. */

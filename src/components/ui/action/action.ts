@@ -36,12 +36,12 @@ export const PRESS_CLASSES = 'touch-manipulation duration-200 active:scale-[92%]
 // Hover and press for an icon button that is not selected.
 export const UNSELECTED_CLASSES = 'hover:state-hover active:state-press';
 
-// An icon button the user chose from a set, or the place they are, e.g. the current option on the rail. The same blue as
-// a selected card, so 'selected' looks the same everywhere.
-export const SELECTED_CLASSES = 'state-selected hover:state-selected-hover';
+// An icon button the user chose from a set, or the place they are, e.g. the current option on the rail. Grey rather
+// than the blue of a selected card, because a blue fill clashes with coloured icons.
+export const SELECTED_CLASSES = 'state-selected-icon hover:state-selected-icon-hover';
 
-// An on/off toggle that is on, e.g. bold in a text editor. Grey rather than the selected blue, because it is not a
-// choice from a set, and darker than hover, because the fill alone tells the two apart.
+// An on/off toggle that is on, e.g. bold in a text editor. A different grey from a selected icon button, because it is
+// not a choice from a set, and darker than hover, because the fill alone tells the two apart.
 export const TOGGLED_CLASSES = 'bg-black/6 hover:bg-black/12 active:bg-black/18 dark:bg-white/14 dark:hover:bg-white/18 dark:active:bg-white/26';
 
 // The selected option inside a grey pill track: a raised white segment, as in a segmented control. The track is

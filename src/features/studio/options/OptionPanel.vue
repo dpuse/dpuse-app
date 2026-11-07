@@ -61,17 +61,23 @@ function handleComplete(): void {
         <!-- Studio options scroller -->
         <ScrollArea class="flex-1" :scroll-area-padding-right="0">
             <div class="flex flex-col items-center gap-y-2 py-2">
-                <IconButton
-                    :accessible-label="t(TEXT, 'home.aria')"
-                    :aria-current="selectedOptionId === 'home' ? 'page' : undefined"
-                    :is-active="selectedOptionId === 'home'"
-                    :to="{ name: 'studio', query: $route.query }"
-                    @click="handleComplete"
-                >
-                    <StudioHomeIcon aria-hidden="true" />
-                </IconButton>
+                <!-- Current Option Bar ─ A grey bar at the rail's edge marks the current option, because its light fill alone
+                     is easy to miss. The row is positioned so the bar stays inside the scroller. -->
+                <div class="relative flex w-full justify-center">
+                    <span v-if="selectedOptionId === 'home'" aria-hidden="true" class="absolute inset-y-2 left-0 w-0.75 rounded-r-full bg-zinc-400" />
+                    <IconButton
+                        :accessible-label="t(TEXT, 'home.aria')"
+                        :aria-current="selectedOptionId === 'home' ? 'page' : undefined"
+                        :is-active="selectedOptionId === 'home'"
+                        :to="{ name: 'studio', query: $route.query }"
+                        @click="handleComplete"
+                    >
+                        <StudioHomeIcon aria-hidden="true" />
+                    </IconButton>
+                </div>
 
-                <template v-for="config in workflowOptionConfigs" :key="config.id">
+                <div v-for="config in workflowOptionConfigs" :key="config.id" class="relative flex w-full justify-center">
+                    <span v-if="selectedOptionId === config.id" aria-hidden="true" class="absolute inset-y-2 left-0 w-0.75 rounded-r-full bg-zinc-400" />
                     <IconButton
                         :accessible-label="config.label"
                         :aria-current="selectedOptionId === config.id ? 'page' : undefined"
@@ -81,7 +87,7 @@ function handleComplete(): void {
                     >
                         <ConfigIcon class="size-5.5" :icon="config.icon" :icon-dark="config.iconDark" />
                     </IconButton>
-                </template>
+                </div>
             </div>
         </ScrollArea>
 

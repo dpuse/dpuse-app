@@ -612,7 +612,8 @@
 /* State layers ─ hover, press and selected are drawn as a translucent layer over the element's own fill rather than
    replacing it, so a white card stays white underneath and one value works on every surface. A plain background colour
    would swap the fill for the translucent one and let the page behind show through. Use these for every hover, press
-   and selected state: 'hover:state-hover active:state-press', and 'state-selected hover:state-selected-hover'. */
+   and selected state: 'hover:state-hover active:state-press', and 'state-selected hover:state-selected-hover'. Icon
+   buttons use 'state-selected-icon', a grey, because a blue fill clashes with coloured icons. */
 @utility state-hover {
     background-image: linear-gradient(var(--hover), var(--hover));
 }
@@ -624,4 +625,10 @@
 }
 @utility state-selected-hover {
     background-image: linear-gradient(var(--selected-hover), var(--selected-hover));
+}
+@utility state-selected-icon {
+    background-image: linear-gradient(var(--selected-icon), var(--selected-icon));
+}
+@utility state-selected-icon-hover {
+    background-image: linear-gradient(var(--selected-icon-hover), var(--selected-icon-hover));
 }
