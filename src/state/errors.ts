@@ -160,6 +160,14 @@ export function handleRaiseScriptError(event: ErrorEvent): void {
         return;
     }
 
+    // A 'ResizeObserver' callback that changes the layout leaves further size changes for the next frame, and the browser
+    // raises this as an error although nothing is lost. Chrome and Firefox word it differently, but both start this way.
+    if (event.message.startsWith('ResizeObserver loop')) {
+        console.warn('[dpuse:app] Ignored a ResizeObserver loop notice.', event.message);
+        event.preventDefault(); // Stops the browser logging it again as an error.
+        return;
+    }
+
     // The location is recorded for every error, as it is the only location when a plain value such as a string is
     // thrown.
     const data = { colno: event.colno, filename: event.filename, lineno: event.lineno, originalMessage: event.message, typeId: 'unhandledRuntime' };

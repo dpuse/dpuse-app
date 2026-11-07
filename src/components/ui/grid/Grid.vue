@@ -78,6 +78,10 @@ const { virtualRows, totalSize, getRow, findRowIndex, scrollToIndex, rowCount, k
     maxBlocksInCache: maxBlocksInCache == null ? undefined : (): number => maxBlocksInCache
 });
 const scrolledToTarget = shallowRef<(item: T) => boolean>(); // The target last scrolled to, so a user who scrolls away is not pulled back.
+// A list that opens with a selection, or a request to see the selection again, centres the target. A later change of
+// target in a list already on screen, such as the user clicking a row, moves the list only when the row is out of view,
+// so the rows do not shift under the pointer.
+const targetIsCentred = ref(false);
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -123,7 +127,9 @@ watch(
     () => (isScrollTarget == null || isScrollTarget === scrolledToTarget.value || scrollElement.value == null ? undefined : findRowIndex(isScrollTarget)),
     (rowIndex) => {
         if (rowIndex === undefined) return;
-        scrollToIndex(Math.floor(rowIndex / columnCount.value));
+        const virtualRowIndex = Math.floor(rowIndex / columnCount.value);
+        if (targetIsCentred.value || !isRowInView(virtualRowIndex)) scrollToIndex(virtualRowIndex);
+        targetIsCentred.value = false;
         scrolledToTarget.value = isScrollTarget;
     },
     { flush: 'post' }
@@ -132,6 +138,7 @@ watch(
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 function handleScrollAreaInitialised(viewport: HTMLElement): void {
+    targetIsCentred.value = isScrollTarget != null; // A list that opens with nothing selected has nothing to centre, so the user's first click does not move it.
     scrollElement.value = viewport;
 }
 
@@ -139,10 +146,20 @@ function handleScrollAreaInitialised(viewport: HTMLElement): void {
 
 // Scrolls the target row into view again, for a user who scrolled away and asks to see the selection.
 function scrollToTarget(): void {
+    targetIsCentred.value = true;
     scrolledToTarget.value = undefined;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Any part of the row on screen counts, because a click can land on a row that is only partly shown.
+function isRowInView(virtualRowIndex: number): boolean {
+    const virtualRow = virtualRows.value.find((row) => row.index === virtualRowIndex);
+    if (virtualRow == null || scrollElement.value == null || rowsElement.value == null) return false;
+    const scrollRect = scrollElement.value.getBoundingClientRect();
+    const rowTop = rowsElement.value.getBoundingClientRect().top + virtualRow.start;
+    return rowTop < scrollRect.bottom && rowTop + virtualRow.size > scrollRect.top;
+}
 
 function getRowHeight(item: T | undefined): number {
     if ((item as { isHeader?: boolean } | undefined)?.isHeader === true) return headerRowHeight;

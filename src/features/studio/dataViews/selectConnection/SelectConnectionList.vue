@@ -177,7 +177,6 @@ function pickConnection(connectionId: string): void {
 <template>
     <GridDetailPanel
         :selected-item="pickedConnectionLocalisedConfig"
-        :add-label="t(TEXT, 'connection.label')"
         :data-source="connectionLocalisedConfigsDataSource"
         max-detail-width="65ch"
         :row-height="cardRowHeight"

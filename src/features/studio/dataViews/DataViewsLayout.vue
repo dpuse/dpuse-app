@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { useConfirmDialog } from '@vueuse/core';
-import { CircleXIcon, SaveIcon } from '@lucide/vue';
+import { CircleXIcon, PlusIcon, SaveIcon } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 import { isNavigationFailure, NavigationFailureType, onBeforeRouteLeave, onBeforeRouteUpdate, type RouteLocationNormalized, useRoute, useRouter } from 'vue-router';
 
@@ -14,6 +14,7 @@ import { PILL_CLASSES } from '@/components/ui/action/action';
 import { raiseAppFailure } from '@/state/errors';
 import { resolveCurrentDataViewStepId } from './dataViewSummary';
 import { sessionIsAuthenticated } from '@/state/session';
+import { useDialogs } from '@/state/dialogs';
 import { useQueryFailure } from '@/services/queryClient';
 import { useUnsavedWork } from '@/state/unsavedWork';
 import { workspaceStoreId } from '@/services/workspaceStore';
@@ -23,7 +24,6 @@ import {
     DATA_VIEW_SCROLL_ACTIONS_ID,
     DATA_VIEW_SIDE_ACTION_ID,
     DATA_VIEW_STEP_ACTION_ID,
-    DATA_VIEW_TRAIL_ID,
     NEW_DATA_VIEW_ID,
     resolveDataViewIdParameter,
     useCurrentDataView,
@@ -34,6 +34,7 @@ import { localeId, t } from '@/state/locale';
 import { TASK_CONFIGS, TEXT } from './DataViewsLayout_.json';
 
 // ── Static Components
+import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import ItemTrail from './ItemTrail.vue';
@@ -56,6 +57,9 @@ const unlockedUpToTaskNumber = ref(0);
 // has faded out, so nothing below them jumps while the list fades. Undefined while the list is on screen.
 const taskIdOnScreen = ref(constructTaskIdOnScreen());
 const closingTaskId = ref(taskIdOnScreen.value); // The last task on screen, so the bar keeps it marked while it closes.
+
+// ── Dialogs
+const { openDialog } = useDialogs();
 
 // ── Save and Discard
 const { isPending: dataViewIsSaving, mutateAsync: saveDataView } = useUpdateDataView();
@@ -215,6 +219,10 @@ function handleRetryDataView(): void {
     void refetchDataView();
 }
 
+function handleAddConnection(): void {
+    void openDialog('connection');
+}
+
 async function handleSaveDataView(): Promise<void> {
     const draftDataViewConfig = dataViewConfig.value;
     if (draftDataViewConfig == null || !dataViewCanBeSaved.value || dataViewIsSaving.value) return;
@@ -313,16 +321,25 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
             >
                 <TaskBar :current-id="currentTaskLocalisedConfig?.id ?? closingTaskId" :items="taskBarLocalisedItems" />
 
-                <!-- Trail ─ What the data view is built from so far, in the same row on every step. The item step places
-                     its own trail here with 'Teleport', because its folders can be opened. -->
+                <!-- Trail ─ What the data view is built from, in the same row on every step. It reaches only as far as the
+                     step on screen, so choosing a connection does not show a file from a later step as if it were still
+                     chosen. On the item step its folders can be opened. -->
                 <div class="flex h-9.25 min-w-0 items-center gap-x-3 border-b border-separator px-page text-sm">
                     <ItemTrail
-                        v-if="taskIdOnScreen !== 'item'"
                         class="min-w-0 flex-1"
-                        :connection-node-config="dataViewConfig?.connectionNodeConfig"
+                        :connection-node-config="taskIdOnScreen === 'connection' ? undefined : dataViewConfig?.connectionNodeConfig"
                         :data-view-connection="dataViewConnectionLocalisedConfig"
                     />
-                    <div :id="DATA_VIEW_TRAIL_ID" class="contents" />
+                    <!-- New Connection ─ Only on the connection step. In this row rather than over the list, where it sat under
+                         the Discard and Save pill. -->
+                    <ActionWrapper
+                        v-if="taskIdOnScreen === 'connection'"
+                        class="flex h-9.25 flex-none cursor-pointer items-center gap-x-1.5 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                        @click="handleAddConnection"
+                    >
+                        <PlusIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
+                        {{ t(TEXT, 'connection.new.label') }}
+                    </ActionWrapper>
                 </div>
             </div>
         </div>

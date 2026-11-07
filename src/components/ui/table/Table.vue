@@ -421,7 +421,7 @@ function constructHeaderClass(columnId: string): string | undefined {
                     class="flex-1 scrollbar-none overflow-x-hidden overflow-y-auto overscroll-none"
                     :style="{ paddingBottom: scrollAreaPaddingBottom }"
                 >
-                    <div :id="innerScrollElementId" ref="innerScroller" class="scrollbar-none overflow-x-auto overflow-y-hidden overscroll-none" @scroll="syncHeaderScroll">
+                    <div :id="innerScrollElementId" ref="innerScroller" class="scrollbar-none overflow-x-auto overflow-y-hidden overscroll-none">
                         <div :style="{ minWidth: contentMinWidth }">
                             <!-- Virtual rows spacer -->
                             <div class="relative" role="rowgroup" :style="{ height: totalSize + 'px' }">

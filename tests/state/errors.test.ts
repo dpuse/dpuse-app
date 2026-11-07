@@ -298,6 +298,18 @@ describe('handleRaiseScriptError', () => {
         expect(event.defaultPrevented).toBe(false);
     });
 
+    it.each(['ResizeObserver loop completed with undelivered notifications.', 'ResizeObserver loop limit exceeded'])('logs but neither shows nor reports %j', (message) => {
+        const warn = vi.spyOn(console, 'warn').mockImplementationOnce(() => {
+            // Expected, so kept out of the test output.
+        });
+        const event = new ErrorEvent('error', { cancelable: true, filename: 'https://localhost/dataViews', message });
+        handleRaiseScriptError(event);
+
+        expect(appFailures.value).toStrictEqual([]);
+        expect(warn).toHaveBeenCalledOnce();
+        expect(event.defaultPrevented).toBe(true);
+    });
+
     it('shows an app error with where it happened, and stops the browser logging it again', () => {
         const error = new Error('Failed in a timer.');
         const event = new ErrorEvent('error', { cancelable: true, colno: 7, error, filename: 'https://localhost/app.js', lineno: 3, message: error.message });

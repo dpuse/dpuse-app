@@ -8,7 +8,6 @@
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
 import {
-    ArrowLeftIcon,
     ArrowRightIcon,
     AsteriskIcon,
     BracesIcon,
@@ -87,6 +86,7 @@ import { ignoreReportedNavigationFailure } from '@/router';
 import { renderMarkdown } from '@/services/useMarkedTool';
 import { TEXT } from './SelectItemPanel_.json';
 import { useItemAudit } from './useItemAudit';
+import { useItemStepTrail } from '../_itemStepTrail';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 import {
     applyPreviewColumnType,
@@ -132,14 +132,13 @@ import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValue
 import { constructDataViewConnection, constructItemPath } from '../dataViewSummary';
 import { constructFittedColumnWidth, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
 import { DATA_FORMAT_ICON_CONFIGS, type DataFormatIconConfig } from '../_dataFormatIcons';
-import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, DATA_VIEW_TRAIL_ID, useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
+import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
 import { listDataViewStoreConnections, resolveStoreConnectorId } from '../_dataViewStore';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
-import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
 import ColumnDetailPanel from './ColumnDetailPanel.vue';
 import type { ColumnSearchOption } from './ColumnDetailPanel.vue';
@@ -149,7 +148,6 @@ import DataViewSource from '../DataViewSource.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import HeadersIcon from './HeadersIcon.vue';
-import HouseIcon from '@/components/icons/HouseIcon.vue';
 import { Menu } from '@/components/ui/menu';
 import PillSegment from '@/components/ui/action/PillSegment.vue';
 import PreviewColumnTable from '../PreviewColumnTable.vue';
@@ -383,6 +381,9 @@ const text = ref<string | undefined>();
 // ── Scrolling
 const documentScrollElement = shallowRef<HTMLElement>();
 
+// ── Trail
+const gridDetailPanelComponent = useTemplateRef<{ isNarrow: boolean; revealSelectedItem: () => void }>('gridDetailPanel'); // Typed by what it exposes, because 'GridDetailPanel' is generic.
+
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The saved connection, which this step lists the items of. Looked up again from the list, so it follows a change of
@@ -399,19 +400,6 @@ const itemTypeIcon = computed(() => {
     return itemTypeId === 'file' ? FileIcon : SheetIcon; // A connector released before it named its kind of item shows tables, as the summary row does.
 });
 
-// The trail starts at the connection, which its tooltip and screen readers name. The house icon stands in only until
-// the connection is known, because the trail draws the connector's own icon in its place.
-// TODO: Fix this icon data type compatibility issue.
-const rootBreadcrumb = computed(
-    () => ({ id: 'home', icon: markRaw(HouseIcon), label: activeDataViewConnection.value?.label ?? t(TEXT, 'home.label') }) as unknown as ConnectionNodeConfig
-);
-const breadcrumbs = computed<ConnectionNodeConfig[]>(() => [rootBreadcrumb.value, ...currentFolderNodes.value]);
-// The trail ends with the chosen item, so its name stays on screen after the list scrolls it out of view. The item's
-// own icon is left out, because the trail draws icons as components and an item's icon is an SVG string.
-const shownBreadcrumbs = computed<ConnectionNodeConfig[]>(() => {
-    const itemConfig = activeConnectionObjectConfig.value;
-    return itemConfig == null ? breadcrumbs.value : [...breadcrumbs.value, { ...itemConfig, icon: null }];
-});
 const backLabel = computed(() => currentFolderNodes.value.at(-1)?.label ?? t(TEXT, 'home.label')); // Names the folder the back button returns to.
 
 // ── Preview ─ A file the preview could not read as text says so on the details tab.
@@ -846,6 +834,17 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// The data view header shows this step's trail, so the trail stays in place between steps and its folders can be opened.
+// A narrow screen shows the preview in place of the list, so there the trail gives way to one button back to it.
+useItemStepTrail(() => ({
+    backLabel: gridDetailPanelComponent.value?.isNarrow === true && activeConnectionObjectConfig.value != null ? backLabel.value : undefined,
+    folderNodeConfigs: currentFolderNodes.value,
+    itemConfig: activeConnectionObjectConfig.value,
+    returnToList: handleReturnToList,
+    revealItem: (): void => gridDetailPanelComponent.value?.revealSelectedItem(),
+    selectFolder: handleSelectBreadcrumb
+}));
+
 // Opens the saved item's folder with the item selected, so a reload or a return to this step shows what was saved; a
 // pick that was never saved is not restored. Keyed on the connection's id, so a change of language, which re-localises
 // the same connection, does not send the list back to the top folder.
@@ -1015,16 +1014,12 @@ function handleRetryItem(): void {
     itemAttempt.value++;
 }
 
-function handleSelectBreadcrumb(index: number, connectionNodeConfig: ConnectionNodeConfig): void {
+// Index 0 is the connection's top folder, and each folder below it follows.
+function handleSelectBreadcrumb(index: number): void {
     pickItem();
-    if (index <= 0) {
-        currentFolderNodes.value = [];
-        loadFolderNodes(activeConnectionConfig.value, '');
-        return;
-    }
-
-    currentFolderNodes.value = currentFolderNodes.value.slice(0, index);
-    loadFolderNodes(activeConnectionConfig.value, `${connectionNodeConfig.folderPath}/${connectionNodeConfig.name}`);
+    const folderNodeConfig = index <= 0 ? undefined : currentFolderNodes.value[index - 1];
+    currentFolderNodes.value = currentFolderNodes.value.slice(0, Math.max(index, 0));
+    loadFolderNodes(activeConnectionConfig.value, folderNodeConfig ? `${folderNodeConfig.folderPath}/${folderNodeConfig.name}` : '');
 }
 
 function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig | undefined): void {
@@ -1045,8 +1040,7 @@ function handleSelectConnectionNode(connectionNodeConfig: ConnectionNodeConfig |
 
 // Narrow screens show the preview in place of the list. Going back does what the last breadcrumb does.
 function handleReturnToList(): void {
-    const index = breadcrumbs.value.length - 1;
-    handleSelectBreadcrumb(index, assertDefined(breadcrumbs.value[index]));
+    handleSelectBreadcrumb(currentFolderNodes.value.length);
 }
 
 // Arrow keys, Home and End move between tabs and select as they go, since only the selected tab is in the tab order.
@@ -1878,48 +1872,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 <template>
     <ErrorNotice v-if="listFailure" :failures="[listFailure]" @retry="handleRetryList" />
 
-    <GridDetailPanel v-else :selected-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="320px">
-        <!-- Trail ─ In the data view header's trail row, which every step shares, so the header does not change between
-             steps. This step's own trail replaces the header's, because its folders can be opened. -->
-        <template #header="{ isSplit, revealSelectedItem }">
-            <Teleport defer :to="`#${DATA_VIEW_TRAIL_ID}`">
-                <div class="flex h-full min-w-0 flex-1 items-center gap-x-3">
-                    <!-- Back Button ─ Narrow screens show the preview in place of the list, so the trail gives way to
-                         one button back to it. The arrow and 'gap-x-2' match the icon and gap of each row in
-                         'DataViewSource', so the arrow centres under those icons and the label lines up with theirs. -->
-                    <template v-if="!isSplit && activeConnectionObjectConfig != null">
-                        <ActionWrapper
-                            :aria-label="t(TEXT, 'back.aria', { label: backLabel })"
-                            class="flex h-9.25 min-w-0 shrink cursor-pointer items-center gap-x-2 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-                            @click="handleReturnToList"
-                        >
-                            <ArrowLeftIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
-                            <span class="min-w-0 truncate">{{ backLabel }}</span>
-                        </ActionWrapper>
-                        <!-- The chosen item's name follows the folder the button returns to, as in the trail.
-                             '-mx-1.5' cancels part of the row's gap, so the slash is spaced as the trail spaces its own. -->
-                        <span aria-hidden="true" class="-mx-1.5 flex-none text-subtle">/</span>
-                        <span class="min-w-0 flex-1 truncate text-muted">{{ activeConnectionObjectConfig.label }}</span>
-                    </template>
-                    <!-- The open folder is plain text while an item is chosen, because the item's crumb follows it. The
-                         item's crumb scrolls the list back to the item. -->
-                    <Breadcrumbs
-                        v-else
-                        class="h-9.25 min-w-0 flex-1"
-                        :items="shownBreadcrumbs"
-                        :disable-last="activeConnectionObjectConfig == null"
-                        :disabled-index="activeConnectionObjectConfig == null ? undefined : breadcrumbs.length - 1"
-                        @select="(index, connectionNodeConfig) => (index === breadcrumbs.length ? revealSelectedItem() : handleSelectBreadcrumb(index, connectionNodeConfig))"
-                    >
-                        <template #icon>
-                            <ConfigIcon v-if="activeDataViewConnection" class="size-5" :icon="activeDataViewConnection.icon" :icon-dark="activeDataViewConnection.iconDark" />
-                            <HouseIcon v-else aria-hidden="true" class="size-5" :stroke-width="1.5" />
-                        </template>
-                    </Breadcrumbs>
-                </div>
-            </Teleport>
-        </template>
-
+    <GridDetailPanel v-else ref="gridDetailPanel" :selected-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="320px">
         <template #item="{ item }">
             <!-- <ConfigCard v-if="item" :actions="[{ typeId: 'info', onClick: () => getInfo(item) }]" :config="item" :is-compact="true" @click="handleSelectConnectionNode(item)" /> -->
             <!-- The icon and the overline tell a folder, which opens, from an item, which is picked. The overline is not shown

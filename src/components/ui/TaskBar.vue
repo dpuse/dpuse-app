@@ -52,7 +52,7 @@ function localiseLine(line: LocaleLabel): string {
 <template>
     <nav :aria-label="t(TEXT, 'steps.aria')" class="@container flex-none" data-region="TaskBar">
         <!-- The arrows sit level with the number and label line. -->
-        <ScrollRow arrow-align-class="items-start pt-1" is-borderless keep-active-item-in-view row-tag="ol">
+        <ScrollRow arrow-align-class="items-start" is-borderless keep-active-item-in-view row-tag="ol">
             <!-- 'relative' keeps each step's screen-reader text inside the scrolling row. Without it that text, which is
                  positioned absolutely, belongs to the row's outer wrapper instead, escapes the row's clipping, and iOS
                  Safari scrolls the whole page sideways to reach the steps past the right edge. -->
@@ -60,7 +60,7 @@ function localiseLine(line: LocaleLabel): string {
                 <component
                     :is="item.disabled ? 'div' : ActionWrapper"
                     :aria-current="currentId === item.id ? 'step' : undefined"
-                    class="group flex items-start gap-x-1.5 pt-1 pb-2 text-sm"
+                    class="group flex items-start gap-x-1.5 text-sm"
                     :to="item.to"
                 >
                     <!-- Marker beside the label rather than above it, which keeps the bar to two lines. Pale blue circle

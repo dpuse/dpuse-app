@@ -39,7 +39,7 @@ const {
 
 defineSlots<{
     busy?(): unknown;
-    header(properties: { isSplit: boolean; revealSelectedItem: () => void }): unknown; // 'revealSelectedItem' scrolls the list back to the selected item.
+    header?(properties: { isSplit: boolean; revealSelectedItem: () => void }): unknown; // 'revealSelectedItem' scrolls the list back to the selected item.
 
     item(properties: { item: T; isSplit: boolean; openDetail: () => void }): unknown; // 'openDetail' shows the selected item's detail again after the user closed it.
     'no-items'(): unknown;
@@ -64,6 +64,9 @@ const { width: bodyWidth } = useElementSize(bodyElement);
 const isSplit = computed(() => bodyWidth.value >= GRID_DETAIL_SPLIT_THRESHOLD_PX);
 const bodyIsMeasured = computed(() => bodyWidth.value > 0); // The width is 0 until first measured, which would lay the panes out as narrow for a frame.
 provide(gridDetailIsSplitKey, isSplit);
+// For a caller whose header sits outside the panel, where the 'header' slot cannot reach. Narrow only once measured,
+// because the width reads 0 until then.
+defineExpose({ isNarrow: computed(() => bodyIsMeasured.value && !isSplit.value), revealSelectedItem });
 const narrowPaneId = computed(() => (detailIsOpen.value ? 'detail' : 'grid'));
 const detailPaneIsVisible = computed(() => isSplit.value || shownNarrowPaneId.value === 'detail');
 const gridPaneIsVisible = computed(() => isSplit.value || shownNarrowPaneId.value === 'grid');
@@ -113,13 +116,19 @@ watch(
 function handleShowNarrowPane(): void {
     shownNarrowPaneId.value = narrowPaneId.value;
 }
+
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function revealSelectedItem(): void {
+    gridComponent.value?.scrollToTarget();
+}
 </script>
 
 <template>
     <div class="flex h-full flex-col" data-region="GridDetailPanel">
         <!-- Header -->
         <header class="flex-none">
-            <slot name="header" :is-split="isSplit" :reveal-selected-item="() => gridComponent?.scrollToTarget()" />
+            <slot name="header" :is-split="isSplit" :reveal-selected-item="revealSelectedItem" />
         </header>
 
         <!-- Body -->

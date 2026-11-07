@@ -337,9 +337,10 @@ export function useDataWindow<T>({
         return undefined;
     }
 
-    // Scrolls only as far as needed to show the row, so a row already in view stays where it is.
+    // Centres the row, or comes as close as the list's ends allow, because a row scrolled only just into view sits at the
+    // edge where it is easy to miss.
     function scrollToIndex(virtualRowIndex: number): void {
-        virtualizer.value.scrollToIndex(virtualRowIndex, { align: 'auto' });
+        virtualizer.value.scrollToIndex(virtualRowIndex, { align: 'center' });
     }
 
     function recordBlockAccessed(blockIndex: number): void {
