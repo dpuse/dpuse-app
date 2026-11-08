@@ -16,7 +16,6 @@ import {
     CircleAlertIcon,
     CircleOffIcon,
     CircleStopIcon,
-    Columns3CogIcon,
     DatabaseIcon,
     FileIcon,
     FolderIcon,
@@ -116,19 +115,14 @@ import {
     constructReadingConfig,
     constructSampleConfig,
     isDerivedColumn,
-    isEmptyUnitColumn,
     type ItemReading
 } from '../_dataViewColumns';
 import {
     constructColumnTypeLabel,
     constructColumnValueCounts,
     constructDataTypeLabel,
-    constructPreviewColumnHeaders,
-    constructPreviewColumnIcons,
     constructPreviewColumnRows,
-    countChosenTypeMisfits,
-    PREVIEW_COLUMN_SUMMARY_KEYS,
-    type PreviewColumnRow
+    countChosenTypeMisfits
 } from '../_previewColumnRows';
 import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from '../_readingLabels';
 import { constructDataViewConnection, constructItemPath } from '../dataViewSummary';
@@ -174,7 +168,7 @@ interface PreviewTab {
     labelKey: keyof typeof TEXT;
 }
 
-type PreviewTabId = 'table' | 'columns' | 'text' | 'details';
+type PreviewTabId = 'table' | 'text' | 'details';
 
 interface FormatSupport {
     ariaKey: keyof typeof TEXT;
@@ -203,7 +197,6 @@ interface ColumnSearchOption {
 // ── Preview Tabs ─ Ways to show the item. Only delimited text has a table of records and of columns to show.
 const PREVIEW_TABS: PreviewTab[] = [
     { icon: markRaw(SheetIcon), id: 'table', labelKey: 'tab.table.label' },
-    { icon: markRaw(Columns3CogIcon), id: 'columns', labelKey: 'tab.columns.label' },
     { icon: markRaw(TextIcon), id: 'text', labelKey: 'tab.text.label' },
     { icon: markRaw(InfoIcon), id: 'details', labelKey: 'tab.details.label' }
 ];
@@ -252,13 +245,11 @@ const CONTAINER_FILE_TYPE_EXTENSIONS = new Set(['cfb']); // Detected types that 
 // job, not this function's — it redirects away (unmounting this component) once that's confirmed, so this only
 // needs a generous timeout as a last-resort bail-out for the case where neither ever happens.
 const ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS = 20_000;
-const COLUMN_DETAIL_SIDE_BY_SIDE_WIDTH_PX = 560; // Below this, a column's detail fills the space, because the names leave it too little.
 // The preview grows with the audit up to this size, because it is held in memory and saved with the data view. Anything
 // beyond it is only audited.
 const PREVIEW_BYTE_LIMIT = 65_536;
 const AUDIT_BYTE_LIMITS = [PREVIEW_BYTE_LIMIT, 1_048_576, 10_485_760, 104_857_600];
 const AUDIT_CHOICE_LIMIT = 2; // The next sizes offered, as well as all of the item, because the toolbar has little room.
-const COLUMN_NAME_WIDTH_PX = 220; // The table's pinned names. Beside a column's detail, the names fill the table's 'w-57' instead.
 const MINIMUM_FITTED_PREVIEW_COLUMN_WIDTH_PX = 72; // A column of short values with a short label stays wide enough to click its type icon and name.
 const MINIMUM_PREVIEW_COLUMN_WIDTH_PX = 72; // Keeps the header's type icon and the start of its name in view.
 const PREVIEW_COLUMN_MARKS_WIDTH_PX = 60; // The type icon before a name, 22px, the mandatory and key marks after it, 34px, and 4px so a measured name is never a pixel short.
@@ -318,11 +309,8 @@ const currentFolderPath = ref('');
 
 const previewRequestId = ref(0);
 const valueStateRequestId = ref(0);
-const selectedColumnIndex = ref<number>(); // The column whose detail is showing. The Table and Columns tabs share it, so a column stays chosen across them.
-const emptyUnitColumnsAreShown = ref(false);
-const columnsPaneElement = useTemplateRef<HTMLDivElement>('columnsPane');
+const selectedColumnIndex = ref<number>(); // The column whose detail is showing over the table.
 const previewTableComponent = useTemplateRef<{ scrollColumnIntoView: (columnId: string) => void }>('previewTable'); // Typed by what it exposes, because 'Table' is generic.
-const { width: columnsPaneWidth } = useElementSize(columnsPaneElement);
 const activeItemReading = shallowRef<ItemReading>(); // Goes into the draft with the item.
 const activeContentAuditConfig = shallowRef<ContentAuditConfig>(); // What the latest audit found, starting from what opening the item read. Its columns are as detected, before any choice of the user's.
 const readingIsChanged = ref(false); // The user changed the item or how it is read. Opening the step, or a preview arriving, does not count.
@@ -678,7 +666,7 @@ const auditChoices = computed<AuditChoice[]>(() => {
 const previewExtentText = computed(() => {
     const previewSize = activeItemReading.value?.size;
     const itemSize = activeConnectionObjectConfig.value?.size;
-    if (previewSize == null || previewSize === 0 || previewSize === itemSize || currentPreviewTabId.value === 'columns' || currentPreviewTabId.value === 'details') return;
+    if (previewSize == null || previewSize === 0 || previewSize === itemSize || currentPreviewTabId.value === 'details') return;
     const auditedSize = auditIsRunning.value ? auditedByteCount.value : activeContentAuditConfig.value?.byteCount;
     if (auditedSize != null && auditedSize <= previewSize) return;
     return t(TEXT, 'preview.extent.text', { size: formatNumberAsStorageSize(previewSize) });
@@ -769,12 +757,6 @@ const itemDetailGroups = computed(() => {
         .filter((detailGroup) => detailGroup.details.length > 0);
 });
 
-// ── Columns Tab ─ Read-only for now. The same 'Table' as the records, so the two tabs look and scroll alike.
-const previewColumnTableColumnDefinitions = computed<ColumnDef<TableFeatureSet, PreviewColumnRow>[]>(() => {
-    const headers = constructPreviewColumnHeaders();
-    return PREVIEW_COLUMN_SUMMARY_KEYS.map((key) => ({ accessorKey: key, header: headers[key], size: key === 'label' ? COLUMN_NAME_WIDTH_PX : undefined }));
-});
-const columnDetailFillsSpace = computed(() => columnsPaneWidth.value < COLUMN_DETAIL_SIDE_BY_SIDE_WIDTH_PX); // Too narrow for the names and the detail together.
 // A column also needs checking when values do not fit a type the user chose, because a load stores them as empty.
 const columnRowsNeedingAttention = computed(() => {
     const itemReading = activeItemReading.value;
@@ -791,19 +773,6 @@ const columnRowsNeedingAttention = computed(() => {
 });
 const previewValueStates = shallowRef<PreviewValueStateId[][]>([]); // For each record shown, what each value is. Only the engine can tell whether a value fits its type.
 const columnValueCounts = computed(() => (activeItemReading.value == null ? [] : constructColumnValueCounts(activeItemReading.value)));
-const previewColumnIcons = computed(() => (activeItemReading.value == null ? [] : constructPreviewColumnIcons(activeItemReading.value)));
-// ── Shown Columns ─ The Columns tab's rows, by column position. Unit columns that found no unit are left out until
-// asked for, so a row's position in the table is not always its column's position.
-const emptyUnitColumnCount = computed(() => (activeItemReading.value?.columnConfigs ?? []).filter((columnConfig) => isEmptyUnitColumn(columnConfig)).length);
-const shownColumnIndexes = computed(() =>
-    (activeItemReading.value?.columnConfigs ?? [])
-        .map((columnConfig, index) => (emptyUnitColumnsAreShown.value || !isEmptyUnitColumn(columnConfig) ? index : undefined))
-        .filter((index) => index !== undefined)
-);
-const selectedColumnRowIndex = computed(() => {
-    const rowIndex = selectedColumnIndex.value == null ? -1 : shownColumnIndexes.value.indexOf(selectedColumnIndex.value);
-    return rowIndex === -1 ? undefined : rowIndex;
-});
 // The table shows the item's own columns, which come before every derived one.
 const tableColumnIndexes = computed(() =>
     (activeItemReading.value?.columnConfigs ?? []).map((columnConfig, index) => (isDerivedColumn(columnConfig) ? undefined : index)).filter((index) => index !== undefined)
@@ -817,18 +786,11 @@ const columnSearchOptions = computed((): ColumnSearchOption[] => {
         needsAttention: columnRowsNeedingAttention.value.has(columnIndex)
     }));
 });
-const columnSearchIsShown = computed(() => (currentPreviewTabId.value === 'table' || currentPreviewTabId.value === 'columns') && columnSearchOptions.value.length > 1);
-const steppedColumnIndexes = computed(() => (currentPreviewTabId.value === 'table' ? tableColumnIndexes.value : shownColumnIndexes.value));
+const columnSearchIsShown = computed(() => currentPreviewTabId.value === 'table' && columnSearchOptions.value.length > 1);
 const selectedColumnStepIndex = computed(() => {
-    const stepIndex = selectedColumnIndex.value == null ? -1 : steppedColumnIndexes.value.indexOf(selectedColumnIndex.value);
+    const stepIndex = selectedColumnIndex.value == null ? -1 : tableColumnIndexes.value.indexOf(selectedColumnIndex.value);
     return stepIndex === -1 ? undefined : stepIndex;
 });
-const previewColumnTableDataSource = computed<DataSource<PreviewColumnRow>>(() => {
-    const columnRows = activeItemReading.value == null ? [] : constructPreviewColumnRows(activeItemReading.value);
-    const rows = shownColumnIndexes.value.flatMap((columnIndex) => columnRows.slice(columnIndex, columnIndex + 1));
-    return { rowCount: rows.length, getRows: (start: number, end: number): Promise<{ rows: PreviewColumnRow[] }> => Promise.resolve({ rows: rows.slice(start, end) }) };
-});
-
 const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<ConnectionNodeConfig>>>(() => {
     const folderPath = currentFolderPath.value; // Read synchronously so this computed (and useDataWindow's cache) resets on navigation.
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- Read so Vue tracks it as a dependency.
@@ -1158,13 +1120,13 @@ function handleToggleColumnDetail(columnIndex: number): void {
     if (currentPreviewTabId.value === 'table') previewTableComponent.value?.scrollColumnIntoView(String(columnIndex));
 }
 
-// Previous and Next step through the columns the current tab shows: the item's own in the table, and the rows of the
-// Columns tab, which can leave out empty unit columns. The table scrolls to keep the chosen column's name in view.
+// Previous and Next step through the table's columns, which are the item's own. The table scrolls to keep the chosen
+// column's name in view.
 function handleStepColumn(direction: -1 | 1): void {
     const stepIndex = selectedColumnStepIndex.value;
     if (stepIndex == null) return;
     const nextStepIndex = stepIndex + direction;
-    const nextColumnIndex = nextStepIndex < 0 ? undefined : steppedColumnIndexes.value.at(nextStepIndex); // 'at' would read a negative index from the end.
+    const nextColumnIndex = nextStepIndex < 0 ? undefined : tableColumnIndexes.value.at(nextStepIndex); // 'at' would read a negative index from the end.
     if (nextColumnIndex == null) return;
     selectedColumnIndex.value = nextColumnIndex;
     if (currentPreviewTabId.value === 'table') previewTableComponent.value?.scrollColumnIntoView(String(nextColumnIndex));
@@ -1483,14 +1445,6 @@ function constructColumnTypeIcon(columnId: string): Component | undefined {
     return columnConfig == null ? undefined : getColumnTypeIcon(columnConfig);
 }
 
-// The Columns tab's type and subtype cells carry their icon. Other cells have none.
-function constructPreviewColumnCellIcon(columnId: string, rowIndex: number): Component | undefined {
-    const columnIndex = shownColumnIndexes.value.at(rowIndex);
-    const columnIcons = columnIndex === undefined ? undefined : previewColumnIcons.value.at(columnIndex);
-    if (columnId === 'dataTypeLabel') return columnIcons?.dataTypeIcon;
-    return columnId === 'dataSubtypeLabel' ? columnIcons?.dataSubtypeIcon : undefined;
-}
-
 function addColumnTypesResetIssue(itemReading: ItemReading): ItemReading {
     const issue: SampleIssue = { id: COLUMN_TYPES_RESET_ISSUE_ID, lineNumber: undefined, message: 'The column types were reset by the new reading.', severityId: 'info' };
     return { ...itemReading, issues: [...(itemReading.issues ?? []), issue] };
@@ -1547,7 +1501,7 @@ function sortOptionsByLabel(options: SelectOption[]): SelectOption[] {
 function isPreviewTabDisabled(previewTabId: PreviewTabId): boolean {
     const itemReading = activeItemReading.value;
     return (
-        (previewTabId === 'table' || previewTabId === 'columns') &&
+        previewTabId === 'table' &&
         itemReading != null &&
         (sampleHasErrorIssue.value || itemReading.parsedRecords.length === 0 || !READABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId))
     );
@@ -1853,8 +1807,7 @@ function showPreviewColumns(itemReading: ItemReading): void {
 function establishFirstPreviewTabId(itemReading: ItemReading): PreviewTabId {
     const requestedColumnIndex = (history.state as { columnIndex?: number } | null)?.columnIndex;
     if (requestedColumnIndex != null) {
-        selectedColumnIndex.value = requestedColumnIndex; // Sent here to check this column.
-        return 'columns';
+        selectedColumnIndex.value = requestedColumnIndex; // Sent here to check this column, whose detail opens over the table.
     }
     const tableIsUsable = itemReading.parsedRecords.length > 0 && (itemReading.issues ?? []).every((issue) => issue.severityId !== 'error');
     return tableIsUsable && TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId) ? 'table' : 'text';
@@ -2415,12 +2368,11 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             <ColumnDetailPanel
                                 v-if="selectedColumnIndex != null && activeItemReading != null"
                                 class="pointer-events-auto absolute inset-0 bg-surface shadow-md"
-                                can-step-columns
                                 :column-index="selectedColumnIndex"
                                 :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
                                 :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
                                 :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
-                                :has-next-column="selectedColumnStepIndex != null && selectedColumnStepIndex < steppedColumnIndexes.length - 1"
+                                :has-next-column="selectedColumnStepIndex != null && selectedColumnStepIndex < tableColumnIndexes.length - 1"
                                 :has-previous-column="selectedColumnStepIndex != null && selectedColumnStepIndex > 0"
                                 :is-type-disabled="readChoicesAreLocked || isDerivedColumn(activeItemReading.columnConfigs[selectedColumnIndex]!)"
                                 :item-reading="activeItemReading"
@@ -2435,73 +2387,6 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             />
                         </Transition>
                     </div>
-                </div>
-                <!-- Columns ─ 'v-if', so the table measures its space when it opens rather than while hidden. With a column's
-                     detail open the table drops back to its names, and 'v-show' keeps its scroll position where the
-                     detail fills the space. -->
-                <label v-if="currentPreviewTabId === 'columns' && emptyUnitColumnCount > 0" class="flex flex-none items-center gap-x-1.5 px-page pt-1 text-xs text-muted">
-                    <input v-model="emptyUnitColumnsAreShown" class="size-3.5 rounded accent-accent" type="checkbox" />
-                    {{ t(TEXT, 'emptyUnitColumns.label', { count: emptyUnitColumnCount }) }}
-                </label>
-                <div v-if="currentPreviewTabId === 'columns' && activeItemReading != null" ref="columnsPane" class="flex min-h-0 flex-1 overflow-hidden">
-                    <Table
-                        v-show="selectedColumnIndex == null || !columnDetailFillsSpace"
-                        :class="selectedColumnIndex == null ? 'min-w-0 flex-1' : 'w-57 flex-none'"
-                        :column-definitions="previewColumnTableColumnDefinitions"
-                        :data-source="previewColumnTableDataSource"
-                        :is-collapsed-to-pinned="selectedColumnIndex != null"
-                        is-column-menu-hidden
-                        is-column-picker-hidden
-                        :label="t(TEXT, 'detail.columns.title')"
-                        :pinned-column-ids="['label']"
-                        :scroll-area-padding-bottom="PREVIEW_SCROLL_PADDING_BOTTOM"
-                        :selected-row-index="selectedColumnRowIndex"
-                    >
-                        <template #cell-icon="{ columnId, rowIndex }">
-                            <component :is="constructPreviewColumnCellIcon(columnId, rowIndex)" aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
-                        </template>
-                        <!-- Column Name ─ The button's overlay covers the whole cell, so anywhere on the row selects the column,
-                             while the name stays the button's accessible name. -->
-                        <template #pinned-cell="{ rowIndex, value }">
-                            <ActionWrapper
-                                :aria-current="rowIndex === selectedColumnRowIndex ? 'true' : undefined"
-                                class="min-w-0 truncate text-left text-sm text-accent after:absolute after:inset-0 hover:underline"
-                                @click="selectedColumnIndex = shownColumnIndexes[rowIndex]"
-                                >{{ value }}</ActionWrapper
-                            >
-                            <TriangleAlertIcon
-                                v-if="columnRowsNeedingAttention.has(shownColumnIndexes[rowIndex] ?? -1)"
-                                :aria-label="t(TEXT, 'column.attention.aria')"
-                                class="size-4 flex-none text-warning-text"
-                                role="img"
-                                :stroke-width="1.5"
-                            />
-                        </template>
-                    </Table>
-                    <!-- Column Detail ─ Slides in from the right, beside the names that choose it. -->
-                    <Transition name="dpuse-slide-from-right">
-                        <ColumnDetailPanel
-                            v-if="selectedColumnIndex != null"
-                            class="min-w-0 flex-1 border-l border-separator"
-                            :can-step-columns="columnDetailFillsSpace"
-                            :column-index="selectedColumnIndex"
-                            :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
-                            :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
-                            :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
-                            :has-next-column="selectedColumnStepIndex != null && selectedColumnStepIndex < steppedColumnIndexes.length - 1"
-                            :has-previous-column="selectedColumnStepIndex != null && selectedColumnStepIndex > 0"
-                            :null-word-reading="constructNullWordReading(String(selectedColumnIndex))"
-                            :is-type-disabled="readChoicesAreLocked || isDerivedColumn(activeItemReading.columnConfigs[selectedColumnIndex]!)"
-                            :item-reading="activeItemReading"
-                            :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
-                            :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
-                            @close="selectedColumnIndex = undefined"
-                            @step="handleStepColumn"
-                            @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
-                            @update:null-words-are-empty="handleSelectNullWords(String(selectedColumnIndex), $event)"
-                            @update:type-value="handleSelectColumnType(String(selectedColumnIndex), $event)"
-                        />
-                    </Transition>
                 </div>
                 <TextViewer
                     v-show="currentPreviewTabId === 'text' && activeItemReading != null && !previewIsMarkdown"

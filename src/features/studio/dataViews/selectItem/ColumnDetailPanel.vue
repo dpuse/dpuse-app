@@ -49,7 +49,6 @@ const FORMAT_ROW_COUNT = 50; // Bars on the Formats tab. A rare format is often 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const {
-    canStepColumns,
     columnIndex,
     decimalSeparatorOptions = [],
     decimalSeparatorValue,
@@ -62,7 +61,6 @@ const {
     typeOptions,
     typeValue
 } = defineProps<{
-    canStepColumns?: boolean; // Filling the space hides the table, so Previous and Next take its place.
     columnIndex: number;
     decimalSeparatorOptions?: SelectOption[]; // Only a column of numbers has any.
     decimalSeparatorValue?: string;
@@ -241,19 +239,52 @@ const axisNumberFormat = computed(() => {
     return new Intl.NumberFormat(localeId.value, { maximumSignificantDigits: significantDigits, notation: 'compact' });
 });
 const hasValueBins = computed(() => histogramBars.value.length > 0);
+
+// Text and true/false values as a rank chart: one bar per distinct value, most frequent first, so the chart shows
+// whether they are spread evenly, lean on a few or trail off into many rare ones. Only the most and least frequent
+// values come with their names, so the bars between them are named by their place. The axis gives the highest and
+// lowest counts.
+const rankBars = computed((): ValueHistogramBar[] => {
+    const counts: number[] = columnConfig.value?.rankedValueCounts ?? [];
+    const numberFormat = new Intl.NumberFormat(localeId.value);
+    const names = new Map<number, string>();
+    const mostFrequentNames = Object.keys(columnConfig.value?.frequentValues ?? {});
+    const leastFrequentNames = Object.entries(columnConfig.value?.leastFrequentValues ?? {})
+        .toSorted((left, right) => left[1] - right[1])
+        .map(([value]) => value);
+    for (const [index, value] of mostFrequentNames.entries()) names.set(index, value);
+    for (const [index, value] of leastFrequentNames.entries()) names.set(counts.length - 1 - index, value);
+    const total = numberFormat.format(counts.length);
+    return counts.map((count, index) => ({
+        count,
+        countText: numberFormat.format(count),
+        endText: index === counts.length - 1 ? numberFormat.format(count) : '',
+        key: String(index),
+        label: names.get(index) ?? t(TEXT, 'rank.label', { rank: numberFormat.format(index + 1), total }),
+        startText: index === 0 ? numberFormat.format(count) : ''
+    }));
+});
 // ── Edges ─ The lowest and highest valid values for every column, text in alphabetical order, which the engine keeps
-// exactly however many values there are.
+// exactly however many values there are. When both lists hold the same values, the column has no more than either
+// holds, so one list in ascending order shows them all.
 const edgeChartLists = computed(() => {
     const config = columnConfig.value;
-    const lists = [
-        { icon: ArrowDownNarrowWideIcon, id: 'lowest', label: t(TEXT, 'lowest.title'), values: config?.lowestValues?.slice(0, EDGE_VALUE_COUNT) ?? [] },
-        { icon: ArrowDownWideNarrowIcon, id: 'highest', label: t(TEXT, 'highest.title'), values: config?.highestValues?.slice(0, EDGE_VALUE_COUNT) ?? [] }
-    ];
+    const lowestValues = config?.lowestValues?.slice(0, EDGE_VALUE_COUNT) ?? [];
+    const highestValues = config?.highestValues?.slice(0, EDGE_VALUE_COUNT) ?? [];
+    const lowestLabels = new Set(lowestValues.map(([value]) => value));
+    const isEveryValue = lowestValues.length === highestValues.length && highestValues.every(([value]) => lowestLabels.has(value));
+    const lists = isEveryValue
+        ? [{ icon: ArrowDownNarrowWideIcon, id: 'all', label: t(TEXT, 'inOrder.title'), values: lowestValues }]
+        : [
+              { icon: ArrowDownNarrowWideIcon, id: 'lowest', label: t(TEXT, 'lowest.title'), values: lowestValues },
+              { icon: ArrowDownWideNarrowIcon, id: 'highest', label: t(TEXT, 'highest.title'), values: highestValues }
+          ];
     const largestCount = Math.max(0, ...lists.flatMap((list) => list.values.map(([, count]) => count)));
     const numberFormat = new Intl.NumberFormat(localeId.value);
     return lists
         .filter((list) => list.values.length > 0)
         .map(({ icon, id, label, values }) => ({
+            countText: isEveryValue ? t(TEXT, 'edgeCount.all.text', { count: numberFormat.format(values.length) }) : constructEdgeCountText(values.length),
             icon,
             id,
             label,
@@ -391,6 +422,15 @@ function formatBinValue(value: string): string {
     return Number.isNaN(number) || /^\d{4}-\d{2}-\d{2}$/u.test(value) ? value : new Intl.NumberFormat(localeId.value, { maximumSignificantDigits: 12 }).format(number);
 }
 
+// How many of the values a lowest or highest list shows: of how many distinct ones, or just how many when there were
+// too many to count.
+function constructEdgeCountText(shownCount: number): string {
+    const numberFormat = new Intl.NumberFormat(localeId.value);
+    const distinctCount = validDistinctValueCount.value;
+    const shown = numberFormat.format(shownCount);
+    return distinctCount == null ? t(TEXT, 'edgeCount.shown.text', { shown }) : t(TEXT, 'edgeCount.text', { distinctCount: numberFormat.format(distinctCount), shown });
+}
+
 // '4 whole digits', '1 decimal place' or '0 to 2 decimal places'.
 function constructDigitRangeText(subject: 'decimalPlaces' | 'wholeDigits', minimum: number, maximum: number): string {
     const numberFormat = new Intl.NumberFormat(localeId.value);
@@ -507,19 +547,17 @@ function constructValueChartRows(
             </div>
 
             <div class="flex flex-none items-center gap-x-2">
-                <template v-if="canStepColumns">
-                    <ActionWrapper
-                        :aria-label="t(TEXT, 'previous.aria')"
-                        class="rounded-md p-1 enabled:hover:state-hover"
-                        :disabled="!hasPreviousColumn"
-                        @click="emit('step', -1)"
-                    >
-                        <ChevronLeftIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
-                    </ActionWrapper>
-                    <ActionWrapper :aria-label="t(TEXT, 'next.aria')" class="rounded-md p-1 enabled:hover:state-hover" :disabled="!hasNextColumn" @click="emit('step', 1)">
-                        <ChevronRightIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
-                    </ActionWrapper>
-                </template>
+                <ActionWrapper
+                    :aria-label="t(TEXT, 'previous.aria')"
+                    class="rounded-md p-1 enabled:hover:state-hover"
+                    :disabled="!hasPreviousColumn"
+                    @click="emit('step', -1)"
+                >
+                    <ChevronLeftIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
+                </ActionWrapper>
+                <ActionWrapper :aria-label="t(TEXT, 'next.aria')" class="rounded-md p-1 enabled:hover:state-hover" :disabled="!hasNextColumn" @click="emit('step', 1)">
+                    <ChevronRightIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
+                </ActionWrapper>
                 <!-- '-mr-1.75' cancels the button's padding, so its icon lines up with the page edge as the toolbar's
                      icons do. -->
                 <CloseButton :accessible-label="t(TEXT, 'close.aria')" class="-mr-1.75" @click="emit('close')" />
@@ -615,6 +653,11 @@ function constructValueChartRows(
                     <p v-else-if="hasTooManyValues" class="mt-1 mb-0 text-muted">
                         {{ t(TEXT, 'tooManyValues.text', { limit: new Intl.NumberFormat(localeId).format(COUNTED_VALUE_LIMIT) }) }}
                     </p>
+                    <template v-else-if="rankBars.length > 0">
+                        <p v-if="uniformCountText" class="mt-1 mb-0 text-muted">{{ uniformCountText }}</p>
+                        <ValueHistogram :bar-color-class="VALID_BAR_COLOR_CLASS" :bars="rankBars" class="mt-2" :label="t(TEXT, 'rankChart.aria')" />
+                    </template>
+                    <!-- An audit from before the ranked counts were kept shows the most frequent values instead. -->
                     <p v-else-if="uniformCountText" class="mt-1 mb-0 text-muted">{{ uniformCountText }}</p>
                     <CountBarList v-else :bar-color-class="VALID_BAR_COLOR_CLASS" class="mt-1.5" :rows="frequencyRows" />
                 </section>
@@ -627,7 +670,7 @@ function constructValueChartRows(
                         :key="list.id"
                         class="not-first:border-t not-first:border-separator not-first:pt-3 @xl:not-first:border-t-0 @xl:not-first:pt-0"
                     >
-                        <SectionHeading :icon="list.icon" :subtitle="list.label" :title="t(TEXT, 'validValues.title')" />
+                        <SectionHeading :count-text="list.countText" :icon="list.icon" :subtitle="list.label" :title="t(TEXT, 'validValues.title')" />
                         <CountBarList :bar-color-class="VALID_BAR_COLOR_CLASS" class="mt-1.5" :rows="list.rows" />
                     </section>
                 </div>

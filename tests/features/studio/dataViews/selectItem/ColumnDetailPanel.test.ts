@@ -7,7 +7,6 @@ import type { ObjectColumnConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import ColumnDetailPanel from '@/features/studio/dataViews/selectItem/ColumnDetailPanel.vue';
-import { constructPreviewColumnHeaders } from '@/features/studio/dataViews/_previewColumnRows';
 import type { ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
 import { t } from '@/state/locale';
 import { TEXT } from '@/features/studio/dataViews/selectItem/ColumnDetailPanel_.json';
@@ -215,14 +214,32 @@ describe('ColumnDetailPanel', () => {
             validValueCount: 6
         });
         const wrapper = mountPanel([column]);
-
-        expect(wrapper.find('[role="tabpanel"]').text()).not.toContain(constructPreviewColumnHeaders().minValueText);
         await openTab(wrapper, t(TEXT, 'tab.values.label'));
         expect(findHeadingTitles(wrapper)).toStrictEqual([
             `${t(TEXT, 'validValues.title')} – ${t(TEXT, 'distribution.title')}`,
             `${t(TEXT, 'validValues.title')} – ${t(TEXT, 'lowest.title')}`,
             `${t(TEXT, 'validValues.title')} – ${t(TEXT, 'highest.title')}`
         ]);
+        expect(findHeadings(wrapper)[1]?.[1]).toBe(t(TEXT, 'edgeCount.text', { distinctCount: '3', shown: '1' }));
+    });
+
+    it('charts how often each text value is seen, most frequent first, naming the bars it can', async () => {
+        const column = buildColumn({
+            dataTypeId: 'string',
+            distinctValueCount: 5,
+            frequentValues: { GBR: 5 },
+            leastFrequentValues: { USA: 1 },
+            rankedValueCounts: [5, 4, 3, 2, 1],
+            validValueCount: 15
+        });
+        const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
+        const barTexts = wrapper.findAll('[data-region="ValueHistogram"] li .sr-only').map((bar) => bar.text());
+
+        expect(barTexts).toHaveLength(5);
+        expect(barTexts[0]).toContain('GBR');
+        expect(barTexts[2]).toContain(t(TEXT, 'rank.label', { rank: '3', total: '5' }));
+        expect(barTexts[4]).toContain('USA');
+        expect(findAxisEnds(wrapper)).toStrictEqual(['5', '1']);
     });
 
     it('lists only the lowest and highest text values when there are too many to count', async () => {
@@ -274,6 +291,29 @@ describe('ColumnDetailPanel', () => {
         expect(wrapper.findAll('[role="tabpanel"] ul li').map((row) => row.text())).toStrictEqual(['11', '12.51']);
     });
 
+    it('shows one list in ascending order when the lowest and highest hold the same values', async () => {
+        const values: [string, number][] = [
+            ['1', 2],
+            ['5', 1],
+            ['9', 3]
+        ];
+        const column = buildColumn({
+            frequentValues: {},
+            highestValues: values.toReversed(),
+            lowestValues: values,
+            validValueCount: 6,
+            valueBins: [{ count: 6, lowerValue: '0', upperValue: '10' }]
+        });
+        const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
+
+        expect(findHeadingTitles(wrapper)).toStrictEqual([
+            `${t(TEXT, 'validValues.title')} – ${t(TEXT, 'distribution.title')}`,
+            `${t(TEXT, 'validValues.title')} – ${t(TEXT, 'inOrder.title')}`
+        ]);
+        expect(wrapper.findAll('[role="tabpanel"] section ul li').map((row) => row.text())).toStrictEqual(['12', '51', '93']);
+        expect(findHeadings(wrapper)[1]?.[1]).toBe(t(TEXT, 'edgeCount.all.text', { count: '3' }));
+    });
+
     it('shows the twenty lowest and highest values under the histogram when the list cannot hold every value', async () => {
         const values = Array.from({ length: 25 }, (_, index): [string, number] => [String(index), 1]);
         const column = buildColumn({
@@ -291,6 +331,11 @@ describe('ColumnDetailPanel', () => {
             `${t(TEXT, 'validValues.title')} – ${t(TEXT, 'lowest.title')}`,
             `${t(TEXT, 'validValues.title')} – ${t(TEXT, 'highest.title')}`
         ]);
+        expect(
+            findHeadings(wrapper)
+                .slice(1)
+                .map(([, countText]) => countText)
+        ).toStrictEqual([t(TEXT, 'edgeCount.shown.text', { shown: '20' }), t(TEXT, 'edgeCount.shown.text', { shown: '20' })]);
         const [lowestList, highestList] = wrapper.findAll('[role="tabpanel"] section ul');
 
         expect(lowestList.findAll('li').map((row) => row.text())).toStrictEqual(Array.from({ length: 20 }, (_, index) => `${String(index)}1`));
@@ -382,7 +427,6 @@ describe('ColumnDetailPanel', () => {
         const wrapper = mountPanel([buildColumn({ distinctValueCount: 1, frequentValues: { London: 2 }, validValueCount: 2 })]);
 
         expect(wrapper.find('[role="tabpanel"]').text()).not.toContain('London');
-        expect(wrapper.find('[role="tabpanel"]').text()).not.toContain(constructPreviewColumnHeaders().distinctValueText);
         await openTab(wrapper, t(TEXT, 'tab.values.label'));
         expect(findHeadings(wrapper)[0]).toStrictEqual([
             `${t(TEXT, 'validValues.title')} – ${t(TEXT, 'distribution.title')}`,
@@ -411,8 +455,6 @@ describe('ColumnDetailPanel', () => {
 
     it('notes the shortest and longest lengths under the formats, not on the Overview', async () => {
         const wrapper = mountPanel([buildColumn({ dataTypeId: 'string', formats: { Xxxx: 2 }, maxSize: 12, minSize: 3 })]);
-
-        expect(wrapper.find('[role="tabpanel"]').text()).not.toContain(constructPreviewColumnHeaders().sizeText);
         await wrapper.findAll('[role="tab"]')[1]?.trigger('click');
         expect(wrapper.findAll('[role="tabpanel"] p').at(-1)?.text()).toBe(t(TEXT, 'length.text', { maximum: '12', minimum: '3' }));
     });
@@ -429,7 +471,6 @@ describe('ColumnDetailPanel', () => {
         const fixedColumn = buildColumn({ formats: { '9999': 2 }, maxDecimals: 0, maxWholeDigits: 4, minDecimals: 0, minWholeDigits: 4 });
 
         const rangeWrapper = mountPanel([rangeColumn]);
-        expect(rangeWrapper.find('[role="tabpanel"]').text()).not.toContain(constructPreviewColumnHeaders().wholeDigitText);
         await openTab(rangeWrapper, t(TEXT, 'tab.formats.label'));
         const fixedWrapper = await openTab(mountPanel([fixedColumn]), t(TEXT, 'tab.formats.label'));
 
@@ -488,16 +529,10 @@ describe('ColumnDetailPanel', () => {
         expect(wrapper.emitted('update:nullWordsAreEmpty')).toEqual([[true]]);
     });
 
-    it('offers Previous and Next only when the detail fills the space', () => {
-        expect(
-            mountPanel([buildColumn({})])
-                .find(`[aria-label="${t(TEXT, 'next.aria')}"]`)
-                .exists()
-        ).toBe(false);
-        expect(
-            mountPanel([buildColumn({})], { canStepColumns: true })
-                .find(`[aria-label="${t(TEXT, 'next.aria')}"]`)
-                .exists()
-        ).toBe(true);
+    it('offers Previous and Next, disabled at either end', () => {
+        const wrapper = mountPanel([buildColumn({})], { hasNextColumn: true });
+
+        expect(wrapper.find(`[aria-label="${t(TEXT, 'next.aria')}"]`).attributes('disabled')).toBeUndefined();
+        expect(wrapper.find(`[aria-label="${t(TEXT, 'previous.aria')}"]`).attributes('disabled')).toBeDefined();
     });
 });

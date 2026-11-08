@@ -94,17 +94,10 @@ describe('constructPreviewColumnRows', () => {
         });
 
         expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({
-            decimalText: '2',
-            distinctValueText: '2',
             formatText: '9999,9 (5), 9999 (3)',
-            frequentValueText: '7 (2)',
-            invalidSampleText: 'none',
             readingText: 'Decimal comma (unclear, check this column)',
-            requiredText: 'No',
             storageTypeLabel: '32-bit integer',
-            uniqueText: 'No',
-            validSampleText: '7, 12',
-            wholeDigitText: '1 to 2'
+            uniqueText: 'No'
         });
     });
 
@@ -132,18 +125,9 @@ describe('constructPreviewColumnRows', () => {
 
         expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({
             blankValueText: '1',
-            invalidValueText: '0',
             matchText: '100%',
-            missingValueText: '2',
-            validValueText: '4'
+            missingValueText: '2'
         });
-    });
-
-    it('says when a column held too many values to count, and leaves a preview read before counting blank', () => {
-        const measuredConfig = buildItemReading(false, { quotedValueCount: 0 });
-
-        expect(constructPreviewColumnRows(measuredConfig)[0]?.distinctValueText).toBe('Not counted');
-        expect(constructPreviewColumnRows(buildItemReading(false, {}))[0]?.distinctValueText).toBe('');
     });
 
     it('splits a column’s values by whether they fit its type, leaving out a header record', () => {
