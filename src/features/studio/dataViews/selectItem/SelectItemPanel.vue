@@ -384,7 +384,7 @@ const text = ref<string | undefined>();
 const documentScrollElement = shallowRef<HTMLElement>();
 
 // ── Trail
-const gridDetailPanelComponent = useTemplateRef<{ isNarrow: boolean; revealSelectedItem: () => void }>('gridDetailPanel'); // Typed by what it exposes, because 'GridDetailPanel' is generic.
+const gridDetailPanelComponent = useTemplateRef<{ detailPaneIsVisible: boolean; isNarrow: boolean; revealSelectedItem: () => void }>('gridDetailPanel'); // Typed by what it exposes, because 'GridDetailPanel' is generic.
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -690,6 +690,9 @@ const previewIsSelectable = computed(() => {
     const isOpenedAsTable = TEXT_DATA_FORMAT_IDS.has(itemReading.dataFormatId) && currentPreviewTabId.value === 'table';
     return TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId) || isOpenedAsTable;
 });
+
+// ── Explore ─ Why it is dimmed, shown as its tooltip.
+const exploreDisabledReason = computed(() => t(TEXT, auditIsRunning.value ? 'explore.auditRunning.text' : 'explore.noData.text'));
 
 // Names the format when there is one, which is every format the app has no reader for yet.
 const previewUnsupportedText = computed(() => {
@@ -1870,6 +1873,21 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
     <ErrorNotice v-if="listFailure" :failures="[listFailure]" @retry="handleRetryList" />
 
     <GridDetailPanel v-else ref="gridDetailPanel" :selected-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="320px">
+        <!-- Explore ─ In the header slot because it is always rendered. It stays in the pill, dimmed until an item that
+             is data has previewed and its audit has finished, because it is the step's way on. -->
+        <template #header>
+            <Teleport defer :to="`#${DATA_VIEW_STEP_ACTION_ID}`">
+                <PillSegment
+                    :disabled="itemFailure != null || !previewIsSelectable || auditIsRunning"
+                    :disabled-reason="exploreDisabledReason"
+                    :icon="ArrowRightIcon"
+                    is-step-action
+                    :label="t(TEXT, 'explore.label')"
+                    @click="handleMoveToExploreStep"
+                />
+            </Teleport>
+        </template>
+
         <template #item="{ item }">
             <!-- <ConfigCard v-if="item" :actions="[{ typeId: 'info', onClick: () => getInfo(item) }]" :config="item" :is-compact="true" @click="handleSelectConnectionNode(item)" /> -->
             <!-- The icon and the overline tell a folder, which opens, from an item, which is picked. The overline is not shown
@@ -2436,9 +2454,16 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         </StudioDocumentSection>
                     </StudioDocumentPanel>
                 </ScrollArea>
-                <!-- Scroll End Buttons ─ To the left of the pill, as in the data view document. -->
+                <!-- Scroll End Buttons ─ At the start of the data view's pill. Only while this detail is on screen, because
+                     on a narrow screen the list can cover it. -->
                 <Teleport defer :to="`#${DATA_VIEW_SCROLL_ACTIONS_ID}`">
-                    <ScrollEndButtons v-if="currentPreviewTabId === 'details'" :scroll-element="documentScrollElement" />
+                    <Transition name="dpuse-pill-segment">
+                        <ScrollEndButtons
+                            v-if="currentPreviewTabId === 'details' && gridDetailPanelComponent?.detailPaneIsVisible === true"
+                            is-in-pill
+                            :scroll-element="documentScrollElement"
+                        />
+                    </Transition>
                 </Teleport>
             </div>
             <!-- Status Bar ─ In the safe area along the bottom of a device that has one, and 24px high in the page
@@ -2491,23 +2516,6 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
             </div>
         </template>
 
-        <template #detail-action>
-            <!-- Shown once a preview arrives, because the preview is what the draft holds with the item. A first
-                 preview that fails therefore never shows the button. Moving on from an item that previewed keeps the
-                 button in place while the next one loads, rather than making it blink. Disabled while the preview is
-                 not data, or while saving. -->
-            <Teleport defer :to="`#${DATA_VIEW_STEP_ACTION_ID}`">
-                <PillSegment
-                    v-if="itemFailure == null && (activeItemReading != null || (previewIsPending && hasLastPreviewSucceeded))"
-                    :disabled="!previewIsSelectable || auditIsRunning"
-                    :icon="ArrowRightIcon"
-                    is-separated
-                    is-step-action
-                    :label="t(TEXT, 'explore.label')"
-                    @click="handleMoveToExploreStep"
-                />
-            </Teleport>
-        </template>
 
         <template #no-selection>
             {{ infoString }}

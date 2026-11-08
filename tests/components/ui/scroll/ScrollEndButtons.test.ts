@@ -23,8 +23,8 @@ function buildScrollElement(scrollTop: number, scrollHeight: number): HTMLElemen
     return element;
 }
 
-async function mountButtons(scrollElement: HTMLElement): Promise<ReturnType<typeof mount>> {
-    const wrapper = mount(ScrollEndButtons, { props: { scrollElement: undefined } });
+async function mountButtons(scrollElement: HTMLElement, isInPill = false): Promise<ReturnType<typeof mount>> {
+    const wrapper = mount(ScrollEndButtons, { props: { isInPill, scrollElement: undefined } });
     await wrapper.setProps({ scrollElement });
     scrollElement.dispatchEvent(new Event('scroll'));
     await nextTick();
@@ -85,5 +85,12 @@ describe('ScrollEndButtons', () => {
 
         await wrapper.get('button[aria-label="Scroll to top"]').trigger('click');
         expect(scrollTo).toHaveBeenLastCalledWith(expect.objectContaining({ top: 0 }));
+    });
+
+    it('in a pill, keeps both buttons and disables the one at its end', async () => {
+        const wrapper = await mountButtons(buildScrollElement(0, 1000), true);
+
+        expect(wrapper.get('button[aria-label="Scroll to top"]').attributes('disabled')).toBeDefined();
+        expect(wrapper.get('button[aria-label="Scroll to bottom"]').attributes('disabled')).toBeUndefined();
     });
 });

@@ -14,7 +14,6 @@ import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
 import type { DataSource } from '@/composables/useDataWindow';
 import { defineLazyComponent } from '@/utilities/index.ts';
 import { ignoreReportedNavigationFailure } from '@/router';
-import { PILL_CLASSES } from '@/components/ui/action/action';
 import { TEXT } from './SelectConnectionList_.json';
 import { useDialogs } from '@/state/dialogs';
 import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
@@ -87,14 +86,14 @@ const pickedConnectionLocalisedConfig = computed(() => findConnectionLocalisedCo
 // Cards here carry actions, which take a second row.
 const cardRowHeight = useCardRowHeight(true);
 
-// ── Add Pill ─ Under the list, as on the data view list. When the list fills the pane, that spot is under the Discard
-// and Save pill, so the add pill moves into the bottom row beside it. It goes with the list when a detail replaces it.
+// ── Add Pill ─ Under the list, as on the data view list. When the list fills the pane, that spot is under the data
+// view's pill, so the add action joins that pill instead. It goes with the list when a detail replaces it.
 const addPillIsInActionRow = computed(() => gridDetailPanelComponent.value?.isNarrow === true);
 const addPillIsShownInActionRow = computed(() => addPillIsInActionRow.value && gridDetailPanelComponent.value?.gridPaneIsVisible === true);
 
-// ── Detail Actions ─ Select and the scroll buttons act on the detail, so they go when the list covers it. Beside the
-// list, the bottom row must fit inside the detail pane, or it would run into the list's add pill. A narrow pane leaves
-// the labels to the row's own width.
+// ── Detail Actions ─ The scroll buttons act on the detail, so they go when the list covers it. Beside the list, the
+// pill must fit inside the detail pane, or it would run into the list's add pill. A narrow pane leaves the labels to the
+// row's own width.
 const detailActionsAreShown = computed(() => gridDetailPanelComponent.value?.detailPaneIsVisible === true);
 const actionLabelsAreHidden = computed(() => !addPillIsInActionRow.value && connectionPanelWidth.value > 0 && connectionPanelWidth.value < LABELLED_ACTIONS_MIN_WIDTH_PX);
 
@@ -222,11 +221,24 @@ function pickConnection(connectionId: string): void {
         :target-column-width="340"
         @add="handleAddConnection"
     >
+        <!-- Pill Actions ─ In the header slot because it is always rendered. Select stays in the pill, dimmed until a
+             connection is picked, because it is the step's way on. -->
         <template #header>
             <Teleport defer :to="`#${DATA_VIEW_ADD_ACTION_ID}`">
-                <div v-if="addPillIsShownInActionRow" class="flex h-10 overflow-hidden shadow-md" :class="PILL_CLASSES">
-                    <PillSegment :icon="PlusIcon" :label="t(TEXT, 'connection.label')" @click="handleAddConnection" />
-                </div>
+                <Transition name="dpuse-pill-segment">
+                    <PillSegment v-if="addPillIsShownInActionRow" :icon="PlusIcon" :label="t(TEXT, 'connection.label')" @click="handleAddConnection" />
+                </Transition>
+            </Teleport>
+            <Teleport defer :to="`#${DATA_VIEW_STEP_ACTION_ID}`">
+                <PillSegment
+                    :disabled="pickedConnectionId == null"
+                    :disabled-reason="t(TEXT, 'detail.select.disabled.text')"
+                    :icon="ArrowRightIcon"
+                    :is-label-hidden="actionLabelsAreHidden"
+                    is-step-action
+                    :label="t(TEXT, 'detail.select.label')"
+                    @click="handleMoveToItemStep"
+                />
             </Teleport>
         </template>
 
@@ -264,20 +276,6 @@ function pickConnection(connectionId: string): void {
                 @cancel="cancelRemoval"
                 @confirm="confirmRemoval"
             />
-        </template>
-
-        <template #detail-action>
-            <Teleport defer :to="`#${DATA_VIEW_STEP_ACTION_ID}`">
-                <PillSegment
-                    v-if="detailActionsAreShown"
-                    :icon="ArrowRightIcon"
-                    :is-label-hidden="actionLabelsAreHidden"
-                    is-separated
-                    is-step-action
-                    :label="t(TEXT, 'detail.select.label')"
-                    @click="handleMoveToItemStep"
-                />
-            </Teleport>
         </template>
 
         <template #no-items>

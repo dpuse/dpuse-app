@@ -185,9 +185,11 @@ async function testAuth(): Promise<void> {
             </StudioDocumentPanel>
         </ScrollArea>
 
-        <!-- Scroll End Buttons ─ To the left of the pill, as on the item step. -->
+        <!-- Scroll End Buttons ─ At the start of the data view's pill, as on the item step. -->
         <Teleport defer :to="`#${DATA_VIEW_SCROLL_ACTIONS_ID}`">
-            <ScrollEndButtons v-if="scrollEndButtonsAreShown" :scroll-element="documentScrollElement" />
+            <Transition name="dpuse-pill-segment">
+                <ScrollEndButtons v-if="scrollEndButtonsAreShown" is-in-pill :scroll-element="documentScrollElement" />
+            </Transition>
         </Teleport>
     </StudioDetailLayout>
 

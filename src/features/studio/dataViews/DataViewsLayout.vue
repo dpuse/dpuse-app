@@ -141,6 +141,9 @@ const summaryAndTaskBarArePending = computed(() => headerTitleIsPending.value ||
 // place when the panel changes.
 const taskPanelIsLoading = computed(() => navigationPendingDepth.value === 1);
 
+// ── Save ─ Why it is dimmed, shown as its tooltip. A change of connection or item cannot be saved until an item is open.
+const saveDisabledReason = computed(() => t(TEXT, dataViewHasChanges.value ? 'save.noItem.text' : 'save.noChanges.text'));
+
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 useUnsavedWork(dataViewHasChanges); // A draft is lost by a reload, because only Save stores it.
@@ -348,26 +351,44 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
             </RouterViewTransition>
         </RetrievalGate>
 
-        <!-- Actions ─ One row along the bottom on every step: the step's scroll buttons, its add pill, the pill holding
-             Discard, Save and the step's own action, then any control of the step's own. Steps place theirs here with
-             'Teleport', so each moves with the width of the others, and the row is always in the page for them to find.
-             Labels depend on the pane's width, not the screen's, because the splitter resizes the pane. -->
+        <!-- Actions ─ One row along the bottom on every step: one pill, then any control of the step's own. The pill
+             holds the step's scroll buttons, its add action, Discard, Save and the step's own action, which the steps
+             place with 'Teleport'. Segments that come and go grow and shrink, so the pill widens and narrows around
+             them. Labels depend on the pane's width, not the screen's, because the splitter resizes the pane. -->
         <div
             v-show="routeIsTask"
             class="@container pointer-events-none absolute inset-x-0 bottom-(--safe-bottom-offset) z-10 flex items-center justify-end gap-x-2 pr-6"
             data-region="DataViewActions"
         >
-            <div :id="DATA_VIEW_SCROLL_ACTIONS_ID" class="pointer-events-auto contents" />
-            <div :id="DATA_VIEW_ADD_ACTION_ID" class="pointer-events-auto contents" />
-            <div class="pointer-events-auto flex h-10 overflow-hidden shadow-md" :class="PILL_CLASSES" data-region="DataViewPill">
-                <PillSegment :disabled="!dataViewHasChanges" :icon="CircleXIcon" :is-label-hidden="dataViewActionLabelsAreHidden" :label="t(TEXT, 'discard.label')" @click="handleDiscardDataView" />
-                <PillSegment
-                    :disabled="!dataViewCanBeSaved || dataViewIsSaving"
-                    :icon="SaveIcon"
-                    :is-label-hidden="dataViewActionLabelsAreHidden"
-                    is-separated
-                    :label="t(TEXT, 'save.label')" @click="handleSaveDataView" />
-                <div :id="DATA_VIEW_STEP_ACTION_ID" class="contents" />
+            <!-- '-ml-px' moves the first segment's dividing line under the pill's border, whichever segment is first. -->
+            <div
+                :aria-label="t(TEXT, 'actions.aria')"
+                class="pointer-events-auto h-10 overflow-hidden shadow-md"
+                :class="PILL_CLASSES"
+                data-region="DataViewPill"
+                role="group"
+            >
+                <div class="-ml-px flex h-full">
+                    <div :id="DATA_VIEW_SCROLL_ACTIONS_ID" class="contents" />
+                    <div :id="DATA_VIEW_ADD_ACTION_ID" class="contents" />
+                    <PillSegment
+                        :disabled="!dataViewHasChanges"
+                        :disabled-reason="t(TEXT, 'discard.noChanges.text')"
+                        :icon="CircleXIcon"
+                        :is-label-hidden="dataViewActionLabelsAreHidden"
+                        :label="t(TEXT, 'discard.label')"
+                        @click="handleDiscardDataView"
+                    />
+                    <PillSegment
+                        :disabled="!dataViewCanBeSaved || dataViewIsSaving"
+                        :disabled-reason="dataViewIsSaving ? undefined : saveDisabledReason"
+                        :icon="SaveIcon"
+                        :is-label-hidden="dataViewActionLabelsAreHidden"
+                        :label="t(TEXT, 'save.label')"
+                        @click="handleSaveDataView"
+                    />
+                    <div :id="DATA_VIEW_STEP_ACTION_ID" class="contents" />
+                </div>
             </div>
             <div :id="DATA_VIEW_SIDE_ACTION_ID" class="pointer-events-auto contents" />
         </div>

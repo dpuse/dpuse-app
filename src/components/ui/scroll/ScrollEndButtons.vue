@@ -11,10 +11,12 @@ import { PILL_CLASSES, PILL_FILL_CLASSES } from '@/components/ui/action/action';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
+import PillSegment from '@/components/ui/action/PillSegment.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { scrollElement } = defineProps<{
+const { isInPill, scrollElement } = defineProps<{
+    isInPill?: boolean; // Two segments of a pill that holds other actions, rather than two round buttons of their own.
     scrollElement: HTMLElement | undefined; // Undefined until the 'ScrollArea' reports its element.
 }>();
 
@@ -42,7 +44,12 @@ function handleScrollToBottom(): void {
 </script>
 
 <template>
-    <div class="flex gap-x-2" data-region="ScrollEndButtons">
+    <!-- In a Pill ─ Each is disabled at its own end rather than hidden, so the pill keeps its shape. -->
+    <div v-if="isInPill" class="flex h-full" data-region="ScrollEndButtons">
+        <PillSegment :disabled="arrivedState.top" :icon="ArrowUpIcon" is-label-hidden :label="t(TEXT, 'top.aria')" @click="handleScrollToTop" />
+        <PillSegment :disabled="arrivedState.bottom" :icon="ArrowDownIcon" is-label-hidden :label="t(TEXT, 'bottom.aria')" @click="handleScrollToBottom" />
+    </div>
+    <div v-else class="flex gap-x-2" data-region="ScrollEndButtons">
         <!-- 'invisible' rather than 'v-if', so each button keeps its place while the other comes and goes. -->
         <ActionWrapper
             :aria-label="t(TEXT, 'top.aria')"

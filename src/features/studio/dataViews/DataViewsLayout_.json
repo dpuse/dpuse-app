@@ -29,11 +29,13 @@
         }
     ],
     "TEXT": {
+        "actions.aria": { "en": "Data view actions", "es": "Acciones de la vista de datos" },
         "dataView.failed.title": { "en": "Data View Unavailable", "es": "Vista de datos no disponible" },
         "dataView.new.title": { "en": "New Data View", "es": "Nueva vista de datos" },
         "dataView.pending.title": { "en": "Loading…", "es": "Cargando…" },
         "discard.label": { "en": "Discard", "es": "Descartar" },
         "discard.new.text": { "en": "This data view has not been saved, so it will be lost.", "es": "Esta vista de datos no se ha guardado, así que se perderá." },
+        "discard.noChanges.text": { "en": "No changes to discard", "es": "No hay cambios que descartar" },
         "discard.stay.label": { "en": "Stay", "es": "Quedarse" },
         "discard.text": { "en": "Your changes will be lost, and the saved data view stays as it was.", "es": "Tus cambios se perderán y la vista de datos guardada quedará como estaba." },
         "discard.title": { "en": "Discard Changes?", "es": "¿Descartar los cambios?" },
@@ -45,6 +47,8 @@
         "itemTask.table.label": { "en": "Select Table", "es": "Seleccionar tabla" },
         "itemTask.table.short.label": { "en": "Table", "es": "tabla" },
         "save.label": { "en": "Save", "es": "Guardar" },
+        "save.noChanges.text": { "en": "No changes to save", "es": "No hay cambios que guardar" },
+        "save.noItem.text": { "en": "Open an item before saving", "es": "Abre un elemento antes de guardar" },
         "studio.label": { "en": "Studio", "es": "Estudio" }
     }
 }

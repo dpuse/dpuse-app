@@ -459,6 +459,32 @@
     }
 }
 
+/* A segment joining or leaving a pill of actions. It grows from nothing, so the pill widens to take it in, and shrinks
+   back as it leaves. 'max-width' rather than 'width', because a segment's width depends on its label. */
+.dpuse-pill-segment-enter-active,
+.dpuse-pill-segment-leave-active {
+    overflow: hidden;
+    transition:
+        max-width 0.25s ease,
+        opacity 0.2s ease;
+}
+.dpuse-pill-segment-enter-from,
+.dpuse-pill-segment-leave-to {
+    max-width: 0;
+    opacity: 0;
+}
+.dpuse-pill-segment-enter-to,
+.dpuse-pill-segment-leave-from {
+    max-width: 16rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dpuse-pill-segment-enter-active,
+    .dpuse-pill-segment-leave-active {
+        transition: none;
+    }
+}
+
 /* Slides a menu up from its button on a wide screen, or up from the bottom edge as a sheet on a narrow one. Used as
    'Transition' names, so the element is removed once it has left. A modal's backdrop goes with the element, so it is
    cleared as the element leaves rather than vanishing at the end. */

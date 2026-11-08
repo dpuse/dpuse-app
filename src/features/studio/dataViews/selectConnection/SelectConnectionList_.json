@@ -14,6 +14,7 @@
             "en": "{count} data views use this connection. Deleting it leaves those data views without a connection.",
             "es": "{count} vistas de datos usan esta conexión. Al eliminarla, esas vistas de datos se quedan sin conexión."
         },
+        "detail.select.disabled.text": { "en": "Pick a connection first", "es": "Elige primero una conexión" },
         "detail.select.label": { "en": "Select", "es": "Seleccionar" },
         "hide.confirm.label": { "en": "Hide", "es": "Ocultar" },
         "hide.confirm.text": {
