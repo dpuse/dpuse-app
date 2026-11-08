@@ -1,22 +1,29 @@
 {
     "TEXT": {
+        "columnDetail.change.label": { "en": "Change how this column is read", "es": "Cambiar cómo se lee esta columna" },
+        "columnDetail.close.label": { "en": "Close the detail of {label}", "es": "Cerrar el detalle de {label}" },
+        "columnDetail.label": { "en": "Show the detail of {label}", "es": "Ver el detalle de {label}" },
         "columns.changed.text": {
             "en": "This item's columns have changed since its preview, so nothing was loaded. Check the item, then load it again.",
             "es": "Las columnas de este elemento han cambiado desde su vista previa, así que no se ha cargado nada. Revisa el elemento y vuelve a cargarlo."
         },
         "columns.required.text": { "en": "Preview an item to see its records here.", "es": "Previsualiza un elemento para ver aquí sus registros." },
+        "decimalSeparator.comma.label": { "en": "Decimal comma", "es": "Coma decimal" },
+        "decimalSeparator.point.label": { "en": "Decimal point", "es": "Punto decimal" },
         "invalid.check.label": { "en": "Check this column", "es": "Revisar esta columna" },
         "invalid.text": {
             "en": "{count} values in {label} did not fit its type, so they loaded blank.",
             "es": "{count} valores de {label} no encajaban en su tipo, así que se cargaron en blanco."
         },
         "load.again.label": { "en": "Load again", "es": "Cargar de nuevo" },
+        "load.again.store.aria": { "en": "Load again into", "es": "Cargar de nuevo en" },
         "load.changed.text": { "en": "The column types have changed since this data was loaded.", "es": "Los tipos de columna han cambiado desde que se cargaron estos datos." },
         "load.data.label": { "en": "Load data", "es": "Cargar datos" },
         "load.duration.text": { "en": "Loaded into {store} in {seconds} s", "es": "Cargado en {store} en {seconds} s" },
         "load.partialAuditTypes.text": { "en": "Types from a partial audit", "es": "Tipos de una auditoría parcial" },
         "load.pending.text": { "en": "Loading records… {count} so far.", "es": "Cargando registros… {count} hasta ahora." },
         "load.required.text": { "en": "This data has not been loaded yet.", "es": "Estos datos aún no se han cargado." },
+        "load.seconds.text": { "en": "{seconds} s", "es": "{seconds} s" },
         "load.stop.label": { "en": "Stop", "es": "Detener" },
         "load.stopped.text": {
             "en": "Loading stopped. The records loaded before, if any, are kept.",
@@ -30,6 +37,10 @@
         "store.unavailable.text": {
             "en": "This browser has no storage for investigating records, as in some private windows.",
             "es": "Este navegador no tiene almacenamiento para investigar registros, como en algunas ventanas privadas."
-        }
+        },
+        "transform.apply.label": { "en": "Apply", "es": "Aplicar" },
+        "transform.close.aria": { "en": "Close transform", "es": "Cerrar la transformación" },
+        "transform.label": { "en": "Transform", "es": "Transformar" },
+        "transform.title": { "en": "Transform", "es": "Transformar" }
     }
 }

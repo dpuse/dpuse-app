@@ -1,9 +1,10 @@
 // ── External Dependencies & Registrations
-import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, type VNode } from 'vue';
+import { mount, RouterLinkStub } from '@vue/test-utils';
 
 // ── Local Framework
+import ColumnDetailPanel from '@/features/studio/dataViews/ColumnDetailPanel.vue';
 import { constructFittedColumnWidth } from '@/components/ui/table/tableColumnWidth';
 import InvestigateDataPanel from '@/features/studio/dataViews/exploreData/InvestigateDataPanel.vue';
 import { settle } from '~/tests/support/settle';
@@ -37,13 +38,14 @@ vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
     findDataViewStoreLabel: vi.fn(),
     hasDataViewLoad: vi.fn(),
     isDataViewLoaded: vi.fn(),
+    listDataViewStoreConnections: vi.fn(() => []),
     loadDataViewRecords: vi.fn(),
     openDataViewStore: vi.fn(),
     queryDataViewRecords: vi.fn(),
     resolveDataViewTablePath: ({ id }: { id: string }): string => id,
     resolveStoreConnectorId: (): string => 'dpuse-connector-sqlite-wasm'
 }));
-vi.mock('@/components/ui/table/tableColumnWidth', () => ({ HEADER_MENU_WIDTH_PX: 24, constructFittedColumnWidth: vi.fn() }));
+vi.mock('@/components/ui/table/tableColumnWidth', () => ({ HEADER_MENU_WIDTH_PX: 24, HEADER_TAB_INSET_PX: 10, constructFittedColumnWidth: vi.fn() }));
 
 vi.mock('vue-router', async (importOriginal) => ({
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
@@ -51,11 +53,21 @@ vi.mock('vue-router', async (importOriginal) => ({
     useRoute: (): { params: { dataViewId: string } } => ({ params: { dataViewId: 'dataView1' } })
 }));
 
-// The table scrolls and measures, which jsdom cannot, so it is stood in for and what it is given is checked.
-const renderNothing = (): VNode => h('div');
+// The table scrolls and measures, which jsdom cannot, so it is stood in for and what it is given is checked. It renders
+// each column's name through the panel's own 'header-label' slot, so a column's detail can be opened from it.
 const TableStub = defineComponent({
-    props: { columnDefinitions: { type: Array, required: true }, constructCellClass: { type: Function, required: true }, dataSource: { type: Object, required: true } },
-    setup: () => renderNothing
+    props: {
+        columnDefinitions: { type: Array<{ accessorKey: string }>, required: true },
+        constructCellClass: { type: Function, required: true },
+        dataSource: { type: Object, required: true }
+    },
+    setup:
+        (properties, { slots }) =>
+        (): VNode =>
+            h(
+                'div',
+                properties.columnDefinitions.map((columnDefinition) => slots['header-label']?.({ columnId: columnDefinition.accessorKey }))
+            )
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -176,6 +188,7 @@ describe('InvestigateDataPanel', () => {
         await settle();
 
         expect((wrapper.findComponent(TableStub).props() as TableProperties).columnDefinitions.map((column) => column.size)).toEqual([90, 130]);
+        expect(constructFittedColumnWidth).toHaveBeenCalledWith('Id', ['7'], { headerExtraPx: 34 }); // The menu button and the tab's inset both take room from the label.
     });
 
     it('leaves a column that is not numbers on the left', async () => {
@@ -229,6 +242,30 @@ describe('InvestigateDataPanel', () => {
         expect(wrapper.findAll('button').some((button) => button.text() === t(TEXT, 'load.again.label'))).toBe(true);
     });
 
+    it('opens a column’s detail from its name, read only, with a link to change it on the item step', async () => {
+        dataView.config = {
+            ...AUDITED_DATA_VIEW,
+            contentAuditConfig: {
+                asAt: 1,
+                columns: AUDITED_DATA_VIEW.contentAuditConfig.columns.map((columnConfig) => ({ ...columnConfig, formats: {}, inferenceCounts: {} })) // What every audited column holds.
+            },
+            readingConfig: { dataFormatId: 'dsv' },
+            sampleConfig: { parsedRecords: [], size: 0, text: '' }
+        };
+        const wrapper = mount(InvestigateDataPanel, { global: { stubs: { RouterLink: RouterLinkStub, Table: TableStub } } });
+        await settle();
+
+        await wrapper
+            .findAll('button')
+            .find((button) => button.text() === 'Day')
+            ?.trigger('click');
+
+        const detail = wrapper.findComponent(ColumnDetailPanel);
+        expect(detail.props('columnIndex')).toBe(1);
+        expect(detail.props('isTypeDisabled')).toBe(true);
+        expect(wrapper.findComponent(RouterLinkStub).props('to')).toMatchObject({ name: 'item', state: { columnIndex: 1 } });
+    });
+
     it('shows how many values did not fit, by column', async () => {
         dataView.config = AUDITED_DATA_VIEW;
         vi.mocked(isDataViewLoaded).mockReturnValue(false);
@@ -238,11 +275,12 @@ describe('InvestigateDataPanel', () => {
         await settle();
 
         const count = new Intl.NumberFormat(localeId.value).format(312);
-        expect(wrapper.text()).toContain(t(TEXT, 'invalid.text', { count, label: 'Id' }));
-        expect(wrapper.text()).not.toContain('Day');
+        const mismatchText = wrapper.find('[role="status"]').text();
+        expect(mismatchText).toContain(t(TEXT, 'invalid.text', { count, label: 'Id' }));
+        expect(mismatchText).not.toContain('Day');
     });
 
-    it('shows which store a load went into, and how long it took, beside "Load again"', async () => {
+    it('shows which store a load went into, and how long it took, in the status bar', async () => {
         dataView.config = AUDITED_DATA_VIEW;
         vi.mocked(isDataViewLoaded).mockReturnValue(false);
         history.replaceState({ loadIsRequested: true }, '');
@@ -265,7 +303,7 @@ describe('InvestigateDataPanel', () => {
         const wrapper = mountPanel();
         await settle();
 
-        expect(wrapper.find('span.text-muted').exists()).toBe(false);
+        expect(wrapper.text()).not.toContain('SQLite');
     });
 
     it('says so when another tab has the store, and tries again when asked', async () => {

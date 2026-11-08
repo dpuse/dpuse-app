@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
-import { RefreshCwIcon } from '@lucide/vue';
 import { useRoute } from 'vue-router';
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue';
+import { ChevronDownIcon, ClockIcon, DatabaseIcon, RefreshCwIcon, SlidersHorizontalIcon, TriangleAlertIcon } from '@lucide/vue';
+import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
@@ -11,6 +11,8 @@ import type { DataSubtypeId, ObjectColumnConfig, StoreRecord, StoreValue } from 
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
+import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
+import { constructColumnTypeLabel } from '@/features/studio/dataViews/_previewColumnRows';
 import type { DataSource } from '@/composables/useDataWindow';
 import { TEXT } from './InvestigateDataPanel_.json';
 import { useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
@@ -20,6 +22,7 @@ import {
     findDataViewStoreLabel,
     hasDataViewLoad,
     isDataViewLoaded,
+    listDataViewStoreConnections,
     loadDataViewRecords,
     openDataViewStore,
     queryDataViewRecords,
@@ -27,16 +30,33 @@ import {
     resolveStoreConnectorId
 } from '@/features/studio/dataViews/_dataViewStore';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
-import { constructColumnsVersion, constructDataTypeCellClass, constructLoadColumnConfigs, isEmptyUnitColumn } from '@/features/studio/dataViews/_dataViewColumns';
-import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX } from '@/components/ui/table/tableColumnWidth';
+import {
+    type ColumnType,
+    constructColumnsVersion,
+    constructColumnTypeId,
+    constructDataTypeCellClass,
+    constructLoadColumnConfigs,
+    isDerivedColumn,
+    isEmptyUnitColumn,
+    type ItemReading
+} from '@/features/studio/dataViews/_dataViewColumns';
+import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
+import CloseButton from '@/components/ui/action/CloseButton.vue';
+import ColumnDetailPanel from '@/features/studio/dataViews/ColumnDetailPanel.vue';
+import ColumnSearch from '@/features/studio/dataViews/ColumnSearch.vue';
+import type { ColumnSearchOption } from '@/features/studio/dataViews/ColumnSearch.vue';
+import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
+import { Menu } from '@/components/ui/menu';
+import type { SelectOption } from '@/components/ui/SelectInput.vue';
 import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
+import TransformDataPanel from './TransformDataPanel.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -98,9 +118,17 @@ const loadVersion = ref(0); // Counts loads, so the table drops the records it h
 const firstPageColumnWidths = shallowRef<{ dataSourceId: string; widths: number[] }>(); // Measured once per load, so scrolling back cannot move the columns.
 const invalidValueCounts = shallowRef<number[]>([]); // From this panel's last finished load. A load from an earlier visit has none.
 
+// ── Overlays ─ Transform and a column's detail cover the records one at a time.
+const selectedColumnIndex = ref<number>(); // The column whose detail is showing over the records.
+const tableComponent = useTemplateRef<{ scrollColumnIntoView: (columnId: string) => void }>('table'); // Typed by what it exposes, because 'Table' is generic.
+const transformIsOpen = ref(false);
+
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const storeConnectorId = computed(() => resolveStoreConnectorId(dataViewConfig.value)); // The store the data view chose on the item step.
+const storeConnectorId = computed(() => resolveStoreConnectorId(dataViewConfig.value)); // Chosen on the item step, or by 'Load again'.
+const storeConnections = computed(() => listDataViewStoreConnections());
+const storeIsChoosable = computed(() => storeConnections.value.length > 1);
+const selectedStoreConnection = computed(() => storeConnections.value.find((connection) => connection.id === storeConnectorId.value)); // For its icon in the status bar.
 
 const messageKey = computed(() => {
     return investigateState.value.typeId === 'notLoaded' && hasEarlierLoad.value ? 'load.changed.text' : MESSAGE_KEYS[investigateState.value.typeId];
@@ -125,18 +153,20 @@ const invalidValueItems = computed(() =>
 
 const loadPendingText = computed(() => t(TEXT, 'load.pending.text', { count: new Intl.NumberFormat(localeId.value).format(loadedRecordCount.value) }));
 
-const loadDurationText = computed(() => {
+// One decimal place, with more only for a time too short to show in one, so a quick load does not read as 0.
+const loadSecondsText = computed(() => {
     if (loadDuration.value == null) return '';
-    // One decimal place, with more only for a time too short to show in one, so a quick load does not read as 0.
-    const seconds = new Intl.NumberFormat(localeId.value, {
+    return new Intl.NumberFormat(localeId.value, {
         maximumFractionDigits: 1,
         maximumSignificantDigits: 1,
         minimumFractionDigits: 1,
         minimumSignificantDigits: 1,
         roundingPriority: 'morePrecision'
     }).format(loadDuration.value / 1000);
-    return t(TEXT, 'load.duration.text', { seconds, store: findDataViewStoreLabel(storeConnectorId.value) });
 });
+const loadDurationText = computed(() =>
+    loadSecondsText.value === '' ? '' : t(TEXT, 'load.duration.text', { seconds: loadSecondsText.value, store: findDataViewStoreLabel(storeConnectorId.value) })
+); // The status bar's store and time as one sentence, for screen readers.
 
 // ── Table ─ One column for each of the data view's columns.
 const columnDefinitions = computed<ColumnDef<TableFeatureSet, DisplayRow>[]>(() =>
@@ -202,12 +232,54 @@ const numberFormats = computed(() =>
     })
 );
 
+// ── Column Detail ─ Read only, from the reading and audit the data view saved, because changing how a column is read
+// would make the loaded records out of date. The choices show as they are, each as its one option, and link to the item
+// step, where they can be changed.
+const itemReading = computed((): ItemReading | undefined => {
+    const { readingConfig, sampleConfig } = dataViewConfig.value ?? {};
+    return readingConfig == null || sampleConfig == null ? undefined : { ...readingConfig, ...sampleConfig, columnConfigs: columnConfigs.value };
+});
+const detailColumnIndexes = computed(() =>
+    columnConfigs.value.map((columnConfig, index) => (isDerivedColumn(columnConfig) ? undefined : index)).filter((index) => index !== undefined)
+); // A derived column only holds values for another.
+// The columns the toolbar's search can find. One marked by a load's values that did not fit is the one to check.
+const columnSearchOptions = computed((): ColumnSearchOption[] =>
+    detailColumnIndexes.value.map((columnIndex) => ({
+        id: String(columnIndex),
+        label: String(columnDefinitions.value[columnIndex]?.header),
+        needsAttention: (invalidValueCounts.value[columnIndex] ?? 0) > 0
+    }))
+);
+const selectedColumnStepIndex = computed(() => {
+    const stepIndex = selectedColumnIndex.value == null ? -1 : detailColumnIndexes.value.indexOf(selectedColumnIndex.value);
+    return stepIndex === -1 ? undefined : stepIndex;
+});
+const selectedColumnConfig = computed(() => (selectedColumnIndex.value == null ? undefined : columnConfigs.value[selectedColumnIndex.value]));
+const selectedDetectedColumnType = computed((): ColumnType | undefined => {
+    const auditedColumnConfig = selectedColumnIndex.value == null ? undefined : dataViewConfig.value?.contentAuditConfig?.columns[selectedColumnIndex.value];
+    return auditedColumnConfig == null ? undefined : { dataSubtypeId: auditedColumnConfig.dataSubtypeId, dataTypeId: auditedColumnConfig.dataTypeId };
+});
+const selectedColumnTypeOptions = computed((): SelectOption[] =>
+    selectedColumnConfig.value == null ? [] : [{ id: constructColumnTypeId(selectedColumnConfig.value), label: constructColumnTypeLabel(selectedColumnConfig.value) }]
+);
+const selectedDecimalSeparatorOptions = computed((): SelectOption[] => {
+    const decimalSeparatorId = selectedColumnConfig.value?.dataTypeId === 'numeric' ? selectedColumnConfig.value.decimalSeparatorId : undefined;
+    return decimalSeparatorId == null
+        ? []
+        : [{ id: decimalSeparatorId, label: t(TEXT, decimalSeparatorId === ',' ? 'decimalSeparator.comma.label' : 'decimalSeparator.point.label') }];
+});
+const selectedNullWordReading = computed(() => {
+    if (selectedColumnConfig.value?.dataTypeId !== 'string') return;
+    return selectedColumnConfig.value.nullWordsAreEmpty === true ? 'empty' : 'text';
+});
+
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Opens the store once the data view has columns, and again when they change, which needs a new load.
 watch(
     () => constructColumnsVersion(dataViewConfig.value),
     (columnsVersion) => {
+        selectedColumnIndex.value = undefined; // New columns can leave the one showing out of range.
         if (columnsVersion == null) investigateState.value = { typeId: 'columnsRequired' };
         else if (wasLoadRequested() || isDataViewLoaded(assertDefined(dataViewConfig.value), draftIsCurrent.value)) void openAndLoad(false);
         else investigateState.value = { typeId: 'notLoaded' };
@@ -246,6 +318,47 @@ function handleRetry(): void {
 
 function handleLoadAgain(): void {
     void openAndLoad(true);
+}
+
+function handleToggleTransform(): void {
+    transformIsOpen.value = !transformIsOpen.value;
+    selectedColumnIndex.value = undefined;
+}
+
+// Opens a column's detail over the records, or closes it when it is the column already showing.
+function handleToggleColumnDetail(columnIndex: number): void {
+    selectedColumnIndex.value = columnIndex === selectedColumnIndex.value ? undefined : columnIndex;
+    transformIsOpen.value = false;
+}
+
+// A column found with the toolbar's search opens its detail, and the table scrolls to it, as it does for Previous and Next.
+function handleSelectColumn(columnIndex: number): void {
+    selectedColumnIndex.value = columnIndex;
+    transformIsOpen.value = false;
+    tableComponent.value?.scrollColumnIntoView(constructColumnKey(columnIndex));
+}
+
+function handleStepColumn(direction: -1 | 1): void {
+    const stepIndex = selectedColumnStepIndex.value;
+    if (stepIndex == null) return;
+    const nextStepIndex = stepIndex + direction;
+    const nextColumnIndex = nextStepIndex < 0 ? undefined : detailColumnIndexes.value.at(nextStepIndex); // 'at' would read a negative index from the end.
+    if (nextColumnIndex == null) return;
+    selectedColumnIndex.value = nextColumnIndex;
+    tableComponent.value?.scrollColumnIntoView(constructColumnKey(nextColumnIndex)); // Brings the tab into view, as on the item step.
+}
+
+// A different store becomes the data view's unsaved choice, as on the item step, and takes the records from this load.
+// The old store is closed, so another tab can use it. Choosing the current store just loads again.
+function handleLoadAgainIntoStore(chosenStoreConnectorId: string): void {
+    const previousStoreConnectorId = storeConnectorId.value;
+    const storeIsChanged = dataViewConfig.value != null && chosenStoreConnectorId !== previousStoreConnectorId;
+    if (storeIsChanged) changeDataView({ ...assertDefined(dataViewConfig.value), storeConnectorId: chosenStoreConnectorId });
+    void openAndLoad(true); // Before the close, so the records leave the screen before their store goes.
+    if (!storeIsChanged) return;
+    void closeDataViewStore(previousStoreConnectorId).catch((error: unknown) => {
+        raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.InvestigateDataPanel.handleLoadAgainIntoStore', { typeId: 'handled' }, { cause: error }));
+    });
 }
 
 function handleStopLoad(): void {
@@ -313,13 +426,17 @@ function fitColumnsToFirstPage(dataSourceId: string, rows: DisplayRow[]): void {
     const widths = columnDefinitions.value.map(({ header }, index) => {
         const percentSign = percentageColumnIndexes.value.has(index) ? ' %' : ''; // Measured with its unit, so a currency or sign never covers the number.
         const values = rows.map((row) => `${row[constructUnitKey(index)] ?? ''} ${row[constructColumnKey(index)] ?? ''}${percentSign}`.trim());
-        return constructFittedColumnWidth(String(header), values, { headerExtraPx: HEADER_MENU_WIDTH_PX });
+        return constructFittedColumnWidth(String(header), values, { headerExtraPx: HEADER_MENU_WIDTH_PX + HEADER_TAB_INSET_PX }); // The headers are tabs, which take room from the label.
     });
     firstPageColumnWidths.value = { dataSourceId, widths };
 }
 
 function constructColumnKey(columnIndex: number): string {
     return `c${String(columnIndex)}`;
+}
+
+function readColumnIndex(columnKey: string): number {
+    return Number(columnKey.slice(1));
 }
 
 function constructUnitKey(columnIndex: number): string {
@@ -386,23 +503,8 @@ function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig, n
         <ErrorNotice v-if="investigateState.typeId === 'failed'" :failures="[investigateState.failure]" @retry="handleRetry" />
 
         <template v-else>
-            <!-- Toolbar ─ 'Load again' is for a data view whose source may have changed since it was loaded. -->
-            <div
-                v-if="investigateState.typeId === 'ready' || investigateState.typeId === 'loading'"
-                class="flex h-10 flex-none items-center justify-end gap-x-3 border-b border-separator px-page text-xs"
-            >
-                <span v-if="investigateState.typeId === 'ready' && columnsAreFromPartialAudit" class="mr-auto text-muted">{{ t(TEXT, 'load.partialAuditTypes.text') }}</span>
-                <span v-if="investigateState.typeId === 'ready' && loadDurationText" class="text-muted">{{ loadDurationText }}</span>
-                <ActionWrapper v-if="investigateState.typeId === 'loading'" class="text-accent hover:underline" @click="handleStopLoad">{{
-                    t(TEXT, 'load.stop.label')
-                }}</ActionWrapper>
-                <ActionWrapper v-else class="inline-flex items-center gap-x-1 text-accent hover:underline" @click="handleLoadAgain">
-                    <RefreshCwIcon aria-hidden="true" class="size-4" :stroke-width="1.5" />
-                    {{ t(TEXT, 'load.again.label') }}
-                </ActionWrapper>
-            </div>
-            <!-- Mismatches ─ Between the toolbar and the records, so they show before anyone reads a blank as missing data. A
-                 long list scrolls rather than pushing the records out of view. -->
+            <!-- Mismatches ─ Above the records, so they show before anyone reads a blank as missing data. A long list
+                 scrolls rather than pushing the records out of view. -->
             <div
                 v-if="investigateState.typeId === 'ready' && invalidValueItems.length > 0"
                 class="max-h-32 flex-none overflow-y-auto border-b border-separator px-page py-2 text-sm"
@@ -418,29 +520,155 @@ function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig, n
                 </ul>
             </div>
 
-            <!-- The usual room after the last row, less the status bar's height: the table already ends above it. -->
-            <Table
-                v-if="investigateState.typeId === 'ready' && columnConfigs.length > 0"
-                class="flex-1"
-                :column-definitions="columnDefinitions"
-                :construct-cell-class="constructValueCellClass"
-                :data-source="dataSource"
-                :hidden-column-ids="hiddenColumnIds"
-                is-column-fit-to-visible-rows
-                scroll-area-padding-bottom="calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))"
-            >
-                <!-- Units ─ A currency at the left edge, and a percent sign after the number. The sign's room is kept
-                     on every row of a column with any percentage, unseen where there is none, so the decimal points
-                     line up. -->
-                <template #cell-icon="{ columnId, row }">
-                    <span v-if="findCurrencyUnit(columnId, row)" class="mr-auto text-sm text-muted">{{ findCurrencyUnit(columnId, row) }}</span>
-                    <span v-if="isPercentageColumn(columnId) && row != null" class="order-1 -ml-1 text-sm text-muted" :class="{ invisible: row[`u${columnId.slice(1)}`] !== '%' }"
-                        >%</span
-                    >
-                </template>
-            </Table>
-            <!-- Announced as it changes, because the count is the only sign that a long load is still going. -->
-            <p v-else-if="investigateState.typeId === 'loading'" aria-live="polite" class="m-auto px-4 text-center text-sm text-muted">{{ loadPendingText }}</p>
+            <div v-if="investigateState.typeId === 'ready' && columnConfigs.length > 0" class="relative flex min-h-0 flex-1 flex-col">
+                <!-- The usual room after the last row, less the status bar's height: the table already ends above it. -->
+                <Table
+                    ref="table"
+                    class="flex-1"
+                    :column-definitions="columnDefinitions"
+                    :construct-cell-class="constructValueCellClass"
+                    :data-source="dataSource"
+                    :hidden-column-ids="hiddenColumnIds"
+                    is-column-fit-to-visible-rows
+                    is-header-tabbed
+                    scroll-area-padding-bottom="calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))"
+                    :selected-column-id="selectedColumnIndex == null ? undefined : constructColumnKey(selectedColumnIndex)"
+                >
+                    <!-- Actions ─ In the table's toolbar, beside its column picker. 'Load again' is for a data view whose
+                         source may have changed since it was loaded. -->
+                    <template #toolbar-end>
+                        <!-- Column Search ─ Opens over the whole toolbar, as on the item step. -->
+                        <ColumnSearch v-if="columnSearchOptions.length > 1" :options="columnSearchOptions" @select="handleSelectColumn" />
+                        <ActionWrapper
+                            aria-controls="dpuse-transform-panel"
+                            :aria-expanded="transformIsOpen"
+                            class="inline-flex items-center gap-x-1 text-accent hover:underline"
+                            @click="handleToggleTransform"
+                        >
+                            <SlidersHorizontalIcon aria-hidden="true" class="size-4" :stroke-width="1.5" />
+                            {{ t(TEXT, 'transform.label') }}
+                        </ActionWrapper>
+                        <!-- Load Again ─ A menu of the stores when there is more than one, so the records can move to
+                             another store without going back to the item step. The current store is ticked. -->
+                        <Menu.Root v-if="storeIsChoosable" class="flex">
+                            <template #trigger="{ triggerAttributes }">
+                                <ActionWrapper v-bind="triggerAttributes" class="inline-flex items-center gap-x-1 text-accent hover:underline">
+                                    <RefreshCwIcon aria-hidden="true" class="size-4" :stroke-width="1.5" />
+                                    {{ t(TEXT, 'load.again.label') }}
+                                    <ChevronDownIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                                </ActionWrapper>
+                            </template>
+                            <Menu.Content :label="t(TEXT, 'load.again.store.aria')" placement="bottom-end">
+                                <Menu.Item
+                                    v-for="storeConnection in storeConnections"
+                                    :key="storeConnection.id"
+                                    :is-checked="storeConnection.id === storeConnectorId"
+                                    kind="radio"
+                                    @select="handleLoadAgainIntoStore(storeConnection.id)"
+                                >
+                                    <template #icon>
+                                        <span class="flex size-[1.25em] flex-none">
+                                            <ConfigIcon class="size-full" :icon="storeConnection.icon" :icon-dark="storeConnection.iconDark" />
+                                        </span>
+                                    </template>
+                                    {{ storeConnection.label }}
+                                </Menu.Item>
+                            </Menu.Content>
+                        </Menu.Root>
+                        <ActionWrapper v-else class="inline-flex items-center gap-x-1 text-accent hover:underline" @click="handleLoadAgain">
+                            <RefreshCwIcon aria-hidden="true" class="size-4" :stroke-width="1.5" />
+                            {{ t(TEXT, 'load.again.label') }}
+                        </ActionWrapper>
+                    </template>
+                    <!-- Column Name ─ Opens the column's detail over the records, or closes it on the selected tab, as on the
+                         item step. The button's overlay covers the whole tab, so a click anywhere on it does the same, while
+                         the name stays the button's accessible name. A derived column has no detail of its own, so it keeps
+                         its plain name. -->
+                    <template #header-label="{ columnId }">
+                        <ActionWrapper
+                            v-if="detailColumnIndexes.includes(readColumnIndex(columnId))"
+                            :aria-current="readColumnIndex(columnId) === selectedColumnIndex ? 'true' : undefined"
+                            class="min-w-0 flex-1 truncate text-left text-sm font-medium after:absolute after:inset-0"
+                            :class="readColumnIndex(columnId) === selectedColumnIndex ? 'text-emphasis' : 'text-muted'"
+                            :title="
+                                t(TEXT, readColumnIndex(columnId) === selectedColumnIndex ? 'columnDetail.close.label' : 'columnDetail.label', {
+                                    label: String(columnDefinitions[readColumnIndex(columnId)]?.header)
+                                })
+                            "
+                            @click="handleToggleColumnDetail(readColumnIndex(columnId))"
+                            >{{ columnDefinitions[readColumnIndex(columnId)]?.header }}</ActionWrapper
+                        >
+                        <span v-else class="min-w-0 flex-1 truncate text-sm font-medium text-muted">{{ columnDefinitions[readColumnIndex(columnId)]?.header }}</span>
+                    </template>
+                    <!-- Units ─ A currency at the left edge, and a percent sign after the number. The sign's room is kept
+                         on every row of a column with any percentage, unseen where there is none, so the decimal points
+                         line up. -->
+                    <template #cell-icon="{ columnId, row }">
+                        <span v-if="findCurrencyUnit(columnId, row)" class="mr-auto text-sm text-muted">{{ findCurrencyUnit(columnId, row) }}</span>
+                        <span
+                            v-if="isPercentageColumn(columnId) && row != null"
+                            class="order-1 -ml-1 text-sm text-muted"
+                            :class="{ invisible: row[`u${columnId.slice(1)}`] !== '%' }"
+                            >%</span
+                        >
+                    </template>
+                </Table>
+                <!-- Transform ─ Slides down from under the table's toolbar and covers the column names and records, because
+                     it replaces the table while it is open. The toolbar's actions stay in reach. The box clips the panel,
+                     so it never passes over the toolbar, and lets clicks through to the table while it is closed. -->
+                <div class="pointer-events-none absolute inset-x-0 top-10 bottom-0 z-10 overflow-hidden">
+                    <Transition name="dpuse-slide-down">
+                        <section
+                            v-if="transformIsOpen"
+                            id="dpuse-transform-panel"
+                            :aria-label="t(TEXT, 'transform.title')"
+                            class="pointer-events-auto absolute inset-0 flex flex-col bg-surface shadow-md"
+                        >
+                            <header class="flex h-10 flex-none items-center gap-x-3 border-b border-separator px-page text-xs">
+                                <h2 class="m-0 mr-auto text-sm font-medium text-emphasis">{{ t(TEXT, 'transform.title') }}</h2>
+                                <!-- TODO: Apply stays dimmed until the query is wired up, because there is no change to apply yet. -->
+                                <ActionWrapper class="text-accent enabled:hover:underline" disabled>{{ t(TEXT, 'transform.apply.label') }}</ActionWrapper>
+                                <!-- '-mr-1.75' cancels the button's padding, so its icon lines up with the page edge. -->
+                                <CloseButton :accessible-label="t(TEXT, 'transform.close.aria')" class="-mr-1.75" @click="transformIsOpen = false" />
+                            </header>
+                            <TransformDataPanel class="min-h-0 flex-1" />
+                        </section>
+                    </Transition>
+                </div>
+                <!-- Column Detail ─ Slides down from under the column names, 80px down past the toolbar and the names, so
+                     the tabs stay in reach and another one can be chosen, as on the item step. -->
+                <div class="pointer-events-none absolute inset-x-0 top-20 bottom-0 z-10 overflow-hidden">
+                    <Transition name="dpuse-slide-down">
+                        <ColumnDetailPanel
+                            v-if="selectedColumnIndex != null && itemReading != null"
+                            class="pointer-events-auto absolute inset-0 bg-surface shadow-md"
+                            :column-index="selectedColumnIndex"
+                            :decimal-separator-options="selectedDecimalSeparatorOptions"
+                            :decimal-separator-value="selectedDecimalSeparatorOptions[0]?.id"
+                            :detected-column-type="selectedDetectedColumnType"
+                            :has-next-column="selectedColumnStepIndex != null && selectedColumnStepIndex < detailColumnIndexes.length - 1"
+                            :has-previous-column="selectedColumnStepIndex != null && selectedColumnStepIndex > 0"
+                            is-type-disabled
+                            :item-reading="itemReading"
+                            :null-word-reading="selectedNullWordReading"
+                            :type-options="selectedColumnTypeOptions"
+                            :type-value="selectedColumnTypeOptions[0]?.id ?? ''"
+                            @close="selectedColumnIndex = undefined"
+                            @step="handleStepColumn"
+                        >
+                            <template #choices-end>
+                                <RouterLink class="mt-2 inline-block" :to="{ name: 'item', query: route.query, state: { columnIndex: selectedColumnIndex } }">{{
+                                    t(TEXT, 'columnDetail.change.label')
+                                }}</RouterLink>
+                            </template>
+                        </ColumnDetailPanel>
+                    </Transition>
+                </div>
+            </div>
+            <!-- Stop ─ In the middle while loading, because the table and its toolbar show only once the records are in. -->
+            <ActionWrapper v-else-if="investigateState.typeId === 'loading'" class="m-auto text-sm text-accent hover:underline" @click="handleStopLoad">{{
+                t(TEXT, 'load.stop.label')
+            }}</ActionWrapper>
             <div v-else-if="messageKey" class="m-auto flex flex-col items-center gap-y-2 px-4 text-center text-sm text-muted">
                 <p>{{ t(TEXT, messageKey) }}</p>
                 <ActionWrapper v-if="investigateState.typeId !== 'columnsRequired'" class="text-accent hover:underline" @click="handleRetry">{{
@@ -449,8 +677,45 @@ function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig, n
             </div>
         </template>
 
-        <!-- Status Bar ─ Blank for now. Keeps the table, and its horizontal scroll bar, above the bottom safe area on
-             iOS, as the item preview's status bar does. -->
-        <div class="mt-auto h-(--status-bar-height) w-full flex-none border-t border-separator bg-card" />
+        <!-- Status Bar ─ The same height as the item step's, so the table's sideways scroll bar always sits above the
+             bottom safe area. It only shows what is read, never a button, because a phone's own swipes start at its
+             bottom edge. The state is on the left and the figures on the right. Only a warning takes colour, so it
+             stands out when it shows. -->
+        <div
+            class="mt-auto flex h-(--status-bar-height) w-full flex-none items-center justify-between gap-x-4 overflow-hidden border-t border-separator bg-card px-page text-xs text-muted"
+        >
+            <!-- State ─ Announced as it changes, because the count is the only sign that a long load is still going.
+                 Each text is trimmed to its letters so it is centred on them rather than sitting high in its line box,
+                 and cut off sideways only ('overflow-x: clip'), because hiding overflow on both axes would clip the
+                 tails of letters like 'g' below the trimmed box. -->
+            <p aria-live="polite" class="flex min-w-0 items-center gap-x-1">
+                <span v-if="investigateState.typeId === 'loading'" class="min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap [text-box:trim-both_cap_alphabetic]">{{
+                    loadPendingText
+                }}</span>
+                <template v-else-if="investigateState.typeId === 'ready' && columnsAreFromPartialAudit">
+                    <TriangleAlertIcon aria-hidden="true" class="size-3.5 flex-none text-warning-text" :stroke-width="1.5" />
+                    <span class="min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap text-warning-text [text-box:trim-both_cap_alphabetic]">{{
+                        t(TEXT, 'load.partialAuditTypes.text')
+                    }}</span>
+                </template>
+            </p>
+            <!-- Figures ─ Where the records went and how long they took. -->
+            <p v-if="investigateState.typeId === 'ready' && loadSecondsText" class="flex flex-none items-center gap-x-1">
+                <span class="sr-only">{{ loadDurationText }}</span>
+                <ConfigIcon
+                    v-if="selectedStoreConnection?.icon ?? selectedStoreConnection?.iconDark"
+                    aria-hidden="true"
+                    class="size-3.5 flex-none"
+                    :icon="selectedStoreConnection?.icon"
+                    :icon-dark="selectedStoreConnection?.iconDark"
+                />
+                <DatabaseIcon v-else aria-hidden="true" class="size-3.5 flex-none" :stroke-width="1.5" />
+                <span aria-hidden="true" class="whitespace-nowrap [text-box:trim-both_cap_alphabetic]">{{ findDataViewStoreLabel(storeConnectorId) }}</span>
+                <span aria-hidden="true" class="ml-1.5 flex items-center gap-x-1">
+                    <ClockIcon class="size-3.5 flex-none" :stroke-width="1.5" />
+                    <span class="whitespace-nowrap tabular-nums [text-box:trim-both_cap_alphabetic]">{{ t(TEXT, 'load.seconds.text', { seconds: loadSecondsText }) }}</span>
+                </span>
+            </p>
+        </div>
     </div>
 </template>

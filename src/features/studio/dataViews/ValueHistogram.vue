@@ -16,6 +16,7 @@ export interface ValueHistogramBar {
     count: number;
     countText: string;
     endText: string; // The last value in the range, or where it ends, as the axis shows it.
+    isOutlier?: boolean; // Counts the values beyond the other ranges, drawn paler, because its width does not match the values it holds.
     key: string;
     label: string; // The whole range, such as '50 to 59'.
     startText: string;
@@ -89,7 +90,7 @@ function constructBarText({ count, countText, label }: ValueHistogramBar): strin
                             v-if="bar.count > 0"
                             aria-hidden="true"
                             class="block min-h-px rounded-t-sm"
-                            :class="barColorClass"
+                            :class="[barColorClass, { 'opacity-50': bar.isOutlier }]"
                             :style="{ height: `${(bar.count / largestCount) * 100}%` }"
                         />
                     </span>

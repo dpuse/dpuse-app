@@ -38,9 +38,14 @@ type DetailTabId = 'formats' | 'overview' | 'values';
 
 const COUNTED_VALUE_LIMIT = 1000; // The most different values the engine counts in a column, as 'MAX_COUNTED_VALUE_COUNT' sets it there.
 const MIN_SHOWN_SHARE = 0.001; // The smallest share the legend shows as a number, 0.1%, its one decimal place.
-const VALID_BAR_COLOR_CLASS = 'bg-[color-mix(in_srgb,var(--color-accent)_20%,var(--color-card))]';
-const INVALID_BAR_COLOR_CLASS = 'bg-[color-mix(in_srgb,var(--color-danger-text)_20%,var(--color-card))]'; // The value bar's invalid colour, made pale.
+// A fifth of the colour reads clearly on a white card, but stays close to black on a dark one, so dark mode mixes in
+// 30%. The bar's light text stays readable on it.
+const VALID_BAR_COLOR_CLASS = 'bg-[color-mix(in_srgb,var(--color-accent)_20%,var(--color-card))] dark:bg-[color-mix(in_srgb,var(--color-accent)_30%,var(--color-card))]';
+const INVALID_BAR_COLOR_CLASS =
+    'bg-[color-mix(in_srgb,var(--color-danger-text)_20%,var(--color-card))] dark:bg-[color-mix(in_srgb,var(--color-danger-text)_30%,var(--color-card))]'; // The value bar's invalid colour, made pale.
 const COMPACT_AXIS_MIN_WIDTH = 1000; // The narrowest range whose axis labels are shortened, such as '12K'.
+const LOG_COMPACT_MIN = 0.001; // A log range's edges from here up to 'LOG_COMPACT_MAX' read well in short form. Others are scientific.
+const LOG_COMPACT_MAX = 1e15; // Short form ends at trillions, so a larger edge would read as '1,000T'.
 const DAY_MILLISECONDS = 86_400_000;
 const EDGE_VALUE_COUNT = 20; // Values listed at each end, all the engine keeps.
 const VALUE_READERS: Partial<Record<string, (value: string) => number>> = { numeric: Number, temporal: Date.parse }; // How a valid value of each type is read for sorting.
@@ -72,6 +77,9 @@ const {
     nullWordReading?: 'empty' | 'text'; // How words such as 'NA' read. 'NULL' is always empty. Only a text column has the choice. Not a boolean, because Vue reads a missing boolean as false.
     typeOptions: SelectOption[];
     typeValue: string;
+}>();
+defineSlots<{
+    'choices-end'?(): unknown; // Rendered after the column's choices, e.g. a link to where they can be changed when the host only shows them.
 }>();
 const emit = defineEmits<{
     close: [];
@@ -205,21 +213,35 @@ const invalidChartRows = computed((): CountBarRow[] => {
 });
 
 // ── Distribution ─ Numbers and dates as a histogram, because most of their values are seen once and a list by
-// frequency says little. Text as its most frequent values, then one line for the rest.
+// frequency says little. Text as its most frequent values, then one line for the rest. Numbers that span many powers of
+// ten come with one range for each power, a log scale. When a few values lie far from the rest, the ranges cover only
+// the middle, and the far values have a paler bar at each end. Counts the engine estimated from a sample say 'about'.
+const binsAreLogScale = computed(() => columnConfig.value?.valueBinScaleId === 'log');
 const histogramBars = computed((): ValueHistogramBar[] => {
     const numberFormat = new Intl.NumberFormat(localeId.value);
     const axisFormat = axisNumberFormat.value;
-    return (columnConfig.value?.valueBins ?? []).map(({ count, lowerValue, upperValue }) => {
-        const { endText, startText } = constructBinEnds(lowerValue, upperValue);
+    const outliers = columnConfig.value?.valueBinOutliers;
+    const formatCount = (count: number): string =>
+        outliers?.isEstimated === true ? t(TEXT, 'count.estimate.text', { count: numberFormat.format(count) }) : numberFormat.format(count);
+    const bars = (columnConfig.value?.valueBins ?? []).map(({ count, lowerValue, upperValue }): ValueHistogramBar => {
+        const { endText, startText } = binsAreLogScale.value
+            ? { endText: formatLogEdge(upperValue), startText: formatLogEdge(lowerValue) }
+            : constructBinEnds(lowerValue, upperValue);
         return {
             count,
-            countText: numberFormat.format(count),
-            endText: axisFormat?.format(Number(upperValue)) ?? endText,
+            countText: formatCount(count),
+            endText: binsAreLogScale.value ? endText : (axisFormat?.format(Number(upperValue)) ?? endText),
             key: lowerValue,
             label: startText === endText ? startText : t(TEXT, 'bin.label', { lower: startText, upper: endText }),
-            startText: axisFormat?.format(Number(lowerValue)) ?? startText
+            startText: binsAreLogScale.value ? startText : (axisFormat?.format(Number(lowerValue)) ?? startText)
         };
     });
+    const firstBar = bars[0];
+    const lastBar = bars.at(-1);
+    if (outliers == null || firstBar == null || lastBar == null) return bars;
+    const belowBars = outliers.belowCount > 0 ? [constructOutlierBar('below', outliers.belowCount, formatCount, firstBar.startText)] : [];
+    const aboveBars = outliers.aboveCount > 0 ? [constructOutlierBar('above', outliers.aboveCount, formatCount, lastBar.endText)] : [];
+    return [...belowBars, ...bars, ...aboveBars];
 });
 
 // Large numbers on the axis in short form, such as '1.5M', so the labels fit. Ranges narrower than a thousand keep full
@@ -380,6 +402,27 @@ function constructBinEnds(lowerValue: string, upperValue: string): { endText: st
         ['bigint', 'integer'].includes(columnConfig.value?.dataSubtypeId ?? '') && Number.isSafeInteger(Number(lowerValue)) && Number.isSafeInteger(Number(upperValue));
     const endValue = isWholeNumber ? String(Number(upperValue) - 1) : upperValue;
     return { endText: formatBinValue(endValue), startText: formatBinValue(lowerValue) };
+}
+
+// The values beyond the ranges, as a bar at one end. It has no edge of its own on the axis, only the range's edge it meets.
+function constructOutlierBar(endId: 'above' | 'below', count: number, formatCount: (count: number) => string, edgeText: string): ValueHistogramBar {
+    return {
+        count,
+        countText: formatCount(count),
+        endText: endId === 'below' ? edgeText : '',
+        isOutlier: true,
+        key: endId,
+        label: t(TEXT, endId === 'below' ? 'outliers.below.label' : 'outliers.above.label', { value: edgeText }),
+        startText: endId === 'below' ? '' : edgeText
+    };
+}
+
+// A log range's edge, a power of ten, in short form: '10K' or '1M', and '1E-6' or '1E18' beyond what short form reads well.
+function formatLogEdge(value: string): string {
+    const number = Number(value);
+    const size = Math.abs(number);
+    const isCompact = number === 0 || (size >= LOG_COMPACT_MIN && size < LOG_COMPACT_MAX);
+    return new Intl.NumberFormat(localeId.value, { maximumSignificantDigits: 2, notation: isCompact ? 'compact' : 'scientific' }).format(number);
 }
 
 // A date, or a date and time at midnight, as its date alone.
@@ -598,6 +641,7 @@ function constructValueChartRows(
                         />
                         {{ t(TEXT, 'nullWords.label', { count: new Intl.NumberFormat(localeId).format(columnConfig?.nullWordValueCount ?? 0) }) }}
                     </label>
+                    <slot name="choices-end" />
                 </div>
 
                 <!-- Figures -->
@@ -623,7 +667,11 @@ function constructValueChartRows(
                 </section>
 
                 <section>
-                    <SectionHeading :count-text="validCountText" :subtitle="t(TEXT, 'distribution.title')" :title="t(TEXT, 'validValues.title')" />
+                    <SectionHeading
+                        :count-text="validCountText"
+                        :subtitle="t(TEXT, binsAreLogScale ? 'distribution.log.title' : 'distribution.title')"
+                        :title="t(TEXT, 'validValues.title')"
+                    />
                     <ValueHistogram v-if="hasValueBins" :bar-color-class="VALID_BAR_COLOR_CLASS" :bars="histogramBars" class="mt-2" :label="t(TEXT, 'histogram.aria')" />
                     <p v-else-if="hasTooManyValues" class="mt-1 mb-0 text-muted">
                         {{ t(TEXT, 'tooManyValues.text', { limit: new Intl.NumberFormat(localeId).format(COUNTED_VALUE_LIMIT) }) }}

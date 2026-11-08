@@ -76,6 +76,7 @@ defineSlots<{
     'header-label-end'?(properties: { columnId: string }): unknown; // Rendered at the end of each column's label.
     'header-label-start'?(properties: { columnId: string }): unknown; // Rendered at the start of each column's label.
     'pinned-cell'?(properties: { columnId: string; rowIndex: number; value: unknown }): unknown; // Rendered in place of a left pinned cell's value, e.g. a button.
+    'toolbar-end'?(): unknown; // Rendered at the right end of the toolbar, for actions on the whole table.
 }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -267,9 +268,12 @@ function constructHeaderClass(columnId: string): string | undefined {
 
 <template>
     <div class="relative flex h-full flex-col overflow-y-hidden" data-region="Table">
-        <!-- Toolbar -->
-        <div v-if="!isColumnPickerHidden">
-            <TableColumnPicker :table="table" />
+        <!-- Toolbar ─ 40px high, as the other toolbars on the data view screens are. Positioned, so a control in it can
+             open over the whole row. -->
+        <div v-if="!isColumnPickerHidden" class="relative flex h-10 flex-none items-center gap-x-3 border-b border-separator px-page text-xs">
+            <!-- '-ml-2' cancels the button's padding, so its icon lines up with the page edge. -->
+            <TableColumnPicker class="mr-auto -ml-2" :table="table" />
+            <slot name="toolbar-end" />
         </div>
 
         <div :aria-label="label" class="relative flex min-h-0 flex-1 flex-col" role="table">

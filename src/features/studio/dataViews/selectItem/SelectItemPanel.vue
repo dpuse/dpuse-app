@@ -24,7 +24,6 @@ import {
     LanguagesIcon,
     RotateCwIcon,
     ScanTextIcon,
-    SearchIcon,
     SeparatorVerticalIcon,
     SheetIcon,
     SlidersHorizontalIcon,
@@ -32,7 +31,7 @@ import {
     TriangleAlertIcon
 } from '@lucide/vue';
 import { type Component, computed, type CSSProperties, markRaw, nextTick, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
-import { until, useElementSize, useFocusWithin } from '@vueuse/core';
+import { until, useElementSize } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -136,8 +135,9 @@ import { localeId, t } from '@/state/locale';
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
-import ColumnDetailPanel from './ColumnDetailPanel.vue';
-import ComboboxInput from '@/components/ui/ComboboxInput.vue';
+import ColumnDetailPanel from '@/features/studio/dataViews/ColumnDetailPanel.vue';
+import ColumnSearch from '@/features/studio/dataViews/ColumnSearch.vue';
+import type { ColumnSearchOption } from '@/features/studio/dataViews/ColumnSearch.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import DataViewSource from '../DataViewSource.vue';
@@ -184,12 +184,6 @@ interface PreviewToolbarStage {
     previewTabsAreFolded: boolean;
     readChoicesAreFolded: boolean;
     readChoiceValuesAreHidden: boolean;
-}
-
-interface ColumnSearchOption {
-    id: string; // The column's position in the item, as text.
-    label: string;
-    needsAttention: boolean; // Has invalid values or an ambiguous number format, so the list marks it as the table does.
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -350,12 +344,6 @@ const readChoicesPopoverPosition = ref<CSSProperties>({});
 const { width: previewToolbarWidth } = useElementSize(previewToolbarElement);
 const previewToolbarStageIndex = ref(0);
 const previewToolbarFitId = ref(0); // Counts fits, so a fit that a newer one overtook stops.
-
-// ── Column Search ─ Opens across the toolbar from its icon, so finding a column takes no room until it is wanted.
-const columnSearchButtonId = useId(); // Focus goes back to the icon when the field closes.
-const columnSearchElement = useTemplateRef<HTMLDivElement>('columnSearch');
-const columnSearchIsOpen = ref(false);
-const { focused: columnSearchHasFocus } = useFocusWithin(columnSearchElement);
 
 const previewIsPending = ref(false); // The preview table is empty until the engine answers, which reads as an empty item unless the wait is shown.
 const hasLastPreviewSucceeded = ref(false); // Whether the last preview to finish loaded, so the Audit button stays in place while the next item loads.
@@ -938,11 +926,6 @@ watch(readChoicesAreFolded, (areFolded) => {
     if (!areFolded && readChoicesPopoverElement.value?.matches(':popover-open') === true) readChoicesPopoverElement.value.hidePopover();
 });
 
-// Clicking or tabbing away closes the column search, leaving focus where the user put it.
-watch(columnSearchHasFocus, (hasFocus) => {
-    if (!hasFocus) columnSearchIsOpen.value = false;
-});
-
 // Goes by the column types, so choosing a type marks the values again. Empty until the engine answers, so a mark never
 // describes the wrong records.
 watch(activeItemReading, async (itemReading) => {
@@ -1136,23 +1119,10 @@ function handleStepColumn(direction: -1 | 1): void {
 }
 
 // The field takes focus as it opens, so the user can type straight away.
-async function handleOpenColumnSearch(): Promise<void> {
-    columnSearchIsOpen.value = true;
-    await nextTick();
-    columnSearchElement.value?.querySelector('input')?.focus();
-}
-
-// Escape, once the field has nothing left to undo, hands focus back to the icon that opened it.
-function handleCloseColumnSearch(): void {
-    columnSearchIsOpen.value = false;
-    document.querySelector<HTMLElement>(`#${columnSearchButtonId}`)?.focus();
-}
-
 // A column found with the toolbar's search opens its detail, and the table scrolls to it, as it does for Previous and Next.
 function handleSelectColumn(columnIndex: number): void {
     selectedColumnIndex.value = columnIndex;
     if (currentPreviewTabId.value === 'table') previewTableComponent.value?.scrollColumnIntoView(String(columnIndex));
-    handleCloseColumnSearch();
 }
 
 // The folded read choices open below the toolbar, lined up with its start, where their button is. Placed before they
@@ -2145,44 +2115,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 />
                 <span class="flex-1" />
 
-                <!-- Column Search ─ The icon opens the field over the whole toolbar, because the row has no room for
-                     both. The icon stays in the row under the field, so the toolbar's fit does not change as it opens. -->
-                <ActionWrapper
-                    v-if="columnSearchIsShown"
-                    :id="columnSearchButtonId"
-                    :aria-expanded="columnSearchIsOpen"
-                    :aria-label="t(TEXT, 'columnSearch.aria')"
-                    class="flex h-7 flex-none items-center rounded-md px-1 hover:state-hover active:state-press"
-                    :title="t(TEXT, 'columnSearch.aria')"
-                    @click="handleOpenColumnSearch"
-                >
-                    <SearchIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
-                </ActionWrapper>
-                <div
-                    v-if="columnSearchIsShown && columnSearchIsOpen"
-                    ref="columnSearch"
-                    class="absolute inset-0 z-20 flex items-center bg-surface px-page"
-                >
-                    <ComboboxInput
-                        class="min-w-0 flex-1"
-                        :empty-text="t(TEXT, 'columnSearch.empty.text')"
-                        :label="t(TEXT, 'columnSearch.aria')"
-                        :options="columnSearchOptions"
-                        :placeholder="t(TEXT, 'columnSearch.placeholder')"
-                        @keydown.escape="handleCloseColumnSearch"
-                        @select="handleSelectColumn(Number($event.id))"
-                    >
-                        <template #option-icon="{ option }">
-                            <TriangleAlertIcon
-                                v-if="option.needsAttention"
-                                :aria-label="t(TEXT, 'column.attention.aria')"
-                                class="size-4 flex-none text-warning-text"
-                                role="img"
-                                :stroke-width="1.5"
-                            />
-                        </template>
-                    </ComboboxInput>
-                </div>
+                <!-- Column Search ─ Opens over the whole toolbar, because the row has no room for both. -->
+                <ColumnSearch v-if="columnSearchIsShown" :options="columnSearchOptions" @select="handleSelectColumn" />
 
                 <!-- Preview Tabs ─ Icons rather than words, to leave the toolbar room. '-mr-1.5' centres the last icon 30px
                      from the edge, under the assistant toggle. -->
@@ -2469,10 +2403,11 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
             <!-- Status Bar ─ In the safe area along the bottom of a device that has one, and 24px high in the page
                  where there is none, so a sideways scroll bar always sits above the safe area. It only shows what is
                  read, never a button, because a phone's own swipes start at its bottom edge. The running figures change
-                 too often to read out, so only the audit bar announces them. -->
+                 too often to read out, so only the audit bar announces them. The audit is on the left and the preview's
+                 extent on the right, as the state and the figures are on the explore step. -->
             <div
                 v-if="itemFailure == null"
-                class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-center overflow-hidden border-t border-separator bg-card px-page pt-0.75 text-xs text-muted"
+                class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-between gap-x-4 overflow-hidden border-t border-separator bg-card px-page pt-0.75 text-xs text-muted"
             >
                 <!-- Audit Bar ─ Along the status bar's top edge, beside the audit status it measures. Only when the
                      item's size is known. Green when the whole item was audited, the same green as valid values in the
@@ -2510,9 +2445,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         <span aria-hidden="true">{{ shownAuditStatusText }}</span>
                         <span class="sr-only">{{ auditStatus.text }}</span>
                     </template>
-                    <span v-if="auditStatus && previewExtentText" aria-hidden="true"> · </span>
-                    <template v-if="previewExtentText">{{ previewExtentText }}</template>
                 </p>
+                <p v-if="previewExtentText" class="flex-none whitespace-nowrap [text-box:trim-both_cap_alphabetic]">{{ previewExtentText }}</p>
             </div>
         </template>
 

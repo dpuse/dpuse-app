@@ -207,10 +207,6 @@ function syncPaneQuery(): void {
             <GuestWorkNotice v-if="signInFollowsGuestUse" />
         </div>
 
-        <!-- Status Bar Strip ─ iOS 27 blurs the top of a Home Screen app unless a fixed element with a solid background
-             sits at the top edge. The strip fills the status bar area, so it has no height in a browser tab. -->
-        <div class="pointer-events-none fixed inset-x-0 top-0 z-50 h-[env(safe-area-inset-top)] bg-surface" />
-
         <!-- Top Edge Line ─ Full width on wide viewports, lying exactly over the option bar's own line. -->
         <div v-if="viewportIsWide && viewportRequiresTopEdgeLine" class="pointer-events-none fixed inset-x-0 top-[env(safe-area-inset-top)] z-50 h-px bg-separator" />
 

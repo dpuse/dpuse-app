@@ -2,6 +2,7 @@
     "TEXT": {
         "bin.label": { "en": "{lower} to {upper}", "es": "{lower} a {upper}" },
         "close.aria": { "en": "Close column details", "es": "Cerrar los detalles de la columna" },
+        "count.estimate.text": { "en": "about {count}", "es": "unos {count}" },
         "decimalPlaces.none.text": { "en": "no decimal places", "es": "0 decimales" },
         "decimalPlaces.one.text": { "en": "1 decimal place", "es": "1 decimal" },
         "decimalPlaces.other.text": { "en": "{count} decimal places", "es": "{count} decimales" },
@@ -17,6 +18,7 @@
         },
         "detected.text": { "en": "Detected as {type}", "es": "Detectado como {type}" },
         "digits.text": { "en": "Numbers have {wholeDigits} and {decimalPlaces}.", "es": "Los números tienen {wholeDigits} y {decimalPlaces}." },
+        "distribution.log.title": { "en": "Distribution, log scale", "es": "Distribución, escala logarítmica" },
         "distribution.title": { "en": "Distribution", "es": "Distribución" },
         "edgeCount.all.text": { "en": "All {count} distinct", "es": "Los {count} distintos" },
         "edgeCount.shown.text": { "en": "{shown} shown", "es": "{shown} mostrados" },
@@ -43,6 +45,8 @@
             "es": "Se muestran los {listed} formatos más comunes de {total}. Los otros {count} formatos abarcan {values}."
         },
         "otherValues.text": { "en": "{count} other values", "es": "{count} valores más" },
+        "outliers.above.label": { "en": "{value} and above", "es": "{value} o más" },
+        "outliers.below.label": { "en": "Below {value}", "es": "Por debajo de {value}" },
         "previous.aria": { "en": "Previous column", "es": "Columna anterior" },
         "singleValues.text": { "en": "{listed} of the {count} values seen only once are listed.", "es": "Se muestran {listed} de los {count} valores que aparecen una sola vez." },
         "tab.formats.label": { "en": "Formats", "es": "Formatos" },

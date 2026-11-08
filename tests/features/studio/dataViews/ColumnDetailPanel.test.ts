@@ -6,10 +6,10 @@ import { mount, type VueWrapper } from '@vue/test-utils';
 import type { ObjectColumnConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import ColumnDetailPanel from '@/features/studio/dataViews/selectItem/ColumnDetailPanel.vue';
+import ColumnDetailPanel from '@/features/studio/dataViews/ColumnDetailPanel.vue';
 import type { ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
 import { t } from '@/state/locale';
-import { TEXT } from '@/features/studio/dataViews/selectItem/ColumnDetailPanel_.json';
+import { TEXT } from '@/features/studio/dataViews/ColumnDetailPanel_.json';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -270,6 +270,52 @@ describe('ColumnDetailPanel', () => {
             `${t(TEXT, 'validValues.title')} – ${t(TEXT, 'highest.title')}`
         ]);
         expect(wrapper.findAll('[role="tabpanel"] ul li').map((row) => row.text())).toStrictEqual(['11', '12.51']);
+    });
+
+    it('labels a log scale’s ranges by powers of ten, with zero as its own range', async () => {
+        const column = buildColumn({
+            dataSubtypeId: 'decimal',
+            frequentValues: {},
+            validValueCount: 5000,
+            valueBinScaleId: 'log',
+            valueBins: [
+                { count: 2, lowerValue: '-100', upperValue: '-10' },
+                { count: 1, lowerValue: '0', upperValue: '0' },
+                { count: 3, lowerValue: '1000', upperValue: '10000' },
+                { count: 4, lowerValue: '1e+15', upperValue: '1e+16' }
+            ]
+        });
+        const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
+        const histogramRows = wrapper.findAll('[data-region="ValueHistogram"] li').map((row) => row.find('.sr-only').text());
+
+        expect(findHeadingTitles(wrapper)[0]).toBe(`${t(TEXT, 'validValues.title')} – ${t(TEXT, 'distribution.log.title')}`);
+        expect(histogramRows[0]).toContain(t(TEXT, 'bin.label', { lower: '-100', upper: '-10' }));
+        expect(histogramRows[1]).toMatch(/^0 /u);
+        expect(histogramRows[2]).toContain(t(TEXT, 'bin.label', { lower: '1K', upper: '10K' }));
+        expect(histogramRows[3]).toContain(t(TEXT, 'bin.label', { lower: '1E15', upper: '1E16' })); // Past trillions, short form would read '1,000T'.
+    });
+
+    it('adds a paler bar at each end for the values beyond the ranges, with estimated counts marked', async () => {
+        const column = buildColumn({
+            dataSubtypeId: 'decimal',
+            frequentValues: {},
+            validValueCount: 5000,
+            valueBinOutliers: { aboveCount: 3, belowCount: 2, isEstimated: true },
+            valueBins: [
+                { count: 5, lowerValue: '0', upperValue: '10' },
+                { count: 4, lowerValue: '10', upperValue: '20' }
+            ]
+        });
+        const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
+        const bars = wrapper.findAll('[data-region="ValueHistogram"] li');
+        const histogramRows = bars.map((row) => row.find('.sr-only').text());
+
+        expect(histogramRows).toHaveLength(4);
+        expect(histogramRows[0]).toContain(t(TEXT, 'outliers.below.label', { value: '0' }));
+        expect(histogramRows[0]).toContain(t(TEXT, 'count.estimate.text', { count: '2' }));
+        expect(histogramRows[3]).toContain(t(TEXT, 'outliers.above.label', { value: '20' }));
+        expect(histogramRows[1]).toContain(t(TEXT, 'count.estimate.text', { count: '5' })); // The ranges' own counts come from the same sample.
+        expect(bars.map((bar) => bar.find('[aria-hidden="true"]').classes('opacity-50'))).toStrictEqual([true, false, false, true]);
     });
 
     it('shows one list in ascending order when the lowest and highest hold the same values', async () => {

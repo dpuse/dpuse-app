@@ -7,20 +7,12 @@
 //   fragment root (this used to have three: TransformDataPanel, InvestigateDataPanel, the option selector) silently
 //   drops them instead, which was also leaving this panel without its flex sizing.
 
-// ── External Dependencies & Registrations
-import { ref } from 'vue';
-
-import { DATA_VIEW_SIDE_ACTION_ID } from '@/features/studio/dataViews/_dataViews';
-import { t } from '@/state/locale';
-import { TEXT } from './ExploreDataPanel_.json';
-
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Static Components
 import InvestigateDataPanel from './InvestigateDataPanel.vue';
 import type { TaskConfig } from '@/components/ui/TaskBar.vue';
-import TransformDataPanel from './TransformDataPanel.vue';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 // Declared (even though this is the last wizard step and never actually emits) so Vue treats these as real
@@ -30,52 +22,10 @@ import TransformDataPanel from './TransformDataPanel.vue';
 defineProps<{ taskLocalisedConfig: LocalisedConfig<TaskConfig> }>();
 
 defineEmits<{ 'task-completed': [taskLocalisedConfig: LocalisedConfig<TaskConfig>] }>();
-
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const activeOptionId = ref<'transform' | 'investigate'>('investigate');
 </script>
 
 <template>
     <div class="relative flex flex-col">
-        <!-- Transform Panel -->
-        <TransformDataPanel v-if="activeOptionId === 'transform'" />
-
-        <!-- Investigate Panel -->
-        <InvestigateDataPanel v-if="activeOptionId === 'investigate'" />
-
-        <!-- Option Selector -->
-        <Teleport defer :to="`#${DATA_VIEW_SIDE_ACTION_ID}`">
-            <span class="isolate inline-flex h-10 rounded-full shadow-md">
-                <!-- View mode buttons -->
-                <button
-                    type="button"
-                    class="relative inline-flex items-center rounded-l-full py-2 pr-2 pl-3 text-xs text-zinc-900 inset-ring-1 inset-ring-zinc-300 focus:z-10"
-                    :class="
-                        activeOptionId === 'transform'
-                            ? 'bg-zinc-100 text-zinc-900 hover:state-hover dark:bg-zinc-700 dark:text-zinc-100'
-                            : 'bg-white hover:state-hover dark:bg-zinc-800'
-                    "
-                    :aria-pressed="activeOptionId === 'transform'"
-                    @click="activeOptionId = 'transform'"
-                >
-                    {{ t(TEXT, 'transform.label') }}
-                </button>
-
-                <button
-                    type="button"
-                    class="relative -ml-px inline-flex items-center rounded-r-full p-2 text-xs text-zinc-900 inset-ring-1 inset-ring-zinc-300 focus:z-10"
-                    :class="
-                        activeOptionId === 'investigate'
-                            ? 'bg-zinc-100 text-zinc-900 hover:state-hover dark:bg-zinc-700 dark:text-zinc-100'
-                            : 'bg-white hover:state-hover dark:bg-zinc-800'
-                    "
-                    :aria-pressed="activeOptionId === 'investigate'"
-                    @click="activeOptionId = 'investigate'"
-                >
-                    {{ t(TEXT, 'investigate.label') }}
-                </button>
-            </span>
-        </Teleport>
+        <InvestigateDataPanel />
     </div>
 </template>
