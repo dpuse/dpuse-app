@@ -324,7 +324,7 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
                 <!-- Trail ─ What the data view is built from, in the same row on every step. It reaches only as far as the
                      step on screen, so choosing a connection does not show a file from a later step as if it were still
                      chosen. On the item step its folders can be opened. -->
-                <div class="flex h-9.25 min-w-0 items-center gap-x-3 border-b border-separator px-page text-sm">
+                <div class="flex h-10 min-w-0 items-center gap-x-3 border-b border-separator px-page text-sm">
                     <ItemTrail
                         class="min-w-0 flex-1"
                         :connection-node-config="taskIdOnScreen === 'connection' ? undefined : dataViewConfig?.connectionNodeConfig"
@@ -334,7 +334,7 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
                          the Discard and Save pill. -->
                     <ActionWrapper
                         v-if="taskIdOnScreen === 'connection'"
-                        class="flex h-9.25 flex-none cursor-pointer items-center gap-x-1.5 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                        class="flex h-10 flex-none cursor-pointer items-center gap-x-1.5 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                         @click="handleAddConnection"
                     >
                         <PlusIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />

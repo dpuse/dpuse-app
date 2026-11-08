@@ -56,7 +56,7 @@ function isCrumbLink(index: number): boolean {
         <template v-if="itemStepTrail?.backLabel != null && itemConfig">
             <ActionWrapper
                 :aria-label="t(TEXT, 'back.aria', { label: itemStepTrail.backLabel })"
-                class="flex h-9.25 min-w-0 shrink cursor-pointer items-center gap-x-2 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                class="flex h-10 min-w-0 shrink cursor-pointer items-center gap-x-2 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                 @click="itemStepTrail.returnToList()"
             >
                 <ArrowLeftIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />

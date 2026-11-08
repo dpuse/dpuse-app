@@ -389,7 +389,7 @@ function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig, n
             <!-- Toolbar ─ 'Load again' is for a data view whose source may have changed since it was loaded. -->
             <div
                 v-if="investigateState.typeId === 'ready' || investigateState.typeId === 'loading'"
-                class="flex h-9.25 flex-none items-center justify-end gap-x-3 border-b border-separator px-page text-xs"
+                class="flex h-10 flex-none items-center justify-end gap-x-3 border-b border-separator px-page text-xs"
             >
                 <span v-if="investigateState.typeId === 'ready' && columnsAreFromPartialAudit" class="mr-auto text-muted">{{ t(TEXT, 'load.partialAuditTypes.text') }}</span>
                 <span v-if="investigateState.typeId === 'ready' && loadDurationText" class="text-muted">{{ loadDurationText }}</span>

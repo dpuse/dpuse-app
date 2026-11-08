@@ -25,6 +25,7 @@ import {
     LanguagesIcon,
     RotateCwIcon,
     ScanTextIcon,
+    SearchIcon,
     SeparatorVerticalIcon,
     SheetIcon,
     SlidersHorizontalIcon,
@@ -32,7 +33,7 @@ import {
     TriangleAlertIcon
 } from '@lucide/vue';
 import { type Component, computed, type CSSProperties, markRaw, nextTick, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
-import { until, useElementSize } from '@vueuse/core';
+import { until, useElementSize, useFocusWithin } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -142,7 +143,7 @@ import { localeId, t } from '@/state/locale';
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
 import ColumnDetailPanel from './ColumnDetailPanel.vue';
-import type { ColumnSearchOption } from './ColumnDetailPanel.vue';
+import ComboboxInput from '@/components/ui/ComboboxInput.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import DataViewSource from '../DataViewSource.vue';
@@ -189,6 +190,12 @@ interface PreviewToolbarStage {
     previewTabsAreFolded: boolean;
     readChoicesAreFolded: boolean;
     readChoiceValuesAreHidden: boolean;
+}
+
+interface ColumnSearchOption {
+    id: string; // The column's position in the item, as text.
+    label: string;
+    needsAttention: boolean; // Has invalid values or an ambiguous number format, so the list marks it as the table does.
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -355,6 +362,12 @@ const readChoicesPopoverPosition = ref<CSSProperties>({});
 const { width: previewToolbarWidth } = useElementSize(previewToolbarElement);
 const previewToolbarStageIndex = ref(0);
 const previewToolbarFitId = ref(0); // Counts fits, so a fit that a newer one overtook stops.
+
+// ── Column Search ─ Opens across the toolbar from its icon, so finding a column takes no room until it is wanted.
+const columnSearchButtonId = useId(); // Focus goes back to the icon when the field closes.
+const columnSearchElement = useTemplateRef<HTMLDivElement>('columnSearch');
+const columnSearchIsOpen = ref(false);
+const { focused: columnSearchHasFocus } = useFocusWithin(columnSearchElement);
 
 const previewIsPending = ref(false); // The preview table is empty until the engine answers, which reads as an empty item unless the wait is shown.
 const hasLastPreviewSucceeded = ref(false); // Whether the last preview to finish loaded, so the Audit button stays in place while the next item loads.
@@ -795,7 +808,7 @@ const selectedColumnRowIndex = computed(() => {
 const tableColumnIndexes = computed(() =>
     (activeItemReading.value?.columnConfigs ?? []).map((columnConfig, index) => (isDerivedColumn(columnConfig) ? undefined : index)).filter((index) => index !== undefined)
 );
-// The columns a column's detail can search for: the table's own, because a derived column only holds values for another.
+// The columns the toolbar's search can find: the table's own, because a derived column only holds values for another.
 const columnSearchOptions = computed((): ColumnSearchOption[] => {
     const columnRows = activeItemReading.value == null ? [] : constructPreviewColumnRows(activeItemReading.value);
     return tableColumnIndexes.value.map((columnIndex) => ({
@@ -804,6 +817,7 @@ const columnSearchOptions = computed((): ColumnSearchOption[] => {
         needsAttention: columnRowsNeedingAttention.value.has(columnIndex)
     }));
 });
+const columnSearchIsShown = computed(() => (currentPreviewTabId.value === 'table' || currentPreviewTabId.value === 'columns') && columnSearchOptions.value.length > 1);
 const steppedColumnIndexes = computed(() => (currentPreviewTabId.value === 'table' ? tableColumnIndexes.value : shownColumnIndexes.value));
 const selectedColumnStepIndex = computed(() => {
     const stepIndex = selectedColumnIndex.value == null ? -1 : steppedColumnIndexes.value.indexOf(selectedColumnIndex.value);
@@ -947,6 +961,7 @@ watch(
         previewHeadersAreChoosable,
         (): string | undefined => auditStatus.value?.text,
         auditIsRunning,
+        columnSearchIsShown,
         localeId
     ],
     fitPreviewToolbar,
@@ -956,6 +971,11 @@ watch(
 // Widening the toolbar puts the read choices back in its row, which would leave their popover open and empty.
 watch(readChoicesAreFolded, (areFolded) => {
     if (!areFolded && readChoicesPopoverElement.value?.matches(':popover-open') === true) readChoicesPopoverElement.value.hidePopover();
+});
+
+// Clicking or tabbing away closes the column search, leaving focus where the user put it.
+watch(columnSearchHasFocus, (hasFocus) => {
+    if (!hasFocus) columnSearchIsOpen.value = false;
 });
 
 // Goes by the column types, so choosing a type marks the values again. Empty until the engine answers, so a mark never
@@ -1150,10 +1170,24 @@ function handleStepColumn(direction: -1 | 1): void {
     if (currentPreviewTabId.value === 'table') previewTableComponent.value?.scrollColumnIntoView(String(nextColumnIndex));
 }
 
-// A column found with the search in a column's detail, which the table scrolls to, as it does for Previous and Next.
+// The field takes focus as it opens, so the user can type straight away.
+async function handleOpenColumnSearch(): Promise<void> {
+    columnSearchIsOpen.value = true;
+    await nextTick();
+    columnSearchElement.value?.querySelector('input')?.focus();
+}
+
+// Escape, once the field has nothing left to undo, hands focus back to the icon that opened it.
+function handleCloseColumnSearch(): void {
+    columnSearchIsOpen.value = false;
+    document.querySelector<HTMLElement>(`#${columnSearchButtonId}`)?.focus();
+}
+
+// A column found with the toolbar's search opens its detail, and the table scrolls to it, as it does for Previous and Next.
 function handleSelectColumn(columnIndex: number): void {
     selectedColumnIndex.value = columnIndex;
     if (currentPreviewTabId.value === 'table') previewTableComponent.value?.scrollColumnIntoView(String(columnIndex));
+    handleCloseColumnSearch();
 }
 
 // The folded read choices open below the toolbar, lined up with its start, where their button is. Placed before they
@@ -1908,7 +1942,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         <template #detail="{ item }">
             <ErrorNotice v-if="itemFailure" :failures="[itemFailure]" @retry="handleRetryItem" />
             <!-- Preview Toolbar ─ One row over the preview only, so the breadcrumbs keep the whole header row. -->
-            <div v-if="itemFailure == null" ref="previewToolbar" class="relative flex h-9.25 flex-none items-center gap-x-2 border-b border-separator px-page text-xs text-muted">
+            <div v-if="itemFailure == null" ref="previewToolbar" class="relative flex h-10 flex-none items-center gap-x-2 border-b border-separator px-page text-xs text-muted">
                 <!-- Read Choices ─ How the item is read and where it loads. A value truncates as the row narrows, but
                      only to 'min-w-22', a few letters, because less says nothing. Past that the toolbar's next stage
                      hides the values, and in the last the selects fold into a popover below one button. 'Teleport'
@@ -2140,6 +2174,45 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 />
                 <span class="flex-1" />
 
+                <!-- Column Search ─ The icon opens the field over the whole toolbar, because the row has no room for
+                     both. The icon stays in the row under the field, so the toolbar's fit does not change as it opens. -->
+                <ActionWrapper
+                    v-if="columnSearchIsShown"
+                    :id="columnSearchButtonId"
+                    :aria-expanded="columnSearchIsOpen"
+                    :aria-label="t(TEXT, 'columnSearch.aria')"
+                    class="flex h-7 flex-none items-center rounded-md px-1 hover:state-hover active:state-press"
+                    :title="t(TEXT, 'columnSearch.aria')"
+                    @click="handleOpenColumnSearch"
+                >
+                    <SearchIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
+                </ActionWrapper>
+                <div
+                    v-if="columnSearchIsShown && columnSearchIsOpen"
+                    ref="columnSearch"
+                    class="absolute inset-0 z-20 flex items-center bg-surface px-page"
+                >
+                    <ComboboxInput
+                        class="min-w-0 flex-1"
+                        :empty-text="t(TEXT, 'columnSearch.empty.text')"
+                        :label="t(TEXT, 'columnSearch.aria')"
+                        :options="columnSearchOptions"
+                        :placeholder="t(TEXT, 'columnSearch.placeholder')"
+                        @keydown.escape="handleCloseColumnSearch"
+                        @select="handleSelectColumn(Number($event.id))"
+                    >
+                        <template #option-icon="{ option }">
+                            <TriangleAlertIcon
+                                v-if="option.needsAttention"
+                                :aria-label="t(TEXT, 'column.attention.aria')"
+                                class="size-4 flex-none text-warning-text"
+                                role="img"
+                                :stroke-width="1.5"
+                            />
+                        </template>
+                    </ComboboxInput>
+                </div>
+
                 <!-- Preview Tabs ─ Icons rather than words, to leave the toolbar room. '-mr-1.5' centres the last icon 30px
                      from the edge, under the assistant toggle. -->
                 <div
@@ -2344,7 +2417,6 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 class="pointer-events-auto absolute inset-0 bg-surface shadow-md"
                                 can-step-columns
                                 :column-index="selectedColumnIndex"
-                                :column-search-options="columnSearchOptions"
                                 :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
                                 :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
                                 :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
@@ -2356,7 +2428,6 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
                                 :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
                                 @close="selectedColumnIndex = undefined"
-                                @select="handleSelectColumn"
                                 @step="handleStepColumn"
                                 @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
                                 @update:null-words-are-empty="handleSelectNullWords(String(selectedColumnIndex), $event)"
@@ -2414,7 +2485,6 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             class="min-w-0 flex-1 border-l border-separator"
                             :can-step-columns="columnDetailFillsSpace"
                             :column-index="selectedColumnIndex"
-                            :column-search-options="columnSearchOptions"
                             :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
                             :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
                             :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
@@ -2426,7 +2496,6 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             :type-options="constructColumnTypeOptions(String(selectedColumnIndex))"
                             :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
                             @close="selectedColumnIndex = undefined"
-                            @select="handleSelectColumn"
                             @step="handleStepColumn"
                             @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
                             @update:null-words-are-empty="handleSelectNullWords(String(selectedColumnIndex), $event)"

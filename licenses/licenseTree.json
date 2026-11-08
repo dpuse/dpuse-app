@@ -1,5 +1,5 @@
 {
-  "version": "1.0.267",
+  "version": "1.0.268",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -171,7 +171,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261107.1"
+              "version": "5.20261108.1"
             },
             "blake3-wasm": {
               "version": "2.1.5"
@@ -208,8 +208,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261107.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261107.1.tgz",
+      "version": "5.20261108.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261108.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -6819,7 +6819,7 @@
         "@automerge/automerge-repo": {},
         "@capacitor-community/sqlite": {},
         "@cloudflare/workers-types": {
-          "version": "5.20261107.1"
+          "version": "5.20261108.1"
         },
         "@electric-sql/pglite": {},
         "@libsql/client": {},
@@ -7720,7 +7720,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261107.1"
+          "version": "5.20261108.1"
         },
         "@cspotcode/source-map-support": {
           "version": "0.8.1",

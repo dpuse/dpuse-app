@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ChevronLeftIcon, ChevronRightIcon, TriangleAlertIcon } from '@lucide/vue';
+import { ArrowDownNarrowWideIcon, ArrowDownWideNarrowIcon, ChevronLeftIcon, ChevronRightIcon, TriangleAlertIcon } from '@lucide/vue';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
@@ -22,21 +22,17 @@ import { localeId, t } from '@/state/locale';
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import CloseButton from '@/components/ui/action/CloseButton.vue';
-import ComboboxInput from '@/components/ui/ComboboxInput.vue';
 import CountBarList from './CountBarList.vue';
 import type { CountBarRow } from './CountBarList.vue';
+import SectionHeading from './SectionHeading.vue';
 import SelectInput from '@/components/ui/SelectInput.vue';
 import type { SelectOption } from '@/components/ui/SelectInput.vue';
+import ValueHistogram from './ValueHistogram.vue';
+import type { ValueHistogramBar } from './ValueHistogram.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 type DetailTabId = 'formats' | 'overview' | 'values';
-
-export interface ColumnSearchOption {
-    id: string; // The column's position in the item, as text.
-    label: string;
-    needsAttention: boolean; // Has invalid values or an ambiguous number format, so the list marks it as the table does.
-}
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -44,6 +40,10 @@ const COUNTED_VALUE_LIMIT = 1000; // The most different values the engine counts
 const MIN_SHOWN_SHARE = 0.001; // The smallest share the legend shows as a number, 0.1%, its one decimal place.
 const VALID_BAR_COLOR_CLASS = 'bg-[color-mix(in_srgb,var(--color-accent)_20%,var(--color-card))]';
 const INVALID_BAR_COLOR_CLASS = 'bg-[color-mix(in_srgb,var(--color-danger-text)_20%,var(--color-card))]'; // The value bar's invalid colour, made pale.
+const COMPACT_AXIS_MIN_WIDTH = 1000; // The narrowest range whose axis labels are shortened, such as '12K'.
+const DAY_MILLISECONDS = 86_400_000;
+const EDGE_VALUE_COUNT = 20; // Values listed at each end, all the engine keeps.
+const VALUE_READERS: Partial<Record<string, (value: string) => number>> = { numeric: Number, temporal: Date.parse }; // How a valid value of each type is read for sorting.
 const FORMAT_ROW_COUNT = 50; // Bars on the Formats tab. A rare format is often the one worth finding, so the list is long before the rest are summed.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -51,7 +51,6 @@ const FORMAT_ROW_COUNT = 50; // Bars on the Formats tab. A rare format is often 
 const {
     canStepColumns,
     columnIndex,
-    columnSearchOptions = [],
     decimalSeparatorOptions = [],
     decimalSeparatorValue,
     detectedColumnType,
@@ -65,7 +64,6 @@ const {
 } = defineProps<{
     canStepColumns?: boolean; // Filling the space hides the table, so Previous and Next take its place.
     columnIndex: number;
-    columnSearchOptions?: ColumnSearchOption[]; // The columns the search between Previous and Next can open.
     decimalSeparatorOptions?: SelectOption[]; // Only a column of numbers has any.
     decimalSeparatorValue?: string;
     detectedColumnType: ColumnType | undefined;
@@ -79,7 +77,6 @@ const {
 }>();
 const emit = defineEmits<{
     close: [];
-    select: [columnIndex: number];
     step: [direction: -1 | 1];
     'update:decimalSeparatorValue': [decimalSeparatorValue: string];
     'update:nullWordsAreEmpty': [nullWordsAreEmpty: boolean];
@@ -143,18 +140,44 @@ const valueSegments = computed(() => {
 const shownValueSegments = computed(() => valueSegments.value.filter((segment) => segment.count > 0));
 const formatChartRows = computed(() => constructChartRows(formatRows.value, FORMAT_ROW_COUNT));
 
-// The formats past the Formats tab's limit, summed into one line so every value is still accounted for.
+// The formats past the Formats tab's limit, summed so every value is still accounted for.
 const otherFormatsText = computed(() => {
     const otherRows = formatRows.value.slice(FORMAT_ROW_COUNT);
     if (otherRows.length === 0) return;
     const numberFormat = new Intl.NumberFormat(localeId.value);
     const valueCount = otherRows.reduce((total, row) => total + row.count, 0);
-    return t(TEXT, 'otherFormats.text', { count: numberFormat.format(otherRows.length), valueCount: numberFormat.format(valueCount) });
+    const values = t(TEXT, valueCount === 1 ? 'valueCount.one.text' : 'valueCount.other.text', { count: numberFormat.format(valueCount) });
+    const parameters = { count: numberFormat.format(otherRows.length), listed: numberFormat.format(FORMAT_ROW_COUNT), total: numberFormat.format(formatRows.value.length), values };
+    return t(TEXT, otherRows.length === 1 ? 'otherFormats.one.text' : 'otherFormats.other.text', parameters);
 });
 
-// ── Values ─ The valid and invalid values are listed apart, each as the most frequent values, then one line for the
-// values the lists do not show, then the least frequent. With few distinct values the lists meet and there is no line
-// between them. Both share one bar scale, so how common an invalid value is shows beside the valid ones.
+// How long text is, from its shortest to its longest value, because formats past the limit, and text too long to have
+// a format, are not shown.
+const lengthText = computed(() => {
+    const { dataTypeId, maxSize, minSize } = columnConfig.value ?? {};
+    if (dataTypeId !== 'string' || minSize == null || maxSize == null) return;
+    const numberFormat = new Intl.NumberFormat(localeId.value);
+    return minSize === maxSize
+        ? t(TEXT, 'length.same.text', { length: numberFormat.format(minSize) })
+        : t(TEXT, 'length.text', { maximum: numberFormat.format(maxSize), minimum: numberFormat.format(minSize) });
+});
+
+// How many whole digits and decimal places numbers have, which says more about how they are written than their length,
+// because a sign or a thousands separator is not a digit. Dates have neither, because their formats already show it.
+const digitsText = computed(() => {
+    const { dataTypeId, maxDecimals, maxWholeDigits, minDecimals, minWholeDigits } = columnConfig.value ?? {};
+    if (dataTypeId !== 'numeric' || minWholeDigits == null || maxWholeDigits == null || minDecimals == null || maxDecimals == null) return;
+    const wholeDigits = constructDigitRangeText('wholeDigits', minWholeDigits, maxWholeDigits);
+    const decimalPlaces = maxDecimals === 0 ? t(TEXT, 'decimalPlaces.none.text') : constructDigitRangeText('decimalPlaces', minDecimals, maxDecimals);
+    return t(TEXT, 'digits.text', { decimalPlaces, wholeDigits });
+});
+
+// The notes above the formats, run together as one paragraph.
+const formatNotesText = computed(() => [lengthText.value, digitsText.value, otherFormatsText.value].filter((text) => text != null).join(' '));
+
+// ── Values ─ Every column has the same three blocks: the invalid values, how the valid values are spread, and the
+// lowest and highest valid values. The invalid and valid values share one bar scale, so how common an invalid value is
+// shows beside the valid ones.
 const valueCount = computed(() => (columnConfig.value?.validValueCount ?? 0) + (columnConfig.value?.invalidValueCount ?? 0));
 const hasTooManyValues = computed(() => {
     const config = columnConfig.value;
@@ -169,40 +192,69 @@ const validDistinctValueCount = computed(() => {
 });
 const validChartRows = computed((): CountBarRow[] => {
     const config = columnConfig.value;
-    return constructValueChartRows(config?.frequentValues, config?.leastFrequentValues, validDistinctValueCount.value ?? 0, config?.validValueCount ?? 0, largestValueCount.value);
+    return constructValueChartRows(
+        config?.frequentValues,
+        config?.leastFrequentValues,
+        validDistinctValueCount.value ?? 0,
+        config?.validValueCount ?? 0,
+        largestValueCount.value,
+        compareValidValues
+    );
 });
 const invalidChartRows = computed((): CountBarRow[] => {
     const config = columnConfig.value;
     return constructValueChartRows(config?.invalidFrequentValues, undefined, config?.invalidDistinctValueCount ?? 0, config?.invalidValueCount ?? 0, largestValueCount.value);
 });
 
-// ── Distribution ─ Numbers and dates are shown as how many fall in each range, with their lowest and highest values,
-// because most of their values are seen once and a list by frequency says little. Text past the limit has no counts, so
-// it shows only its lowest and highest values, which the engine keeps exactly however many there are.
-const binChartRows = computed((): CountBarRow[] => {
-    const bins = columnConfig.value?.valueBins ?? [];
-    const largestCount = Math.max(0, ...bins.map((bin) => bin.count));
+// ── Distribution ─ Numbers and dates as a histogram, because most of their values are seen once and a list by
+// frequency says little. Text as its most frequent values, then one line for the rest.
+const histogramBars = computed((): ValueHistogramBar[] => {
     const numberFormat = new Intl.NumberFormat(localeId.value);
-    return bins.map(({ count, lowerValue, upperValue }) => ({
-        barPercent: largestCount === 0 ? 0 : (count / largestCount) * 100,
-        count,
-        countText: numberFormat.format(count),
-        key: lowerValue,
-        label: t(TEXT, 'bin.label', { lower: formatBinValue(lowerValue), upper: formatBinValue(upperValue) })
-    }));
+    const axisFormat = axisNumberFormat.value;
+    return (columnConfig.value?.valueBins ?? []).map(({ count, lowerValue, upperValue }) => {
+        const { endText, startText } = constructBinEnds(lowerValue, upperValue);
+        return {
+            count,
+            countText: numberFormat.format(count),
+            endText: axisFormat?.format(Number(upperValue)) ?? endText,
+            key: lowerValue,
+            label: startText === endText ? startText : t(TEXT, 'bin.label', { lower: startText, upper: endText }),
+            startText: axisFormat?.format(Number(lowerValue)) ?? startText
+        };
+    });
 });
-const hasValueBins = computed(() => binChartRows.value.length > 0);
+
+// Large numbers on the axis in short form, such as '1.5M', so the labels fit. Ranges narrower than a thousand keep full
+// numbers, so years such as 1960 are not shortened to '2K'. The digits kept are enough to tell neighbouring edges apart,
+// which a fixed number of decimal places is not. A short label is a whole edge, so it ends where the next range starts.
+const axisNumberFormat = computed(() => {
+    const bins = columnConfig.value?.valueBins ?? [];
+    if (bins.length === 0 || columnConfig.value?.dataTypeId !== 'numeric') return;
+    const lowest = Number(bins[0].lowerValue);
+    const highest = Number(bins.at(-1)?.upperValue);
+    const width = Number(bins[0].upperValue) - lowest;
+    if (!Number.isFinite(width) || width < COMPACT_AXIS_MIN_WIDTH) return;
+    const largest = Math.max(Math.abs(lowest), Math.abs(highest));
+    const largestPower = Math.floor(Math.log10(largest));
+    const widthPower = Math.floor(Math.log10(width));
+    const significantDigits = Math.min(21, Math.max(1, largestPower - widthPower + 1));
+    return new Intl.NumberFormat(localeId.value, { maximumSignificantDigits: significantDigits, notation: 'compact' });
+});
+const hasValueBins = computed(() => histogramBars.value.length > 0);
+// ── Edges ─ The lowest and highest valid values for every column, text in alphabetical order, which the engine keeps
+// exactly however many values there are.
 const edgeChartLists = computed(() => {
     const config = columnConfig.value;
     const lists = [
-        { id: 'lowest', label: t(TEXT, 'lowestValues.label'), values: config?.lowestValues ?? [] },
-        { id: 'highest', label: t(TEXT, 'highestValues.label'), values: config?.highestValues ?? [] }
+        { icon: ArrowDownNarrowWideIcon, id: 'lowest', label: t(TEXT, 'lowest.title'), values: config?.lowestValues?.slice(0, EDGE_VALUE_COUNT) ?? [] },
+        { icon: ArrowDownWideNarrowIcon, id: 'highest', label: t(TEXT, 'highest.title'), values: config?.highestValues?.slice(0, EDGE_VALUE_COUNT) ?? [] }
     ];
     const largestCount = Math.max(0, ...lists.flatMap((list) => list.values.map(([, count]) => count)));
     const numberFormat = new Intl.NumberFormat(localeId.value);
     return lists
         .filter((list) => list.values.length > 0)
-        .map(({ id, label, values }) => ({
+        .map(({ icon, id, label, values }) => ({
+            icon,
             id,
             label,
             rows: values.map(([value, count]): CountBarRow => ({
@@ -215,26 +267,34 @@ const edgeChartLists = computed(() => {
         }));
 });
 
-// ── Headings ─ The valid values' distinct count beside their count, because together they show whether the values are
-// a few categories or mostly one-offs such as names. Past the limit the engine cannot count distinct values, so the
-// heading gives the count only.
-const validValuesLabel = computed(() => {
+// The most frequent values, then one line summing the rest, the least frequent included. When every value is seen
+// equally often the order by frequency says nothing, so a sentence says so in place of the list.
+const frequencyRows = computed((): CountBarRow[] => {
+    const rows = validChartRows.value;
+    const otherIndex = rows.findIndex((row) => row.barPercent == null);
+    if (otherIndex === -1) return rows;
+    const mostFrequentRows = rows.slice(0, otherIndex);
     const numberFormat = new Intl.NumberFormat(localeId.value);
-    const count = numberFormat.format(columnConfig.value?.validValueCount ?? 0);
-    return validDistinctValueCount.value == null
-        ? t(TEXT, 'validValues.label', { count })
-        : t(TEXT, 'validValues.distinct.label', { count, distinctCount: numberFormat.format(validDistinctValueCount.value) });
+    const otherCount = (columnConfig.value?.validValueCount ?? 0) - mostFrequentRows.map((row): number => row.count).reduce((total, count) => total + count, 0);
+    const otherDistinctCount = (validDistinctValueCount.value ?? 0) - mostFrequentRows.length;
+    const label = t(TEXT, 'otherValues.text', { count: numberFormat.format(otherDistinctCount) });
+    return [...mostFrequentRows, { barPercent: undefined, count: otherCount, countText: numberFormat.format(otherCount), key: 'other', label }];
 });
-const invalidValuesLabel = computed(() => t(TEXT, 'invalidValues.label', { count: new Intl.NumberFormat(localeId.value).format(columnConfig.value?.invalidValueCount ?? 0) }));
+const uniformCountText = computed(() => {
+    const distinctCount = validDistinctValueCount.value;
+    const listedRows = validChartRows.value.filter((row) => row.barPercent != null);
+    const count = listedRows[0]?.count;
+    const isUniform = count != null && distinctCount != null && distinctCount > 1 && listedRows.every((row) => row.count === count);
+    if (!isUniform || (columnConfig.value?.validValueCount ?? 0) !== distinctCount * count) return;
+    const numberFormat = new Intl.NumberFormat(localeId.value);
+    return t(TEXT, count === 1 ? 'uniformCount.one.text' : 'uniformCount.other.text', { count: numberFormat.format(count), distinctCount: numberFormat.format(distinctCount) });
+});
 
-// Values seen once all have the same count, so the list can show only some of them. This says how many there are.
-const singleValuesText = computed(() => {
-    const singleValueCount = columnConfig.value?.singleValueCount ?? 0;
-    const listedSingleCount = validChartRows.value.filter((row) => row.barPercent != null && row.count === 1).length;
-    if (listedSingleCount === 0 || singleValueCount <= listedSingleCount) return;
-    const numberFormat = new Intl.NumberFormat(localeId.value);
-    return t(TEXT, 'singleValues.text', { count: numberFormat.format(singleValueCount), listed: numberFormat.format(listedSingleCount) });
-});
+// ── Headings ─ Each section's title, with its counts apart on the right, in line with the counts of its rows. The
+// distinct count beside the count shows whether the values are a few categories or mostly one-offs such as names. Past
+// the limit the engine cannot count distinct values, so then only the count is given.
+const validCountText = computed(() => constructValueCountText(columnConfig.value?.validValueCount ?? 0, validDistinctValueCount.value));
+const invalidCountText = computed(() => constructValueCountText(columnConfig.value?.invalidValueCount ?? 0, columnConfig.value?.invalidDistinctValueCount));
 
 // ── Overview
 const overviewGroups = computed(() => {
@@ -256,33 +316,26 @@ const overviewGroups = computed(() => {
                 { label: labels.quotedValueText, value: row.quotedValueText },
                 { label: labels.paddedValueText, value: row.paddedValueText }
             ]
-        },
-        {
-            id: 'range',
-            rows: [
-                { label: labels.minValueText, value: row.minValueText },
-                { label: labels.maxValueText, value: row.maxValueText },
-                { label: labels.wholeDigitText, value: row.wholeDigitText },
-                { label: labels.decimalText, value: row.decimalText }
-            ]
         }
     ]
         .map((group) => ({ ...group, rows: group.rows.filter((groupRow) => groupRow.value !== '') }))
         .filter((group) => group.rows.length > 0);
 });
 
-// ── Tabs ─ A tab with nothing to show is left out. The invalid count stays visible on Values, so a problem is not
-// hidden.
+// ── Tabs ─ A tab with nothing to show is left out. The invalid count stays visible on Values, in the danger colour, so a
+// problem is not hidden.
 const detailTabs = computed(() => {
     const invalidCount = columnConfig.value?.invalidValueCount ?? 0;
+    const invalidCountText = invalidCount > 0 ? t(TEXT, 'tab.invalidCount.label', { count: new Intl.NumberFormat(localeId.value).format(invalidCount) }) : undefined;
     return [
-        { id: 'overview' as const, isShown: true, label: t(TEXT, 'tab.overview.label') },
+        { id: 'overview' as const, invalidCountText: undefined, isShown: true, label: t(TEXT, 'tab.overview.label') },
+        { id: 'values' as const, invalidCountText, isShown: valueCount.value > 0, label: t(TEXT, 'tab.values.label') },
         {
-            id: 'values' as const,
-            isShown: valueCount.value > 0,
-            label: invalidCount > 0 ? t(TEXT, 'tab.values.count.label', { count: new Intl.NumberFormat(localeId.value).format(invalidCount) }) : t(TEXT, 'tab.values.label')
-        },
-        { id: 'formats' as const, isShown: formatRows.value.length > 0 || (columnRow.value?.sizeText ?? '') !== '', label: t(TEXT, 'tab.formats.label') }
+            id: 'formats' as const,
+            invalidCountText: undefined,
+            isShown: formatRows.value.length > 0 || formatNotesText.value !== '',
+            label: t(TEXT, 'tab.formats.label')
+        }
     ].filter((tab) => tab.isShown);
 });
 const currentTabId = computed((): DetailTabId => (detailTabs.value.some((tab) => tab.id === selectedTabId.value) ? selectedTabId.value : 'overview'));
@@ -304,19 +357,77 @@ async function handleNavigateTabs(event: KeyboardEvent, tabIndex: number): Promi
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Numbers to four significant figures, because the ranges' edges fall wherever the values' spread puts them. Dates and
-// times as written, without the parts of a second and the time zone mark.
+// The first and last value a range holds. Whole numbers and dates end one short of where the next range starts, so
+// '50 to 59' and '2024-01' rather than '50 to 60' and '2024-01-01 to 2024-02-01'. A range of whole months or years is
+// written as months or years.
+function constructBinEnds(lowerValue: string, upperValue: string): { endText: string; startText: string } {
+    if (lowerValue === upperValue) return { endText: formatBinValue(lowerValue), startText: formatBinValue(lowerValue) };
+    const lowerDate = readMidnightDate(lowerValue);
+    const upperDate = readMidnightDate(upperValue);
+    if (lowerDate != null && upperDate != null) {
+        const lastDate = new Date(Date.parse(`${upperDate}T00:00:00Z`) - DAY_MILLISECONDS).toISOString().slice(0, 10);
+        if (lowerDate.endsWith('-01-01') && upperDate.endsWith('-01-01')) return { endText: lastDate.slice(0, 4), startText: lowerDate.slice(0, 4) };
+        if (lowerDate.endsWith('-01') && upperDate.endsWith('-01')) return { endText: lastDate.slice(0, 7), startText: lowerDate.slice(0, 7) };
+        return { endText: lastDate, startText: lowerDate };
+    }
+    const isWholeNumber =
+        ['bigint', 'integer'].includes(columnConfig.value?.dataSubtypeId ?? '') && Number.isSafeInteger(Number(lowerValue)) && Number.isSafeInteger(Number(upperValue));
+    const endValue = isWholeNumber ? String(Number(upperValue) - 1) : upperValue;
+    return { endText: formatBinValue(endValue), startText: formatBinValue(lowerValue) };
+}
+
+// A date, or a date and time at midnight, as its date alone.
+function readMidnightDate(value: string): string | undefined {
+    const date = value.slice(0, 10);
+    return /^\d{4}-\d{2}-\d{2}$/u.test(date) && ['', 'T00:00:00.000Z', 'T00:00:00Z'].includes(value.slice(10)) ? date : undefined;
+}
+
+// Numbers in full, because the engine puts the ranges' edges on round values. Dates and times as written, without the
+// parts of a second and the time zone mark.
 function formatBinValue(value: string): string {
     if (/^\d{4}-\d{2}-\d{2}T/u.test(value)) return value.slice(0, 16).replace('T', ' ');
     if (/^\d{2}:\d{2}/u.test(value)) return value.slice(0, 8);
     const number = Number(value);
-    return Number.isNaN(number) || /^\d{4}-\d{2}-\d{2}$/u.test(value) ? value : new Intl.NumberFormat(localeId.value, { maximumSignificantDigits: 4 }).format(number);
+    return Number.isNaN(number) || /^\d{4}-\d{2}-\d{2}$/u.test(value) ? value : new Intl.NumberFormat(localeId.value, { maximumSignificantDigits: 12 }).format(number);
 }
 
-function constructCountRows(counts: Record<string, number> | undefined): { count: number; countText: string; id: string }[] {
+// '4 whole digits', '1 decimal place' or '0 to 2 decimal places'.
+function constructDigitRangeText(subject: 'decimalPlaces' | 'wholeDigits', minimum: number, maximum: number): string {
+    const numberFormat = new Intl.NumberFormat(localeId.value);
+    if (minimum !== maximum) return t(TEXT, `${subject}.range.text`, { maximum: numberFormat.format(maximum), minimum: numberFormat.format(minimum) });
+    return t(TEXT, maximum === 1 ? `${subject}.one.text` : `${subject}.other.text`, { count: numberFormat.format(maximum) });
+}
+
+function constructValueCountText(count: number, distinctCount: number | undefined): string {
+    const numberFormat = new Intl.NumberFormat(localeId.value);
+    const values = { count: numberFormat.format(count), distinctCount: numberFormat.format(distinctCount ?? 0) };
+    if (distinctCount == null) return t(TEXT, count === 1 ? 'valueCount.one.text' : 'valueCount.other.text', values);
+    return t(TEXT, count === 1 ? 'valueCount.distinct.one.text' : 'valueCount.distinct.other.text', values);
+}
+
+function compareText(left: string, right: string): number {
+    return left.localeCompare(right, localeId.value);
+}
+
+// Valid values by what they are: numbers by size, and dates and times by when, so '9' comes before '10'. Dates are
+// usually stored in ISO form, but a value the engine could not read, or one from an older audit, can be as written, so a
+// date that does not parse falls back to text, as does anything else.
+function compareValidValues(left: string, right: string): number {
+    const readValue = VALUE_READERS[columnConfig.value?.dataTypeId ?? ''];
+    const leftValue = readValue?.(left) ?? NaN;
+    const rightValue = readValue?.(right) ?? NaN;
+    return Number.isNaN(leftValue) || Number.isNaN(rightValue) ? compareText(left, right) : leftValue - rightValue;
+}
+
+// Most frequent first. Equal counts in the order 'compareIds' gives, so the order never shifts between visits. Text by
+// default, which suits formats and invalid values.
+function constructCountRows(
+    counts: Record<string, number> | undefined,
+    compareIds: (left: string, right: string) => number = compareText
+): { count: number; countText: string; id: string }[] {
     const numberFormat = new Intl.NumberFormat(localeId.value);
     return Object.entries(counts ?? {})
-        .toSorted((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], localeId.value)) // Equal counts in sort order, so the order never shifts between visits.
+        .toSorted((left, right) => right[1] - left[1] || compareIds(left[0], right[0]))
         .map(([id, count]) => ({ count, countText: numberFormat.format(count), id }));
 }
 
@@ -345,7 +456,8 @@ function constructValueChartRows(
     leastFrequentValues: Record<string, number> | undefined,
     distinctCount: number,
     totalCount: number,
-    largestCount: number
+    largestCount: number,
+    compareIds?: (left: string, right: string) => number
 ): CountBarRow[] {
     const constructBarRow = ({ count, countText, id }: { count: number; countText: string; id: string }): CountBarRow => ({
         barPercent: largestCount === 0 ? 0 : (count / largestCount) * 100,
@@ -354,8 +466,8 @@ function constructValueChartRows(
         key: `value:${id}`,
         label: id
     });
-    const frequentRows = constructCountRows(frequentValues);
-    const leastRows = constructCountRows(leastFrequentValues);
+    const frequentRows = constructCountRows(frequentValues, compareIds);
+    const leastRows = constructCountRows(leastFrequentValues, compareIds);
     const listedRows = [...frequentRows, ...leastRows];
     const otherDistinctCount = distinctCount - listedRows.length;
     if (otherDistinctCount <= 0) return listedRows.map((row) => constructBarRow(row));
@@ -374,43 +486,36 @@ function constructValueChartRows(
 
 <template>
     <section class="@container flex min-h-0 min-w-0 flex-col" :aria-label="columnRow?.label" data-region="ColumnDetailPanel">
-        <!-- Header ─ Stays in place, so only the tab's content scrolls. -->
-        <!-- Navigation comes first because in a panel narrower than '@2xl' it is the top row, with the tabs under it,
-             and its search stretches so the row spans the panel. From '@2xl' the two share one row, with the tabs on the
-             left. The panel's own width decides, not the screen's, because it can sit beside the column list on any
-             screen. -->
-        <header class="flex flex-none flex-col border-b border-separator px-4 pt-2 @2xl:flex-row @2xl:items-end @2xl:gap-x-4">
-            <div class="flex items-center justify-end gap-x-2 @2xl:order-2 @2xl:flex-none @2xl:pb-1">
+        <!-- Header ─ Stays in place, so only the tab's content scrolls. One row, with the tabs on the left and the
+             column controls on the right, so the panel's chrome takes as little height as it can. -->
+        <header class="flex h-10 flex-none items-stretch gap-x-4 border-b border-separator px-4">
+            <div ref="tabList" :aria-label="t(TEXT, 'tabs.aria')" class="-mb-px flex min-w-0 flex-1 gap-x-3 overflow-x-auto overscroll-none" role="tablist">
+                <ActionWrapper
+                    v-for="(tab, tabIndex) in detailTabs"
+                    :key="tab.id"
+                    :aria-selected="tab.id === currentTabId"
+                    class="flex flex-none items-center border-y-2 border-t-transparent text-sm whitespace-nowrap"
+                    :class="tab.id === currentTabId ? 'border-b-content text-emphasis' : 'border-b-transparent text-muted'"
+                    role="tab"
+                    :tabindex="tab.id === currentTabId ? 0 : -1"
+                    @click="selectedTabId = tab.id"
+                    @keydown="handleNavigateTabs($event, tabIndex)"
+                >
+                    {{ tab.label }}
+                    <span v-if="tab.invalidCountText" class="ml-1 text-danger-text">{{ tab.invalidCountText }}</span>
+                </ActionWrapper>
+            </div>
+
+            <div class="flex flex-none items-center gap-x-2">
                 <template v-if="canStepColumns">
-                    <!-- '-ml-1' cancels the button's padding, so in a narrow panel, where it starts the row, its icon
-                         lines up with the page edge as the toolbar's icons do. -->
                     <ActionWrapper
                         :aria-label="t(TEXT, 'previous.aria')"
-                        class="-ml-1 rounded-md p-1 enabled:hover:state-hover @2xl:ml-0"
+                        class="rounded-md p-1 enabled:hover:state-hover"
                         :disabled="!hasPreviousColumn"
                         @click="emit('step', -1)"
                     >
                         <ChevronLeftIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
                     </ActionWrapper>
-                    <ComboboxInput
-                        v-if="columnSearchOptions.length > 1"
-                        class="min-w-0 flex-1 @2xl:w-40 @2xl:flex-none"
-                        :empty-text="t(TEXT, 'columnSearch.empty.text')"
-                        :label="t(TEXT, 'columnSearch.aria')"
-                        :options="columnSearchOptions"
-                        :placeholder="t(TEXT, 'columnSearch.placeholder')"
-                        @select="emit('select', Number($event.id))"
-                    >
-                        <template #option-icon="{ option }">
-                            <TriangleAlertIcon
-                                v-if="option.needsAttention"
-                                :aria-label="t(TEXT, 'columnAttention.aria')"
-                                class="size-4 flex-none text-warning-text"
-                                role="img"
-                                :stroke-width="1.5"
-                            />
-                        </template>
-                    </ComboboxInput>
                     <ActionWrapper :aria-label="t(TEXT, 'next.aria')" class="rounded-md p-1 enabled:hover:state-hover" :disabled="!hasNextColumn" @click="emit('step', 1)">
                         <ChevronRightIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
                     </ActionWrapper>
@@ -419,25 +524,12 @@ function constructValueChartRows(
                      icons do. -->
                 <CloseButton :accessible-label="t(TEXT, 'close.aria')" class="-mr-1.75" @click="emit('close')" />
             </div>
-
-            <div ref="tabList" :aria-label="t(TEXT, 'tabs.aria')" class="mt-1 -mb-px flex min-w-0 gap-x-3 overflow-x-auto @2xl:order-1 @2xl:mt-0 @2xl:flex-1" role="tablist">
-                <ActionWrapper
-                    v-for="(tab, tabIndex) in detailTabs"
-                    :key="tab.id"
-                    :aria-selected="tab.id === currentTabId"
-                    class="flex-none border-b-2 py-1 text-sm whitespace-nowrap"
-                    :class="tab.id === currentTabId ? 'border-b-content text-emphasis' : 'border-b-transparent text-muted'"
-                    role="tab"
-                    :tabindex="tab.id === currentTabId ? 0 : -1"
-                    @click="selectedTabId = tab.id"
-                    @keydown="handleNavigateTabs($event, tabIndex)"
-                >
-                    {{ tab.label }}
-                </ActionWrapper>
-            </div>
         </header>
 
-        <div class="min-h-0 flex-1 overflow-y-auto px-4 pt-3 pb-[calc(var(--vertical-scroll-bottom-screen-inset)-var(--status-bar-height))] text-sm" role="tabpanel">
+        <div
+            class="min-h-0 flex-1 overflow-y-auto overscroll-none px-4 pt-3 pb-[calc(var(--vertical-scroll-bottom-screen-inset)-var(--status-bar-height))] text-sm"
+            role="tabpanel"
+        >
             <!-- Overview ─ The value bar first, as what people most often want, then the choices, then the figures. The
                  blocks flow into columns when the panel is wide, as it is over the table. -->
             <div v-if="currentTabId === 'overview'" class="grid items-start gap-x-8 gap-y-4 @3xl:grid-cols-2 @6xl:grid-cols-3">
@@ -504,45 +596,49 @@ function constructValueChartRows(
                 </dl>
             </div>
 
-            <!-- Values ─ Invalid values first, because they are the ones to act on, then the valid values. -->
-            <template v-else-if="currentTabId === 'values'">
-                <template v-if="(columnConfig?.invalidValueCount ?? 0) > 0">
-                    <h3 class="m-0 text-sm font-medium">
-                        {{ invalidValuesLabel }}
-                    </h3>
+            <!-- Values ─ Invalid values first, because they are the ones to act on, then the valid values. Each block has
+                 one heading that says what it shows, and a line above it, so no block needs a second level of heading. -->
+            <div v-else-if="currentTabId === 'values'" class="flex flex-col divide-y divide-separator *:py-3 *:first:pt-0 *:last:pb-0">
+                <section v-if="(columnConfig?.invalidValueCount ?? 0) > 0">
+                    <SectionHeading :count-text="invalidCountText" :title="t(TEXT, 'invalidValues.title')" />
                     <!-- The examples stand in for the bars when the engine has no counts for the invalid values: an
                          audit from before it kept them, or a column with too many values to count. -->
                     <CountBarList v-if="invalidChartRows.length > 0" :bar-color-class="INVALID_BAR_COLOR_CLASS" class="mt-1.5" :rows="invalidChartRows" />
                     <ul v-else class="mt-1 mb-0 list-none p-0">
                         <li v-for="sample in invalidSamples" :key="sample" class="border-b border-separator py-1 wrap-anywhere">{{ sample }}</li>
                     </ul>
-                </template>
-                <h3 class="mb-0 text-sm font-medium" :class="(columnConfig?.invalidValueCount ?? 0) > 0 ? 'mt-4' : 'mt-0'">
-                    {{ validValuesLabel }}
-                </h3>
-                <CountBarList v-if="hasValueBins" :bar-color-class="VALID_BAR_COLOR_CLASS" class="mt-1.5" :rows="binChartRows" />
-                <p v-else-if="hasTooManyValues" class="mt-1 mb-0 text-muted">
-                    {{ t(TEXT, 'tooManyValues.text', { limit: new Intl.NumberFormat(localeId).format(COUNTED_VALUE_LIMIT) }) }}
-                </p>
-                <template v-else>
-                    <CountBarList :bar-color-class="VALID_BAR_COLOR_CLASS" class="mt-1.5" :rows="validChartRows" />
-                    <p v-if="singleValuesText" class="mt-2 mb-0 text-muted">{{ singleValuesText }}</p>
-                </template>
-                <template v-if="hasValueBins || hasTooManyValues">
-                    <template v-for="list in edgeChartLists" :key="list.id">
-                        <h4 class="mt-3 mb-0 text-sm font-normal text-muted">{{ list.label }}</h4>
-                        <CountBarList :bar-color-class="VALID_BAR_COLOR_CLASS" class="mt-1" :rows="list.rows" />
-                    </template>
-                </template>
-            </template>
+                </section>
 
-            <!-- Formats ─ Every format up to the limit, most common first, as bars like the Values tab's. A note under
-                 them gives the shortest and longest values, because a run of four or more letters is written with its
-                 count ('x(5)'), so the formats do not show every length. -->
+                <section>
+                    <SectionHeading :count-text="validCountText" :subtitle="t(TEXT, 'distribution.title')" :title="t(TEXT, 'validValues.title')" />
+                    <ValueHistogram v-if="hasValueBins" :bar-color-class="VALID_BAR_COLOR_CLASS" :bars="histogramBars" class="mt-2" :label="t(TEXT, 'histogram.aria')" />
+                    <p v-else-if="hasTooManyValues" class="mt-1 mb-0 text-muted">
+                        {{ t(TEXT, 'tooManyValues.text', { limit: new Intl.NumberFormat(localeId).format(COUNTED_VALUE_LIMIT) }) }}
+                    </p>
+                    <p v-else-if="uniformCountText" class="mt-1 mb-0 text-muted">{{ uniformCountText }}</p>
+                    <CountBarList v-else :bar-color-class="VALID_BAR_COLOR_CLASS" class="mt-1.5" :rows="frequencyRows" />
+                </section>
+
+                <!-- Edges ─ Side by side when the panel is wide, because each list is short. Stacked, the second list has
+                     the same line and space above it as every other block. -->
+                <div v-if="edgeChartLists.length > 0" class="grid grid-cols-1 gap-x-8 gap-y-3 @xl:grid-cols-2">
+                    <section
+                        v-for="list in edgeChartLists"
+                        :key="list.id"
+                        class="not-first:border-t not-first:border-separator not-first:pt-3 @xl:not-first:border-t-0 @xl:not-first:pt-0"
+                    >
+                        <SectionHeading :icon="list.icon" :subtitle="list.label" :title="t(TEXT, 'validValues.title')" />
+                        <CountBarList :bar-color-class="VALID_BAR_COLOR_CLASS" class="mt-1.5" :rows="list.rows" />
+                    </section>
+                </div>
+            </div>
+
+            <!-- Formats ─ Every format up to the limit, most common first, as bars like the Values tab's. A note above
+                 them, as on the Values tab, says how long text is or how many digits numbers have, and sums the formats
+                 past the limit. -->
             <template v-else-if="currentTabId === 'formats'">
+                <p v-if="formatNotesText" class="mt-0 mb-1.5 text-muted">{{ formatNotesText }}</p>
                 <CountBarList :bar-color-class="VALID_BAR_COLOR_CLASS" :label="headers.formatText" :rows="formatChartRows" />
-                <p v-if="otherFormatsText" class="mt-2 mb-0 text-muted">{{ otherFormatsText }}</p>
-                <p v-if="columnRow?.sizeText" class="mt-2 mb-0 text-muted">{{ t(TEXT, 'length.text', { range: columnRow.sizeText }) }}</p>
             </template>
         </div>
     </section>

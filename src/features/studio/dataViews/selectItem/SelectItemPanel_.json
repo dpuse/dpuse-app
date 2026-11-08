@@ -26,6 +26,9 @@
             "es": "Todos los valores son únicos y no falta ninguno, por lo que esta columna podría identificar cada registro"
         },
         "columnRequired.aria": { "en": "Every record has a value in this column", "es": "Todos los registros tienen un valor en esta columna" },
+        "columnSearch.aria": { "en": "Find a column", "es": "Buscar una columna" },
+        "columnSearch.empty.text": { "en": "No columns match", "es": "Ninguna columna coincide" },
+        "columnSearch.placeholder": { "en": "Find column", "es": "Buscar columna" },
         "columnType.aria": { "en": "Data type of {label}", "es": "Tipo de dato de {label}" },
         "decimalSeparator.comma.label": { "en": "Decimal comma", "es": "Coma decimal" },
         "decimalSeparator.point.label": { "en": "Decimal point", "es": "Punto decimal" },

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// ── Static Components
+import Tooltip from '@/components/ui/Tooltip.vue';
+
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface CountBarRow {
@@ -24,8 +27,16 @@ const { barColorClass, label, rows } = defineProps<{
     <ul :aria-label="label" class="m-0 flex list-none flex-col gap-y-1 p-0">
         <li v-for="row in rows" :key="row.key" class="flex items-center gap-x-2" :class="{ 'text-muted': row.barPercent == null }">
             <span class="relative min-w-0 flex-1 py-0.5">
-                <span v-if="row.barPercent != null" aria-hidden="true" class="absolute inset-y-0 left-0 rounded" :class="barColorClass" :style="{ width: `${row.barPercent}%` }" />
-                <span class="relative block truncate px-1.5" :title="row.label">{{ row.label }}</span>
+                <span
+                    v-if="row.barPercent != null"
+                    aria-hidden="true"
+                    class="absolute inset-y-0 left-0 rounded-r"
+                    :class="barColorClass"
+                    :style="{ width: `${row.barPercent}%` }"
+                />
+                <Tooltip :text="row.label">
+                    <span class="relative block truncate px-1.5 tabular-nums">{{ row.label }}</span>
+                </Tooltip>
             </span>
             <span class="flex-none text-right tabular-nums">{{ row.countText }}</span>
         </li>
