@@ -23,7 +23,6 @@ export interface ValueHistogramBar {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const MAX_SPACED_BAR_COUNT = 100; // More bars than this touch, because a gap between each would take more room than the bars.
 const AXIS_CHARACTER_PX = 7; // About the width of a character of the axis's small figures, to judge how many labels fit.
 const AXIS_LABEL_GAP_PX = 24; // The space allowed between axis labels when judging how many fit.
 const AXIS_END_GAP_PX = 12; // The least space between a label and the first or last label, smaller because the widths are estimates that run wide.
@@ -61,7 +60,7 @@ const axisTicks = computed(() => {
         .map((bar, index) => ({ index, key: bar.key, position: (index / bars.length) * width, text: bar.startText }))
         .filter(({ index, position, text }) => {
             const halfWidth = estimateLabelWidth(text.length) / 2;
-            return text !== '' && index > 0 && index % step === 0 && position - halfWidth >= leftLimit && position + halfWidth <= rightLimit; // A bar with no start text, such as a rank, is not labelled.
+            return index > 0 && index % step === 0 && position - halfWidth >= leftLimit && position + halfWidth <= rightLimit;
         });
 });
 
@@ -82,7 +81,7 @@ function constructBarText({ count, countText, label }: ValueHistogramBar): strin
         <!-- Bars ─ Columns from a shared baseline, so the shape of the values reads at a glance. A range with no values
              keeps its place, because a gap is part of the shape. Each column names its range and count for screen
              readers, and in a tooltip on hover. -->
-        <ol :aria-label="label" class="m-0 flex h-24 list-none items-end border-b border-separator p-0" :class="{ 'gap-x-px': bars.length <= MAX_SPACED_BAR_COUNT }">
+        <ol :aria-label="label" class="m-0 flex h-24 list-none items-end gap-x-px border-b border-separator p-0">
             <li v-for="bar in bars" :key="bar.key" class="relative flex h-full min-w-0 flex-1">
                 <Tooltip>
                     <span class="flex size-full flex-col justify-end">

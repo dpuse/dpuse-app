@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowRightIcon } from '@lucide/vue';
-import { useConfirmDialog } from '@vueuse/core';
-import { computed, ref, shallowRef, watch } from 'vue';
+import { ArrowRightIcon, PlusIcon } from '@lucide/vue';
+import { computed, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { useConfirmDialog, useElementSize } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -14,11 +14,20 @@ import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
 import type { DataSource } from '@/composables/useDataWindow';
 import { defineLazyComponent } from '@/utilities/index.ts';
 import { ignoreReportedNavigationFailure } from '@/router';
+import { PILL_CLASSES } from '@/components/ui/action/action';
 import { TEXT } from './SelectConnectionList_.json';
 import { useDialogs } from '@/state/dialogs';
 import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
 import { connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
-import { constructNewDataViewConfig, DATA_VIEW_STEP_ACTION_ID, NEW_DATA_VIEW_ID, useCurrentDataView, useDataViews } from '@/features/studio/dataViews/_dataViews';
+import {
+    constructNewDataViewConfig,
+    DATA_VIEW_ADD_ACTION_ID,
+    DATA_VIEW_STEP_ACTION_ID,
+    dataViewActionLabelsAreHidden,
+    NEW_DATA_VIEW_ID,
+    useCurrentDataView,
+    useDataViews
+} from '@/features/studio/dataViews/_dataViews';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -36,6 +45,7 @@ const EmptyPlaceholder = defineLazyComponent(() => import('@/components/ui/place
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const ACTION_CONFIGS: Action<ConnectionConfig>[] = [{ typeId: 'open', onClick: handleOpenConnection }];
+const LABELLED_ACTIONS_MIN_WIDTH_PX = 420; // The scroll buttons and the pill with its labels, with room to spare.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -51,6 +61,10 @@ const route = useRoute();
 const router = useRouter();
 
 const { openDialog } = useDialogs();
+
+const gridDetailPanelComponent = useTemplateRef<{ detailPaneIsVisible: boolean; gridPaneIsVisible: boolean; isNarrow: boolean }>('gridDetailPanel'); // Typed by what it exposes, because 'GridDetailPanel' is generic.
+const connectionPanelComponent = useTemplateRef('connectionPanel');
+const { width: connectionPanelWidth } = useElementSize(() => connectionPanelComponent.value?.$el as HTMLElement | undefined);
 
 // ── Data View
 const { data: dataViewConfig, savedData: savedDataViewConfig } = useCurrentDataView(() => route.params.dataViewId);
@@ -72,6 +86,17 @@ const pickedConnectionLocalisedConfig = computed(() => findConnectionLocalisedCo
 
 // Cards here carry actions, which take a second row.
 const cardRowHeight = useCardRowHeight(true);
+
+// ── Add Pill ─ Under the list, as on the data view list. When the list fills the pane, that spot is under the Discard
+// and Save pill, so the add pill moves into the bottom row beside it. It goes with the list when a detail replaces it.
+const addPillIsInActionRow = computed(() => gridDetailPanelComponent.value?.isNarrow === true);
+const addPillIsShownInActionRow = computed(() => addPillIsInActionRow.value && gridDetailPanelComponent.value?.gridPaneIsVisible === true);
+
+// ── Detail Actions ─ Select and the scroll buttons act on the detail, so they go when the list covers it. Beside the
+// list, the bottom row must fit inside the detail pane, or it would run into the list's add pill. A narrow pane leaves
+// the labels to the row's own width.
+const detailActionsAreShown = computed(() => gridDetailPanelComponent.value?.detailPaneIsVisible === true);
+const actionLabelsAreHidden = computed(() => !addPillIsInActionRow.value && connectionPanelWidth.value > 0 && connectionPanelWidth.value < LABELLED_ACTIONS_MIN_WIDTH_PX);
 
 // ── Removal Confirmation ─ The data views that use the connection are named in the question, so the user decides
 // knowing what it leaves without a connection.
@@ -106,6 +131,18 @@ watch(
     },
     { immediate: true }
 );
+
+// The pill belongs to the layout, so its labels are hidden from here, and shown again when this step closes.
+watch(
+    actionLabelsAreHidden,
+    (newActionLabelsAreHidden) => {
+        dataViewActionLabelsAreHidden.value = newActionLabelsAreHidden;
+    },
+    { immediate: true }
+);
+onUnmounted(() => {
+    dataViewActionLabelsAreHidden.value = false;
+});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -176,13 +213,23 @@ function pickConnection(connectionId: string): void {
 
 <template>
     <GridDetailPanel
+        ref="gridDetailPanel"
         :selected-item="pickedConnectionLocalisedConfig"
+        :add-label="addPillIsInActionRow ? undefined : t(TEXT, 'connection.label')"
         :data-source="connectionLocalisedConfigsDataSource"
         max-detail-width="65ch"
         :row-height="cardRowHeight"
         :target-column-width="340"
         @add="handleAddConnection"
     >
+        <template #header>
+            <Teleport defer :to="`#${DATA_VIEW_ADD_ACTION_ID}`">
+                <div v-if="addPillIsShownInActionRow" class="flex h-10 overflow-hidden shadow-md" :class="PILL_CLASSES">
+                    <PillSegment :icon="PlusIcon" :label="t(TEXT, 'connection.label')" @click="handleAddConnection" />
+                </div>
+            </Teleport>
+        </template>
+
         <!-- 'is-inert' ─ Beside the list, the picked card's detail is already showing, so a click on it does nothing and the
              card does not look clickable. -->
         <template #item="{ isSplit, item, openDetail }">
@@ -198,7 +245,14 @@ function pickConnection(connectionId: string): void {
         </template>
 
         <template #detail="{ item, close }">
-            <SelectConnectionPanel :connection-localised-config="item" @close="close" @delete="handleDeleteConnection(item)" @hide="handleHideConnection(item)" />
+            <SelectConnectionPanel
+                ref="connectionPanel"
+                :connection-localised-config="item"
+                :scroll-end-buttons-are-shown="detailActionsAreShown"
+                @close="close"
+                @delete="handleDeleteConnection(item)"
+                @hide="handleHideConnection(item)"
+            />
             <!-- In the detail rather than beside the list, because this component must stay single-root for the route's
                  transition, and only the detail offers Delete and Hide. A dialog takes no room in the layout. -->
             <ConfirmDialog
@@ -214,7 +268,15 @@ function pickConnection(connectionId: string): void {
 
         <template #detail-action>
             <Teleport defer :to="`#${DATA_VIEW_STEP_ACTION_ID}`">
-                <PillSegment :icon="ArrowRightIcon" is-separated is-step-action :label="t(TEXT, 'detail.select.label')" @click="handleMoveToItemStep" />
+                <PillSegment
+                    v-if="detailActionsAreShown"
+                    :icon="ArrowRightIcon"
+                    :is-label-hidden="actionLabelsAreHidden"
+                    is-separated
+                    is-step-action
+                    :label="t(TEXT, 'detail.select.label')"
+                    @click="handleMoveToItemStep"
+                />
             </Teleport>
         </template>
 

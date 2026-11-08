@@ -1,5 +1,5 @@
 // ── External Dependencies & Registrations
-import { computed, type ComputedRef, type MaybeRefOrGetter, toValue } from 'vue';
+import { computed, type ComputedRef, type MaybeRefOrGetter, ref, toValue } from 'vue';
 import { useMutation, type UseMutationReturnType, useQuery, type UseQueryReturnType } from '@tanstack/vue-query';
 
 // ── DPUse Framework
@@ -28,11 +28,18 @@ import {
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DATA_VIEW_LIST_KEY = constructWorkspaceStoreListKey('dataViews');
+export const DATA_VIEW_ADD_ACTION_ID = 'dpuse-data-view-add-action'; // Where a step's list places its add pill when the list fills the pane, left of the pill.
 export const DATA_VIEW_SCROLL_ACTIONS_ID = 'dpuse-data-view-scroll-actions'; // Where a step places its scroll buttons, left of the pill.
 export const DATA_VIEW_SIDE_ACTION_ID = 'dpuse-data-view-side-action'; // Where a step places a control of its own, right of the pill.
 export const DATA_VIEW_STEP_ACTION_ID = 'dpuse-data-view-step-action'; // Where a step places its action, at the end of the pill.
 export const NEW_DATA_VIEW_ID = 'new'; // Stands in the URL for the id of a data view being added, which has none until it is saved.
 const UNTITLED_DATA_VIEW_LABEL = { en: 'Untitled Data View', es: 'Vista de datos sin título' }; // Stored with the record, so it carries every language rather than reading the current one.
+
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Set by a step whose bottom row is too wide for its detail pane, so the pill shows icons only. The row's own width
+// cannot tell, because it runs across both panes.
+export const dataViewActionLabelsAreHidden = ref(false);
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 

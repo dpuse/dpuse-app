@@ -223,25 +223,6 @@ describe('ColumnDetailPanel', () => {
         expect(findHeadings(wrapper)[1]?.[1]).toBe(t(TEXT, 'edgeCount.text', { distinctCount: '3', shown: '1' }));
     });
 
-    it('charts how often each text value is seen, most frequent first, naming the bars it can', async () => {
-        const column = buildColumn({
-            dataTypeId: 'string',
-            distinctValueCount: 5,
-            frequentValues: { GBR: 5 },
-            leastFrequentValues: { USA: 1 },
-            rankedValueCounts: [5, 4, 3, 2, 1],
-            validValueCount: 15
-        });
-        const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
-        const barTexts = wrapper.findAll('[data-region="ValueHistogram"] li .sr-only').map((bar) => bar.text());
-
-        expect(barTexts).toHaveLength(5);
-        expect(barTexts[0]).toContain('GBR');
-        expect(barTexts[2]).toContain(t(TEXT, 'rank.label', { rank: '3', total: '5' }));
-        expect(barTexts[4]).toContain('USA');
-        expect(findAxisEnds(wrapper)).toStrictEqual(['5', '1']);
-    });
-
     it('lists only the lowest and highest text values when there are too many to count', async () => {
         const column = buildColumn({
             dataTypeId: 'string',

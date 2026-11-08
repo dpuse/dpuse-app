@@ -64,12 +64,12 @@ const { width: bodyWidth } = useElementSize(bodyElement);
 const isSplit = computed(() => bodyWidth.value >= GRID_DETAIL_SPLIT_THRESHOLD_PX);
 const bodyIsMeasured = computed(() => bodyWidth.value > 0); // The width is 0 until first measured, which would lay the panes out as narrow for a frame.
 provide(gridDetailIsSplitKey, isSplit);
-// For a caller whose header sits outside the panel, where the 'header' slot cannot reach. Narrow only once measured,
-// because the width reads 0 until then.
-defineExpose({ isNarrow: computed(() => bodyIsMeasured.value && !isSplit.value), revealSelectedItem });
 const narrowPaneId = computed(() => (detailIsOpen.value ? 'detail' : 'grid'));
 const detailPaneIsVisible = computed(() => isSplit.value || shownNarrowPaneId.value === 'detail');
 const gridPaneIsVisible = computed(() => isSplit.value || shownNarrowPaneId.value === 'grid');
+// For a caller whose header or actions sit outside the panel, where the slots cannot reach. Narrow only once measured,
+// because the width reads 0 until then.
+defineExpose({ detailPaneIsVisible, gridPaneIsVisible, isNarrow: computed(() => bodyIsMeasured.value && !isSplit.value), revealSelectedItem });
 
 // ── Scroll Target ─ The selected item's row is scrolled into view, so a selection restored when the list opens can be
 // seen. Built from the id, so a new object for the same item, as a language switch gives, does not scroll the list again.

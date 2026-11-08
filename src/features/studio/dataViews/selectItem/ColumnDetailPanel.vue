@@ -239,31 +239,6 @@ const axisNumberFormat = computed(() => {
     return new Intl.NumberFormat(localeId.value, { maximumSignificantDigits: significantDigits, notation: 'compact' });
 });
 const hasValueBins = computed(() => histogramBars.value.length > 0);
-
-// Text and true/false values as a rank chart: one bar per distinct value, most frequent first, so the chart shows
-// whether they are spread evenly, lean on a few or trail off into many rare ones. Only the most and least frequent
-// values come with their names, so the bars between them are named by their place. The axis gives the highest and
-// lowest counts.
-const rankBars = computed((): ValueHistogramBar[] => {
-    const counts: number[] = columnConfig.value?.rankedValueCounts ?? [];
-    const numberFormat = new Intl.NumberFormat(localeId.value);
-    const names = new Map<number, string>();
-    const mostFrequentNames = Object.keys(columnConfig.value?.frequentValues ?? {});
-    const leastFrequentNames = Object.entries(columnConfig.value?.leastFrequentValues ?? {})
-        .toSorted((left, right) => left[1] - right[1])
-        .map(([value]) => value);
-    for (const [index, value] of mostFrequentNames.entries()) names.set(index, value);
-    for (const [index, value] of leastFrequentNames.entries()) names.set(counts.length - 1 - index, value);
-    const total = numberFormat.format(counts.length);
-    return counts.map((count, index) => ({
-        count,
-        countText: numberFormat.format(count),
-        endText: index === counts.length - 1 ? numberFormat.format(count) : '',
-        key: String(index),
-        label: names.get(index) ?? t(TEXT, 'rank.label', { rank: numberFormat.format(index + 1), total }),
-        startText: index === 0 ? numberFormat.format(count) : ''
-    }));
-});
 // ── Edges ─ The lowest and highest valid values for every column, text in alphabetical order, which the engine keeps
 // exactly however many values there are. When both lists hold the same values, the column has no more than either
 // holds, so one list in ascending order shows them all.
@@ -653,18 +628,13 @@ function constructValueChartRows(
                     <p v-else-if="hasTooManyValues" class="mt-1 mb-0 text-muted">
                         {{ t(TEXT, 'tooManyValues.text', { limit: new Intl.NumberFormat(localeId).format(COUNTED_VALUE_LIMIT) }) }}
                     </p>
-                    <template v-else-if="rankBars.length > 0">
-                        <p v-if="uniformCountText" class="mt-1 mb-0 text-muted">{{ uniformCountText }}</p>
-                        <ValueHistogram :bar-color-class="VALID_BAR_COLOR_CLASS" :bars="rankBars" class="mt-2" :label="t(TEXT, 'rankChart.aria')" />
-                    </template>
-                    <!-- An audit from before the ranked counts were kept shows the most frequent values instead. -->
                     <p v-else-if="uniformCountText" class="mt-1 mb-0 text-muted">{{ uniformCountText }}</p>
                     <CountBarList v-else :bar-color-class="VALID_BAR_COLOR_CLASS" class="mt-1.5" :rows="frequencyRows" />
                 </section>
 
                 <!-- Edges ─ Side by side when the panel is wide, because each list is short. Stacked, the second list has
                      the same line and space above it as every other block. -->
-                <div v-if="edgeChartLists.length > 0" class="grid grid-cols-1 gap-x-8 gap-y-3 @xl:grid-cols-2">
+                <div v-if="edgeChartLists.length > 0" class="grid grid-cols-1 gap-x-8 gap-y-3" :class="{ '@xl:grid-cols-2': edgeChartLists.length > 1 }">
                     <section
                         v-for="list in edgeChartLists"
                         :key="list.id"

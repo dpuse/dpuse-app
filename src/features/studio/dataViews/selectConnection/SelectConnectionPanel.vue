@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { computed, ref } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -14,7 +14,7 @@ import { establishEngineWorker } from '@/services/engine';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './SelectConnectionPanel_.json';
-import { useDataViews } from '@/features/studio/dataViews/_dataViews';
+import { DATA_VIEW_SCROLL_ACTIONS_ID, useDataViews } from '@/features/studio/dataViews/_dataViews';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -22,6 +22,7 @@ import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ConnectorDetails from '@/features/studio/dataViews/ConnectorDetails.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
+import ScrollEndButtons from '@/components/ui/scroll/ScrollEndButtons.vue';
 import StudioDetailLayout from '@/features/studio/_components/StudioDetailLayout.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
@@ -32,7 +33,10 @@ const COLLAPSED_DATA_VIEW_COUNT = 10; // Data views the Used By list shows until
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { connectionLocalisedConfig } = defineProps<{ connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> }>();
+const { connectionLocalisedConfig, scrollEndButtonsAreShown } = defineProps<{
+    connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>;
+    scrollEndButtonsAreShown: boolean; // False while the list covers this panel on a narrow screen, because the buttons sit outside it.
+}>();
 
 defineEmits<{ close: []; delete: []; hide: [] }>();
 
@@ -43,6 +47,7 @@ const router = useRouter();
 
 const { data: dataViewConfigs } = useDataViews();
 const dataViewListIsExpanded = ref(false);
+const documentScrollElement = shallowRef<HTMLElement>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -107,7 +112,12 @@ async function testAuth(): Promise<void> {
 
 <template>
     <StudioDetailLayout data-region="SelectConnectionPanel">
-        <ScrollArea class="flex-1" scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)" scroll-area-padding-left="var(--spacing-page)">
+        <ScrollArea
+            class="flex-1"
+            scroll-area-padding-bottom="var(--vertical-scroll-bottom-screen-inset)"
+            scroll-area-padding-left="var(--spacing-page)"
+            @initialised="documentScrollElement = $event"
+        >
             <StudioDocumentPanel
                 :icon="connectionLocalisedConfig.icon"
                 :icon-dark="connectionLocalisedConfig.iconDark"
@@ -174,6 +184,11 @@ async function testAuth(): Promise<void> {
                 </StudioDocumentSection>
             </StudioDocumentPanel>
         </ScrollArea>
+
+        <!-- Scroll End Buttons ─ To the left of the pill, as on the item step. -->
+        <Teleport defer :to="`#${DATA_VIEW_SCROLL_ACTIONS_ID}`">
+            <ScrollEndButtons v-if="scrollEndButtonsAreShown" :scroll-element="documentScrollElement" />
+        </Teleport>
     </StudioDetailLayout>
 
     <!-- <form class="relative flex h-full flex-col pl-4" data-region="SelectConnectionPanel" @submit.prevent="handleSubmit">

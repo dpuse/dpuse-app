@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { useConfirmDialog } from '@vueuse/core';
-import { CircleXIcon, PlusIcon, SaveIcon } from '@lucide/vue';
+import { CircleXIcon, SaveIcon } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 import { isNavigationFailure, NavigationFailureType, onBeforeRouteLeave, onBeforeRouteUpdate, type RouteLocationNormalized, useRoute, useRouter } from 'vue-router';
 
@@ -14,16 +14,17 @@ import { PILL_CLASSES } from '@/components/ui/action/action';
 import { raiseAppFailure } from '@/state/errors';
 import { resolveCurrentDataViewStepId } from './dataViewSummary';
 import { sessionIsAuthenticated } from '@/state/session';
-import { useDialogs } from '@/state/dialogs';
 import { useQueryFailure } from '@/services/queryClient';
 import { useUnsavedWork } from '@/state/unsavedWork';
 import { workspaceStoreId } from '@/services/workspaceStore';
 import { accountConfigStatus, configStatus, connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
 import { completeDataViewDraft, dataViewCanBeSaved, dataViewHasChanges, discardDataViewDraft } from './_dataViewDraft';
 import {
+    DATA_VIEW_ADD_ACTION_ID,
     DATA_VIEW_SCROLL_ACTIONS_ID,
     DATA_VIEW_SIDE_ACTION_ID,
     DATA_VIEW_STEP_ACTION_ID,
+    dataViewActionLabelsAreHidden,
     NEW_DATA_VIEW_ID,
     resolveDataViewIdParameter,
     useCurrentDataView,
@@ -34,7 +35,6 @@ import { localeId, t } from '@/state/locale';
 import { TASK_CONFIGS, TEXT } from './DataViewsLayout_.json';
 
 // ── Static Components
-import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import ItemTrail from './ItemTrail.vue';
@@ -57,9 +57,6 @@ const unlockedUpToTaskNumber = ref(0);
 // has faded out, so nothing below them jumps while the list fades. Undefined while the list is on screen.
 const taskIdOnScreen = ref(constructTaskIdOnScreen());
 const closingTaskId = ref(taskIdOnScreen.value); // The last task on screen, so the bar keeps it marked while it closes.
-
-// ── Dialogs
-const { openDialog } = useDialogs();
 
 // ── Save and Discard
 const { isPending: dataViewIsSaving, mutateAsync: saveDataView } = useUpdateDataView();
@@ -219,10 +216,6 @@ function handleRetryDataView(): void {
     void refetchDataView();
 }
 
-function handleAddConnection(): void {
-    void openDialog('connection');
-}
-
 async function handleSaveDataView(): Promise<void> {
     const draftDataViewConfig = dataViewConfig.value;
     if (draftDataViewConfig == null || !dataViewCanBeSaved.value || dataViewIsSaving.value) return;
@@ -330,16 +323,6 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
                         :connection-node-config="taskIdOnScreen === 'connection' ? undefined : dataViewConfig?.connectionNodeConfig"
                         :data-view-connection="dataViewConnectionLocalisedConfig"
                     />
-                    <!-- New Connection ─ Only on the connection step. In this row rather than over the list, where it sat under
-                         the Discard and Save pill. -->
-                    <ActionWrapper
-                        v-if="taskIdOnScreen === 'connection'"
-                        class="flex h-10 flex-none cursor-pointer items-center gap-x-1.5 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-                        @click="handleAddConnection"
-                    >
-                        <PlusIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
-                        {{ t(TEXT, 'connection.new.label') }}
-                    </ActionWrapper>
                 </div>
             </div>
         </div>
@@ -365,19 +348,25 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
             </RouterViewTransition>
         </RetrievalGate>
 
-        <!-- Actions ─ One row along the bottom on every step: the step's scroll buttons, the pill holding Discard, Save and
-             the step's own action, then any control of the step's own. Steps place theirs here with 'Teleport', so each
-             moves with the width of the others, and the row is always in the page for them to find. Labels depend on
-             the pane's width, not the screen's, because the splitter resizes the pane. -->
+        <!-- Actions ─ One row along the bottom on every step: the step's scroll buttons, its add pill, the pill holding
+             Discard, Save and the step's own action, then any control of the step's own. Steps place theirs here with
+             'Teleport', so each moves with the width of the others, and the row is always in the page for them to find.
+             Labels depend on the pane's width, not the screen's, because the splitter resizes the pane. -->
         <div
             v-show="routeIsTask"
             class="@container pointer-events-none absolute inset-x-0 bottom-(--safe-bottom-offset) z-10 flex items-center justify-end gap-x-2 pr-6"
             data-region="DataViewActions"
         >
             <div :id="DATA_VIEW_SCROLL_ACTIONS_ID" class="pointer-events-auto contents" />
+            <div :id="DATA_VIEW_ADD_ACTION_ID" class="pointer-events-auto contents" />
             <div class="pointer-events-auto flex h-10 overflow-hidden shadow-md" :class="PILL_CLASSES" data-region="DataViewPill">
-                <PillSegment :disabled="!dataViewHasChanges" :icon="CircleXIcon" :label="t(TEXT, 'discard.label')" @click="handleDiscardDataView" />
-                <PillSegment :disabled="!dataViewCanBeSaved || dataViewIsSaving" :icon="SaveIcon" is-separated :label="t(TEXT, 'save.label')" @click="handleSaveDataView" />
+                <PillSegment :disabled="!dataViewHasChanges" :icon="CircleXIcon" :is-label-hidden="dataViewActionLabelsAreHidden" :label="t(TEXT, 'discard.label')" @click="handleDiscardDataView" />
+                <PillSegment
+                    :disabled="!dataViewCanBeSaved || dataViewIsSaving"
+                    :icon="SaveIcon"
+                    :is-label-hidden="dataViewActionLabelsAreHidden"
+                    is-separated
+                    :label="t(TEXT, 'save.label')" @click="handleSaveDataView" />
                 <div :id="DATA_VIEW_STEP_ACTION_ID" class="contents" />
             </div>
             <div :id="DATA_VIEW_SIDE_ACTION_ID" class="pointer-events-auto contents" />
