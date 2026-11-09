@@ -9,12 +9,6 @@ import type { RetrievalStatus } from '@/state/configs';
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function mountGate(status: RetrievalStatus): ReturnType<typeof mount> {
-    return mount(RetrievalGate, { props: { status }, slots: { default: '<div data-region="TestContent">Loaded.</div>' } });
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('RetrievalGate', () => {
@@ -39,3 +33,9 @@ describe('RetrievalGate', () => {
         expect(wrapper.find('[data-region="BusyBar"]').exists()).toBe(false);
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function mountGate(status: RetrievalStatus): ReturnType<typeof mount> {
+    return mount(RetrievalGate, { props: { status }, slots: { default: '<div data-region="TestContent">Loaded.</div>' } });
+}

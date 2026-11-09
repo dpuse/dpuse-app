@@ -9,26 +9,6 @@ import { unsavedWorkIsPresent, useUnsavedWork } from '@/state/unsavedWork';
 
 const scopes: ReturnType<typeof effectScope>[] = [];
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// Stands in for a mounted screen: stopping the scope is the screen closing.
-function openScreen(hasUnsavedWork: boolean): { scope: ReturnType<typeof effectScope>; work: ReturnType<typeof ref<boolean>> } {
-    const work = ref(hasUnsavedWork);
-    const scope = effectScope();
-    scope.run(() => {
-        useUnsavedWork(work);
-    });
-    scopes.push(scope);
-    return { scope, work };
-}
-
-// True when the browser would be asked to warn before the page goes away.
-function leavingIsBlocked(): boolean {
-    const event = new Event('beforeunload', { cancelable: true });
-    dispatchEvent(event);
-    return event.defaultPrevented;
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('useUnsavedWork', () => {
@@ -72,3 +52,23 @@ describe('useUnsavedWork', () => {
         expect(leavingIsBlocked()).toBe(false);
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Stands in for a mounted screen: stopping the scope is the screen closing.
+function openScreen(hasUnsavedWork: boolean): { scope: ReturnType<typeof effectScope>; work: ReturnType<typeof ref<boolean>> } {
+    const work = ref(hasUnsavedWork);
+    const scope = effectScope();
+    scope.run(() => {
+        useUnsavedWork(work);
+    });
+    scopes.push(scope);
+    return { scope, work };
+}
+
+// True when the browser would be asked to warn before the page goes away.
+function leavingIsBlocked(): boolean {
+    const event = new Event('beforeunload', { cancelable: true });
+    dispatchEvent(event);
+    return event.defaultPrevented;
+}

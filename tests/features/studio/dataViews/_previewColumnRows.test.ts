@@ -6,19 +6,20 @@
 import { describe, expect, it } from 'vitest';
 
 // Framework dependencies.
+import type { ColumnAuditConfig } from '@dpuse/dpuse-shared';
 import type { ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
-import type { ObjectColumnConfig } from '@dpuse/dpuse-shared';
 import {
     constructColumnValueCounts,
     constructPreviewColumnHeaders,
     constructPreviewColumnIcons,
     constructPreviewColumnRows,
     countChosenTypeMisfits,
+    isColumnComplete,
     PREVIEW_COLUMN_KEYS
 } from '@/features/studio/dataViews/_previewColumnRows';
 import { DATA_SUBTYPE_ICONS, DATA_TYPE_ICONS, getColumnTypeIcon } from '@/features/studio/dataViews/_columnTypeIcons';
 
-function buildItemReading(hasHeaders: boolean, columnConfig: Partial<ObjectColumnConfig>): ItemReading {
+function buildItemReading(hasHeaders: boolean, columnConfig: Partial<ColumnAuditConfig>): ItemReading {
     const defaultColumnConfig = { dataTypeId: 'string', inferenceCounts: {}, label: { en: 'id' }, leadingInferenceCounts: {} };
     return { columnConfigs: [{ ...defaultColumnConfig, ...columnConfig }], hasHeaders } as unknown as ItemReading;
 }
@@ -53,7 +54,7 @@ describe('getColumnTypeIcon', () => {
 });
 
 describe('constructPreviewColumnRows', () => {
-    it('leaves the header out of the match, and adds the counts below a full match', () => {
+    it('leaves the header out of the invalid count', () => {
         const itemReading = buildItemReading(true, {
             dataSubtypeId: 'integer',
             dataTypeId: 'numeric',
@@ -61,36 +62,32 @@ describe('constructPreviewColumnRows', () => {
             leadingInferenceCounts: { 'string.plain': 1 }
         });
 
-        expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({ dataSubtypeLabel: 'Integer', dataTypeLabel: 'Number', label: 'id', matchText: '75% (3 of 4)' });
+        expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({ dataSubtypeLabel: 'Integer', dataTypeLabel: 'Number', label: 'id', invalidValueText: '1' });
     });
 
     it('shows no subtype for plain text, which fits every value', () => {
         const itemReading = buildItemReading(false, { dataSubtypeId: 'plain', inferenceCounts: { 'numeric.integer': 1, 'string.plain': 1 } });
 
-        expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({ dataSubtypeLabel: '', dataTypeLabel: 'Text', label: 'id', matchText: '100%' });
+        expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({ dataSubtypeLabel: '', dataTypeLabel: 'Text', label: 'id', invalidValueText: '0' });
     });
 
     it('shows every measured item', () => {
         const itemReading = buildItemReading(false, {
             dataTypeId: 'numeric',
             decimalSeparatorId: ',',
-            distinctValueCount: 2,
-            formats: { '9999': 3, '9999,9': 5 },
-            frequentValues: { '7': 2 },
+            validDistinctValueCount: 2,
+            validFormats: { '9999': 3, '9999,9': 5 },
+            validFrequentValues: { '7': 2 },
             invalidValueCount: 1,
             invalidValues: { none: 'string.plain' },
             isFormatAmbiguous: true,
-            isRequired: false,
-            isUnique: false,
-            maxDecimals: 2,
-            maxValue: '12.5',
-            maxWholeDigits: 2,
-            minDecimals: 2,
-            minValue: '7',
-            minWholeDigits: 1,
-            quotedValueCount: 0,
-            storageTypeId: 'int32',
-            validValues: { '7': 'numeric.integer', '12': 'numeric.integer' }
+            isComplete: false,
+            validIsUnique: false,
+            validMaxDecimals: 2,
+            validMaxWholeDigits: 2,
+            validMinDecimals: 2,
+            validMinWholeDigits: 1,
+            storageTypeId: 'int32'
         });
 
         expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({
@@ -102,7 +99,7 @@ describe('constructPreviewColumnRows', () => {
     });
 
     it('names a derived column as derived, because the item does not hold it', () => {
-        const itemReading = buildItemReading(false, { derivationId: 'currency', derivedFromColumnIndex: 0, label: { en: 'Amount currency' } });
+        const itemReading = buildItemReading(false, { derivedFromColumnIndex: 0, label: { en: 'Amount currency' } });
 
         expect(constructPreviewColumnRows(itemReading)[0]?.label).toBe('Amount currency (derived)');
     });
@@ -125,7 +122,7 @@ describe('constructPreviewColumnRows', () => {
 
         expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({
             blankValueText: '1',
-            matchText: '100%',
+            invalidValueText: '0',
             missingValueText: '2'
         });
     });
@@ -142,8 +139,8 @@ describe('constructPreviewColumnRows', () => {
         expect(constructColumnValueCounts(itemReading)[0]).toEqual({ blankCount: 1, invalidCount: 2, missingCount: 2, validCount: 4 });
     });
 
-    it('shows no match for a column with no sampled values', () => {
-        expect(constructPreviewColumnRows(buildItemReading(false, {}))[0]?.matchText).toBe('');
+    it('shows no invalid count for a column with no sampled values', () => {
+        expect(constructPreviewColumnRows(buildItemReading(false, {}))[0]?.invalidValueText).toBe('');
     });
 });
 
@@ -164,5 +161,22 @@ describe('countChosenTypeMisfits', () => {
         expect(countChosenTypeMisfits(buildItemReading(false, { dataSubtypeId: 'email', dataTypeId: 'string', inferenceCounts }), 0, detectedText)).toBe(0);
         expect(countChosenTypeMisfits(numericReading, 1, detectedText)).toBe(0);
         expect(countChosenTypeMisfits(numericReading, 0, undefined)).toBe(0);
+    });
+});
+
+describe('isColumnComplete', () => {
+    const detectedText = { dataSubtypeId: 'plain', dataTypeId: 'string' } as const;
+
+    it('is complete when the audit found every value, and the type in use fits them all', () => {
+        const textReading = buildItemReading(false, { dataSubtypeId: 'plain', dataTypeId: 'string', inferenceCounts: { 'string.plain': 3 }, isComplete: true });
+
+        expect(isColumnComplete(textReading, 0, detectedText)).toBe(true);
+        expect(isColumnComplete(buildItemReading(false, { dataTypeId: 'string', isComplete: false }), 0, detectedText)).toBe(false);
+    });
+
+    it('is not complete when a chosen type leaves values that load empty', () => {
+        const itemReading = buildItemReading(false, { dataSubtypeId: 'integer', dataTypeId: 'numeric', inferenceCounts: { 'numeric.integer': 6, 'string.plain': 1 }, isComplete: true });
+
+        expect(isColumnComplete(itemReading, 0, detectedText)).toBe(false);
     });
 });

@@ -14,17 +14,6 @@ import { clearAppFailures, handleRaiseVueError } from '@/state/errors';
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// A panel whose chunk cannot be fetched.
-function buildPanel(name: string): ReturnType<typeof defineLazyComponent> {
-    return defineLazyComponent(() => Promise.reject(new TypeError('Failed to fetch dynamically imported module.')), name);
-}
-
-function reportedMessages(): string[] {
-    return vi.mocked(hasReportedAppError).mock.calls.map((call) => call[0].message);
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Vue notifies every ancestor and the app handler about a lazy component's load failure *as well as* rendering that
@@ -76,3 +65,14 @@ describe('error reporting hierarchy', () => {
         expect(reportedMessages()).toStrictEqual(['Failed to render TestRegion.']);
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A panel whose chunk cannot be fetched.
+function buildPanel(name: string): ReturnType<typeof defineLazyComponent> {
+    return defineLazyComponent(() => Promise.reject(new TypeError('Failed to fetch dynamically imported module.')), name);
+}
+
+function reportedMessages(): string[] {
+    return vi.mocked(hasReportedAppError).mock.calls.map((call) => call[0].message);
+}

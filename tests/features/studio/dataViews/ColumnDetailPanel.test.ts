@@ -3,79 +3,14 @@ import { describe, expect, it } from 'vitest';
 import { mount, type VueWrapper } from '@vue/test-utils';
 
 // ── DPUse Framework
-import type { ObjectColumnConfig } from '@dpuse/dpuse-shared';
+import type { ColumnAuditConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import ColumnDetailPanel from '@/features/studio/dataViews/ColumnDetailPanel.vue';
 import type { ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
+import { TEXT as ROW_TEXT } from '@/features/studio/dataViews/_previewColumnRows_.json';
 import { t } from '@/state/locale';
 import { TEXT } from '@/features/studio/dataViews/ColumnDetailPanel_.json';
-
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function buildColumn(overrides: Partial<ObjectColumnConfig>): ObjectColumnConfig {
-    return {
-        dataTypeId: 'numeric',
-        formats: {},
-        frequentValues: {},
-        inferenceCounts: {},
-        invalidValues: {},
-        label: { en: 'Amount' },
-        leadingInferenceCounts: {},
-        validValues: {},
-        ...overrides
-    } as ObjectColumnConfig;
-}
-
-function mountPanel(columnConfigs: ObjectColumnConfig[], properties: object = {}): VueWrapper {
-    return mount(ColumnDetailPanel, {
-        global: { stubs: { SelectInput: true } },
-        props: {
-            columnIndex: 0,
-            detectedColumnType: { dataSubtypeId: undefined, dataTypeId: 'numeric' },
-            itemReading: { columnConfigs, hasHeaders: true } as unknown as ItemReading,
-            typeOptions: [],
-            typeValue: 'auto',
-            ...properties
-        }
-    });
-}
-
-function findTabLabels(wrapper: VueWrapper): string[] {
-    return wrapper.findAll('[role="tab"]').map((tab) => tab.text());
-}
-
-// Each heading's title and the counts beside it, apart, so the space between them in the layout does not matter.
-function findHeadings(wrapper: VueWrapper): string[][] {
-    return wrapper.findAll('[role="tabpanel"] h3').map((heading) => heading.findAll(':scope > span').map((part) => part.text()));
-}
-
-function findHeadingTitles(wrapper: VueWrapper): string[] {
-    return findHeadings(wrapper).map(([title = '']) => title);
-}
-
-// A column of numbers with one value in each of the given ranges.
-function buildBinnedColumn(bins: [string, string][]): ObjectColumnConfig {
-    return buildColumn({
-        dataSubtypeId: 'decimal',
-        frequentValues: {},
-        validValueCount: 5000,
-        valueBins: bins.map(([lowerValue, upperValue]) => ({ count: 1, lowerValue, upperValue }))
-    });
-}
-
-// The labels at the two ends of the histogram's axis.
-function findAxisEnds(wrapper: VueWrapper): string[] {
-    return wrapper.findAll('[data-region="ValueHistogram"] > div > span').map((label) => label.text());
-}
-
-async function openTab(wrapper: VueWrapper, label: string): Promise<VueWrapper> {
-    await wrapper
-        .findAll('[role="tab"]')
-        .find((tab) => tab.text() === label)
-        ?.trigger('click');
-    return wrapper;
-}
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -93,7 +28,7 @@ describe('ColumnDetailPanel', () => {
     });
 
     it('keeps the same tab open when the column changes, to compare columns', async () => {
-        const columns = [buildColumn({ formats: { '9.9': 4 } }), buildColumn({ formats: { '9,9': 2 }, label: { en: 'Tax' } })];
+        const columns = [buildColumn({ validFormats: { '9.9': 4 } }), buildColumn({ validFormats: { '9,9': 2 }, label: { en: 'Tax' } })];
         const wrapper = mountPanel(columns);
 
         await wrapper.findAll('[role="tab"]')[1]?.trigger('click');
@@ -104,7 +39,7 @@ describe('ColumnDetailPanel', () => {
     });
 
     it('falls back to Overview when the open tab has nothing for the next column', async () => {
-        const wrapper = mountPanel([buildColumn({ formats: { '9.9': 4 } }), buildColumn({})]);
+        const wrapper = mountPanel([buildColumn({ validFormats: { '9.9': 4 } }), buildColumn({})]);
 
         await wrapper.findAll('[role="tab"]')[1]?.trigger('click');
         await wrapper.setProps({ columnIndex: 1 });
@@ -113,7 +48,7 @@ describe('ColumnDetailPanel', () => {
     });
 
     it('moves between tabs with the arrow keys', async () => {
-        const wrapper = mountPanel([buildColumn({ formats: { '9.9': 4 } })]);
+        const wrapper = mountPanel([buildColumn({ validFormats: { '9.9': 4 } })]);
 
         await wrapper.find('[aria-selected="true"]').trigger('keydown', { key: 'ArrowRight' });
 
@@ -145,7 +80,7 @@ describe('ColumnDetailPanel', () => {
     });
 
     it('lists the invalid examples before the values', async () => {
-        const column = buildColumn({ distinctValueCount: 2, frequentValues: { '12': 2, 'n/a': 1 }, invalidValueCount: 1, invalidValues: { 'n/a': 'string' }, validValueCount: 2 });
+        const column = buildColumn({ validDistinctValueCount: 2, validFrequentValues: { '12': 2, 'n/a': 1 }, invalidValueCount: 1, invalidValues: { 'n/a': 'string' }, validValueCount: 2 });
         const wrapper = await openTab(mountPanel([column]), `${t(TEXT, 'tab.values.label')} ${t(TEXT, 'tab.invalidCount.label', { count: '1' })}`);
 
         expect(findHeadings(wrapper)).toStrictEqual([
@@ -157,8 +92,8 @@ describe('ColumnDetailPanel', () => {
 
     it('shows the invalid values as bars with their counts, kept out of the valid values', async () => {
         const column = buildColumn({
-            distinctValueCount: 4,
-            frequentValues: { false: 9, true: 9 },
+            validDistinctValueCount: 2,
+            validFrequentValues: { false: 9, true: 9 },
             invalidDistinctValueCount: 2,
             invalidFrequentValues: { maybe: 1, pending: 1 },
             invalidValueCount: 2,
@@ -176,7 +111,7 @@ describe('ColumnDetailPanel', () => {
     });
 
     it('heads the values as valid only, when none are invalid', async () => {
-        const column = buildColumn({ distinctValueCount: 1, frequentValues: { '12': 2 }, validValueCount: 2 });
+        const column = buildColumn({ validDistinctValueCount: 1, validFrequentValues: { '12': 2 }, validValueCount: 2 });
         const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
 
         expect(findHeadings(wrapper)).toStrictEqual([
@@ -185,8 +120,8 @@ describe('ColumnDetailPanel', () => {
     });
 
     it('lists the most frequent text values, then one line for the rest', async () => {
-        const frequentValues = Object.fromEntries(Array.from({ length: 10 }, (_value, index) => [`v${String(index)}`, 20 - index])); // 20 down to 11, 155 in all
-        const column = buildColumn({ distinctValueCount: 15, frequentValues, leastFrequentValues: { x1: 1, x2: 1 }, validValueCount: 166 });
+        const validFrequentValues = Object.fromEntries(Array.from({ length: 10 }, (_value, index) => [`v${String(index)}`, 20 - index])); // 20 down to 11, 155 in all
+        const column = buildColumn({ validDistinctValueCount: 15, validFrequentValues, validLeastFrequentValues: { x1: 1, x2: 1 }, validValueCount: 166 });
         const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
         const rowTexts = wrapper.findAll('[role="tabpanel"] li').map((row) => row.text());
 
@@ -196,7 +131,7 @@ describe('ColumnDetailPanel', () => {
     });
 
     it('shows one list when the most and least frequent values meet', async () => {
-        const column = buildColumn({ distinctValueCount: 3, frequentValues: { a: 3, b: 2 }, leastFrequentValues: { c: 1 }, validValueCount: 6 });
+        const column = buildColumn({ validDistinctValueCount: 3, validFrequentValues: { a: 3, b: 2 }, validLeastFrequentValues: { c: 1 }, validValueCount: 6 });
         const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
 
         expect(wrapper.findAll('[role="tabpanel"] li').map((row) => row.text())).toStrictEqual(['a3', 'b2', 'c1']);
@@ -205,12 +140,10 @@ describe('ColumnDetailPanel', () => {
     it('shows the lowest and highest values on the Values tab for every column, not on the Overview', async () => {
         const column = buildColumn({
             dataTypeId: 'string',
-            distinctValueCount: 3,
-            frequentValues: { a: 3, b: 2, c: 1 },
-            highestValues: [['c', 1]],
-            lowestValues: [['a', 3]],
-            maxValue: 'c',
-            minValue: 'a',
+            validDistinctValueCount: 3,
+            validFrequentValues: { a: 3, b: 2, c: 1 },
+            validHighestValues: [['c', 1]],
+            validLowestValues: [['a', 3]],
             validValueCount: 6
         });
         const wrapper = mountPanel([column]);
@@ -226,12 +159,12 @@ describe('ColumnDetailPanel', () => {
     it('lists only the lowest and highest text values when there are too many to count', async () => {
         const column = buildColumn({
             dataTypeId: 'string',
-            frequentValues: {},
-            highestValues: [
+            validFrequentValues: {},
+            validHighestValues: [
                 ['zz', 1],
                 ['zy', 2]
             ],
-            lowestValues: [['aa', 4]],
+            validLowestValues: [['aa', 4]],
             validValueCount: 5000
         });
         const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
@@ -248,12 +181,12 @@ describe('ColumnDetailPanel', () => {
     it('shows numbers as a histogram, then their lowest and highest values', async () => {
         const column = buildColumn({
             dataSubtypeId: 'decimal',
-            distinctValueCount: 3,
-            frequentValues: { '1': 1, '12.5': 1, '9.5': 1 },
-            highestValues: [['12.5', 1]],
-            lowestValues: [['1', 1]],
+            validDistinctValueCount: 3,
+            validFrequentValues: { '1': 1, '12.5': 1, '9.5': 1 },
+            validHighestValues: [['12.5', 1]],
+            validLowestValues: [['1', 1]],
             validValueCount: 3,
-            valueBins: [
+            validValueBins: [
                 { count: 1, lowerValue: '0', upperValue: '5' },
                 { count: 0, lowerValue: '5', upperValue: '10' },
                 { count: 2, lowerValue: '10', upperValue: '15' }
@@ -275,12 +208,13 @@ describe('ColumnDetailPanel', () => {
     it('labels a log scale’s ranges by powers of ten, with zero as its own range', async () => {
         const column = buildColumn({
             dataSubtypeId: 'decimal',
-            frequentValues: {},
+            validFrequentValues: {},
             validValueCount: 5000,
-            valueBinScaleId: 'log',
-            valueBins: [
+            validValueBinScaleId: 'log',
+            validValueBins: [
                 { count: 2, lowerValue: '-100', upperValue: '-10' },
                 { count: 1, lowerValue: '0', upperValue: '0' },
+                { count: 5, lowerValue: '0.0001', upperValue: '0.01' },
                 { count: 3, lowerValue: '1000', upperValue: '10000' },
                 { count: 4, lowerValue: '1e+15', upperValue: '1e+16' }
             ]
@@ -291,17 +225,18 @@ describe('ColumnDetailPanel', () => {
         expect(findHeadingTitles(wrapper)[0]).toBe(`${t(TEXT, 'validValues.title')} – ${t(TEXT, 'distribution.log.title')}`);
         expect(histogramRows[0]).toContain(t(TEXT, 'bin.label', { lower: '-100', upper: '-10' }));
         expect(histogramRows[1]).toMatch(/^0 /u);
-        expect(histogramRows[2]).toContain(t(TEXT, 'bin.label', { lower: '1K', upper: '10K' }));
-        expect(histogramRows[3]).toContain(t(TEXT, 'bin.label', { lower: '1E15', upper: '1E16' })); // Past trillions, short form would read '1,000T'.
+        expect(histogramRows[2]).toContain(t(TEXT, 'bin.label', { lower: '0.0001', upper: '0.01' })); // Decimals, not '1E-4', so they match their neighbours.
+        expect(histogramRows[3]).toContain(t(TEXT, 'bin.label', { lower: '1K', upper: '10K' }));
+        expect(histogramRows[4]).toContain(t(TEXT, 'bin.label', { lower: '1E15', upper: '1E16' })); // Past trillions, short form would read '1,000T'.
     });
 
     it('adds a paler bar at each end for the values beyond the ranges, with estimated counts marked', async () => {
         const column = buildColumn({
             dataSubtypeId: 'decimal',
-            frequentValues: {},
+            validFrequentValues: {},
             validValueCount: 5000,
-            valueBinOutliers: { aboveCount: 3, belowCount: 2, isEstimated: true },
-            valueBins: [
+            validValueBinOutliers: { aboveCount: 3, belowCount: 2, isEstimated: true },
+            validValueBins: [
                 { count: 5, lowerValue: '0', upperValue: '10' },
                 { count: 4, lowerValue: '10', upperValue: '20' }
             ]
@@ -325,11 +260,11 @@ describe('ColumnDetailPanel', () => {
             ['9', 3]
         ];
         const column = buildColumn({
-            frequentValues: {},
-            highestValues: values.toReversed(),
-            lowestValues: values,
+            validFrequentValues: {},
+            validHighestValues: values.toReversed(),
+            validLowestValues: values,
             validValueCount: 6,
-            valueBins: [{ count: 6, lowerValue: '0', upperValue: '10' }]
+            validValueBins: [{ count: 6, lowerValue: '0', upperValue: '10' }]
         });
         const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
 
@@ -345,11 +280,11 @@ describe('ColumnDetailPanel', () => {
         const values = Array.from({ length: 25 }, (_, index): [string, number] => [String(index), 1]);
         const column = buildColumn({
             dataSubtypeId: 'integer',
-            frequentValues: {},
-            highestValues: values.toReversed(),
-            lowestValues: values,
+            validFrequentValues: {},
+            validHighestValues: values.toReversed(),
+            validLowestValues: values,
             validValueCount: 5000,
-            valueBins: [{ count: 5000, lowerValue: '0', upperValue: '25' }]
+            validValueBins: [{ count: 5000, lowerValue: '0', upperValue: '25' }]
         });
         const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
 
@@ -399,9 +334,9 @@ describe('ColumnDetailPanel', () => {
         const column = buildColumn({
             dataSubtypeId: 'date',
             dataTypeId: 'temporal',
-            frequentValues: {},
+            validFrequentValues: {},
             validValueCount: 5000,
-            valueBins: [
+            validValueBins: [
                 { count: 3, lowerValue: '2024-01-01', upperValue: '2024-02-01' },
                 { count: 2, lowerValue: '2024-02-01', upperValue: '2024-05-01' },
                 { count: 1, lowerValue: '2020-01-01', upperValue: '2030-01-01' },
@@ -422,9 +357,9 @@ describe('ColumnDetailPanel', () => {
     it('says so in place of a list when every value is seen equally often', async () => {
         const column = buildColumn({
             dataTypeId: 'string',
-            distinctValueCount: 4,
-            frequentValues: { BEL: 5, ABW: 5 },
-            leastFrequentValues: { AFG: 5 },
+            validDistinctValueCount: 4,
+            validFrequentValues: { BEL: 5, ABW: 5 },
+            validLeastFrequentValues: { AFG: 5 },
             validValueCount: 20
         });
         const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
@@ -435,11 +370,11 @@ describe('ColumnDetailPanel', () => {
     });
 
     it('sorts numbers seen equally often by size, and dates by when', async () => {
-        const numberColumn = buildColumn({ distinctValueCount: 4, frequentValues: { '10': 2, '9': 2, '-5': 2, '3': 1 }, validValueCount: 7 });
+        const numberColumn = buildColumn({ validDistinctValueCount: 4, validFrequentValues: { '10': 2, '9': 2, '-5': 2, '3': 1 }, validValueCount: 7 });
         const dateColumn = buildColumn({
             dataTypeId: 'temporal',
-            distinctValueCount: 3,
-            frequentValues: { '2026-01-10': 2, '2025-12-31': 2, '2026-03-01': 1 },
+            validDistinctValueCount: 3,
+            validFrequentValues: { '2026-01-10': 2, '2025-12-31': 2, '2026-03-01': 1 },
             validValueCount: 5
         });
 
@@ -451,7 +386,7 @@ describe('ColumnDetailPanel', () => {
     });
 
     it('gives the distinct count in the valid values heading, not on the Overview', async () => {
-        const wrapper = mountPanel([buildColumn({ distinctValueCount: 1, frequentValues: { London: 2 }, validValueCount: 2 })]);
+        const wrapper = mountPanel([buildColumn({ validDistinctValueCount: 1, validFrequentValues: { London: 2 }, validValueCount: 2 })]);
 
         expect(wrapper.find('[role="tabpanel"]').text()).not.toContain('London');
         await openTab(wrapper, t(TEXT, 'tab.values.label'));
@@ -463,7 +398,7 @@ describe('ColumnDetailPanel', () => {
     });
 
     it('gives the count only in the valid values heading when there are too many values to count', async () => {
-        const wrapper = await openTab(mountPanel([buildColumn({ dataTypeId: 'string', frequentValues: {}, validValueCount: 5000 })]), t(TEXT, 'tab.values.label'));
+        const wrapper = await openTab(mountPanel([buildColumn({ dataTypeId: 'string', validFrequentValues: {}, validValueCount: 5000 })]), t(TEXT, 'tab.values.label'));
 
         expect(findHeadings(wrapper)[0]).toStrictEqual([
             `${t(TEXT, 'validValues.title')} – ${t(TEXT, 'distribution.title')}`,
@@ -472,7 +407,7 @@ describe('ColumnDetailPanel', () => {
     });
 
     it('lists the formats as bars, most common first, without the type counts', async () => {
-        const wrapper = mountPanel([buildColumn({ formats: { '9,9': 2, '9.9': 7 }, inferenceCounts: { 'numeric.decimal': 9 } })]);
+        const wrapper = mountPanel([buildColumn({ validFormats: { '9,9': 2, '9.9': 7 }, inferenceCounts: { 'numeric.decimal': 9 } })]);
 
         await wrapper.findAll('[role="tab"]')[1]?.trigger('click');
 
@@ -481,21 +416,21 @@ describe('ColumnDetailPanel', () => {
     });
 
     it('notes the shortest and longest lengths under the formats, not on the Overview', async () => {
-        const wrapper = mountPanel([buildColumn({ dataTypeId: 'string', formats: { Xxxx: 2 }, maxSize: 12, minSize: 3 })]);
+        const wrapper = mountPanel([buildColumn({ dataTypeId: 'string', validFormats: { Xxxx: 2 }, validMaxSize: 12, validMinSize: 3 })]);
         await wrapper.findAll('[role="tab"]')[1]?.trigger('click');
         expect(wrapper.findAll('[role="tabpanel"] p').at(-1)?.text()).toBe(t(TEXT, 'length.text', { maximum: '12', minimum: '3' }));
     });
 
     it('notes a single length when every value is as long as the others', async () => {
-        const wrapper = mountPanel([buildColumn({ dataTypeId: 'string', formats: { XX: 2 }, maxSize: 2, minSize: 2 })]);
+        const wrapper = mountPanel([buildColumn({ dataTypeId: 'string', validFormats: { XX: 2 }, validMaxSize: 2, validMinSize: 2 })]);
 
         await wrapper.findAll('[role="tab"]')[1]?.trigger('click');
         expect(wrapper.findAll('[role="tabpanel"] p').at(-1)?.text()).toBe(t(TEXT, 'length.same.text', { length: '2' }));
     });
 
     it('notes how many whole digits and decimal places numbers have, under Formats rather than the Overview', async () => {
-        const rangeColumn = buildColumn({ formats: { '9.99': 2 }, maxDecimals: 2, maxSize: 7, maxWholeDigits: 4, minDecimals: 0, minSize: 1, minWholeDigits: 1 });
-        const fixedColumn = buildColumn({ formats: { '9999': 2 }, maxDecimals: 0, maxWholeDigits: 4, minDecimals: 0, minWholeDigits: 4 });
+        const rangeColumn = buildColumn({ validFormats: { '9.99': 2 }, validMaxDecimals: 2, validMaxSize: 7, validMaxWholeDigits: 4, validMinDecimals: 0, validMinSize: 1, validMinWholeDigits: 1 });
+        const fixedColumn = buildColumn({ validFormats: { '9999': 2 }, validMaxDecimals: 0, validMaxWholeDigits: 4, validMinDecimals: 0, validMinWholeDigits: 4 });
 
         const rangeWrapper = mountPanel([rangeColumn]);
         await openTab(rangeWrapper, t(TEXT, 'tab.formats.label'));
@@ -514,7 +449,7 @@ describe('ColumnDetailPanel', () => {
 
     it('sums the formats past fifty, after the length, in one note above the list', async () => {
         const formats = Object.fromEntries(Array.from({ length: 53 }, (_value, index) => [`format${String(index)}`, 60 - index]));
-        const wrapper = mountPanel([buildColumn({ dataTypeId: 'string', formats, maxSize: 20, minSize: 8 })]);
+        const wrapper = mountPanel([buildColumn({ dataTypeId: 'string', validFormats: formats, validMaxSize: 20, validMinSize: 8 })]);
 
         await wrapper.findAll('[role="tab"]')[1]?.trigger('click');
 
@@ -542,18 +477,60 @@ describe('ColumnDetailPanel', () => {
         expect(mountPanel([buildColumn({})], { decimalSeparatorOptions: separatorOptions, decimalSeparatorValue: 'auto' }).findAll('select-input-stub')).toHaveLength(2);
     });
 
+    it('offers a date order only when it is given choices', () => {
+        const orderOptions = [{ id: 'auto', label: 'Auto' }];
+        const wrapper = mountPanel([buildColumn({ dataTypeId: 'temporal' })], { dateOrderOptions: orderOptions, dateOrderValue: 'auto' });
+
+        expect(mountPanel([buildColumn({ dataTypeId: 'temporal' })]).findAll('select-input-stub')).toHaveLength(1);
+        expect(wrapper.findAll('select-input-stub').map((select) => select.attributes('label'))).toEqual([t(TEXT, 'type.label'), t(TEXT, 'dateOrder.label')]);
+    });
+
+    it('shows a date order that cannot change as disabled', () => {
+        const properties = { dateOrderOptions: [{ id: 'auto', label: 'Auto' }], dateOrderValue: 'auto' };
+
+        expect(mountPanel([buildColumn({ dataTypeId: 'temporal' })], properties).findAll('select-input-stub')[1]?.attributes('disabled')).toBe('false');
+        expect(mountPanel([buildColumn({ dataTypeId: 'temporal' })], { ...properties, isDateOrderDisabled: true }).findAll('select-input-stub')[1]?.attributes('disabled')).toBe('true');
+    });
+
+    it('lists the storage type and whether values are unique, and whether the column is complete once the whole item is read', () => {
+        const columnConfig = buildColumn({ isComplete: true, validIsUnique: true, storageTypeId: 'int32' });
+        const partialText = mountPanel([columnConfig]).get('dl').text();
+        const completeText = mountPanel([columnConfig], { isAuditComplete: true }).get('dl').text();
+
+        expect(partialText).toContain(t(ROW_TEXT, 'column.storageType.label'));
+        expect(partialText).toContain(t(ROW_TEXT, 'column.unique.label'));
+        expect(partialText).not.toContain(t(TEXT, 'complete.label'));
+        expect(completeText).toContain(t(TEXT, 'complete.label'));
+    });
+
+    it('lists how many values are seen once, when the engine counted them', () => {
+        expect(mountPanel([buildColumn({ validIsUnique: false, validSingleValueCount: 1204 })]).get('dl').text()).toContain(`${t(TEXT, 'seenOnce.label')}1,204`);
+        expect(mountPanel([buildColumn({ validIsUnique: false })]).get('dl').text()).not.toContain(t(TEXT, 'seenOnce.label'));
+    });
+
+    it('always says whether the format is unclear', () => {
+        expect(mountPanel([buildColumn({ isFormatAmbiguous: true })]).get('dl').text()).toContain(`${t(TEXT, 'formatUnclear.label')}${t(ROW_TEXT, 'answer.yes.label')}`);
+        expect(mountPanel([buildColumn({})]).get('dl').text()).toContain(`${t(TEXT, 'formatUnclear.label')}${t(ROW_TEXT, 'answer.no.label')}`);
+    });
+
     it('offers to read null words as empty only when given the choice', async () => {
-        expect(
-            mountPanel([buildColumn({ dataTypeId: 'string', nullWordValueCount: 3 })])
-                .find('input[type="checkbox"]')
-                .exists()
-        ).toBe(false);
+        expect(mountPanel([buildColumn({ dataTypeId: 'string', nullWordValueCount: 3 })]).findAll('input[type="checkbox"]')).toHaveLength(1); // Only the ignore choice.
         const wrapper = mountPanel([buildColumn({ dataTypeId: 'string', nullWordValueCount: 3 })], { nullWordReading: 'text' });
         const checkbox = wrapper.get('input[type="checkbox"]');
 
         expect(checkbox.element.parentElement?.textContent).toContain('3');
         await checkbox.setValue(true);
         expect(wrapper.emitted('update:nullWordsAreEmpty')).toEqual([[true]]);
+    });
+
+    it('offers to ignore the column when loading', async () => {
+        const wrapper = mountPanel([buildColumn({})], { isIgnored: true });
+        const checkbox = wrapper.get('input[type="checkbox"]');
+
+        expect(checkbox.element.parentElement?.textContent).toContain(t(TEXT, 'ignore.label'));
+        expect((checkbox.element as HTMLInputElement).checked).toBe(true);
+        await checkbox.setValue(false);
+        expect(wrapper.emitted('update:isIgnored')).toEqual([[false]]);
     });
 
     it('offers Previous and Next, disabled at either end', () => {
@@ -563,3 +540,68 @@ describe('ColumnDetailPanel', () => {
         expect(wrapper.find(`[aria-label="${t(TEXT, 'previous.aria')}"]`).attributes('disabled')).toBeDefined();
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function buildColumn(overrides: Partial<ColumnAuditConfig>): ColumnAuditConfig {
+    return {
+        dataTypeId: 'numeric',
+        validFormats: {},
+        validFrequentValues: {},
+        inferenceCounts: {},
+        invalidValues: {},
+        label: { en: 'Amount' },
+        leadingInferenceCounts: {},
+        ...overrides
+    } as ColumnAuditConfig;
+}
+
+function mountPanel(columnConfigs: ColumnAuditConfig[], properties: object = {}): VueWrapper {
+    return mount(ColumnDetailPanel, {
+        global: { stubs: { SelectInput: true } },
+        props: {
+            columnIndex: 0,
+            detectedColumnType: { dataSubtypeId: undefined, dataTypeId: 'numeric' },
+            itemReading: { columnConfigs, hasHeaders: true } as unknown as ItemReading,
+            typeOptions: [],
+            typeValue: 'auto',
+            ...properties
+        }
+    });
+}
+
+function findTabLabels(wrapper: VueWrapper): string[] {
+    return wrapper.findAll('[role="tab"]').map((tab) => tab.text());
+}
+
+// Each heading's title and the counts beside it, apart, so the space between them in the layout does not matter.
+function findHeadings(wrapper: VueWrapper): string[][] {
+    return wrapper.findAll('[role="tabpanel"] h3').map((heading) => heading.findAll(':scope > span').map((part) => part.text()));
+}
+
+function findHeadingTitles(wrapper: VueWrapper): string[] {
+    return findHeadings(wrapper).map(([title = '']) => title);
+}
+
+// A column of numbers with one value in each of the given ranges.
+function buildBinnedColumn(bins: [string, string][]): ColumnAuditConfig {
+    return buildColumn({
+        dataSubtypeId: 'decimal',
+        validFrequentValues: {},
+        validValueCount: 5000,
+        validValueBins: bins.map(([lowerValue, upperValue]) => ({ count: 1, lowerValue, upperValue }))
+    });
+}
+
+// The labels at the two ends of the histogram's axis.
+function findAxisEnds(wrapper: VueWrapper): string[] {
+    return wrapper.findAll('[data-region="ValueHistogram"] > div > span').map((label) => label.text());
+}
+
+async function openTab(wrapper: VueWrapper, label: string): Promise<VueWrapper> {
+    await wrapper
+        .findAll('[role="tab"]')
+        .find((tab) => tab.text() === label)
+        ?.trigger('click');
+    return wrapper;
+}

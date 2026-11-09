@@ -5,15 +5,6 @@ import { type Ref, ref } from 'vue';
 // ── Local Framework
 import { useSplitPanes } from '@/composables/useSplitPanes';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// The assistant's inner split runs this model, and a pane that is open but never in front is invisible on a narrow
-// container — so 'open' and 'visible' have to stay distinct, and the front pane has to follow every change.
-function build(): { containerIsWide: Ref<boolean>; panes: ReturnType<typeof useSplitPanes<'chat' | 'library'>> } {
-    const containerIsWide = ref(true);
-    return { containerIsWide, panes: useSplitPanes(['chat', 'library'] as const, { containerIsWide, initialPaneId: 'chat' }) };
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('useSplitPanes', () => {
@@ -68,3 +59,12 @@ describe('useSplitPanes', () => {
         expect(panes.wasPaneOpened('library')).toBe(true); // Still mounted behind its 'v-show'.
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The assistant's inner split runs this model, and a pane that is open but never in front is invisible on a narrow
+// container — so 'open' and 'visible' have to stay distinct, and the front pane has to follow every change.
+function build(): { containerIsWide: Ref<boolean>; panes: ReturnType<typeof useSplitPanes<'chat' | 'library'>> } {
+    const containerIsWide = ref(true);
+    return { containerIsWide, panes: useSplitPanes(['chat', 'library'] as const, { containerIsWide, initialPaneId: 'chat' }) };
+}

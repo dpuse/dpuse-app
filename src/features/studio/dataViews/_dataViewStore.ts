@@ -20,7 +20,7 @@ import { assertDefined } from '@/utilities/index.ts';
 import { constructItemPath } from './dataViewSummary';
 import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
-import { constructColumnsVersion, constructLoadColumnConfigs } from './_dataViewColumns';
+import { constructColumnsVersion, constructIgnoredColumnIndexes, constructLoadColumnConfigs } from './_dataViewColumns';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -90,6 +90,7 @@ export async function loadDataViewRecords(dataViewConfig: DataViewConfig, isDraf
     const options: EngineLoadObjectRecordsOptions = {
         columnConfigs: constructLoadColumnConfigs(dataViewConfig),
         hasHeaders: readingConfig.hasHeaders === true,
+        ignoredColumnIndexes: constructIgnoredColumnIndexes(dataViewConfig),
         headerValues: readingConfig.hasHeaders === true ? dataViewConfig.sampleConfig?.parsedRecords[0]?.map((parsedValue) => parsedValue.value) : undefined,
         path: establishTablePath(storeConnectorId, dataViewConfig.id, isDraft),
         sourceConnectionConfig,

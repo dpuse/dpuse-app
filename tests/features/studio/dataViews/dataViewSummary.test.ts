@@ -7,12 +7,6 @@ import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { constructDataViewSteps, constructItemPath, resolveCurrentDataViewStepId } from '@/features/studio/dataViews/dataViewSummary';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function buildNode(extension: string | undefined): ConnectionNodeConfig {
-    return { folderPath: '/reports', name: 'sales', extension } as ConnectionNodeConfig;
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('constructItemPath', () => {
@@ -47,3 +41,9 @@ describe('resolveCurrentDataViewStepId', () => {
         expect(resolveCurrentDataViewStepId(dataView)).toBe('data');
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function buildNode(extension: string | undefined): ConnectionNodeConfig {
+    return { folderPath: '/reports', name: 'sales', extension } as ConnectionNodeConfig;
+}

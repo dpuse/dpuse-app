@@ -17,16 +17,6 @@ vi.mock('@vueuse/core', async (importOriginal) => ({
     })
 }));
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function notifyResize(): void {
-    for (const callback of resizing.callbacks) callback();
-}
-
-function setSize(element: HTMLElement, size: number): void {
-    Object.defineProperties(element, { clientHeight: { configurable: true, value: size }, clientWidth: { configurable: true, value: size } });
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('Table', () => {
@@ -129,3 +119,13 @@ describe('Table', () => {
         expect(scrollElement.scrollLeft).toBe(900);
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function notifyResize(): void {
+    for (const callback of resizing.callbacks) callback();
+}
+
+function setSize(element: HTMLElement, size: number): void {
+    Object.defineProperties(element, { clientHeight: { configurable: true, value: size }, clientWidth: { configurable: true, value: size } });
+}

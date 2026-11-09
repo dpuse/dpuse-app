@@ -6,19 +6,6 @@ import { describe, expect, it } from 'vitest';
 // ── Local Framework
 import SelectInput from '@/components/ui/SelectInput.vue';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function getValueClasses(tone?: 'info' | 'warning', isCompact = true): string[] {
-    const wrapper = mount(SelectInput, { props: { isCompact, label: 'Encoding', modelValue: 'a', options: [{ id: 'a', label: 'A' }], tone } });
-    return isCompact ? wrapper.get('span[aria-hidden="true"]').classes() : wrapper.get('select').classes();
-}
-
-function getDotClasses(tone?: 'info' | 'warning'): string[] | undefined {
-    const wrapper = mount(SelectInput, { props: { isCompact: true, label: 'Encoding', modelValue: 'a', options: [{ id: 'a', label: 'A' }], tone } });
-    const dot = wrapper.find('span.rounded-full');
-    return dot.exists() ? dot.classes() : undefined;
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('SelectInput', () => {
@@ -60,3 +47,16 @@ describe('SelectInput', () => {
         expect(options.map((option) => option.text())).toEqual(['A', 'B']);
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function getValueClasses(tone?: 'info' | 'warning', isCompact = true): string[] {
+    const wrapper = mount(SelectInput, { props: { isCompact, label: 'Encoding', modelValue: 'a', options: [{ id: 'a', label: 'A' }], tone } });
+    return isCompact ? wrapper.get('span[aria-hidden="true"]').classes() : wrapper.get('select').classes();
+}
+
+function getDotClasses(tone?: 'info' | 'warning'): string[] | undefined {
+    const wrapper = mount(SelectInput, { props: { isCompact: true, label: 'Encoding', modelValue: 'a', options: [{ id: 'a', label: 'A' }], tone } });
+    const dot = wrapper.find('span.rounded-full');
+    return dot.exists() ? dot.classes() : undefined;
+}

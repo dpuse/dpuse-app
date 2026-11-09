@@ -23,16 +23,6 @@ vi.mock('@/observability/monitorSocket', () => ({
 
 await import('@/observability/configMonitor');
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function buildModuleConfig(typeId: string, id: string, version: string): ModuleConfig {
-    return { id, typeId, version } as unknown as ModuleConfig;
-}
-
-function sendModuleList(moduleConfigs: ModuleConfig[]): void {
-    socketOptions.current?.onMessage({ typeId: 'init', modules: moduleConfigs });
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('configMonitor', () => {
@@ -74,3 +64,13 @@ describe('configMonitor', () => {
         expect(moduleUpdateIsAvailable.value).toBe(true);
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function buildModuleConfig(typeId: string, id: string, version: string): ModuleConfig {
+    return { id, typeId, version } as unknown as ModuleConfig;
+}
+
+function sendModuleList(moduleConfigs: ModuleConfig[]): void {
+    socketOptions.current?.onMessage({ typeId: 'init', modules: moduleConfigs });
+}

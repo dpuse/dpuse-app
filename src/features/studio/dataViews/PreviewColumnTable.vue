@@ -37,7 +37,7 @@ const shownColumnRows = computed(() => (rowLimit == null ? columnRows.value : co
                     <th class="py-1 pr-4 font-normal text-muted">{{ columnHeaders.label }}</th>
                     <th class="py-1 pr-4 font-normal text-muted">{{ columnHeaders.dataTypeLabel }}</th>
                     <th class="py-1 pr-4 font-normal text-muted">{{ columnHeaders.dataSubtypeLabel }}</th>
-                    <th class="py-1 font-normal text-muted">{{ columnHeaders.matchText }}</th>
+                    <th class="py-1 text-right font-normal text-muted">{{ columnHeaders.invalidValueText }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -61,7 +61,7 @@ const shownColumnRows = computed(() => (rowLimit == null ? columnRows.value : co
                     <td v-else class="relative py-1 pr-4">
                         <span class="sr-only">{{ t(TEXT, 'column.dataSubtype.none.text') }}</span>
                     </td>
-                    <td class="py-1">{{ columnRow.matchText }}</td>
+                    <td class="py-1 text-right tabular-nums">{{ columnRow.invalidValueText }}</td>
                 </tr>
             </tbody>
         </table>

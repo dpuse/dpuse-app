@@ -22,17 +22,6 @@ const MAX_REPORT_BYTES = 48 * 1024;
 
 const fetchMock = vi.fn<typeof fetch>(() => Promise.resolve(new Response(null, { status: 200 })));
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function sentEvent(): SentEvent {
-    const body = fetchMock.mock.calls[0]?.[1]?.body as string;
-    return (JSON.parse(body) as { events: SentEvent[] }).events[0];
-}
-
-function sentBytes(): number {
-    return new TextEncoder().encode(JSON.stringify({ errors: sentEvent().errors })).length;
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('hasReportedAppError', () => {
@@ -86,3 +75,14 @@ describe('hasReportedAppError', () => {
         await expect(hasReportedAppError(new AppError('Offline.', 'test'))).resolves.toBe(false);
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function sentEvent(): SentEvent {
+    const body = fetchMock.mock.calls[0]?.[1]?.body as string;
+    return (JSON.parse(body) as { events: SentEvent[] }).events[0];
+}
+
+function sentBytes(): number {
+    return new TextEncoder().encode(JSON.stringify({ errors: sentEvent().errors })).length;
+}

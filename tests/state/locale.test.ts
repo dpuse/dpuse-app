@@ -12,16 +12,6 @@ const TEXT = {
     'brace.text': { en: "Wrap it in {'{'}braces{'}'}" }
 };
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// The language is chosen once, as the module loads, so this loads it afresh under the browser languages given.
-async function loadLocaleId(languages: string[]): Promise<string> {
-    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(languages);
-    vi.resetModules();
-    const locale = await import('@/state/locale');
-    return locale.localeId.value;
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('t', () => {
@@ -85,3 +75,13 @@ describe('localeId', () => {
         await expect(loadLocaleId(['fr-FR', 'de'])).resolves.toBe('en');
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The language is chosen once, as the module loads, so this loads it afresh under the browser languages given.
+async function loadLocaleId(languages: string[]): Promise<string> {
+    vi.spyOn(navigator, 'languages', 'get').mockReturnValue(languages);
+    vi.resetModules();
+    const locale = await import('@/state/locale');
+    return locale.localeId.value;
+}

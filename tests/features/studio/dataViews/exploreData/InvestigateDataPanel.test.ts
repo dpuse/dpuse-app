@@ -20,6 +20,14 @@ import {
 } from '@/features/studio/dataViews/_dataViewStore';
 import { localeId, t } from '@/state/locale';
 
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+interface TableProperties {
+    columnDefinitions: { accessorKey: string; header: string; size: number }[];
+    constructCellClass: (columnId: string) => string | undefined;
+    dataSource: { getRows: (startRow: number, endRow: number) => Promise<{ rows: Record<string, string>[]; totalCount: number }> };
+}
+
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The panel reads the data view the route names. The spec sets that data view directly.
@@ -70,13 +78,7 @@ const TableStub = defineComponent({
             )
 });
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-interface TableProperties {
-    columnDefinitions: { accessorKey: string; header: string; size: number }[];
-    constructCellClass: (columnId: string) => string | undefined;
-    dataSource: { getRows: (startRow: number, endRow: number) => Promise<{ rows: Record<string, string>[]; totalCount: number }> };
-}
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const AUDITED_DATA_VIEW = {
     contentAuditConfig: {
@@ -88,10 +90,6 @@ const AUDITED_DATA_VIEW = {
     },
     id: 'dataView1'
 };
-
-function mountPanel(): ReturnType<typeof mount> {
-    return mount(InvestigateDataPanel, { global: { stubs: { Table: TableStub } } });
-}
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -158,7 +156,7 @@ describe('InvestigateDataPanel', () => {
     it('shows numbers to the right with their column’s decimals, never rounding a longer one', async () => {
         dataView.config = {
             ...AUDITED_DATA_VIEW,
-            contentAuditConfig: { asAt: 1, columns: [{ dataSubtypeId: 'decimal', dataTypeId: 'numeric', label: { en: 'Score' }, maxDecimals: 2 }] }
+            contentAuditConfig: { asAt: 1, columns: [{ dataSubtypeId: 'decimal', dataTypeId: 'numeric', label: { en: 'Score' }, validMaxDecimals: 2 }] }
         };
         vi.mocked(queryDataViewRecords).mockResolvedValue({ records: [[50], [87.1], [1.2345]], totalCount: 3 });
         const wrapper = mountPanel();
@@ -247,7 +245,7 @@ describe('InvestigateDataPanel', () => {
             ...AUDITED_DATA_VIEW,
             contentAuditConfig: {
                 asAt: 1,
-                columns: AUDITED_DATA_VIEW.contentAuditConfig.columns.map((columnConfig) => ({ ...columnConfig, formats: {}, inferenceCounts: {} })) // What every audited column holds.
+                columns: AUDITED_DATA_VIEW.contentAuditConfig.columns.map((columnConfig) => ({ ...columnConfig, validFormats: {}, inferenceCounts: {} })) // What every audited column holds.
             },
             readingConfig: { dataFormatId: 'dsv' },
             sampleConfig: { parsedRecords: [], size: 0, text: '' }
@@ -342,3 +340,9 @@ describe('InvestigateDataPanel', () => {
         expect(closeDataViewStore).toHaveBeenCalledOnce();
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function mountPanel(): ReturnType<typeof mount> {
+    return mount(InvestigateDataPanel, { global: { stubs: { Table: TableStub } } });
+}

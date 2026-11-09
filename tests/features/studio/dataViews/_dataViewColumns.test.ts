@@ -2,16 +2,19 @@
 import { describe, expect, it } from 'vitest';
 
 // ── DPUse Framework
-import type { ColumnChoiceConfigs, ContentAuditConfig, DataViewConfig, ObjectColumnConfig } from '@dpuse/dpuse-shared';
+import type { ColumnAuditConfig, ColumnChoiceConfig, ColumnChoiceConfigs, ContentAuditConfig, DataViewConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import {
     constructChosenColumnTypes,
+    constructChosenDateOrders,
     constructChosenDecimalSeparators,
+    constructChosenIgnoredColumns,
     constructChosenNullWords,
     constructColumnChoiceConfigs,
     constructColumnsVersion,
     constructDataTypeCellClass,
+    constructIgnoredColumnIndexes,
     constructItemReading,
     constructLoadColumnConfigs,
     constructPreviewContentAuditConfig,
@@ -20,30 +23,10 @@ import {
     isDerivedColumn,
     isEmptyUnitColumn,
     type ItemReading,
+    placeLoadedValues,
     resolveColumnConfig,
     restoreItemReading
 } from '@/features/studio/dataViews/_dataViewColumns';
-
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function buildColumn(overrides: Partial<ObjectColumnConfig>): ObjectColumnConfig {
-    return { dataSubtypeId: undefined, dataTypeId: 'string', label: { en: 'Column' }, ...overrides } as ObjectColumnConfig;
-}
-
-function buildAuditedColumns(
-    columnConfigs: ObjectColumnConfig[],
-    columnChoiceConfigs: ColumnChoiceConfigs = {}
-): Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig'> {
-    return { columnChoiceConfigs, contentAuditConfig: { asAt: 5, columns: columnConfigs } as unknown as ContentAuditConfig };
-}
-
-function buildOneAuditedColumn(columnChoiceConfigs: ColumnChoiceConfigs = {}): Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig'> {
-    return buildAuditedColumns([buildColumn({})], columnChoiceConfigs);
-}
-
-function buildDataView(isComplete: boolean | undefined): Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig'> {
-    return { columnChoiceConfigs: undefined, contentAuditConfig: { columns: [buildColumn({ dataTypeId: 'unknown' })], isComplete } as unknown as ContentAuditConfig };
-}
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -54,7 +37,7 @@ describe('constructItemReading', () => {
         const itemReading = constructItemReading({
             contentAuditConfig: { columns } as ContentAuditConfig,
             readingConfig: { dataFormatId: 'dtv' } as never,
-            sampleConfig: { parsedRecords: [], size: 4, text: 'a' }
+            sampleConfig: { issues: [], parsedRecords: [], size: 4, text: 'a' }
         });
 
         expect(itemReading).toMatchObject({ columnConfigs: columns, dataFormatId: 'dtv', size: 4, text: 'a' });
@@ -113,10 +96,12 @@ describe('constructPreviewContentAuditConfig', () => {
 
 describe('constructColumnChoiceConfigs', () => {
     it('keeps only the columns with something chosen, by position', () => {
-        expect(constructColumnChoiceConfigs({ 0: { dataSubtypeId: 'decimal', dataTypeId: 'numeric' } }, { 2: ',' }, { 3: true })).toStrictEqual({
-            0: { dataSubtypeId: 'decimal', dataTypeId: 'numeric', decimalSeparatorId: undefined, nullWordsAreEmpty: undefined },
-            2: { dataSubtypeId: undefined, dataTypeId: undefined, decimalSeparatorId: ',', nullWordsAreEmpty: undefined },
-            3: { dataSubtypeId: undefined, dataTypeId: undefined, decimalSeparatorId: undefined, nullWordsAreEmpty: true }
+        expect(constructColumnChoiceConfigs({ 0: { dataSubtypeId: 'decimal', dataTypeId: 'numeric' } }, { 2: ',' }, { 3: true }, { 4: 'dayFirst' }, { 5: true })).toStrictEqual({
+            0: { dataSubtypeId: 'decimal', dataTypeId: 'numeric', dateOrderId: undefined, decimalSeparatorId: undefined, isIgnored: undefined, nullWordsAreEmpty: undefined },
+            2: { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: undefined, decimalSeparatorId: ',', isIgnored: undefined, nullWordsAreEmpty: undefined },
+            3: { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: undefined, decimalSeparatorId: undefined, isIgnored: undefined, nullWordsAreEmpty: true },
+            4: { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: 'dayFirst', decimalSeparatorId: undefined, isIgnored: undefined, nullWordsAreEmpty: undefined },
+            5: { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: undefined, decimalSeparatorId: undefined, isIgnored: true, nullWordsAreEmpty: undefined }
         });
     });
 
@@ -141,7 +126,12 @@ describe('chosen column types', () => {
                 buildColumn({ dataSubtypeId: 'plain', dataTypeId: 'string' }),
                 buildColumn({ dataSubtypeId: 'plain', dataTypeId: 'string' })
             ],
-            { 0: { dataTypeId: 'numeric' }, 1: { dataTypeId: 'numeric' }, 2: { dataTypeId: 'temporal' }, 3: { dataTypeId: 'boolean' } }
+            {
+                0: buildColumnChoice({ dataTypeId: 'numeric' }),
+                1: buildColumnChoice({ dataTypeId: 'numeric' }),
+                2: buildColumnChoice({ dataTypeId: 'temporal' }),
+                3: buildColumnChoice({ dataTypeId: 'boolean' })
+            }
         );
 
         expect(constructChosenColumnTypes(auditedColumns)).toStrictEqual({
@@ -156,17 +146,20 @@ describe('chosen column types', () => {
         expect(constructChosenColumnTypes(undefined)).toStrictEqual({});
     });
 
-    it('give back the decimal separators and readings of null words chosen', () => {
-        const columnChoiceConfigs = constructColumnChoiceConfigs({}, { 0: ',' }, { 1: true });
+    it('give back the decimal separators, readings of null words and date orders chosen', () => {
+        const columnChoiceConfigs = constructColumnChoiceConfigs({}, { 0: ',' }, { 1: true }, { 2: 'dayFirst' });
 
         expect(constructChosenDecimalSeparators(columnChoiceConfigs)).toEqual({ 0: ',' });
         expect(constructChosenNullWords(columnChoiceConfigs)).toEqual({ 1: true });
+        expect(constructChosenDateOrders(columnChoiceConfigs)).toEqual({ 2: 'dayFirst' });
     });
 });
 
 describe('resolveColumnConfig', () => {
     it('uses the chosen type and subtype in place of the detected ones', () => {
-        expect(resolveColumnConfig(buildColumn({ dataSubtypeId: 'integer', dataTypeId: 'numeric' }), { dataSubtypeId: 'email', dataTypeId: 'string' })).toMatchObject({
+        expect(
+            resolveColumnConfig(buildColumn({ dataSubtypeId: 'integer', dataTypeId: 'numeric' }), buildColumnChoice({ dataSubtypeId: 'email', dataTypeId: 'string' }))
+        ).toMatchObject({
             dataSubtypeId: 'email',
             dataTypeId: 'string'
         });
@@ -174,28 +167,46 @@ describe('resolveColumnConfig', () => {
 
     it('uses the figures measured for the chosen decimal separator', () => {
         const numericReadings = {
-            ',': { dataSubtypeId: 'integer', maxValue: '3456' },
-            '.': { dataSubtypeId: 'decimal', maxValue: '3.456' }
-        } as ObjectColumnConfig['numericReadings'];
+            ',': { dataSubtypeId: 'integer', validMaxDecimals: 0 },
+            '.': { dataSubtypeId: 'decimal', validMaxDecimals: 3 }
+        } as ColumnAuditConfig['numericReadings'];
 
-        expect(resolveColumnConfig(buildColumn({ dataTypeId: 'numeric', decimalSeparatorId: '.', numericReadings }), { decimalSeparatorId: ',' })).toMatchObject({
-            dataSubtypeId: 'integer',
-            maxValue: '3456'
-        });
+        expect(resolveColumnConfig(buildColumn({ dataTypeId: 'numeric', decimalSeparatorId: '.', numericReadings }), buildColumnChoice({ decimalSeparatorId: ',' }))).toMatchObject(
+            {
+                dataSubtypeId: 'integer',
+                validMaxDecimals: 0
+            }
+        );
     });
 
     it('uses the chosen decimal separator in place of the detected one', () => {
-        expect(resolveColumnConfig(buildColumn({ dataTypeId: 'numeric', decimalSeparatorId: '.' }), { decimalSeparatorId: ',' }).decimalSeparatorId).toBe(',');
+        expect(resolveColumnConfig(buildColumn({ dataTypeId: 'numeric', decimalSeparatorId: '.' }), buildColumnChoice({ decimalSeparatorId: ',' })).decimalSeparatorId).toBe(',');
         expect(resolveColumnConfig(buildColumn({ dataTypeId: 'numeric', decimalSeparatorId: '.' }), undefined).decimalSeparatorId).toBe('.');
     });
 
+    it('uses the chosen date order, with the figures measured for it', () => {
+        const dateReadings = {
+            dayFirst: { validFormats: { 'dd/MM/yyyy': 2 } },
+            monthFirst: { validFormats: { 'MM/dd/yyyy': 2 } }
+        } as ColumnAuditConfig['dateReadings'];
+        const columnConfig = buildColumn({ dataTypeId: 'temporal', dateOrderId: 'monthFirst', dateReadings });
+
+        expect(resolveColumnConfig(columnConfig, buildColumnChoice({ dateOrderId: 'dayFirst' }))).toMatchObject({
+            dateOrderId: 'dayFirst',
+            validFormats: { 'dd/MM/yyyy': 2 }
+        });
+        expect(resolveColumnConfig(columnConfig, undefined).dateOrderId).toBe('monthFirst');
+    });
+
     it('uses the chosen reading of null words', () => {
-        expect(resolveColumnConfig(buildColumn({}), { nullWordsAreEmpty: true }).nullWordsAreEmpty).toBe(true);
+        expect(resolveColumnConfig(buildColumn({}), buildColumnChoice({ nullWordsAreEmpty: true })).nullWordsAreEmpty).toBe(true);
     });
 
     it('keeps the detected type and subtype otherwise', () => {
         expect(resolveColumnConfig(buildColumn({ dataSubtypeId: 'integer', dataTypeId: 'numeric' }), undefined)).toMatchObject({ dataSubtypeId: 'integer', dataTypeId: 'numeric' });
-        expect(resolveColumnConfig(buildColumn({ dataSubtypeId: 'integer', dataTypeId: 'numeric' }), { dataTypeId: 'numeric' })).toMatchObject({ dataSubtypeId: 'integer' });
+        expect(resolveColumnConfig(buildColumn({ dataSubtypeId: 'integer', dataTypeId: 'numeric' }), buildColumnChoice({ dataTypeId: 'numeric' }))).toMatchObject({
+            dataSubtypeId: 'integer'
+        });
     });
 });
 
@@ -216,15 +227,15 @@ describe('constructLoadColumnConfigs', () => {
 
 describe('isDerivedColumn', () => {
     it('tells a column worked out from another apart from a column of the item', () => {
-        expect(isDerivedColumn(buildColumn({ derivationId: 'currency', derivedFromColumnIndex: 0 }))).toBe(true);
+        expect(isDerivedColumn(buildColumn({ derivedFromColumnIndex: 0 }))).toBe(true);
         expect(isDerivedColumn(buildColumn({}))).toBe(false);
     });
 });
 
 describe('isEmptyUnitColumn', () => {
     it('is a unit column that found no unit', () => {
-        expect(isEmptyUnitColumn(buildColumn({ derivationId: 'unit', derivedFromColumnIndex: 0, validValueCount: 0 }))).toBe(true);
-        expect(isEmptyUnitColumn(buildColumn({ derivationId: 'unit', derivedFromColumnIndex: 0, validValueCount: 2 }))).toBe(false);
+        expect(isEmptyUnitColumn(buildColumn({ derivedFromColumnIndex: 0, validValueCount: 0 }))).toBe(true);
+        expect(isEmptyUnitColumn(buildColumn({ derivedFromColumnIndex: 0, validValueCount: 2 }))).toBe(false);
         expect(isEmptyUnitColumn(buildColumn({ validValueCount: 0 }))).toBe(false);
     });
 });
@@ -235,16 +246,24 @@ describe('constructColumnsVersion', () => {
     });
 
     it('changes with a chosen type', () => {
-        expect(constructColumnsVersion(buildOneAuditedColumn({ 0: { dataTypeId: 'numeric' } }))).toBe('5|{"0":"numeric"}');
-        expect(constructColumnsVersion(buildOneAuditedColumn({ 0: { dataSubtypeId: 'decimal', dataTypeId: 'numeric' } }))).toBe('5|{"0":"numeric.decimal"}');
+        expect(constructColumnsVersion(buildOneAuditedColumn({ dataTypeId: 'numeric' }))).toBe('5|{"0":"numeric"}');
+        expect(constructColumnsVersion(buildOneAuditedColumn({ dataSubtypeId: 'decimal', dataTypeId: 'numeric' }))).toBe('5|{"0":"numeric.decimal"}');
     });
 
     it('changes with a chosen reading of null words', () => {
-        expect(constructColumnsVersion(buildOneAuditedColumn({ 0: { nullWordsAreEmpty: true } }))).toBe('5|{"0.nullWordsAreEmpty":"true"}');
+        expect(constructColumnsVersion(buildOneAuditedColumn({ nullWordsAreEmpty: true }))).toBe('5|{"0.nullWordsAreEmpty":"true"}');
+    });
+
+    it('changes with a chosen date order', () => {
+        expect(constructColumnsVersion(buildOneAuditedColumn({ dateOrderId: 'dayFirst' }))).toBe('5|{"0.dateOrder":"dayFirst"}');
+    });
+
+    it('changes with a column chosen to be ignored', () => {
+        expect(constructColumnsVersion(buildOneAuditedColumn({ isIgnored: true }))).toBe('5|{"0.isIgnored":"true"}');
     });
 
     it('changes with a chosen decimal separator', () => {
-        expect(constructColumnsVersion(buildOneAuditedColumn({ 0: { decimalSeparatorId: ',' } }))).toBe('5|{"0.decimalSeparator":","}');
+        expect(constructColumnsVersion(buildOneAuditedColumn({ decimalSeparatorId: ',' }))).toBe('5|{"0.decimalSeparator":","}');
     });
 
     it('is undefined without an audit', () => {
@@ -253,12 +272,31 @@ describe('constructColumnsVersion', () => {
     });
 });
 
+describe('ignored columns', () => {
+    it('round trip through the saved choices, by position', () => {
+        expect(constructChosenIgnoredColumns(constructColumnChoiceConfigs({}, {}, {}, {}, { 1: true }))).toStrictEqual({ 1: true });
+        expect(constructChosenIgnoredColumns(undefined)).toStrictEqual({});
+    });
+
+    it('take a derived column with the column it comes from', () => {
+        const auditedColumns = buildAuditedColumns([buildColumn({ dataTypeId: 'numeric' }), buildColumn({}), buildColumn({ derivedFromColumnIndex: 0 })], {
+            0: buildColumnChoice({ isIgnored: true })
+        });
+
+        expect(constructIgnoredColumnIndexes(auditedColumns)).toStrictEqual([0, 2]);
+    });
+
+    it('get null in a loaded record, which holds no value for them', () => {
+        expect(placeLoadedValues(['a', 'c'], 3, new Set([1]))).toStrictEqual(['a', null, 'c']);
+    });
+});
+
 describe('restoreItemReading', () => {
     it('puts the audit’s columns back as the user wants them read', () => {
         const itemReading = restoreItemReading({
-            ...buildOneAuditedColumn({ 0: { dataTypeId: 'numeric' } }),
+            ...buildOneAuditedColumn({ dataTypeId: 'numeric' }),
             readingConfig: { dataFormatId: 'dtv' } as never,
-            sampleConfig: { parsedRecords: [[{ value: 'a', valueWasQuoted: false }]], size: 1, text: 'a' }
+            sampleConfig: { issues: [], parsedRecords: [[{ value: 'a', valueWasQuoted: false }]], size: 1, text: 'a' }
         });
 
         expect(itemReading).toMatchObject({ dataFormatId: 'dtv', parsedRecords: [[{ value: 'a', valueWasQuoted: false }]], text: 'a' });
@@ -284,3 +322,28 @@ describe('constructDataTypeCellClass', () => {
         expect(constructDataTypeCellClass(undefined)).toBeUndefined();
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function buildColumn(overrides: Partial<ColumnAuditConfig>): ColumnAuditConfig {
+    return { dataSubtypeId: undefined, dataTypeId: 'string', label: { en: 'Column' }, ...overrides } as ColumnAuditConfig;
+}
+
+function buildColumnChoice(overrides: Partial<ColumnChoiceConfig>): ColumnChoiceConfig {
+    return { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: undefined, decimalSeparatorId: undefined, isIgnored: undefined, nullWordsAreEmpty: undefined, ...overrides };
+}
+
+function buildAuditedColumns(
+    columnConfigs: ColumnAuditConfig[],
+    columnChoiceConfigs: ColumnChoiceConfigs = {}
+): Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig'> {
+    return { columnChoiceConfigs, contentAuditConfig: { asAt: 5, columns: columnConfigs } as unknown as ContentAuditConfig };
+}
+
+function buildOneAuditedColumn(columnChoice?: Partial<ColumnChoiceConfig>): Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig'> {
+    return buildAuditedColumns([buildColumn({})], columnChoice == null ? {} : { 0: buildColumnChoice(columnChoice) });
+}
+
+function buildDataView(isComplete: boolean | undefined): Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig'> {
+    return { columnChoiceConfigs: undefined, contentAuditConfig: { columns: [buildColumn({ dataTypeId: 'unknown' })], isComplete } as unknown as ContentAuditConfig };
+}

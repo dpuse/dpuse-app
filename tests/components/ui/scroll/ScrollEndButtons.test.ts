@@ -10,31 +10,6 @@ import ScrollEndButtons from '@/components/ui/scroll/ScrollEndButtons.vue';
 
 const scrollTo = vi.fn();
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function buildScrollElement(scrollTop: number, scrollHeight: number): HTMLElement {
-    const element = document.createElement('div');
-    Object.defineProperties(element, {
-        clientHeight: { value: 400 },
-        scrollHeight: { value: scrollHeight },
-        scrollTop: { value: scrollTop, writable: true }
-    });
-    element.scrollTo = scrollTo;
-    return element;
-}
-
-async function mountButtons(scrollElement: HTMLElement, isInPill = false): Promise<ReturnType<typeof mount>> {
-    const wrapper = mount(ScrollEndButtons, { props: { isInPill, scrollElement: undefined } });
-    await wrapper.setProps({ scrollElement });
-    scrollElement.dispatchEvent(new Event('scroll'));
-    await nextTick();
-    return wrapper;
-}
-
-function isButtonShown(wrapper: ReturnType<typeof mount>, label: string): boolean {
-    return !wrapper.get(`button[aria-label="${label}"]`).classes().includes('invisible');
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('ScrollEndButtons', () => {
@@ -94,3 +69,28 @@ describe('ScrollEndButtons', () => {
         expect(wrapper.get('button[aria-label="Scroll to bottom"]').attributes('disabled')).toBeUndefined();
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function buildScrollElement(scrollTop: number, scrollHeight: number): HTMLElement {
+    const element = document.createElement('div');
+    Object.defineProperties(element, {
+        clientHeight: { value: 400 },
+        scrollHeight: { value: scrollHeight },
+        scrollTop: { value: scrollTop, writable: true }
+    });
+    element.scrollTo = scrollTo;
+    return element;
+}
+
+async function mountButtons(scrollElement: HTMLElement, isInPill = false): Promise<ReturnType<typeof mount>> {
+    const wrapper = mount(ScrollEndButtons, { props: { isInPill, scrollElement: undefined } });
+    await wrapper.setProps({ scrollElement });
+    scrollElement.dispatchEvent(new Event('scroll'));
+    await nextTick();
+    return wrapper;
+}
+
+function isButtonShown(wrapper: ReturnType<typeof mount>, label: string): boolean {
+    return !wrapper.get(`button[aria-label="${label}"]`).classes().includes('invisible');
+}

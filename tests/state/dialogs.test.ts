@@ -12,19 +12,6 @@ import { useDialogs } from '@/state/dialogs';
 
 type Dialogs = ReturnType<typeof useDialogs>;
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// 'useDialogs' injects the route, so it has to run under an app the router is installed on. 'runWithContext' supplies
-// that without a host component, which keeps each test driving the composable directly rather than through whichever
-// button happens to call it.
-async function buildDialogs(query = ''): Promise<{ dialogs: Dialogs; router: Router }> {
-    const router = await buildMemoryRouter(query);
-    const app = createApp({ render: () => null });
-    app.use(router);
-
-    return { dialogs: app.runWithContext(() => useDialogs()), router };
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('useDialogs', () => {
@@ -85,3 +72,16 @@ describe('useDialogs', () => {
         expect(router.currentRoute.value.fullPath).toBe(fullPath);
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// 'useDialogs' injects the route, so it has to run under an app the router is installed on. 'runWithContext' supplies
+// that without a host component, which keeps each test driving the composable directly rather than through whichever
+// button happens to call it.
+async function buildDialogs(query = ''): Promise<{ dialogs: Dialogs; router: Router }> {
+    const router = await buildMemoryRouter(query);
+    const app = createApp({ render: () => null });
+    app.use(router);
+
+    return { dialogs: app.runWithContext(() => useDialogs()), router };
+}

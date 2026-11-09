@@ -18,7 +18,7 @@ const config = defineConfig({
     },
     forbidOnly: process.env.CI != null,
     retries: process.env.CI == null ? 0 : 2,
-    workers: process.env.CI == null ? undefined : 1,
+    ...(process.env.CI != null && { workers: 1 }), // Left out locally, so Playwright picks the number of workers.
     reporter: process.env.CI == null ? 'html' : 'github', // CI shows failures as annotations on the commit, where nobody would open an HTML report.
     use: {
         actionTimeout: 10_000, // A stuck action fails by itself and names the element, rather than waiting for the whole test to time out.

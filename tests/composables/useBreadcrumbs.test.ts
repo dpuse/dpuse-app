@@ -4,20 +4,6 @@ import { describe, expect, it } from 'vitest';
 // ── Local Framework
 import { useBreadcrumbs } from '@/composables/useBreadcrumbs';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function buildTrail(): ReturnType<typeof useBreadcrumbs> {
-    return useBreadcrumbs([
-        { id: 'root', label: 'Root' },
-        { id: 'folder', label: 'Folder' },
-        { id: 'subfolder', label: 'Subfolder' }
-    ]);
-}
-
-function ids(trail: ReturnType<typeof useBreadcrumbs>): string[] {
-    return trail.breadcrumbs.value.map((item) => item.id);
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('useBreadcrumbs', () => {
@@ -55,3 +41,17 @@ describe('useBreadcrumbs', () => {
         expect(ids(trail)).toStrictEqual(['root', 'folder']);
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function buildTrail(): ReturnType<typeof useBreadcrumbs> {
+    return useBreadcrumbs([
+        { id: 'root', label: 'Root' },
+        { id: 'folder', label: 'Folder' },
+        { id: 'subfolder', label: 'Subfolder' }
+    ]);
+}
+
+function ids(trail: ReturnType<typeof useBreadcrumbs>): string[] {
+    return trail.breadcrumbs.value.map((item) => item.id);
+}

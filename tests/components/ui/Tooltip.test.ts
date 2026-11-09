@@ -6,9 +6,7 @@ import { mount, type VueWrapper } from '@vue/test-utils';
 // ── Local Framework
 import Tooltip from '@/components/ui/Tooltip.vue';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const wrappers: VueWrapper[] = [];
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const TestTooltip = defineComponent({
     components: { Tooltip },
@@ -18,15 +16,9 @@ const TestTooltip = defineComponent({
         </Tooltip>`
 });
 
-function mountTooltip(): VueWrapper {
-    const wrapper = mount(TestTooltip, { attachTo: document.body });
-    wrappers.push(wrapper);
-    return wrapper;
-}
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function hoverTrigger(wrapper: VueWrapper, pointerType = 'mouse'): Promise<void> {
-    await wrapper.find('[data-region="Tooltip"]').trigger('pointerenter', { pointerType });
-}
+const wrappers: VueWrapper[] = [];
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -105,3 +97,15 @@ describe('Tooltip', () => {
         expect(second.find('[role="tooltip"]').exists()).toBe(true);
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function mountTooltip(): VueWrapper {
+    const wrapper = mount(TestTooltip, { attachTo: document.body });
+    wrappers.push(wrapper);
+    return wrapper;
+}
+
+async function hoverTrigger(wrapper: VueWrapper, pointerType = 'mouse'): Promise<void> {
+    await wrapper.find('[data-region="Tooltip"]').trigger('pointerenter', { pointerType });
+}

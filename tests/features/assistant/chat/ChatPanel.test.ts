@@ -58,37 +58,6 @@ interface SessionForTest {
     stop: ReturnType<typeof vi.fn>;
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-async function getSession(): Promise<SessionForTest> {
-    const module_ = (await import('@/features/assistant/chat/useChatSession')) as unknown as { sessionForTest: SessionForTest };
-    return module_.sessionForTest;
-}
-
-// Found by its own label rather than by position: the composer shares the bar with the model menu, and the text box
-// contributes a clear button of its own.
-function composerButton(wrapper: ReturnType<typeof mount>): ReturnType<ReturnType<typeof mount>['get']> {
-    const labels = new Set([t(CHAT_INPUT_TEXT, 'send.aria'), t(CHAT_INPUT_TEXT, 'stop.aria')]);
-    const button = wrapper.findAll('button').find((candidate) => labels.has(candidate.attributes('aria-label') ?? ''));
-    if (!button) throw new Error('The composer button is not rendered.');
-    return button;
-}
-
-async function mountPanel(): Promise<ReturnType<typeof mount>> {
-    const panelModule = await import('@/features/assistant/chat/ChatPanel.vue');
-    const wrapper = mount(panelModule.default, {
-        props: {
-            modelConfig: { id: 'm', providerId: 'anthropic', providerLabel: 'Anthropic', modelId: 'claude-sonnet-4-6', modelLabel: 'Sonnet 4.6', options: {} },
-            modelConfigs: []
-        },
-        // Stood in for like the session and the formatter above: the empty state links into the studio, so it wants a
-        // router this spec has no reason to stand up. Nothing here asserts on an empty thread's contents.
-        global: { stubs: { ChatEmptyState: true } }
-    });
-    await settle(8);
-    return wrapper;
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('ChatPanel', () => {
@@ -312,3 +281,34 @@ describe('ChatPanel', () => {
         });
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function getSession(): Promise<SessionForTest> {
+    const module_ = (await import('@/features/assistant/chat/useChatSession')) as unknown as { sessionForTest: SessionForTest };
+    return module_.sessionForTest;
+}
+
+// Found by its own label rather than by position: the composer shares the bar with the model menu, and the text box
+// contributes a clear button of its own.
+function composerButton(wrapper: ReturnType<typeof mount>): ReturnType<ReturnType<typeof mount>['get']> {
+    const labels = new Set([t(CHAT_INPUT_TEXT, 'send.aria'), t(CHAT_INPUT_TEXT, 'stop.aria')]);
+    const button = wrapper.findAll('button').find((candidate) => labels.has(candidate.attributes('aria-label') ?? ''));
+    if (!button) throw new Error('The composer button is not rendered.');
+    return button;
+}
+
+async function mountPanel(): Promise<ReturnType<typeof mount>> {
+    const panelModule = await import('@/features/assistant/chat/ChatPanel.vue');
+    const wrapper = mount(panelModule.default, {
+        props: {
+            modelConfig: { id: 'm', providerId: 'anthropic', providerLabel: 'Anthropic', modelId: 'claude-sonnet-4-6', modelLabel: 'Sonnet 4.6', options: {} },
+            modelConfigs: []
+        },
+        // Stood in for like the session and the formatter above: the empty state links into the studio, so it wants a
+        // router this spec has no reason to stand up. Nothing here asserts on an empty thread's contents.
+        global: { stubs: { ChatEmptyState: true } }
+    });
+    await settle(8);
+    return wrapper;
+}

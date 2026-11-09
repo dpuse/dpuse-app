@@ -2,7 +2,7 @@
 import type { Component } from 'vue';
 
 // ── DPUse Framework
-import type { DataSubtypeId, DataTypeId, ObjectColumnConfig, StorageTypeId } from '@dpuse/dpuse-shared';
+import type { ColumnAuditConfig, DataSubtypeId, DataTypeId, StorageTypeId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { TEXT } from './_previewColumnRows_.json';
@@ -41,15 +41,13 @@ export const PREVIEW_COLUMN_KEYS = [
     'label',
     'dataTypeLabel',
     'dataSubtypeLabel',
-    'matchText',
+    'invalidValueText',
     'blankValueText',
     'missingValueText',
     'uniqueText',
     'storageTypeLabel',
     'readingText',
-    'formatText',
-    'quotedValueText',
-    'paddedValueText'
+    'formatText'
 ] as const;
 
 const DATA_TYPE_LABEL_KEYS: Record<DataTypeId, keyof typeof TEXT> = {
@@ -113,7 +111,7 @@ export function constructDataTypeLabel(dataTypeId: DataTypeId): string {
 }
 
 // The most specific name for a column's type, for where one name stands for its whole type.
-export function constructColumnTypeLabel({ dataSubtypeId, dataTypeId }: Pick<ObjectColumnConfig, 'dataSubtypeId' | 'dataTypeId'>): string {
+export function constructColumnTypeLabel({ dataSubtypeId, dataTypeId }: Pick<ColumnAuditConfig, 'dataSubtypeId' | 'dataTypeId'>): string {
     return dataSubtypeId == null ? constructDataTypeLabel(dataTypeId) : t(TEXT, DATA_SUBTYPE_LABEL_KEYS[dataSubtypeId]);
 }
 
@@ -123,21 +121,18 @@ export function constructPreviewColumnHeaders(): PreviewColumnRow {
         dataSubtypeLabel: t(TEXT, 'column.dataSubtype.label'),
         dataTypeLabel: t(TEXT, 'column.dataType.label'),
         formatText: t(TEXT, 'column.formats.label'),
+        invalidValueText: t(TEXT, 'column.invalidValues.label'),
         label: t(TEXT, 'column.label'),
-        matchText: t(TEXT, 'column.match.label'),
         missingValueText: t(TEXT, 'column.missingValues.label'),
-        paddedValueText: t(TEXT, 'column.paddedValues.label'),
-        quotedValueText: t(TEXT, 'column.quotedValues.label'),
         readingText: t(TEXT, 'column.reading.label'),
         storageTypeLabel: t(TEXT, 'column.storageType.label'),
         uniqueText: t(TEXT, 'column.unique.label')
     };
 }
 
-// One row per column of the preview. The match is the share of sampled values, the header excluded, that fitted the
-// column's type, as the engine counts it when it chooses.
+// One row per column of the preview. The invalid count is the sampled values, the header excluded, that do not fit the
+// column's type, as the engine counts them when it chooses. A column with no sampled values has none to count.
 export function constructPreviewColumnRows(itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders'>): PreviewColumnRow[] {
-    const percentFormat = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 });
     const numberFormat = new Intl.NumberFormat(localeId.value);
     return itemReading.columnConfigs.map((columnConfig, index) => {
         const { count, total } = countColumnValues(columnConfig, itemReading.hasHeaders === true);
@@ -146,15 +141,13 @@ export function constructPreviewColumnRows(itemReading: Pick<ItemReading, 'colum
             dataTypeLabel: constructDataTypeLabel(columnConfig.dataTypeId),
             dataSubtypeLabel:
                 columnConfig.dataSubtypeId === undefined || columnConfig.dataSubtypeId === 'plain' ? '' : t(TEXT, DATA_SUBTYPE_LABEL_KEYS[columnConfig.dataSubtypeId]), // Plain text has no special format, so it gets no subtype label and real subtypes stand out.
-            matchText: formatMatchText(count, total, percentFormat),
+            invalidValueText: total === 0 ? '' : numberFormat.format(total - count),
             blankValueText: formatCount(columnConfig.blankValueCount, numberFormat),
             missingValueText: formatCount(columnConfig.missingValueCount, numberFormat),
-            uniqueText: formatYesNo(columnConfig.isUnique),
+            uniqueText: formatYesNo(columnConfig.validIsUnique),
             storageTypeLabel: columnConfig.storageTypeId == null ? '' : t(TEXT, STORAGE_TYPE_LABEL_KEYS[columnConfig.storageTypeId]),
             readingText: constructReadingText(columnConfig),
-            formatText: formatCounts(columnConfig.formats, numberFormat),
-            quotedValueText: formatCount(columnConfig.quotedValueCount, numberFormat),
-            paddedValueText: formatCount(columnConfig.paddedValueCount, numberFormat)
+            formatText: formatCounts(columnConfig.validFormats, numberFormat)
         };
     });
 }
@@ -202,7 +195,12 @@ function formatCount(count: number | undefined, numberFormat: Intl.NumberFormat)
     return count == null ? '' : numberFormat.format(count);
 }
 
-function formatYesNo(isTrue: boolean | undefined): string {
+// Every record has a value that loads. A value that does not fit a type the user chose loads empty, like an invalid one.
+export function isColumnComplete(itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders'>, columnIndex: number, detectedColumnType: ColumnType | undefined): boolean {
+    return itemReading.columnConfigs.at(columnIndex)?.isComplete === true && countChosenTypeMisfits(itemReading, columnIndex, detectedColumnType) === 0;
+}
+
+export function formatYesNo(isTrue: boolean | undefined): string {
     if (isTrue == null) return '';
     return t(TEXT, isTrue ? 'answer.yes.label' : 'answer.no.label');
 }
@@ -216,7 +214,7 @@ function formatCounts(counts: Record<string, number> | undefined, numberFormat: 
 }
 
 // How values that could be taken two ways are read. It says so when the column's own values did not settle it.
-function constructReadingText({ dateOrderId, decimalSeparatorId, isFormatAmbiguous }: ObjectColumnConfig): string {
+function constructReadingText({ dateOrderId, decimalSeparatorId, isFormatAmbiguous }: ColumnAuditConfig): string {
     const readings: string[] = [];
     if (dateOrderId != null) readings.push(t(TEXT, dateOrderId === 'dayFirst' ? 'reading.dayFirst.text' : 'reading.monthFirst.text'));
     if (decimalSeparatorId != null) readings.push(t(TEXT, decimalSeparatorId === ',' ? 'reading.decimalComma.text' : 'reading.decimalPoint.text'));
@@ -226,7 +224,7 @@ function constructReadingText({ dateOrderId, decimalSeparatorId, isFormatAmbiguo
 }
 
 // How many of a column's values fit its current type, of those it holds. A header record's own value is not data.
-function countColumnValues(columnConfig: ObjectColumnConfig, hasHeaders: boolean): { count: number; total: number } {
+function countColumnValues(columnConfig: ColumnAuditConfig, hasHeaders: boolean): { count: number; total: number } {
     const sampleCounts = Object.entries(columnConfig.inferenceCounts).map(([inferenceTypeId, count]) => ({
         inferenceTypeId,
         count: hasHeaders ? count - (columnConfig.leadingInferenceCounts[inferenceTypeId] ?? 0) : count
@@ -242,10 +240,4 @@ function countColumnMatches(dataTypeId: DataTypeId, sampleCounts: { count: numbe
     let matchCount = 0;
     for (const { count, inferenceTypeId } of sampleCounts) if (inferenceTypeId === dataTypeId || inferenceTypeId.startsWith(`${dataTypeId}.`)) matchCount += count;
     return matchCount;
-}
-
-function formatMatchText(count: number, total: number, percentFormat: Intl.NumberFormat): string {
-    if (total === 0) return '';
-    const percent = percentFormat.format(count / total);
-    return count === total ? percent : t(TEXT, 'column.match.text', { percent, count, total });
 }

@@ -38,30 +38,6 @@ vi.mock('@/state/session', async (importOriginal) => ({
 
 const viewportIsWideMock = viewportIsWide as unknown as Ref<boolean>; // Writable, because the mock replaces it with a plain ref.
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// Registered as 'main.ts' does. A rejected first navigation is left for the caller to assert on. Vue errors are
-// collected from the start of the mount, so a caller can check none was raised. 'prepareRouter' runs before the first
-// navigation, so a caller can add a guard to it.
-async function mountApp(entryUrl: string, prepareRouter?: (router: Router) => void): Promise<{ errors: unknown[]; router: Router; wrapper: VueWrapper }> {
-    const router = createAppRouter();
-    prepareRouter?.(router);
-    try {
-        await router.push(entryUrl);
-        await router.isReady();
-    } catch {
-        // The landing is asserted by the caller.
-    }
-
-    const errors: unknown[] = [];
-    const errorHandler = (error: unknown): void => {
-        errors.push(error);
-    };
-    const wrapper = mount(App, { attachTo: document.body, global: { config: { errorHandler }, plugins: [router, [VueQueryPlugin, { queryClient }]] } });
-    await settle();
-    return { errors, router, wrapper };
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('App', () => {
@@ -214,3 +190,27 @@ describe('App', () => {
         });
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Registered as 'main.ts' does. A rejected first navigation is left for the caller to assert on. Vue errors are
+// collected from the start of the mount, so a caller can check none was raised. 'prepareRouter' runs before the first
+// navigation, so a caller can add a guard to it.
+async function mountApp(entryUrl: string, prepareRouter?: (router: Router) => void): Promise<{ errors: unknown[]; router: Router; wrapper: VueWrapper }> {
+    const router = createAppRouter();
+    prepareRouter?.(router);
+    try {
+        await router.push(entryUrl);
+        await router.isReady();
+    } catch {
+        // The landing is asserted by the caller.
+    }
+
+    const errors: unknown[] = [];
+    const errorHandler = (error: unknown): void => {
+        errors.push(error);
+    };
+    const wrapper = mount(App, { attachTo: document.body, global: { config: { errorHandler }, plugins: [router, [VueQueryPlugin, { queryClient }]] } });
+    await settle();
+    return { errors, router, wrapper };
+}

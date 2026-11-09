@@ -29,9 +29,9 @@ vi.mock('@/state/configs', async (importOriginal) => ({
     findConnectionLocalisedConfig: vi.fn()
 }));
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
 const processRequest = vi.fn<EngineWorker['processRequest']>();
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DUCKDB_STORE_CONNECTOR_ID = 'dpuse-connector-duckdb-wasm';
 
@@ -86,6 +86,7 @@ describe('_dataViewStore', () => {
             columnConfigs: DATA_VIEW.contentAuditConfig?.columns,
             hasHeaders: true,
             headerValues: ['Name'],
+            ignoredColumnIndexes: [],
             path: 'dataView1',
             sourceConnectionConfig: { id: 'source1' },
             sourceOptions: { dataFormatId: 'dsv', encodingId: 'utf-8', parserId: 'parser1', valueDelimiterId: ',' }
@@ -100,7 +101,9 @@ describe('_dataViewStore', () => {
         processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
         await loadDataViewRecords(typedDataView, false, vi.fn());
 
-        const columnChoiceConfigs = { 0: { dataTypeId: 'numeric' } } as const;
+        const columnChoiceConfigs = {
+            0: { dataSubtypeId: undefined, dataTypeId: 'numeric', dateOrderId: undefined, decimalSeparatorId: undefined, isIgnored: undefined, nullWordsAreEmpty: undefined }
+        } as const;
         expect(isDataViewLoaded({ ...typedDataView, columnChoiceConfigs }, false)).toBe(false);
     });
 

@@ -7,7 +7,7 @@ import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } fro
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
-import type { DataSubtypeId, ObjectColumnConfig, StoreRecord, StoreValue } from '@dpuse/dpuse-shared';
+import type { ColumnAuditConfig, DataSubtypeId, StoreRecord, StoreValue } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
@@ -35,10 +35,12 @@ import {
     constructColumnsVersion,
     constructColumnTypeId,
     constructDataTypeCellClass,
+    constructIgnoredColumnIndexes,
     constructLoadColumnConfigs,
     isDerivedColumn,
     isEmptyUnitColumn,
-    type ItemReading
+    type ItemReading,
+    placeLoadedValues
 } from '@/features/studio/dataViews/_dataViewColumns';
 import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
 import { localeId, t } from '@/state/locale';
@@ -107,6 +109,9 @@ const columnsAreFromPartialAudit = computed(() => dataViewConfig.value?.contentA
 const columnConfigs = computed(() =>
     constructLoadColumnConfigs({ columnChoiceConfigs: dataViewConfig.value?.columnChoiceConfigs, contentAuditConfig: dataViewConfig.value?.contentAuditConfig })
 );
+const ignoredColumnIndexes = computed(
+    () => new Set(constructIgnoredColumnIndexes({ columnChoiceConfigs: dataViewConfig.value?.columnChoiceConfigs, contentAuditConfig: dataViewConfig.value?.contentAuditConfig }))
+); // The load left these out.
 
 // ── Store
 const investigateState = shallowRef<InvestigateState>({ typeId: 'opening' });
@@ -168,13 +173,14 @@ const loadDurationText = computed(() =>
     loadSecondsText.value === '' ? '' : t(TEXT, 'load.duration.text', { seconds: loadSecondsText.value, store: findDataViewStoreLabel(storeConnectorId.value) })
 ); // The status bar's store and time as one sentence, for screen readers.
 
-// ── Table ─ One column for each of the data view's columns.
+// ── Table ─ One column for each of the data view's columns, except those the user chose to ignore, which the load left
+// out. Headers and widths stay by the column's position, so they match the column choices and the detail panel.
+const columnHeaders = computed(() => columnConfigs.value.map((columnConfig, index) => columnConfig.label[localeId.value] ?? columnConfig.label.en ?? String(index + 1)));
 const columnDefinitions = computed<ColumnDef<TableFeatureSet, DisplayRow>[]>(() =>
-    columnConfigs.value.map((columnConfig, index) => ({
-        accessorKey: constructColumnKey(index),
-        header: columnConfig.label[localeId.value] ?? columnConfig.label.en ?? String(index + 1),
-        size: firstPageColumnWidths.value?.widths[index] ?? COLUMN_WIDTH_PX
-    }))
+    columnConfigs.value
+        .map((_columnConfig, index) => (ignoredColumnIndexes.value.has(index) ? undefined : index))
+        .filter((index) => index !== undefined)
+        .map((index) => ({ accessorKey: constructColumnKey(index), header: columnHeaders.value[index], size: firstPageColumnWidths.value?.widths[index] ?? COLUMN_WIDTH_PX }))
 );
 
 // Unit columns that found no unit start hidden, and the column picker shows them.
@@ -195,7 +201,7 @@ const dataSource = computed<DataSource<DisplayRow>>(() => {
             try {
                 const query = { aggregates: [], filters: [], groupColumnIndexes: [], limit: endRow - startRow, offset: startRow, sorts: [] };
                 const { records, totalCount } = await queryDataViewRecords(queriedStoreConnectorId, tablePath, query);
-                const rows = records.map((storeRecord) => constructDisplayRow(storeRecord));
+                const rows = records.map((storeRecord) => constructDisplayRow(placeLoadedValues(storeRecord, columnConfigs.value.length, ignoredColumnIndexes.value)));
                 if (startRow === 0) fitColumnsToFirstPage(dataSourceId, rows);
                 return { rows, totalCount };
             } catch (error) {
@@ -213,13 +219,12 @@ const dataSource = computed<DataSource<DisplayRow>>(() => {
 const unitColumnIndexes = computed(() => {
     const indexes = new Map<number, number>();
     for (const [index, columnConfig] of columnConfigs.value.entries()) {
-        const isUnitColumn = columnConfig.derivationId === 'unit' || columnConfig.derivationId === 'currency';
-        if (isUnitColumn && columnConfig.derivedFromColumnIndex != null) indexes.set(columnConfig.derivedFromColumnIndex, index);
+        if (columnConfig.derivedFromColumnIndex != null) indexes.set(columnConfig.derivedFromColumnIndex, index);
     }
     return indexes;
 });
 const percentageColumnIndexes = computed(
-    () => new Set([...unitColumnIndexes.value].filter(([, unitIndex]) => (columnConfigs.value[unitIndex]?.formats['%'] ?? 0) > 0).map(([sourceIndex]) => sourceIndex))
+    () => new Set([...unitColumnIndexes.value].filter(([, unitIndex]) => (columnConfigs.value[unitIndex]?.validFormats['%'] ?? 0) > 0).map(([sourceIndex]) => sourceIndex))
 );
 
 // ── Number Formats ─ One for each column. Every number shows at least its column's most decimals, so the decimal points
@@ -227,7 +232,7 @@ const percentageColumnIndexes = computed(
 // because a number can be an id.
 const numberFormats = computed(() =>
     columnConfigs.value.map((columnConfig) => {
-        const minimumFractionDigits = columnConfig.maxDecimals ?? 0;
+        const minimumFractionDigits = columnConfig.validMaxDecimals ?? 0;
         return new Intl.NumberFormat(localeId.value, { maximumFractionDigits: Math.max(minimumFractionDigits, MAX_FRACTION_DIGITS), minimumFractionDigits, useGrouping: false });
     })
 );
@@ -240,13 +245,13 @@ const itemReading = computed((): ItemReading | undefined => {
     return readingConfig == null || sampleConfig == null ? undefined : { ...readingConfig, ...sampleConfig, columnConfigs: columnConfigs.value };
 });
 const detailColumnIndexes = computed(() =>
-    columnConfigs.value.map((columnConfig, index) => (isDerivedColumn(columnConfig) ? undefined : index)).filter((index) => index !== undefined)
-); // A derived column only holds values for another.
+    columnConfigs.value.map((columnConfig, index) => (isDerivedColumn(columnConfig) || ignoredColumnIndexes.value.has(index) ? undefined : index)).filter((index) => index !== undefined)
+); // A derived column only holds values for another, and an ignored one was not loaded.
 // The columns the toolbar's search can find. One marked by a load's values that did not fit is the one to check.
 const columnSearchOptions = computed((): ColumnSearchOption[] =>
     detailColumnIndexes.value.map((columnIndex) => ({
         id: String(columnIndex),
-        label: String(columnDefinitions.value[columnIndex]?.header),
+        label: columnHeaders.value[columnIndex],
         needsAttention: (invalidValueCounts.value[columnIndex] ?? 0) > 0
     }))
 );
@@ -262,6 +267,14 @@ const selectedDetectedColumnType = computed((): ColumnType | undefined => {
 const selectedColumnTypeOptions = computed((): SelectOption[] =>
     selectedColumnConfig.value == null ? [] : [{ id: constructColumnTypeId(selectedColumnConfig.value), label: constructColumnTypeLabel(selectedColumnConfig.value) }]
 );
+// A column of dates or date-times always shows its order. Auto stands for a column whose dates read only one way.
+const selectedDateOrderOptions = computed((): SelectOption[] => {
+    const columnConfig = selectedColumnConfig.value;
+    if (columnConfig?.dataTypeId !== 'temporal' || (columnConfig.dataSubtypeId !== 'date' && columnConfig.dataSubtypeId !== 'dateTime')) return [];
+    const { dateOrderId } = columnConfig;
+    if (dateOrderId == null) return [{ id: 'auto', label: t(TEXT, 'dateOrder.auto.label') }];
+    return [{ id: dateOrderId, label: t(TEXT, dateOrderId === 'dayFirst' ? 'dateOrder.dayFirst.label' : 'dateOrder.monthFirst.label') }];
+});
 const selectedDecimalSeparatorOptions = computed((): SelectOption[] => {
     const decimalSeparatorId = selectedColumnConfig.value?.dataTypeId === 'numeric' ? selectedColumnConfig.value.decimalSeparatorId : undefined;
     return decimalSeparatorId == null
@@ -423,10 +436,10 @@ function constructValueCellClass(columnId: string): string | undefined {
 // The records load in pages, so the widest value of all is not known. The first page is the best guide to the rest.
 function fitColumnsToFirstPage(dataSourceId: string, rows: DisplayRow[]): void {
     if (firstPageColumnWidths.value?.dataSourceId === dataSourceId) return;
-    const widths = columnDefinitions.value.map(({ header }, index) => {
+    const widths = columnHeaders.value.map((header, index) => {
         const percentSign = percentageColumnIndexes.value.has(index) ? ' %' : ''; // Measured with its unit, so a currency or sign never covers the number.
         const values = rows.map((row) => `${row[constructUnitKey(index)] ?? ''} ${row[constructColumnKey(index)] ?? ''}${percentSign}`.trim());
-        return constructFittedColumnWidth(String(header), values, { headerExtraPx: HEADER_MENU_WIDTH_PX + HEADER_TAB_INSET_PX }); // The headers are tabs, which take room from the label.
+        return constructFittedColumnWidth(header, values, { headerExtraPx: HEADER_MENU_WIDTH_PX + HEADER_TAB_INSET_PX }); // The headers are tabs, which take room from the label.
     });
     firstPageColumnWidths.value = { dataSourceId, widths };
 }
@@ -485,7 +498,7 @@ function isPercentageColumn(columnId: string): boolean {
 
 // Each value is stored as its column's type, so a date or number is formatted for the locale and anything else shows as
 // itself.
-function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig, numberFormat: Intl.NumberFormat | undefined): string {
+function formatStoreValue(value: StoreValue, columnConfig: ColumnAuditConfig, numberFormat: Intl.NumberFormat | undefined): string {
     if (value == null) return '';
     if (numberFormat != null && columnConfig.dataTypeId === 'numeric' && (typeof value === 'number' || typeof value === 'bigint')) return numberFormat.format(value);
     if (value instanceof Date) {
@@ -592,13 +605,13 @@ function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig, n
                             :class="readColumnIndex(columnId) === selectedColumnIndex ? 'text-emphasis' : 'text-muted'"
                             :title="
                                 t(TEXT, readColumnIndex(columnId) === selectedColumnIndex ? 'columnDetail.close.label' : 'columnDetail.label', {
-                                    label: String(columnDefinitions[readColumnIndex(columnId)]?.header)
+                                    label: String(columnHeaders[readColumnIndex(columnId)])
                                 })
                             "
                             @click="handleToggleColumnDetail(readColumnIndex(columnId))"
-                            >{{ columnDefinitions[readColumnIndex(columnId)]?.header }}</ActionWrapper
+                            >{{ columnHeaders[readColumnIndex(columnId)] }}</ActionWrapper
                         >
-                        <span v-else class="min-w-0 flex-1 truncate text-sm font-medium text-muted">{{ columnDefinitions[readColumnIndex(columnId)]?.header }}</span>
+                        <span v-else class="min-w-0 flex-1 truncate text-sm font-medium text-muted">{{ columnHeaders[readColumnIndex(columnId)] }}</span>
                     </template>
                     <!-- Units ─ A currency at the left edge, and a percent sign after the number. The sign's room is kept
                          on every row of a column with any percentage, unseen where there is none, so the decimal points
@@ -643,11 +656,14 @@ function formatStoreValue(value: StoreValue, columnConfig: ObjectColumnConfig, n
                             v-if="selectedColumnIndex != null && itemReading != null"
                             class="pointer-events-auto absolute inset-0 bg-surface shadow-md"
                             :column-index="selectedColumnIndex"
+                            :date-order-options="selectedDateOrderOptions"
+                            :date-order-value="selectedDateOrderOptions[0]?.id"
                             :decimal-separator-options="selectedDecimalSeparatorOptions"
                             :decimal-separator-value="selectedDecimalSeparatorOptions[0]?.id"
                             :detected-column-type="selectedDetectedColumnType"
                             :has-next-column="selectedColumnStepIndex != null && selectedColumnStepIndex < detailColumnIndexes.length - 1"
                             :has-previous-column="selectedColumnStepIndex != null && selectedColumnStepIndex > 0"
+                            :is-audit-complete="dataViewConfig?.contentAuditConfig?.isComplete === true"
                             is-type-disabled
                             :item-reading="itemReading"
                             :null-word-reading="selectedNullWordReading"

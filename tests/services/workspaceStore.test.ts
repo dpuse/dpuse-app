@@ -19,45 +19,6 @@ interface App {
     workspaceStore: typeof WorkspaceStoreModule;
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// A fresh copy of the app's modules, as a reload or another tab has. IndexedDB is shared between copies, as it is
-// between tabs.
-async function importApp(): Promise<App> {
-    vi.resetModules();
-    return { session: await import('@/state/session'), workspaceStore: await import('@/services/workspaceStore') };
-}
-
-async function signIn({ session }: App, accountId: string | undefined): Promise<void> {
-    session.accountId.value = accountId;
-    session.sessionIsAuthenticated.value = accountId != null;
-    await nextTick();
-}
-
-async function listIds({ workspaceStore }: App): Promise<string[]> {
-    const records = await workspaceStore.retrieveWorkspaceStoreRecords<{ id: string }>('dataViews');
-    return records.map((record) => record.id).toSorted((leftId, rightId) => leftId.localeCompare(rightId));
-}
-
-// A meta store database as the Dexie connector left it: a 'dataViews' table keyed by id, at a Dexie version number.
-async function seedMetaStore(metaStoreId: string, records: { id: string }[]): Promise<void> {
-    const request = indexedDB.open(metaStoreId, 10);
-    request.addEventListener('upgradeneeded', () => {
-        request.result.createObjectStore('dataViews', { keyPath: 'id' });
-    });
-    const database = await new Promise<IDBDatabase>((resolve) => {
-        request.addEventListener('success', () => {
-            resolve(request.result);
-        });
-    });
-    const transaction = database.transaction('dataViews', 'readwrite');
-    for (const record of records) transaction.objectStore('dataViews').put(record);
-    await new Promise((resolve) => {
-        transaction.addEventListener('complete', resolve);
-    });
-    database.close();
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // A list and its records sit on separate branches under one table, so refreshing a list leaves open records alone, and
@@ -238,3 +199,42 @@ describe('workspace store', () => {
         });
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A fresh copy of the app's modules, as a reload or another tab has. IndexedDB is shared between copies, as it is
+// between tabs.
+async function importApp(): Promise<App> {
+    vi.resetModules();
+    return { session: await import('@/state/session'), workspaceStore: await import('@/services/workspaceStore') };
+}
+
+async function signIn({ session }: App, accountId: string | undefined): Promise<void> {
+    session.accountId.value = accountId;
+    session.sessionIsAuthenticated.value = accountId != null;
+    await nextTick();
+}
+
+async function listIds({ workspaceStore }: App): Promise<string[]> {
+    const records = await workspaceStore.retrieveWorkspaceStoreRecords<{ id: string }>('dataViews');
+    return records.map((record) => record.id).toSorted((leftId, rightId) => leftId.localeCompare(rightId));
+}
+
+// A meta store database as the Dexie connector left it: a 'dataViews' table keyed by id, at a Dexie version number.
+async function seedMetaStore(metaStoreId: string, records: { id: string }[]): Promise<void> {
+    const request = indexedDB.open(metaStoreId, 10);
+    request.addEventListener('upgradeneeded', () => {
+        request.result.createObjectStore('dataViews', { keyPath: 'id' });
+    });
+    const database = await new Promise<IDBDatabase>((resolve) => {
+        request.addEventListener('success', () => {
+            resolve(request.result);
+        });
+    });
+    const transaction = database.transaction('dataViews', 'readwrite');
+    for (const record of records) transaction.objectStore('dataViews').put(record);
+    await new Promise((resolve) => {
+        transaction.addEventListener('complete', resolve);
+    });
+    database.close();
+}

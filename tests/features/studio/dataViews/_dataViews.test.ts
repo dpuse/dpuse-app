@@ -67,37 +67,6 @@ const PREVIOUS_WORKSPACE_STORE_ID = 'dpuseWorkspaceStore-previous'; // Stands fo
 
 const wrappers: VueWrapper[] = []; // Unmounted after each test, so no query from one test keeps filling the cache.
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function buildDataView(id: string, label: string): DataViewConfig {
-    return { id, label: { en: label }, icon: null, iconDark: null, typeId: 'dataView' } as DataViewConfig;
-}
-
-function renderNothing(): ReturnType<typeof h> {
-    return h('div');
-}
-
-function cachedList(): DataViewConfig[] | undefined {
-    return queryClient.getQueryData<DataViewConfig[]>(LIST_KEY);
-}
-
-// The hooks need a component to live in, with the app's query client installed as 'main.ts' installs it.
-async function runInComponent<T>(useHooks: () => T): Promise<T> {
-    let hooks: T | undefined;
-    const wrapper = mount(
-        defineComponent({
-            setup() {
-                hooks = useHooks();
-                return renderNothing;
-            }
-        }),
-        { global: { plugins: [[VueQueryPlugin, { queryClient }]] } }
-    );
-    wrappers.push(wrapper);
-    await settle();
-    return hooks as T;
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('data views', () => {
@@ -367,3 +336,34 @@ describe('data views', () => {
         });
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function buildDataView(id: string, label: string): DataViewConfig {
+    return { id, label: { en: label }, icon: null, iconDark: null, typeId: 'dataView' } as DataViewConfig;
+}
+
+function renderNothing(): ReturnType<typeof h> {
+    return h('div');
+}
+
+function cachedList(): DataViewConfig[] | undefined {
+    return queryClient.getQueryData<DataViewConfig[]>(LIST_KEY);
+}
+
+// The hooks need a component to live in, with the app's query client installed as 'main.ts' installs it.
+async function runInComponent<T>(useHooks: () => T): Promise<T> {
+    let hooks: T | undefined;
+    const wrapper = mount(
+        defineComponent({
+            setup() {
+                hooks = useHooks();
+                return renderNothing;
+            }
+        }),
+        { global: { plugins: [[VueQueryPlugin, { queryClient }]] } }
+    );
+    wrappers.push(wrapper);
+    await settle();
+    return hooks as T;
+}

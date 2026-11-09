@@ -7,7 +7,7 @@ import type { ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
 // ── Local Framework
 import { applyPreviewHeaders } from '@/features/studio/dataViews/selectItem/_previewHeaders';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const ITEM_READING = {
     columnConfigs: [
@@ -47,7 +47,7 @@ describe('applyPreviewHeaders', () => {
     });
 
     it('keeps the name of a derived column, which is not in the header record', () => {
-        const currencyColumn = { dataTypeId: 'string', derivationId: 'currency', derivedFromColumnIndex: 0, label: { en: 'Column 1 currency' } };
+        const currencyColumn = { dataTypeId: 'string', derivedFromColumnIndex: 0, label: { en: 'Column 1 currency' } };
         const itemReading = applyPreviewHeaders({ ...ITEM_READING, columnConfigs: [...ITEM_READING.columnConfigs, currencyColumn] } as ItemReading, true);
 
         expect(itemReading.columnConfigs.map((columnConfig) => columnConfig.label.en)).toEqual(['2023', 'Column 2', 'Column 1 currency']);

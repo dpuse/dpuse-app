@@ -4,7 +4,7 @@ import { ArrowDownNarrowWideIcon, ArrowDownWideNarrowIcon, ChevronLeftIcon, Chev
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
-import type { ObjectColumnConfig } from '@dpuse/dpuse-shared';
+import type { ColumnAuditConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { TEXT } from './ColumnDetailPanel_.json';
@@ -14,6 +14,8 @@ import {
     constructPreviewColumnHeaders,
     constructPreviewColumnRows,
     countChosenTypeMisfits,
+    formatYesNo,
+    isColumnComplete,
     type PreviewColumnRow
 } from '@/features/studio/dataViews/_previewColumnRows';
 import { type ColumnType, constructColumnTypeId, type ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
@@ -44,7 +46,7 @@ const VALID_BAR_COLOR_CLASS = 'bg-[color-mix(in_srgb,var(--color-accent)_20%,var
 const INVALID_BAR_COLOR_CLASS =
     'bg-[color-mix(in_srgb,var(--color-danger-text)_20%,var(--color-card))] dark:bg-[color-mix(in_srgb,var(--color-danger-text)_30%,var(--color-card))]'; // The value bar's invalid colour, made pale.
 const COMPACT_AXIS_MIN_WIDTH = 1000; // The narrowest range whose axis labels are shortened, such as '12K'.
-const LOG_COMPACT_MIN = 0.001; // A log range's edges from here up to 'LOG_COMPACT_MAX' read well in short form. Others are scientific.
+const LOG_COMPACT_MIN = 1e-6; // A log range's edges from here up to 'LOG_COMPACT_MAX' read well in short form. Others are scientific.
 const LOG_COMPACT_MAX = 1e15; // Short form ends at trillions, so a larger edge would read as '1,000T'.
 const DAY_MILLISECONDS = 86_400_000;
 const EDGE_VALUE_COUNT = 20; // Values listed at each end, all the engine keeps.
@@ -55,11 +57,16 @@ const FORMAT_ROW_COUNT = 50; // Bars on the Formats tab. A rare format is often 
 
 const {
     columnIndex,
+    dateOrderOptions = [],
+    dateOrderValue,
     decimalSeparatorOptions = [],
     decimalSeparatorValue,
     detectedColumnType,
     hasNextColumn,
     hasPreviousColumn,
+    isAuditComplete,
+    isDateOrderDisabled,
+    isIgnored,
     isTypeDisabled,
     itemReading,
     nullWordReading,
@@ -67,11 +74,16 @@ const {
     typeValue
 } = defineProps<{
     columnIndex: number;
+    dateOrderOptions?: SelectOption[]; // Only a column of dates or date-times has any.
+    dateOrderValue?: string;
     decimalSeparatorOptions?: SelectOption[]; // Only a column of numbers has any.
     decimalSeparatorValue?: string;
     detectedColumnType: ColumnType | undefined;
     hasNextColumn?: boolean; // Whether Next has a column to move to, among those the panel's host shows.
     hasPreviousColumn?: boolean;
+    isAuditComplete?: boolean; // Whether the audit read the whole item, so a column with no value missing is known to have none.
+    isDateOrderDisabled?: boolean; // No date in the column could be read either way, so the order is shown but cannot be changed.
+    isIgnored?: boolean;
     isTypeDisabled?: boolean;
     itemReading: ItemReading;
     nullWordReading?: 'empty' | 'text'; // How words such as 'NA' read. 'NULL' is always empty. Only a text column has the choice. Not a boolean, because Vue reads a missing boolean as false.
@@ -84,7 +96,9 @@ defineSlots<{
 const emit = defineEmits<{
     close: [];
     step: [direction: -1 | 1];
+    'update:dateOrderValue': [dateOrderValue: string];
     'update:decimalSeparatorValue': [decimalSeparatorValue: string];
+    'update:isIgnored': [isIgnored: boolean];
     'update:nullWordsAreEmpty': [nullWordsAreEmpty: boolean];
     'update:typeValue': [typeValue: string];
 }>();
@@ -97,7 +111,7 @@ const tabListElement = useTemplateRef<HTMLDivElement>('tabList');
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // ── Column
-const columnConfig = computed((): ObjectColumnConfig | undefined => itemReading.columnConfigs[columnIndex]);
+const columnConfig = computed((): ColumnAuditConfig | undefined => itemReading.columnConfigs[columnIndex]);
 const columnRow = computed((): PreviewColumnRow | undefined => constructPreviewColumnRows(itemReading)[columnIndex]);
 const headers = computed(() => constructPreviewColumnHeaders());
 
@@ -113,7 +127,7 @@ const detectedTypeText = computed(() => {
 });
 
 // ── Lists
-const formatRows = computed(() => constructCountRows(columnConfig.value?.formats));
+const formatRows = computed(() => constructCountRows(columnConfig.value?.validFormats));
 const invalidSamples = computed(() => Object.keys(columnConfig.value?.invalidValues ?? {}));
 
 // ── Charts ─ Each a single measure, so one colour and no legend beyond its labels. The value chart's colours mean a kind of
@@ -160,7 +174,7 @@ const otherFormatsText = computed(() => {
 // How long text is, from its shortest to its longest value, because formats past the limit, and text too long to have
 // a format, are not shown.
 const lengthText = computed(() => {
-    const { dataTypeId, maxSize, minSize } = columnConfig.value ?? {};
+    const { dataTypeId, validMaxSize: maxSize, validMinSize: minSize } = columnConfig.value ?? {};
     if (dataTypeId !== 'string' || minSize == null || maxSize == null) return;
     const numberFormat = new Intl.NumberFormat(localeId.value);
     return minSize === maxSize
@@ -171,7 +185,7 @@ const lengthText = computed(() => {
 // How many whole digits and decimal places numbers have, which says more about how they are written than their length,
 // because a sign or a thousands separator is not a digit. Dates have neither, because their formats already show it.
 const digitsText = computed(() => {
-    const { dataTypeId, maxDecimals, maxWholeDigits, minDecimals, minWholeDigits } = columnConfig.value ?? {};
+    const { dataTypeId, validMaxDecimals: maxDecimals, validMaxWholeDigits: maxWholeDigits, validMinDecimals: minDecimals, validMinWholeDigits: minWholeDigits } = columnConfig.value ?? {};
     if (dataTypeId !== 'numeric' || minWholeDigits == null || maxWholeDigits == null || minDecimals == null || maxDecimals == null) return;
     const wholeDigits = constructDigitRangeText('wholeDigits', minWholeDigits, maxWholeDigits);
     const decimalPlaces = maxDecimals === 0 ? t(TEXT, 'decimalPlaces.none.text') : constructDigitRangeText('decimalPlaces', minDecimals, maxDecimals);
@@ -187,20 +201,17 @@ const formatNotesText = computed(() => [lengthText.value, digitsText.value, othe
 const valueCount = computed(() => (columnConfig.value?.validValueCount ?? 0) + (columnConfig.value?.invalidValueCount ?? 0));
 const hasTooManyValues = computed(() => {
     const config = columnConfig.value;
-    return config?.frequentValues != null && Object.keys(config.frequentValues).length === 0 && config.distinctValueCount == null && valueCount.value > 0;
+    return config?.validFrequentValues != null && Object.keys(config.validFrequentValues).length === 0 && config.validDistinctValueCount == null && valueCount.value > 0;
 });
 const largestValueCount = computed(() =>
-    Math.max(0, ...Object.values(columnConfig.value?.frequentValues ?? {}), ...Object.values(columnConfig.value?.invalidFrequentValues ?? {}))
+    Math.max(0, ...Object.values(columnConfig.value?.validFrequentValues ?? {}), ...Object.values(columnConfig.value?.invalidFrequentValues ?? {}))
 );
-const validDistinctValueCount = computed(() => {
-    const config = columnConfig.value;
-    return config?.distinctValueCount == null ? undefined : config.distinctValueCount - (config.invalidDistinctValueCount ?? 0);
-});
+const validDistinctValueCount = computed(() => columnConfig.value?.validDistinctValueCount);
 const validChartRows = computed((): CountBarRow[] => {
     const config = columnConfig.value;
     return constructValueChartRows(
-        config?.frequentValues,
-        config?.leastFrequentValues,
+        config?.validFrequentValues,
+        config?.validLeastFrequentValues,
         validDistinctValueCount.value ?? 0,
         config?.validValueCount ?? 0,
         largestValueCount.value,
@@ -216,14 +227,14 @@ const invalidChartRows = computed((): CountBarRow[] => {
 // frequency says little. Text as its most frequent values, then one line for the rest. Numbers that span many powers of
 // ten come with one range for each power, a log scale. When a few values lie far from the rest, the ranges cover only
 // the middle, and the far values have a paler bar at each end. Counts the engine estimated from a sample say 'about'.
-const binsAreLogScale = computed(() => columnConfig.value?.valueBinScaleId === 'log');
+const binsAreLogScale = computed(() => columnConfig.value?.validValueBinScaleId === 'log');
 const histogramBars = computed((): ValueHistogramBar[] => {
     const numberFormat = new Intl.NumberFormat(localeId.value);
     const axisFormat = axisNumberFormat.value;
-    const outliers = columnConfig.value?.valueBinOutliers;
+    const outliers = columnConfig.value?.validValueBinOutliers;
     const formatCount = (count: number): string =>
         outliers?.isEstimated === true ? t(TEXT, 'count.estimate.text', { count: numberFormat.format(count) }) : numberFormat.format(count);
-    const bars = (columnConfig.value?.valueBins ?? []).map(({ count, lowerValue, upperValue }): ValueHistogramBar => {
+    const bars = (columnConfig.value?.validValueBins ?? []).map(({ count, lowerValue, upperValue }): ValueHistogramBar => {
         const { endText, startText } = binsAreLogScale.value
             ? { endText: formatLogEdge(upperValue), startText: formatLogEdge(lowerValue) }
             : constructBinEnds(lowerValue, upperValue);
@@ -248,7 +259,7 @@ const histogramBars = computed((): ValueHistogramBar[] => {
 // numbers, so years such as 1960 are not shortened to '2K'. The digits kept are enough to tell neighbouring edges apart,
 // which a fixed number of decimal places is not. A short label is a whole edge, so it ends where the next range starts.
 const axisNumberFormat = computed(() => {
-    const bins = columnConfig.value?.valueBins ?? [];
+    const bins = columnConfig.value?.validValueBins ?? [];
     if (bins.length === 0 || columnConfig.value?.dataTypeId !== 'numeric') return;
     const lowest = Number(bins[0].lowerValue);
     const highest = Number(bins.at(-1)?.upperValue);
@@ -266,8 +277,8 @@ const hasValueBins = computed(() => histogramBars.value.length > 0);
 // holds, so one list in ascending order shows them all.
 const edgeChartLists = computed(() => {
     const config = columnConfig.value;
-    const lowestValues = config?.lowestValues?.slice(0, EDGE_VALUE_COUNT) ?? [];
-    const highestValues = config?.highestValues?.slice(0, EDGE_VALUE_COUNT) ?? [];
+    const lowestValues = config?.validLowestValues?.slice(0, EDGE_VALUE_COUNT) ?? [];
+    const highestValues = config?.validHighestValues?.slice(0, EDGE_VALUE_COUNT) ?? [];
     const lowestLabels = new Set(lowestValues.map(([value]) => value));
     const isEveryValue = lowestValues.length === highestValues.length && highestValues.every(([value]) => lowestLabels.has(value));
     const lists = isEveryValue
@@ -324,30 +335,19 @@ const uniformCountText = computed(() => {
 const validCountText = computed(() => constructValueCountText(columnConfig.value?.validValueCount ?? 0, validDistinctValueCount.value));
 const invalidCountText = computed(() => constructValueCountText(columnConfig.value?.invalidValueCount ?? 0, columnConfig.value?.invalidDistinctValueCount));
 
-// ── Overview
-const overviewGroups = computed(() => {
+// ── Overview ─ Complete is only known once the whole item is read, because a value can be missing past the part audited.
+const overviewFacts = computed(() => {
     const row = columnRow.value;
     if (row == null) return [];
     const labels = headers.value;
+    const singleValueCount = columnConfig.value?.validSingleValueCount;
     return [
-        {
-            id: 'type',
-            rows: [
-                { label: labels.readingText, value: row.readingText },
-                { label: labels.storageTypeLabel, value: row.storageTypeLabel }
-            ]
-        },
-        {
-            id: 'values',
-            rows: [
-                { label: labels.uniqueText, value: row.uniqueText },
-                { label: labels.quotedValueText, value: row.quotedValueText },
-                { label: labels.paddedValueText, value: row.paddedValueText }
-            ]
-        }
-    ]
-        .map((group) => ({ ...group, rows: group.rows.filter((groupRow) => groupRow.value !== '') }))
-        .filter((group) => group.rows.length > 0);
+        { label: labels.storageTypeLabel, value: row.storageTypeLabel },
+        { label: labels.uniqueText, value: row.uniqueText },
+        { label: t(TEXT, 'seenOnce.label'), value: singleValueCount == null ? '' : new Intl.NumberFormat(localeId.value).format(singleValueCount) }, // Tells names and ids, nearly all seen once, from categories.
+        { label: t(TEXT, 'complete.label'), value: isAuditComplete ? formatYesNo(isColumnComplete(itemReading, columnIndex, detectedColumnType)) : '' },
+        { label: t(TEXT, 'formatUnclear.label'), value: formatYesNo(columnConfig.value?.isFormatAmbiguous === true) } // The engine leaves it unset when nothing was unclear.
+    ].filter((fact) => fact.value !== '');
 });
 
 // ── Tabs ─ A tab with nothing to show is left out. The invalid count stays visible on Values, in the danger colour, so a
@@ -417,7 +417,7 @@ function constructOutlierBar(endId: 'above' | 'below', count: number, formatCoun
     };
 }
 
-// A log range's edge, a power of ten, in short form: '10K' or '1M', and '1E-6' or '1E18' beyond what short form reads well.
+// A log range's edge, a power of ten, in short form: '0.01', '10K' or '1M', and '1E-8' or '1E18' beyond what short form reads well.
 function formatLogEdge(value: string): string {
     const number = Number(value);
     const size = Math.abs(number);
@@ -629,6 +629,15 @@ function constructValueChartRows(
                         :options="decimalSeparatorOptions"
                         @update:model-value="emit('update:decimalSeparatorValue', $event)"
                     />
+                    <SelectInput
+                        v-if="dateOrderOptions.length > 0 && dateOrderValue != null"
+                        class="mt-2"
+                        :disabled="isTypeDisabled || isDateOrderDisabled"
+                        :label="t(TEXT, 'dateOrder.label')"
+                        :model-value="dateOrderValue"
+                        :options="dateOrderOptions"
+                        @update:model-value="emit('update:dateOrderValue', $event)"
+                    />
                     <!-- Null Words ─ Off by default, because in a text column 'NA' can be data, such as Namibia's country
                          code. -->
                     <label v-if="nullWordReading != null" class="mt-2 flex items-center gap-x-1.5">
@@ -641,14 +650,25 @@ function constructValueChartRows(
                         />
                         {{ t(TEXT, 'nullWords.label', { count: new Intl.NumberFormat(localeId).format(columnConfig?.nullWordValueCount ?? 0) }) }}
                     </label>
+                    <!-- Ignore ─ The column stays in the preview, so it can still be checked, but a load leaves it out. -->
+                    <label class="mt-2 flex items-center gap-x-1.5">
+                        <input
+                            class="size-3.5 rounded accent-accent"
+                            :checked="isIgnored"
+                            :disabled="isTypeDisabled"
+                            type="checkbox"
+                            @change="emit('update:isIgnored', ($event.target as HTMLInputElement).checked)"
+                        />
+                        {{ t(TEXT, 'ignore.label') }}
+                    </label>
                     <slot name="choices-end" />
                 </div>
 
-                <!-- Figures -->
-                <dl v-for="group in overviewGroups" :key="group.id" class="m-0 grid grid-cols-[minmax(7.5rem,max-content)_1fr] *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
-                    <template v-for="groupRow in group.rows" :key="groupRow.label">
-                        <dt class="text-muted">{{ groupRow.label }}</dt>
-                        <dd class="m-0 min-w-0 wrap-break-word">{{ groupRow.value }}</dd>
+                <!-- Facts -->
+                <dl v-if="overviewFacts.length > 0" class="m-0 grid grid-cols-[minmax(7.5rem,max-content)_1fr] *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
+                    <template v-for="fact in overviewFacts" :key="fact.label">
+                        <dt class="text-muted">{{ fact.label }}</dt>
+                        <dd class="m-0 min-w-0 wrap-break-word">{{ fact.value }}</dd>
                     </template>
                 </dl>
             </div>

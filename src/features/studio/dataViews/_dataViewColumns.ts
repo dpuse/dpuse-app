@@ -1,28 +1,34 @@
 // ── DPUse Framework
 import { DATA_TYPE_CONFIGS } from '@dpuse/dpuse-shared';
 import type {
+    ColumnAuditConfig,
     ColumnChoiceConfig,
     ColumnChoiceConfigs,
     ContentAuditConfig,
     DataViewConfig,
+    DateOrderId,
     DecimalSeparatorId,
-    ObjectColumnConfig,
     PreviewObjectResult,
     ReadingConfig,
-    SampleConfig
+    SampleConfig,
+    StoreRecord
 } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // An item as it shows on screen: how it is read, its sample and its columns, kept together so a change of one stays in
 // step with the others.
-export type ItemReading = SampleConfig & ReadingConfig & { columnConfigs: ObjectColumnConfig[] };
+export type ItemReading = SampleConfig & ReadingConfig & { columnConfigs: ColumnAuditConfig[] };
 
-export type ColumnType = Pick<ObjectColumnConfig, 'dataSubtypeId' | 'dataTypeId'>;
+export type ColumnType = Pick<ColumnAuditConfig, 'dataSubtypeId' | 'dataTypeId'>;
 
 export type ChosenColumnTypes = Partial<Record<string, ColumnType>>; // Keyed by the column's position, as a string.
 
+export type ChosenDateOrders = Partial<Record<string, DateOrderId>>; // Keyed by the column's position, as a string.
+
 export type ChosenDecimalSeparators = Partial<Record<string, DecimalSeparatorId>>; // Keyed by the column's position, as a string.
+
+export type ChosenIgnoredColumns = Partial<Record<string, boolean>>; // Whether a column is left out of the load, keyed by its position, as a string.
 
 export type ChosenNullWords = Partial<Record<string, boolean>>; // Whether a text column reads null words as empty, keyed by its position, as a string.
 
@@ -39,7 +45,7 @@ export function constructReadingConfig(itemReading: ItemReading): ReadingConfig 
 
 // The text is saved with the records it was parsed into, so the two always match.
 export function constructSampleConfig({ issues, parsedRecords, size, text }: ItemReading): SampleConfig {
-    return { ...(issues != null && { issues }), parsedRecords, size, text };
+    return { issues, parsedRecords, size, text };
 }
 
 // What the sample's records alone show, for when the columns have to be counted again from them. The columns are the
@@ -68,14 +74,24 @@ export function constructPreviewContentAuditConfig(
 export function constructColumnChoiceConfigs(
     chosenColumnTypes: ChosenColumnTypes,
     chosenDecimalSeparators: ChosenDecimalSeparators = {},
-    chosenNullWords: ChosenNullWords = {}
+    chosenNullWords: ChosenNullWords = {},
+    chosenDateOrders: ChosenDateOrders = {},
+    chosenIgnoredColumns: ChosenIgnoredColumns = {}
 ): ColumnChoiceConfigs {
-    const columnIds = new Set([...Object.keys(chosenColumnTypes), ...Object.keys(chosenDecimalSeparators), ...Object.keys(chosenNullWords)]);
+    const columnIds = new Set([
+        ...Object.keys(chosenColumnTypes),
+        ...Object.keys(chosenDecimalSeparators),
+        ...Object.keys(chosenNullWords),
+        ...Object.keys(chosenDateOrders),
+        ...Object.keys(chosenIgnoredColumns)
+    ]);
     const entries = [...columnIds].map((columnId): [string, ColumnChoiceConfig] => {
         const columnChoiceConfig: ColumnChoiceConfig = {
             dataSubtypeId: chosenColumnTypes[columnId]?.dataSubtypeId,
             dataTypeId: chosenColumnTypes[columnId]?.dataTypeId,
+            dateOrderId: chosenDateOrders[columnId],
             decimalSeparatorId: chosenDecimalSeparators[columnId],
+            isIgnored: chosenIgnoredColumns[columnId],
             nullWordsAreEmpty: chosenNullWords[columnId]
         };
         return [columnId, columnChoiceConfig];
@@ -91,13 +107,23 @@ export function constructChosenColumnTypes(dataViewConfig: Pick<DataViewConfig, 
     return Object.fromEntries(entries.filter(([, chosenColumnType]) => chosenColumnType != null));
 }
 
+export function constructChosenDateOrders(columnChoiceConfigs: ColumnChoiceConfigs | undefined): ChosenDateOrders {
+    const entries = Object.entries(columnChoiceConfigs ?? {}).map(([columnId, columnChoiceConfig]) => [columnId, columnChoiceConfig?.dateOrderId] as const);
+    return Object.fromEntries(entries.filter(([, dateOrderId]) => dateOrderId != null));
+}
+
 export function constructChosenDecimalSeparators(columnChoiceConfigs: ColumnChoiceConfigs | undefined): ChosenDecimalSeparators {
     const entries = Object.entries(columnChoiceConfigs ?? {}).map(([columnId, columnChoiceConfig]) => [columnId, columnChoiceConfig?.decimalSeparatorId] as const);
     return Object.fromEntries(entries.filter(([, decimalSeparatorId]) => decimalSeparatorId != null));
 }
 
+export function constructChosenIgnoredColumns(columnChoiceConfigs: ColumnChoiceConfigs | undefined): ChosenIgnoredColumns {
+    const entries = Object.entries(columnChoiceConfigs ?? {}).map(([columnId, columnChoiceConfig]) => [columnId, columnChoiceConfig?.isIgnored] as const);
+    return Object.fromEntries(entries.filter(([, isIgnored]) => isIgnored === true));
+}
+
 // A column the item does not hold, such as the currencies of a column of numbers in several, worked out when it loads.
-export function isDerivedColumn({ derivedFromColumnIndex }: ObjectColumnConfig): boolean {
+export function isDerivedColumn({ derivedFromColumnIndex }: ColumnAuditConfig): boolean {
     return derivedFromColumnIndex != null;
 }
 
@@ -108,32 +134,53 @@ export function constructChosenNullWords(columnChoiceConfigs: ColumnChoiceConfig
 
 // A unit column that found no unit in the part of the item audited. It is kept, because a unit can appear past that
 // part, but it is hidden at first so a file of plain numbers does not show a column of nothing beside each one.
-export function isEmptyUnitColumn(columnConfig: ObjectColumnConfig): boolean {
+export function isEmptyUnitColumn(columnConfig: ColumnAuditConfig): boolean {
     return isDerivedColumn(columnConfig) && (columnConfig.validValueCount ?? 0) === 0;
 }
 
-// A column as the user wants it read: the type, decimal separator and reading of null words they chose, otherwise the
-// detected ones.
-export function resolveColumnConfig(columnConfig: ObjectColumnConfig, columnChoiceConfig: ColumnChoiceConfig | undefined): ObjectColumnConfig {
+// A column as the user wants it read: the type, date order, decimal separator and reading of null words they chose,
+// otherwise the detected ones.
+export function resolveColumnConfig(columnConfig: ColumnAuditConfig, columnChoiceConfig: ColumnChoiceConfig | undefined): ColumnAuditConfig {
+    const dateOrderId = columnChoiceConfig?.dateOrderId;
+    const dateReading = dateOrderId == null ? undefined : columnConfig.dateReadings?.[dateOrderId]; // The figures for the chosen order.
     const decimalSeparatorId = columnChoiceConfig?.decimalSeparatorId;
     const numericReading = decimalSeparatorId == null ? undefined : columnConfig.numericReadings?.[decimalSeparatorId]; // The figures for the chosen separator.
     return {
         ...columnConfig,
+        ...dateReading,
         ...numericReading,
         ...constructChosenColumnType(columnChoiceConfig, columnConfig),
+        dateOrderId: dateOrderId ?? columnConfig.dateOrderId,
         decimalSeparatorId: decimalSeparatorId ?? columnConfig.decimalSeparatorId,
         nullWordsAreEmpty: columnChoiceConfig?.nullWordsAreEmpty ?? columnConfig.nullWordsAreEmpty
     };
 }
 
 // The audit's columns, each as the user wants it read.
-export function resolveColumnConfigs({ columnChoiceConfigs, contentAuditConfig }: Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig'>): ObjectColumnConfig[] {
+export function resolveColumnConfigs({ columnChoiceConfigs, contentAuditConfig }: Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig'>): ColumnAuditConfig[] {
     return (contentAuditConfig?.columns ?? []).map((columnConfig, index) => resolveColumnConfig(columnConfig, columnChoiceConfigs?.[String(index)]));
+}
+
+// The columns the user chose to ignore, by position. A derived column is ignored with the column it comes from, because
+// it only holds values for that column.
+export function constructIgnoredColumnIndexes({ columnChoiceConfigs, contentAuditConfig }: Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig'>): number[] {
+    return (contentAuditConfig?.columns ?? [])
+        .map((columnConfig, index) => (columnChoiceConfigs?.[String(columnConfig.derivedFromColumnIndex ?? index)]?.isIgnored === true ? index : undefined))
+        .filter((index) => index !== undefined);
+}
+
+// A loaded record holds no value for an ignored column, so its values are put back at their columns' positions, with
+// null for each ignored column.
+export function placeLoadedValues(storeRecord: StoreRecord, columnCount: number, ignoredColumnIndexes: ReadonlySet<number>): StoreRecord {
+    const placedRecord: StoreRecord = Array.from({ length: columnCount }, () => null);
+    const loadedColumnIndexes = placedRecord.map((_value, index) => index).filter((index) => !ignoredColumnIndexes.has(index));
+    for (const [position, columnIndex] of loadedColumnIndexes.entries()) placedRecord[columnIndex] = storeRecord[position] ?? null;
+    return placedRecord;
 }
 
 // An 'unknown' column may only be blank in the part audited, and an unknown column loads as nothing, so it loads as text.
 // An audit that reached the end of the item has read the column in full, so an 'unknown' column there really is empty.
-export function constructLoadColumnConfigs(dataViewConfig: Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig'>): ObjectColumnConfig[] {
+export function constructLoadColumnConfigs(dataViewConfig: Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig'>): ColumnAuditConfig[] {
     const { contentAuditConfig } = dataViewConfig;
     return resolveColumnConfigs(dataViewConfig).map((resolvedColumnConfig) => {
         return contentAuditConfig?.isComplete !== true && resolvedColumnConfig.dataTypeId === 'unknown' ? { ...resolvedColumnConfig, dataTypeId: 'string' } : resolvedColumnConfig;
@@ -148,10 +195,12 @@ export function constructColumnsVersion(dataViewConfig: Pick<DataViewConfig, 'co
     const contentAuditConfig = dataViewConfig?.contentAuditConfig;
     if (contentAuditConfig == null) return;
     const chosenEntries = Object.entries(dataViewConfig?.columnChoiceConfigs ?? {}).flatMap(([columnId, columnChoiceConfig]) => {
-        const { dataSubtypeId, dataTypeId, decimalSeparatorId, nullWordsAreEmpty } = columnChoiceConfig ?? {};
+        const { dataSubtypeId, dataTypeId, dateOrderId, decimalSeparatorId, isIgnored, nullWordsAreEmpty } = columnChoiceConfig ?? {};
         return [
             ...(dataTypeId == null ? [] : [[columnId, constructColumnTypeId({ dataSubtypeId, dataTypeId })]]),
+            ...(dateOrderId == null ? [] : [[`${columnId}.dateOrder`, dateOrderId]]),
             ...(decimalSeparatorId == null ? [] : [[`${columnId}.decimalSeparator`, decimalSeparatorId]]),
+            ...(isIgnored == null ? [] : [[`${columnId}.isIgnored`, String(isIgnored)]]),
             ...(nullWordsAreEmpty == null ? [] : [[`${columnId}.nullWordsAreEmpty`, String(nullWordsAreEmpty)]])
         ];
     });
@@ -181,7 +230,7 @@ export function restoreItemReading(dataViewConfig: Pick<DataViewConfig, 'columnC
 
 // A type saved without a subtype keeps the detected subtype when it is the detected type, as detection's subtype only
 // describes detection's type. Otherwise it takes the subtype the engine stored it as.
-function constructChosenColumnType(columnChoiceConfig: ColumnChoiceConfig | undefined, columnConfig: ObjectColumnConfig | undefined): ColumnType | undefined {
+function constructChosenColumnType(columnChoiceConfig: ColumnChoiceConfig | undefined, columnConfig: ColumnAuditConfig | undefined): ColumnType | undefined {
     const chosenDataTypeId = columnChoiceConfig?.dataTypeId;
     if (chosenDataTypeId == null) return;
     const detectedDataSubtypeId = chosenDataTypeId === columnConfig?.dataTypeId ? columnConfig.dataSubtypeId : undefined;

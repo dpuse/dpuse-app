@@ -19,17 +19,22 @@
         "audit.stop.label": { "en": "Stop", "es": "Detener" },
         "back.aria": { "en": "Back to {label}", "es": "Volver a {label}" },
         "column.attention.aria": { "en": "Needs checking", "es": "Conviene revisarla" },
+        "columnComplete.aria": {
+            "en": "Every record has a value in this column that fits its type",
+            "es": "Todos los registros tienen en esta columna un valor que encaja con su tipo"
+        },
         "columnDetail.close.label": { "en": "Close the detail of {label}", "es": "Cerrar el detalle de {label}" },
         "columnDetail.label": { "en": "Show the detail of {label}", "es": "Ver el detalle de {label}" },
         "columnKey.aria": {
             "en": "Every value is unique and none are missing, so this column could identify each record",
             "es": "Todos los valores son únicos y no falta ninguno, por lo que esta columna podría identificar cada registro"
         },
-        "columnRequired.aria": { "en": "Every record has a value in this column", "es": "Todos los registros tienen un valor en esta columna" },
         "columnSearch.aria": { "en": "Find a column", "es": "Buscar una columna" },
         "columnSearch.empty.text": { "en": "No columns match", "es": "Ninguna columna coincide" },
         "columnSearch.placeholder": { "en": "Find column", "es": "Buscar columna" },
         "columnType.aria": { "en": "Data type of {label}", "es": "Tipo de dato de {label}" },
+        "dateOrder.dayFirst.label": { "en": "Day first", "es": "Día primero" },
+        "dateOrder.monthFirst.label": { "en": "Month first", "es": "Mes primero" },
         "decimalSeparator.comma.label": { "en": "Decimal comma", "es": "Coma decimal" },
         "decimalSeparator.point.label": { "en": "Decimal point", "es": "Punto decimal" },
         "detail.audit.title": { "en": "Audit", "es": "Auditoría" },

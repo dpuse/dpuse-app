@@ -1,14 +1,14 @@
 // ── DPUse Framework
 import { DATA_TYPE_CONFIGS } from '@dpuse/dpuse-shared';
-import type { DataSubtypeId, DecimalSeparatorId, ObjectColumnConfig } from '@dpuse/dpuse-shared';
+import type { ColumnAuditConfig, DataSubtypeId, DateOrderId, DecimalSeparatorId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import type { ChosenColumnTypes, ChosenDecimalSeparators, ChosenNullWords, ColumnType, ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
+import type { ChosenColumnTypes, ChosenDateOrders, ChosenDecimalSeparators, ChosenNullWords, ColumnType, ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The decimal separator detected for a column is kept with its type, so Auto can return to it.
-export type DetectedColumnType = ColumnType & Partial<Pick<ObjectColumnConfig, 'decimalSeparatorId'>>;
+// The date order and decimal separator detected for a column are kept with its type, so Auto can return to them.
+export type DetectedColumnType = ColumnType & Partial<Pick<ColumnAuditConfig, 'dateOrderId' | 'decimalSeparatorId'>>;
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -32,7 +32,7 @@ export const CHOOSABLE_COLUMN_TYPES: ColumnType[] = DATA_TYPE_CONFIGS.filter(({ 
 // hidden, because showing it would suggest a unit the value does not have.
 export function constructDecimalPadding(
     value: string,
-    { decimalSeparatorId: decimalSeparator = '.', maxDecimals }: Pick<ObjectColumnConfig, 'decimalSeparatorId' | 'maxDecimals'>,
+    { decimalSeparatorId: decimalSeparator = '.', validMaxDecimals: maxDecimals }: Pick<ColumnAuditConfig, 'decimalSeparatorId' | 'validMaxDecimals'>,
     columnEnding = ''
 ): { hiddenPadding: string; numberText: string; shownPadding: string; writtenEnding: string } {
     const { decimalCount, ending, hasSeparator, numberText } = measureWrittenNumber(value.trim(), decimalSeparator);
@@ -107,10 +107,32 @@ export function applyPreviewDecimalSeparator(
 
 // The figures an audit measured for one decimal separator. A column whose values read only one way has none, because
 // its figures are the same either way.
-function applyNumericReading<T extends ObjectColumnConfig>(columnConfig: T, decimalSeparatorId: DecimalSeparatorId | undefined, isSubtypeChosen = false): T {
+function applyNumericReading<T extends ColumnAuditConfig>(columnConfig: T, decimalSeparatorId: DecimalSeparatorId | undefined, isSubtypeChosen = false): T {
     const numericReading = decimalSeparatorId == null ? undefined : columnConfig.numericReadings?.[decimalSeparatorId];
     if (numericReading == null) return { ...columnConfig, decimalSeparatorId };
     return { ...columnConfig, ...numericReading, dataSubtypeId: isSubtypeChosen ? columnConfig.dataSubtypeId : numericReading.dataSubtypeId, decimalSeparatorId };
+}
+
+// The preview with each date order the user chose put back.
+export function applyPreviewDateOrders(itemReading: ItemReading, chosenDateOrders: ChosenDateOrders): ItemReading {
+    let orderedItemReading = itemReading;
+    for (const [columnId, dateOrderId] of Object.entries(chosenDateOrders)) {
+        if (dateOrderId != null) orderedItemReading = applyPreviewDateOrder(orderedItemReading, Number(columnId), dateOrderId);
+    }
+    return orderedItemReading;
+}
+
+// The preview with one column's dates read in the order given, and the figures the audit measured for that order in
+// place of the others. A column whose dates read only one way has none, because its figures are the same either way.
+export function applyPreviewDateOrder(itemReading: ItemReading, columnIndex: number, dateOrderId: DateOrderId | undefined): ItemReading {
+    return {
+        ...itemReading,
+        columnConfigs: itemReading.columnConfigs.map((columnConfig, index) => {
+            if (index !== columnIndex) return columnConfig;
+            const dateReading = dateOrderId == null ? undefined : columnConfig.dateReadings?.[dateOrderId];
+            return { ...columnConfig, ...dateReading, dateOrderId };
+        })
+    };
 }
 
 // The preview with each text column's reading of null words that the user chose put back.
@@ -132,18 +154,17 @@ export function applyPreviewNullWordChoice(itemReading: ItemReading, columnIndex
 }
 
 // Applying the same choice twice changes nothing, so the counts never move twice.
-function applyNullWordChoice(columnConfig: ObjectColumnConfig, areNullWordsEmpty: boolean): ObjectColumnConfig {
+function applyNullWordChoice(columnConfig: ColumnAuditConfig, areNullWordsEmpty: boolean): ColumnAuditConfig {
     if (columnConfig.dataTypeId !== 'string' || (columnConfig.nullWordsAreEmpty === true) === areNullWordsEmpty) return columnConfig;
     const movedCount = (columnConfig.nullWordValueCount ?? 0) * (areNullWordsEmpty ? 1 : -1);
-    const voidValueCount = (columnConfig.voidValueCount ?? 0) + movedCount;
+    const missingValueCount = (columnConfig.missingValueCount ?? 0) + movedCount;
     return {
         ...columnConfig,
         inferenceCounts: { ...columnConfig.inferenceCounts, 'string.plain': (columnConfig.inferenceCounts['string.plain'] ?? 0) - movedCount },
-        isRequired: voidValueCount === 0,
-        missingValueCount: (columnConfig.missingValueCount ?? 0) + movedCount,
+        isComplete: (columnConfig.blankValueCount ?? 0) + missingValueCount === 0 && (columnConfig.invalidValueCount ?? 0) === 0,
+        missingValueCount,
         nullWordsAreEmpty: areNullWordsEmpty,
-        validValueCount: (columnConfig.validValueCount ?? 0) - movedCount,
-        voidValueCount
+        validValueCount: (columnConfig.validValueCount ?? 0) - movedCount
     };
 }
 

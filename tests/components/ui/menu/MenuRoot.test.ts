@@ -6,9 +6,7 @@ import { mount, type VueWrapper } from '@vue/test-utils';
 // ── Local Framework
 import { Menu } from '@/components/ui/menu';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const wrappers: VueWrapper[] = [];
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // A menu with a set of choices, one of them disabled, an on/off setting and an action.
 const TestMenu = defineComponent({
@@ -29,21 +27,9 @@ const TestMenu = defineComponent({
         </MenuRoot>`
 });
 
-function mountMenu(): VueWrapper {
-    const wrapper = mount(TestMenu, { attachTo: document.body });
-    wrappers.push(wrapper);
-    return wrapper;
-}
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function openMenu(wrapper: VueWrapper): Promise<void> {
-    await wrapper.get('[aria-haspopup="menu"]').trigger('click');
-    await wrapper.vm.$nextTick();
-}
-
-// Pressed on whatever has focus, as a key press in a browser is.
-function pressKey(key: string): void {
-    document.activeElement?.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key }));
-}
+const wrappers: VueWrapper[] = [];
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -133,3 +119,21 @@ describe('Menu', () => {
         expect(wrapper.find('[role="menu"]').exists()).toBe(false);
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function mountMenu(): VueWrapper {
+    const wrapper = mount(TestMenu, { attachTo: document.body });
+    wrappers.push(wrapper);
+    return wrapper;
+}
+
+async function openMenu(wrapper: VueWrapper): Promise<void> {
+    await wrapper.get('[aria-haspopup="menu"]').trigger('click');
+    await wrapper.vm.$nextTick();
+}
+
+// Pressed on whatever has focus, as a key press in a browser is.
+function pressKey(key: string): void {
+    document.activeElement?.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key }));
+}

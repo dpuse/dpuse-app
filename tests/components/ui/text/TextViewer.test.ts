@@ -5,16 +5,6 @@ import { describe, expect, it, vi } from 'vitest';
 // ── Local Framework
 import TextViewer from '@/components/ui/text/TextViewer.vue';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function mountViewer(properties: InstanceType<typeof TextViewer>['$props']): ReturnType<typeof mount<typeof TextViewer>> {
-    return mount(TextViewer, { props: properties });
-}
-
-function readLines(wrapper: ReturnType<typeof mountViewer>): { lineNumber: string | undefined; text: string }[] {
-    return wrapper.findAll('[data-line-number]').map((line) => ({ lineNumber: line.attributes('data-line-number'), text: line.findAll('span')[1]?.text() ?? '' }));
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('TextViewer', () => {
@@ -61,3 +51,13 @@ describe('TextViewer', () => {
         expect(scrollIntoView).toHaveBeenCalledWith({ block: 'center', inline: 'start' });
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function mountViewer(properties: InstanceType<typeof TextViewer>['$props']): ReturnType<typeof mount<typeof TextViewer>> {
+    return mount(TextViewer, { props: properties });
+}
+
+function readLines(wrapper: ReturnType<typeof mountViewer>): { lineNumber: string | undefined; text: string }[] {
+    return wrapper.findAll('[data-line-number]').map((line) => ({ lineNumber: line.attributes('data-line-number'), text: line.findAll('span')[1]?.text() ?? '' }));
+}

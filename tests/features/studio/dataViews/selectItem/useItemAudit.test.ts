@@ -18,43 +18,10 @@ vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTrac
 vi.mock('@/state/errors', async (importOriginal) => ({ ...(await importOriginal<object>()), raiseAppFailure: vi.fn() }));
 vi.mock('@/features/studio/dataViews/_dataViews', () => ({ abortDataViewContentAudit: vi.fn(), auditDataViewContent: vi.fn(), stopDataViewContentAudit: vi.fn() }));
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DATA_VIEW = { connectionId: 'source1' } as DataViewConfig;
 const AUDIT = { contentAuditConfig: { recordCount: 2 } as ContentAuditConfig, hasHeaders: false };
-
-function renderNothing(): ReturnType<typeof h> {
-    return h('div');
-}
-
-function mountAudit(
-    handleAudited = vi.fn().mockResolvedValue(null),
-    dataViewConfig: DataViewConfig | null = DATA_VIEW,
-    headersAreChosen = true
-): {
-    audit: ReturnType<typeof useItemAudit>;
-    unmount: () => void;
-} {
-    let audit: ReturnType<typeof useItemAudit> | undefined;
-    const wrapper = mount(
-        defineComponent({
-            setup() {
-                audit = useItemAudit(
-                    () => dataViewConfig ?? undefined,
-                    handleAudited,
-                    () => headersAreChosen
-                );
-                return renderNothing;
-            }
-        })
-    );
-    return {
-        audit: assertDefined(audit),
-        unmount: (): void => {
-            wrapper.unmount();
-        }
-    };
-}
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -148,3 +115,38 @@ describe('useItemAudit', () => {
         expect(abortDataViewContentAudit).toHaveBeenCalledWith('source1');
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function renderNothing(): ReturnType<typeof h> {
+    return h('div');
+}
+
+function mountAudit(
+    handleAudited = vi.fn().mockResolvedValue(null),
+    dataViewConfig: DataViewConfig | null = DATA_VIEW,
+    headersAreChosen = true
+): {
+    audit: ReturnType<typeof useItemAudit>;
+    unmount: () => void;
+} {
+    let audit: ReturnType<typeof useItemAudit> | undefined;
+    const wrapper = mount(
+        defineComponent({
+            setup() {
+                audit = useItemAudit(
+                    () => dataViewConfig ?? undefined,
+                    handleAudited,
+                    () => headersAreChosen
+                );
+                return renderNothing;
+            }
+        })
+    );
+    return {
+        audit: assertDefined(audit),
+        unmount: (): void => {
+            wrapper.unmount();
+        }
+    };
+}

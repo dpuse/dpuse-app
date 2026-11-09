@@ -91,49 +91,6 @@ const DataViewPanelStub = defineComponent({
     }
 });
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function buildDataView(id: string, label: string): DataViewConfig {
-    return { id, label: { en: label }, description: {}, icon: null, iconDark: null, typeId: 'dataView' } as DataViewConfig;
-}
-
-async function getState(): Promise<StateForTest> {
-    const module_ = (await import('@/features/studio/dataViews/_dataViews')) as unknown as { stateForTest: StateForTest };
-    return module_.stateForTest;
-}
-
-async function buildRouter(): Promise<Router> {
-    const component = { render: (): null => null };
-    const router = createRouter({
-        history: createMemoryHistory(),
-        routes: [
-            { name: 'dataViews', path: '/dataViews/:dataViewId?', component },
-            { name: 'connection', path: '/dataViews/:dataViewId/connections', component },
-            { name: 'item', path: '/dataViews/:dataViewId/items', component },
-            { name: 'data', path: '/dataViews/:dataViewId/data', component }
-        ]
-    });
-    await router.push('/dataViews/a');
-    await router.isReady();
-    return router;
-}
-
-async function mountList(router: Router): Promise<VueWrapper> {
-    const listModule = await import('@/features/studio/dataViews/DataViewList.vue');
-    const wrapper = mount(listModule.default, {
-        attachTo: document.body, // Focus only moves between elements in the document.
-        global: { plugins: [router], stubs: { DataViewPanel: DataViewPanelStub, GridDetailPanel: GridDetailPanelStub } }
-    });
-    await settle();
-    return wrapper;
-}
-
-function findDialogButton(label: string): HTMLButtonElement {
-    const button = [...document.querySelectorAll<HTMLButtonElement>('[data-region="ConfirmDialog"] button')].find((candidate) => candidate.textContent.trim() === label);
-    if (!button) throw new Error(`The confirm dialog has no '${label}' button.`);
-    return button;
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('data view list deletion', () => {
@@ -242,3 +199,46 @@ describe('opening a data view', () => {
         expect(await openSelectedDataView(undefined, false)).toBe('connection');
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function buildDataView(id: string, label: string): DataViewConfig {
+    return { id, label: { en: label }, description: {}, icon: null, iconDark: null, typeId: 'dataView' } as DataViewConfig;
+}
+
+async function getState(): Promise<StateForTest> {
+    const module_ = (await import('@/features/studio/dataViews/_dataViews')) as unknown as { stateForTest: StateForTest };
+    return module_.stateForTest;
+}
+
+async function buildRouter(): Promise<Router> {
+    const component = { render: (): null => null };
+    const router = createRouter({
+        history: createMemoryHistory(),
+        routes: [
+            { name: 'dataViews', path: '/dataViews/:dataViewId?', component },
+            { name: 'connection', path: '/dataViews/:dataViewId/connections', component },
+            { name: 'item', path: '/dataViews/:dataViewId/items', component },
+            { name: 'data', path: '/dataViews/:dataViewId/data', component }
+        ]
+    });
+    await router.push('/dataViews/a');
+    await router.isReady();
+    return router;
+}
+
+async function mountList(router: Router): Promise<VueWrapper> {
+    const listModule = await import('@/features/studio/dataViews/DataViewList.vue');
+    const wrapper = mount(listModule.default, {
+        attachTo: document.body, // Focus only moves between elements in the document.
+        global: { plugins: [router], stubs: { DataViewPanel: DataViewPanelStub, GridDetailPanel: GridDetailPanelStub } }
+    });
+    await settle();
+    return wrapper;
+}
+
+function findDialogButton(label: string): HTMLButtonElement {
+    const button = [...document.querySelectorAll<HTMLButtonElement>('[data-region="ConfirmDialog"] button')].find((candidate) => candidate.textContent.trim() === label);
+    if (!button) throw new Error(`The confirm dialog has no '${label}' button.`);
+    return button;
+}

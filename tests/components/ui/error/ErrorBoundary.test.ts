@@ -10,28 +10,6 @@ import { appFailures, clearAppFailures } from '@/state/errors';
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// Throws for its first 'failureCount' renders only, so a retry can be seen to succeed rather than fail again.
-function buildChild(message: string, failureCount = Infinity): { component: ReturnType<typeof defineComponent>; renderCount: () => number } {
-    const state = { renders: 0 };
-    const component = defineComponent({
-        name: 'TestChild',
-        setup() {
-            state.renders++;
-            if (state.renders <= failureCount) throw new Error(message);
-        },
-        template: '<div data-region="TestChild">Loaded.</div>'
-    });
-    return { component, renderCount: (): number => state.renders };
-}
-
-async function mountBoundary(component: ReturnType<typeof defineComponent>): Promise<{ wrapper: ReturnType<typeof mount> }> {
-    const wrapper = mount(ErrorBoundary, { props: { name: 'TestRegion', resetKey: '/' }, slots: { default: component } });
-    await nextTick();
-    return { wrapper };
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('ErrorBoundary', () => {
@@ -84,3 +62,25 @@ describe('ErrorBoundary', () => {
         expect(appFailures.value).toStrictEqual([]); // The rest of the app kept working, so nothing is raised over it.
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Throws for its first 'failureCount' renders only, so a retry can be seen to succeed rather than fail again.
+function buildChild(message: string, failureCount = Infinity): { component: ReturnType<typeof defineComponent>; renderCount: () => number } {
+    const state = { renders: 0 };
+    const component = defineComponent({
+        name: 'TestChild',
+        setup() {
+            state.renders++;
+            if (state.renders <= failureCount) throw new Error(message);
+        },
+        template: '<div data-region="TestChild">Loaded.</div>'
+    });
+    return { component, renderCount: (): number => state.renders };
+}
+
+async function mountBoundary(component: ReturnType<typeof defineComponent>): Promise<{ wrapper: ReturnType<typeof mount> }> {
+    const wrapper = mount(ErrorBoundary, { props: { name: 'TestRegion', resetKey: '/' }, slots: { default: component } });
+    await nextTick();
+    return { wrapper };
+}

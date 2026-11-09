@@ -16,48 +16,6 @@ const HANDLE_LEFT_PX = 190; // Left of where the drag starts, because the grab a
 const COLUMN_START_SIZE_PX = 150;
 const DRAG_START_X_PX = 200;
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function mountHarness(): ReturnType<typeof mount> {
-    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
-        return { left: this.matches('[data-region="TableResizeHandle"]') ? HANDLE_LEFT_PX : HEADER_LEFT_PX } as DOMRect;
-    });
-
-    return mount(
-        defineComponent({
-            setup() {
-                const scrollElement = shallowRef<HTMLDivElement | null>(null);
-                const table = useTable<typeof tableFeatureSet, RowData>({
-                    features: tableFeatureSet,
-                    data: [],
-                    columns: [{ id: 'name', header: 'Name', minSize: 100, size: COLUMN_START_SIZE_PX }],
-                    enableColumnResizing: true,
-                    columnResizeMode: 'onEnd'
-                });
-                return () => [
-                    h('p', { 'data-region': 'Width' }, String(table.getColumn('name')?.getSize())),
-                    h('div', { ref: scrollElement }, [h(TableHeaderCell, { header: table.getCenterLeafHeaders()[0], isMenuHidden: true })]),
-                    h(TableResizeLine, { scrollElement: scrollElement.value, table })
-                ];
-            }
-        })
-    );
-}
-
-function getLineLeft(wrapper: ReturnType<typeof mount>): string {
-    return wrapper.get<HTMLElement>('[data-region="TableResizeLine"]').element.style.transform;
-}
-
-async function moveTo(clientX: number): Promise<void> {
-    document.dispatchEvent(new MouseEvent('mousemove', { clientX }));
-    await nextTick();
-}
-
-async function endDrag(clientX: number): Promise<void> {
-    document.dispatchEvent(new MouseEvent('mouseup', { clientX }));
-    await nextTick();
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('TableResizeLine', () => {
@@ -127,3 +85,45 @@ describe('TableResizeLine', () => {
         vi.unstubAllGlobals();
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function mountHarness(): ReturnType<typeof mount> {
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+        return { left: this.matches('[data-region="TableResizeHandle"]') ? HANDLE_LEFT_PX : HEADER_LEFT_PX } as DOMRect;
+    });
+
+    return mount(
+        defineComponent({
+            setup() {
+                const scrollElement = shallowRef<HTMLDivElement | null>(null);
+                const table = useTable<typeof tableFeatureSet, RowData>({
+                    features: tableFeatureSet,
+                    data: [],
+                    columns: [{ id: 'name', header: 'Name', minSize: 100, size: COLUMN_START_SIZE_PX }],
+                    enableColumnResizing: true,
+                    columnResizeMode: 'onEnd'
+                });
+                return () => [
+                    h('p', { 'data-region': 'Width' }, String(table.getColumn('name')?.getSize())),
+                    h('div', { ref: scrollElement }, [h(TableHeaderCell, { header: table.getCenterLeafHeaders()[0], isMenuHidden: true })]),
+                    h(TableResizeLine, { scrollElement: scrollElement.value, table })
+                ];
+            }
+        })
+    );
+}
+
+function getLineLeft(wrapper: ReturnType<typeof mount>): string {
+    return wrapper.get<HTMLElement>('[data-region="TableResizeLine"]').element.style.transform;
+}
+
+async function moveTo(clientX: number): Promise<void> {
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX }));
+    await nextTick();
+}
+
+async function endDrag(clientX: number): Promise<void> {
+    document.dispatchEvent(new MouseEvent('mouseup', { clientX }));
+    await nextTick();
+}

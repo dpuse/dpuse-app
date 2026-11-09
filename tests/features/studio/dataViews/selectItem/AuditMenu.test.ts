@@ -5,20 +5,16 @@ import { mount, type VueWrapper } from '@vue/test-utils';
 // ── Local Framework
 import AuditMenu from '@/features/studio/dataViews/selectItem/AuditMenu.vue';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const AUDIT_CHOICES = [
     { byteLimit: 1_048_576, id: '1048576', label: '1 MB' },
     { byteLimit: undefined, id: 'all', label: 'All' }
 ];
 
-const wrappers: VueWrapper[] = [];
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function mountMenu(isDisabled = false): VueWrapper {
-    const wrapper = mount(AuditMenu, { attachTo: document.body, props: { auditChoices: AUDIT_CHOICES, disabled: isDisabled } });
-    wrappers.push(wrapper);
-    return wrapper;
-}
+const wrappers: VueWrapper[] = [];
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -76,3 +72,11 @@ describe('AuditMenu', () => {
         expect(wrapper.find('[role="menu"]').exists()).toBe(false);
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function mountMenu(isDisabled = false): VueWrapper {
+    const wrapper = mount(AuditMenu, { attachTo: document.body, props: { auditChoices: AUDIT_CHOICES, disabled: isDisabled } });
+    wrappers.push(wrapper);
+    return wrapper;
+}

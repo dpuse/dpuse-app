@@ -5,21 +5,13 @@ import { mount, type VueWrapper } from '@vue/test-utils';
 // ── Local Framework
 import ComboboxInput from '@/components/ui/ComboboxInput.vue';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const OPTIONS = [
     { id: '0', label: 'Name' },
     { id: '1', label: 'Résumé' },
     { id: '2', label: 'City' }
 ];
-
-function mountCombobox(): VueWrapper {
-    return mount(ComboboxInput, { attachTo: document.body, props: { emptyText: 'No columns match', label: 'Find a column', options: OPTIONS } });
-}
-
-function findOptionLabels(wrapper: VueWrapper): string[] {
-    return wrapper.findAll('[role="option"]').map((option) => option.text());
-}
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -87,3 +79,13 @@ describe('ComboboxInput', () => {
         expect(wrapper.emitted('select')).toStrictEqual([[OPTIONS[1]]]);
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function mountCombobox(): VueWrapper {
+    return mount(ComboboxInput, { attachTo: document.body, props: { emptyText: 'No columns match', label: 'Find a column', options: OPTIONS } });
+}
+
+function findOptionLabels(wrapper: VueWrapper): string[] {
+    return wrapper.findAll('[role="option"]').map((option) => option.text());
+}

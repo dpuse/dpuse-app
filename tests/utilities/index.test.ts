@@ -22,23 +22,6 @@ const ExposingPanel = defineComponent({
     template: '<div data-region="ExposingPanel" />'
 });
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-async function render(panel: ReturnType<typeof defineLazyComponent>): Promise<ReturnType<typeof mount>> {
-    const wrapper = mount(defineComponent({ render: () => h(panel) }));
-    await settle();
-    return wrapper;
-}
-
-function echo(text: string): string {
-    return text;
-}
-
-// A chunk that cannot be fetched, as the browser reports it when the network drops or a deployment has deleted it.
-function failToLoad(): Promise<never> {
-    return Promise.reject(new TypeError('Failed to fetch dynamically imported module.'));
-}
-
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('defineLazyComponent', () => {
@@ -144,3 +127,20 @@ describe('defineLazyComponent', () => {
         });
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function render(panel: ReturnType<typeof defineLazyComponent>): Promise<ReturnType<typeof mount>> {
+    const wrapper = mount(defineComponent({ render: () => h(panel) }));
+    await settle();
+    return wrapper;
+}
+
+function echo(text: string): string {
+    return text;
+}
+
+// A chunk that cannot be fetched, as the browser reports it when the network drops or a deployment has deleted it.
+function failToLoad(): Promise<never> {
+    return Promise.reject(new TypeError('Failed to fetch dynamically imported module.'));
+}

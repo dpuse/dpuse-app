@@ -48,18 +48,19 @@ import {
 import type {
     AuditObjectContentResult,
     ClassifyPreviewValuesOptions,
+    ColumnAuditConfig,
     ConnectionConfig,
     ConnectionNodeConfig,
     ContentAuditConfig,
     DataFormatId,
     DataViewConfig,
+    DateOrderId,
     DecimalSeparatorId,
     GetInfoOptions,
     GetInfoResult,
     ListNodesOptions,
     ListNodesResult,
     LocalisedConfig,
-    ObjectColumnConfig,
     PreviewObjectOptions,
     PreviewObjectResult,
     PreviewValueStateId,
@@ -90,6 +91,8 @@ import { type AppFailure, raiseFailure } from '@/state/errors';
 import {
     applyPreviewColumnType,
     applyPreviewColumnTypes,
+    applyPreviewDateOrder,
+    applyPreviewDateOrders,
     applyPreviewDecimalSeparator,
     applyPreviewDecimalSeparators,
     applyPreviewNullWordChoice,
@@ -101,10 +104,14 @@ import {
 } from './_previewColumnTypes';
 import {
     type ChosenColumnTypes,
+    type ChosenDateOrders,
     type ChosenDecimalSeparators,
+    type ChosenIgnoredColumns,
     type ChosenNullWords,
     constructChosenColumnTypes,
+    constructChosenDateOrders,
     constructChosenDecimalSeparators,
+    constructChosenIgnoredColumns,
     constructChosenNullWords,
     constructColumnChoiceConfigs,
     constructColumnTypeId,
@@ -121,7 +128,8 @@ import {
     constructColumnValueCounts,
     constructDataTypeLabel,
     constructPreviewColumnRows,
-    countChosenTypeMisfits
+    countChosenTypeMisfits,
+    isColumnComplete
 } from '../_previewColumnRows';
 import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from '../_readingLabels';
 import { constructDataViewConnection, constructItemPath } from '../dataViewSummary';
@@ -323,11 +331,13 @@ const detectedEncodingIsAssumed = ref(false);
 const detectedValueDelimiterId = ref<ValueDelimiterId>();
 const detectedHasHeaders = ref<boolean>();
 
-// ── Column Types ─ The type and decimal separator the user chose for a column, by its id in the table, which is its
-// position. Cleared by every new reading. What was detected is kept apart, so Auto can return to it.
+// ── Column Types ─ The type, date order and decimal separator the user chose for a column, by its id in the table,
+// which is its position. Cleared by every new reading. What was detected is kept apart, so Auto can return to it.
 const selectedColumnTypes = ref<ChosenColumnTypes>({});
+const selectedDateOrders = ref<ChosenDateOrders>({});
 const selectedDecimalSeparators = ref<ChosenDecimalSeparators>({});
 const selectedNullWords = ref<ChosenNullWords>({});
+const selectedIgnoredColumns = ref<ChosenIgnoredColumns>({});
 const detectedColumnTypes = shallowRef<DetectedColumnType[]>([]);
 
 // ── Preview Tabs ─ Tabs and their panel reference each other by id, which must be unique on the page. In a narrow
@@ -870,12 +880,17 @@ watch(
 
             const wereColumnTypesChosen = [
                 ...Object.values(selectedColumnTypes.value),
+                ...Object.values(selectedDateOrders.value),
                 ...Object.values(selectedDecimalSeparators.value),
-                ...Object.values(selectedNullWords.value)
+                ...Object.values(selectedNullWords.value),
+                ...Object.values(selectedIgnoredColumns.value)
             ].some((choice) => choice != null);
             selectedColumnTypes.value = isNewReadChoice ? {} : constructSavedColumnTypes(newActiveItem); // A new reading can change the columns, but reopening the saved item keeps its types.
+            const savedColumnChoiceConfigs = isNewReadChoice || !isSavedItem(newActiveItem) ? undefined : dataViewConfig.value?.columnChoiceConfigs;
+            selectedDateOrders.value = constructChosenDateOrders(savedColumnChoiceConfigs);
             selectedDecimalSeparators.value = isNewReadChoice ? {} : constructSavedDecimalSeparators(newActiveItem);
-            selectedNullWords.value = isNewReadChoice || !isSavedItem(newActiveItem) ? {} : constructChosenNullWords(dataViewConfig.value?.columnChoiceConfigs);
+            selectedNullWords.value = constructChosenNullWords(savedColumnChoiceConfigs);
+            selectedIgnoredColumns.value = constructChosenIgnoredColumns(savedColumnChoiceConfigs);
             detectedColumnTypes.value = constructDetectedColumnTypes(headedItemReading);
             if (isNewReadChoice) selectedColumnIndex.value = undefined; // A new reading can change the columns.
             activeContentAuditConfig.value = constructFirstContentAuditConfig(previewObjectResult.contentAuditConfig, headedItemReading);
@@ -964,7 +979,8 @@ function handleSelectColumnType(columnId: string, columnTypeId: string): void {
     const chosenColumnType = CHOOSABLE_COLUMN_TYPES.find((columnType) => constructColumnTypeId(columnType) === columnTypeId); // Auto is not one of them, so it chooses none.
     selectedColumnTypes.value[columnId] = chosenColumnType;
     const typedItemReading = applyPreviewColumnType(activeItemReading.value, columnIndex, chosenColumnType, detectedColumnType);
-    activeItemReading.value = applyPreviewDecimalSeparators(typedItemReading, selectedDecimalSeparators.value, selectedColumnTypes.value); // A detected type brings back the detected separator.
+    const separatedItemReading = applyPreviewDecimalSeparators(typedItemReading, selectedDecimalSeparators.value, selectedColumnTypes.value); // A detected type brings back the detected separator.
+    activeItemReading.value = applyPreviewDateOrders(separatedItemReading, selectedDateOrders.value); // And the detected date order.
     showPreviewColumns(activeItemReading.value);
 }
 
@@ -976,6 +992,12 @@ function handleSelectNullWords(columnId: string, areNullWordsEmpty: boolean): vo
     activeItemReading.value = applyPreviewNullWordChoice(activeItemReading.value, Number(columnId), areNullWordsEmpty);
 }
 
+// Only what a load stores changes, so the preview stays as it is.
+function handleSelectIgnored(columnId: string, isIgnored: boolean): void {
+    readingIsChanged.value = true;
+    selectedIgnoredColumns.value[columnId] = isIgnored ? true : undefined; // Not ignored is the default, so it is not saved.
+}
+
 // For a column whose values did not settle it. Only how the values read changes, so nothing is read again.
 function handleSelectDecimalSeparator(columnId: string, decimalSeparatorValue: string): void {
     if (activeItemReading.value == null) return;
@@ -985,6 +1007,18 @@ function handleSelectDecimalSeparator(columnId: string, decimalSeparatorValue: s
     selectedDecimalSeparators.value[columnId] = chosenDecimalSeparatorId;
     const decimalSeparatorId = chosenDecimalSeparatorId ?? detectedColumnTypes.value.at(columnIndex)?.decimalSeparatorId;
     activeItemReading.value = applyPreviewDecimalSeparator(activeItemReading.value, columnIndex, decimalSeparatorId, selectedColumnTypes.value[columnId] != null);
+    showPreviewColumns(activeItemReading.value);
+}
+
+// For a column whose dates did not settle it. Only how the values read changes, so nothing is read again.
+function handleSelectDateOrder(columnId: string, dateOrderValue: string): void {
+    if (activeItemReading.value == null) return;
+    const columnIndex = Number(columnId);
+    readingIsChanged.value = true;
+    const chosenDateOrderId = dateOrderValue === AUTO_OPTION_ID ? undefined : (dateOrderValue as DateOrderId); // The other options are both orders.
+    selectedDateOrders.value[columnId] = chosenDateOrderId;
+    const dateOrderId = chosenDateOrderId ?? detectedColumnTypes.value.at(columnIndex)?.dateOrderId;
+    activeItemReading.value = applyPreviewDateOrder(activeItemReading.value, columnIndex, dateOrderId);
     showPreviewColumns(activeItemReading.value);
 }
 
@@ -1075,7 +1109,7 @@ function constructValueDecimalPadding(columnId: string, rowIndex: number): Retur
     const columnConfig = activeItemReading.value?.columnConfigs[Number(columnId)];
     const isPadded = columnConfig?.dataTypeId === 'numeric' && constructValueState(columnId, rowIndex) === 'valid';
     if (!isPadded) return undefined;
-    const valuePadding = constructDecimalPadding(findRecordValue(columnId, rowIndex), columnConfig, constructColumnEnding(columnConfig.formats));
+    const valuePadding = constructDecimalPadding(findRecordValue(columnId, rowIndex), columnConfig, constructColumnEnding(columnConfig.validFormats));
     return valuePadding.hiddenPadding === '' && valuePadding.shownPadding === '' ? undefined : valuePadding;
 }
 
@@ -1085,14 +1119,15 @@ function isValueEmpty(columnId: string, rowIndex: number): boolean {
     return (valueState === 'blank' || valueState === 'missing') && findRecordValue(columnId, rowIndex).trim() === '';
 }
 
-// No value is missing. Only the whole item can show that.
-function isRequiredColumn(columnId: string): boolean {
-    return activeContentAuditConfig.value?.isComplete === true && activeItemReading.value?.columnConfigs[Number(columnId)]?.isRequired === true;
+// Every record has a value that loads. Only the whole item can show that.
+function isCompleteColumn(columnId: string): boolean {
+    const columnIndex = Number(columnId);
+    return activeContentAuditConfig.value?.isComplete === true && activeItemReading.value != null && isColumnComplete(activeItemReading.value, columnIndex, detectedColumnTypes.value[columnIndex]);
 }
 
 // Every value is unique and none is missing, so the column could identify each record.
 function isKeyColumn(columnId: string): boolean {
-    return isRequiredColumn(columnId) && activeItemReading.value?.columnConfigs[Number(columnId)]?.isUnique === true;
+    return isCompleteColumn(columnId) && activeItemReading.value?.columnConfigs[Number(columnId)]?.validIsUnique === true;
 }
 
 // The detail opens in the tab the user is in, so they keep their place. The table scrolls the clicked column's tab into
@@ -1215,7 +1250,13 @@ function constructEditedDataViewConfig(): DataViewConfig | undefined {
         readingConfig,
         sampleConfig: constructSampleConfig(itemReading),
         contentAuditConfig,
-        columnChoiceConfigs: constructColumnChoiceConfigs(selectedColumnTypes.value, selectedDecimalSeparators.value, selectedNullWords.value)
+        columnChoiceConfigs: constructColumnChoiceConfigs(
+            selectedColumnTypes.value,
+            selectedDecimalSeparators.value,
+            selectedNullWords.value,
+            selectedDateOrders.value,
+            selectedIgnoredColumns.value
+        )
     };
 }
 
@@ -1372,6 +1413,31 @@ function constructColumnTypeOptions(columnId: string): SelectOption[] {
     return [constructAutoOption(detectedColumnType == null ? undefined : constructColumnTypeLabel(detectedColumnType)), ...options];
 }
 
+// A column of dates or date-times can be read in either order. Auto names the one detected. A time has no day or month.
+function constructDateOrderOptions(columnId: string): SelectOption[] {
+    const columnConfig = activeItemReading.value?.columnConfigs.at(Number(columnId));
+    if (columnConfig?.dataTypeId !== 'temporal' || (columnConfig.dataSubtypeId !== 'date' && columnConfig.dataSubtypeId !== 'dateTime') || isDerivedColumn(columnConfig)) return [];
+    const detectedDateOrderId = detectedColumnTypes.value.at(Number(columnId))?.dateOrderId;
+    return [
+        constructAutoOption(detectedDateOrderId == null ? undefined : constructDateOrderLabel(detectedDateOrderId)),
+        { id: 'dayFirst', label: constructDateOrderLabel('dayFirst') },
+        { id: 'monthFirst', label: constructDateOrderLabel('monthFirst') }
+    ];
+}
+
+function constructDateOrderLabel(dateOrderId: DateOrderId): string {
+    return t(TEXT, dateOrderId === 'dayFirst' ? 'dateOrder.dayFirst.label' : 'dateOrder.monthFirst.label');
+}
+
+function constructDateOrderValue(columnId: string): string {
+    return selectedDateOrders.value[columnId] ?? AUTO_OPTION_ID;
+}
+
+// The order changes nothing unless some of the column's dates could be read either way, such as 03/04/2024.
+function isDateOrderFixed(columnId: string): boolean {
+    return activeItemReading.value?.columnConfigs.at(Number(columnId))?.dateReadings == null;
+}
+
 // A column of numbers can be read with either decimal separator. Auto names the one detected. A derived column holds
 // no numbers of its own.
 function constructDecimalSeparatorOptions(columnId: string): SelectOption[] {
@@ -1419,8 +1485,17 @@ function constructColumnTypeIcon(columnId: string): Component | undefined {
 }
 
 function addColumnTypesResetIssue(itemReading: ItemReading): ItemReading {
-    const issue: SampleIssue = { id: COLUMN_TYPES_RESET_ISSUE_ID, lineNumber: undefined, message: 'The column types were reset by the new reading.', severityId: 'info' };
-    return { ...itemReading, issues: [...(itemReading.issues ?? []), issue] };
+    const issue: SampleIssue = {
+        endLineNumber: undefined,
+        fieldNumber: undefined,
+        id: COLUMN_TYPES_RESET_ISSUE_ID,
+        lineNumber: undefined,
+        message: 'The column types were reset by the new reading.',
+        recordNumber: undefined,
+        severityId: 'info',
+        value: undefined
+    };
+    return { ...itemReading, issues: [...itemReading.issues, issue] };
 }
 
 // Auto, naming what detection found once it is known. A closed select shows only the value, to save room, and its muted
@@ -1554,7 +1629,7 @@ async function recountPreviewColumns(itemReading: ItemReading, hasHeaders: boole
     if (!activeConnectionConfig.value) return applyPreviewHeaders(itemReading, hasHeaders);
     const { processRequest } = await establishEngineWorker();
     const options: RecountPreviewColumnsOptions = { hasHeaders, parsedRecords: itemReading.parsedRecords };
-    const columnConfigs = (await processRequest('recountPreviewColumns', activeConnectionConfig.value, options)) as ObjectColumnConfig[];
+    const columnConfigs = (await processRequest('recountPreviewColumns', activeConnectionConfig.value, options)) as ColumnAuditConfig[];
     return applyPreviewHeaders({ ...itemReading, columnConfigs }, hasHeaders);
 }
 
@@ -1594,22 +1669,25 @@ function applySavedAudit(itemReading: ItemReading, connectionNodeConfig: Connect
     }
     activeContentAuditConfig.value = savedContentAuditConfig;
     selectedColumnTypes.value = constructChosenColumnTypes(savedConfig);
+    selectedDateOrders.value = constructChosenDateOrders(savedConfig.columnChoiceConfigs);
     selectedDecimalSeparators.value = constructChosenDecimalSeparators(savedConfig.columnChoiceConfigs);
     selectedNullWords.value = constructChosenNullWords(savedConfig.columnChoiceConfigs);
+    selectedIgnoredColumns.value = constructChosenIgnoredColumns(savedConfig.columnChoiceConfigs);
     return applyAuditColumns(itemReading, savedContentAuditConfig.columns);
 }
 
 // Puts an audit's columns on the item, keeping the types and decimal separators the user chose.
-function applyAuditColumns(itemReading: ItemReading, columnConfigs: ObjectColumnConfig[]): ItemReading {
+function applyAuditColumns(itemReading: ItemReading, columnConfigs: ColumnAuditConfig[]): ItemReading {
     const columnItemReading = applyPreviewHeaders({ ...itemReading, columnConfigs }, itemReading.hasHeaders === true);
     detectedColumnTypes.value = constructDetectedColumnTypes(columnItemReading);
     return applyChosenColumns(columnItemReading);
 }
 
-// The types first, because putting a detected type back also puts back the detected decimal separator.
+// The types first, because putting a detected type back also puts back the detected date order and decimal separator.
 function applyChosenColumns(itemReading: ItemReading): ItemReading {
     const typedItemReading = applyPreviewColumnTypes(itemReading, selectedColumnTypes.value, detectedColumnTypes.value);
-    return applyPreviewNullWordChoices(applyPreviewDecimalSeparators(typedItemReading, selectedDecimalSeparators.value, selectedColumnTypes.value), selectedNullWords.value);
+    const separatedItemReading = applyPreviewDecimalSeparators(typedItemReading, selectedDecimalSeparators.value, selectedColumnTypes.value);
+    return applyPreviewNullWordChoices(applyPreviewDateOrders(separatedItemReading, selectedDateOrders.value), selectedNullWords.value);
 }
 
 // Reads up to the preview's limit, the same way the item is read now, and shows the larger records and text. Nothing to do
@@ -1643,7 +1721,7 @@ async function readLargerPreview(): Promise<AuditObjectContentResult | undefined
         const largerReading = await applyHeaders(detectedReading, itemReading.hasHeaders === true || headersAreFound);
         if (currentRequestId !== previewRequestId.value) return;
         activeItemReading.value = applyPreviewHeaders(
-            { ...itemReading, issues: largerReading.issues ?? [], parsedRecords: largerReading.parsedRecords, size: largerReading.size, text: largerReading.text },
+            { ...itemReading, issues: largerReading.issues, parsedRecords: largerReading.parsedRecords, size: largerReading.size, text: largerReading.text },
             largerReading.hasHeaders === true
         );
         text.value = largerReading.text;
@@ -1710,7 +1788,7 @@ function constructSavedDecimalSeparators(connectionNodeConfig: ConnectionNodeCon
 }
 
 function constructDetectedColumnTypes({ columnConfigs }: ItemReading): DetectedColumnType[] {
-    return columnConfigs.map(({ dataSubtypeId, dataTypeId, decimalSeparatorId }) => ({ dataSubtypeId, dataTypeId, decimalSeparatorId }));
+    return columnConfigs.map(({ dataSubtypeId, dataTypeId, dateOrderId, decimalSeparatorId }) => ({ dataSubtypeId, dataTypeId, dateOrderId, decimalSeparatorId }));
 }
 
 // A new read choice stays on the current tab, so the user can compare the readings, unless the new reading disables it.
@@ -1728,7 +1806,7 @@ function applyItemReading(itemReading: ItemReading, isNewReadChoice: boolean): v
 function constructPreviewColumnWidth(itemReading: ItemReading, label: string, columnIndex: number): number {
     const columnConfig = itemReading.columnConfigs[columnIndex];
     const isNumeric = columnConfig.dataTypeId === 'numeric';
-    const columnEnding = isNumeric ? constructColumnEnding(columnConfig.formats) : '';
+    const columnEnding = isNumeric ? constructColumnEnding(columnConfig.validFormats) : '';
     const dataOffset = itemReading.hasHeaders === true ? 1 : 0;
     const values = itemReading.parsedRecords.slice(dataOffset).map((record) => {
         const value = record[columnIndex]?.value ?? '';
@@ -1782,7 +1860,7 @@ function establishFirstPreviewTabId(itemReading: ItemReading): PreviewTabId {
     if (requestedColumnIndex != null) {
         selectedColumnIndex.value = requestedColumnIndex; // Sent here to check this column, whose detail opens over the table.
     }
-    const tableIsUsable = itemReading.parsedRecords.length > 0 && (itemReading.issues ?? []).every((issue) => issue.severityId !== 'error');
+    const tableIsUsable = itemReading.parsedRecords.length > 0 && itemReading.issues.every((issue) => issue.severityId !== 'error');
     return tableIsUsable && TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId) ? 'table' : 'text';
 }
 
@@ -2248,12 +2326,12 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 >{{ previewTableColumnDefinitions[Number(columnId)]?.header }}</ActionWrapper
                             >
                         </template>
-                        <!-- Mandatory and Key ─ Only after a whole audit, because the rest of the item could still lack or repeat a
-                         value. A key is always mandatory, so 'isRequiredColumn' covers both. The value bar is placed on the
+                        <!-- Complete and Key ─ Only after a whole audit, because the rest of the item could still lack or repeat a
+                         value. A key is always complete, so 'isCompleteColumn' covers both. The value bar is placed on the
                          header cell, along its bottom edge, so it sits here only to be in the cell. -->
                         <template #header-label-end="{ columnId }">
-                            <span v-if="isRequiredColumn(columnId)" class="ml-1 flex flex-none items-center gap-x-0.5 text-muted">
-                                <span :aria-label="t(TEXT, 'columnRequired.aria')" role="img" :title="t(TEXT, 'columnRequired.aria')">
+                            <span v-if="isCompleteColumn(columnId)" class="ml-1 flex flex-none items-center gap-x-0.5 text-muted">
+                                <span :aria-label="t(TEXT, 'columnComplete.aria')" role="img" :title="t(TEXT, 'columnComplete.aria')">
                                     <AsteriskIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
                                 </span>
                                 <span v-if="isKeyColumn(columnId)" :aria-label="t(TEXT, 'columnKey.aria')" role="img" :title="t(TEXT, 'columnKey.aria')">
@@ -2321,11 +2399,16 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 v-if="selectedColumnIndex != null && activeItemReading != null"
                                 class="pointer-events-auto absolute inset-0 bg-surface shadow-md"
                                 :column-index="selectedColumnIndex"
-                                :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
+                                :date-order-options="constructDateOrderOptions(String(selectedColumnIndex))"
+                                :date-order-value="constructDateOrderValue(String(selectedColumnIndex))"
+                                                                :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
                                 :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
                                 :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
                                 :has-next-column="selectedColumnStepIndex != null && selectedColumnStepIndex < tableColumnIndexes.length - 1"
                                 :has-previous-column="selectedColumnStepIndex != null && selectedColumnStepIndex > 0"
+                                :is-audit-complete="activeContentAuditConfig?.isComplete === true"
+                                :is-date-order-disabled="isDateOrderFixed(String(selectedColumnIndex))"
+                                :is-ignored="selectedIgnoredColumns[String(selectedColumnIndex)] === true"
                                 :is-type-disabled="readChoicesAreLocked || isDerivedColumn(activeItemReading.columnConfigs[selectedColumnIndex]!)"
                                 :item-reading="activeItemReading"
                                 :null-word-reading="constructNullWordReading(String(selectedColumnIndex))"
@@ -2333,7 +2416,9 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
                                 @close="selectedColumnIndex = undefined"
                                 @step="handleStepColumn"
+                                @update:date-order-value="handleSelectDateOrder(String(selectedColumnIndex), $event)"
                                 @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
+                                @update:is-ignored="handleSelectIgnored(String(selectedColumnIndex), $event)"
                                 @update:null-words-are-empty="handleSelectNullWords(String(selectedColumnIndex), $event)"
                                 @update:type-value="handleSelectColumnType(String(selectedColumnIndex), $event)"
                             />
