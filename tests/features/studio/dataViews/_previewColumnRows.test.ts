@@ -81,7 +81,7 @@ describe('constructPreviewColumnRows', () => {
             invalidValueCount: 1,
             invalidValues: { none: 'string.plain' },
             formatIssueIds: ['decimalSeparatorUnproven'],
-            isComplete: false,
+            hasMissingValues: true,
             validIsUnique: false,
             validMaxDecimals: 2,
             validMaxWholeDigits: 2,
@@ -166,14 +166,14 @@ describe('isColumnComplete', () => {
     const detectedText = { dataSubtypeId: 'plain', dataTypeId: 'string' } as const;
 
     it('is complete when the audit found every value, and the type in use fits them all', () => {
-        const textReading = buildItemReading(false, { dataSubtypeId: 'plain', dataTypeId: 'string', inferenceCounts: { 'string.plain': 3 }, isComplete: true });
+        const textReading = buildItemReading(false, { dataSubtypeId: 'plain', dataTypeId: 'string', inferenceCounts: { 'string.plain': 3 }, hasMissingValues: false });
 
         expect(isColumnComplete(textReading, 0, detectedText)).toBe(true);
-        expect(isColumnComplete(buildItemReading(false, { dataTypeId: 'string', isComplete: false }), 0, detectedText)).toBe(false);
+        expect(isColumnComplete(buildItemReading(false, { dataTypeId: 'string', hasMissingValues: true }), 0, detectedText)).toBe(false);
     });
 
     it('is not complete when a chosen type leaves values that load empty', () => {
-        const itemReading = buildItemReading(false, { dataSubtypeId: 'integer', dataTypeId: 'numeric', inferenceCounts: { 'numeric.integer': 6, 'string.plain': 1 }, isComplete: true });
+        const itemReading = buildItemReading(false, { dataSubtypeId: 'integer', dataTypeId: 'numeric', inferenceCounts: { 'numeric.integer': 6, 'string.plain': 1 }, hasMissingValues: false });
 
         expect(isColumnComplete(itemReading, 0, detectedText)).toBe(false);
     });

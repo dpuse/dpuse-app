@@ -160,8 +160,8 @@ function applyNullWordChoice(columnConfig: ColumnAuditConfig, areNullWordsEmpty:
     const missingValueCount = (columnConfig.missingValueCount ?? 0) + movedCount;
     return {
         ...columnConfig,
+        hasMissingValues: (columnConfig.blankValueCount ?? 0) + missingValueCount > 0 || (columnConfig.invalidValueCount ?? 0) > 0,
         inferenceCounts: { ...columnConfig.inferenceCounts, 'string.plain': (columnConfig.inferenceCounts['string.plain'] ?? 0) - movedCount },
-        isComplete: (columnConfig.blankValueCount ?? 0) + missingValueCount === 0 && (columnConfig.invalidValueCount ?? 0) === 0,
         missingValueCount,
         nullWordsAreEmpty: areNullWordsEmpty,
         validValueCount: (columnConfig.validValueCount ?? 0) - movedCount

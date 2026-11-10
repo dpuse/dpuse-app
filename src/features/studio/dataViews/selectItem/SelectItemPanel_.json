@@ -125,6 +125,7 @@
         "readOption.auto.label": { "en": "Auto", "es": "Automático" },
         "readOption.autoAssumed.label": { "en": "{value} (auto, assumed)", "es": "{value} (automático, supuesta)" },
         "readOption.autoDetected.label": { "en": "{value} (auto)", "es": "{value} (automático)" },
+        "readSetting.declared.text": { "en": "Set by the source, such as a resource file beside it", "es": "Definido por el origen, como un archivo de recurso junto a él" },
         "record.one.text": { "en": "{count} record", "es": "{count} registro" },
         "record.other.text": { "en": "{count} records", "es": "{count} registros" },
         "recordDelimiter.label": { "en": "Record delimiter", "es": "Delimitador de registros" },

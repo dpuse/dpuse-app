@@ -364,15 +364,15 @@ const seenOnceText = computed(() => {
 const validCountText = computed(() => constructValueCountText(columnConfig.value?.validValueCount ?? 0, validDistinctValueCount.value));
 const invalidCountText = computed(() => constructValueCountText(columnConfig.value?.invalidValueCount ?? 0, columnConfig.value?.invalidDistinctValueCount));
 
-// ── Overview ─ Every fact is always listed, as unknown when it cannot be settled. Complete is unknown until the whole
-// item is read, because a value can be missing past the part audited.
+// ── Overview ─ Every fact is always listed, as unknown when it cannot be settled. Whether a column has missing values
+// is unknown until the whole item is read, because a value can be missing past the part audited.
 const overviewFacts = computed(() => {
     const row = columnRow.value;
     if (row == null) return [];
     const labels = headers.value;
     return [
         { label: labels.uniqueText, value: row.uniqueText },
-        { label: t(TEXT, 'complete.label'), value: formatYesNo(isAuditComplete ? isColumnComplete(itemReading, columnIndex, detectedColumnType) : undefined) }
+        { label: t(TEXT, 'missingValues.label'), value: formatYesNo(isAuditComplete ? !isColumnComplete(itemReading, columnIndex, detectedColumnType) : undefined) }
     ];
 });
 

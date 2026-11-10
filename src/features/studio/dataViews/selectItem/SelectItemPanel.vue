@@ -18,6 +18,7 @@ import {
     CircleStopIcon,
     DatabaseIcon,
     FileIcon,
+    FileTextIcon,
     FolderIcon,
     InfoIcon,
     KeyRoundIcon,
@@ -177,6 +178,15 @@ interface PreviewTab {
 }
 
 type PreviewTabId = 'table' | 'text' | 'details';
+
+// A read setting shown as text, for an item whose source says how it is read.
+interface FixedReadSetting {
+    icon: Component;
+    iconProps?: Record<string, unknown>;
+    id: string;
+    labelKey: keyof typeof TEXT; // Read out before the value, because the icon alone does not name the setting.
+    value: string;
+}
 
 interface FormatSupport {
     ariaKey: keyof typeof TEXT;
@@ -399,6 +409,10 @@ const itemSubject = computed(() => activeConnectionConfig.value?.connectorConfig
 // settings to choose, such as its format or encoding.
 const itemIsTable = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId === 'table');
 
+// An item's source can also say how it is read, such as a resource file beside a file. The toolbar then shows the
+// settings as text rather than as choices that would change nothing.
+const readingIsFixed = computed(() => itemIsTable.value || activeItemReading.value?.isDeclared === true);
+
 // Every item shows the icon for the connector's kind of item, as the summary row does. A file's real format is only
 // known once it is previewed, so its name extension is not used to guess one.
 const itemTypeIcon = computed(() => {
@@ -521,8 +535,33 @@ const valueDelimiterOptions = computed<SelectOption[]>(() => {
     const options: SelectOption[] = VALUE_DELIMITER_CONFIGS.map(({ id }) => ({ id, label: constructValueDelimiterLabel(id) }));
     return [constructAutoOption(detectedId == null ? undefined : constructValueDelimiterLabel(detectedId)), ...options];
 });
-const valueDelimiterIsChoosable = computed(() => !itemIsTable.value && activeItemReading.value?.dataFormatId === 'dtv');
-const previewHeadersAreChoosable = computed(() => !itemIsTable.value && activeItemReading.value?.dataFormatId === 'dtv' && activeItemReading.value.parsedRecords.length > 0);
+const valueDelimiterIsChoosable = computed(() => !readingIsFixed.value && activeItemReading.value?.dataFormatId === 'dtv');
+const previewHeadersAreChoosable = computed(() => !readingIsFixed.value && activeItemReading.value?.dataFormatId === 'dtv' && activeItemReading.value.parsedRecords.length > 0);
+
+// The format, encoding, value delimiter and headers, in the order of their choices, with the same icons. Only delimited
+// text has a value delimiter and headers.
+const fixedReadSettings = computed((): FixedReadSetting[] => {
+    const itemReading = activeItemReading.value;
+    if (itemReading == null || !readingIsFixed.value) return [];
+    const isDelimitedText = itemReading.dataFormatId === 'dtv';
+    const settings: (FixedReadSetting | undefined)[] = [
+        previewFormatText.value == null ? undefined : { icon: FileTextIcon, id: 'format', labelKey: 'format.label', value: previewFormatText.value },
+        itemReading.encodingId == null ? undefined : { icon: LanguagesIcon, id: 'encoding', labelKey: 'encoding.label', value: itemReading.encodingId },
+        !isDelimitedText || itemReading.valueDelimiterId == null
+            ? undefined
+            : { icon: SeparatorVerticalIcon, id: 'valueDelimiter', labelKey: 'valueDelimiter.label', value: constructValueDelimiterLabel(itemReading.valueDelimiterId) },
+        !isDelimitedText || itemReading.hasHeaders == null
+            ? undefined
+            : {
+                  icon: HeadersIcon,
+                  iconProps: { hasHeaders: itemReading.hasHeaders },
+                  id: 'headers',
+                  labelKey: 'hasHeaders.label',
+                  value: t(TEXT, itemReading.hasHeaders ? 'hasHeaders.option.yes.label' : 'hasHeaders.option.no.label')
+              }
+    ];
+    return settings.filter((setting) => setting != null);
+});
 
 // Whether the first record names the columns. Auto names what detection found. Each option names headers in full,
 // because a closed select shows only its value, and 'Yes' alone would not say what it is about.
@@ -2004,7 +2043,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                              edge. Only in the row, because in the folded popover it would put this icon out of line with
                              the icons below it. -->
                         <SelectInput
-                            v-if="previewFormatText && !itemIsTable"
+                            v-if="previewFormatText && !readingIsFixed"
                             v-model="previewDataFormatId"
                             :is-default="selectedDataFormatId == null"
                             :class="[readChoiceSelectClass, { '-ml-1.75': !readChoicesAreFolded }]"
@@ -2050,7 +2089,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             </template>
                         </SelectInput>
                         <SelectInput
-                            v-if="activeItemReading?.encodingId != null && !itemIsTable"
+                            v-if="activeItemReading?.encodingId != null && !readingIsFixed"
                             v-model="previewEncodingId"
                             :is-default="selectedEncodingId == null"
                             :class="readChoiceSelectClass"
@@ -2128,6 +2167,19 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 <HeadersIcon class="size-[1.25em] flex-none text-muted" :has-headers="previewHasHeaders" />
                             </template>
                         </SelectInput>
+                        <!-- Fixed Read Settings ─ In place of the choices above, for an item whose source says how it is
+                             read. The title says why they cannot be changed. -->
+                        <span
+                            v-for="setting in fixedReadSettings"
+                            :key="setting.id"
+                            class="flex h-7 max-w-full min-w-0 items-center gap-x-1 px-1.5 text-sm text-content"
+                            :class="readChoiceSelectClass"
+                            :title="t(TEXT, 'readSetting.declared.text')"
+                        >
+                            <component :is="setting.icon" v-bind="setting.iconProps" aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
+                            <span class="sr-only">{{ t(TEXT, setting.labelKey) }}</span>
+                            <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ setting.value }}</span>
+                        </span>
                         <!-- Store ─ Last, because it is where the records go once they are read. -->
                         <SelectInput
                             v-if="storeIsChoosable"

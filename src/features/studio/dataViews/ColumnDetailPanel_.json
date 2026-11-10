@@ -2,7 +2,6 @@
     "TEXT": {
         "bin.label": { "en": "{lower} to {upper}", "es": "{lower} a {upper}" },
         "close.aria": { "en": "Close column details", "es": "Cerrar los detalles de la columna" },
-        "complete.label": { "en": "Complete", "es": "Completa" },
         "count.estimate.text": { "en": "about {count}", "es": "unos {count}" },
         "dateOrder.label": { "en": "Date order", "es": "Orden de fecha" },
         "decimalPlaces.none.text": { "en": "no decimal places", "es": "0 decimales" },
@@ -87,6 +86,7 @@
         "length.same.text": { "en": "Every value is {length} characters long.", "es": "Todos los valores tienen {length} caracteres." },
         "length.text": { "en": "Values are {minimum} to {maximum} characters long.", "es": "Los valores tienen entre {minimum} y {maximum} caracteres." },
         "lowest.title": { "en": "Lowest", "es": "Más bajos" },
+        "missingValues.label": { "en": "Has missing values", "es": "Tiene valores faltantes" },
         "next.aria": { "en": "Next column", "es": "Columna siguiente" },
         "nullWords.label": { "en": "Read NA, N/A, None and the like as empty ({count} found)", "es": "Leer NA, N/A, None y similares como vacíos ({count} encontrados)" },
         "otherFormats.one.text": {

@@ -174,7 +174,7 @@ function formatCount(count: number | undefined, numberFormat: Intl.NumberFormat)
 
 // Every record has a value that loads. A value that does not fit a type the user chose loads empty, like an invalid one.
 export function isColumnComplete(itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders'>, columnIndex: number, detectedColumnType: ColumnType | undefined): boolean {
-    return itemReading.columnConfigs.at(columnIndex)?.isComplete === true && countChosenTypeMisfits(itemReading, columnIndex, detectedColumnType) === 0;
+    return itemReading.columnConfigs.at(columnIndex)?.hasMissingValues === false && countChosenTypeMisfits(itemReading, columnIndex, detectedColumnType) === 0;
 }
 
 // A fact the engine could not settle says so, rather than leaving its row out.
