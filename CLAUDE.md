@@ -199,6 +199,8 @@ Using the strings:
 - **No raw ids on screen.** Turn ids into labels with the dpuse-shared helpers, passing `localeId.value`:
   `constructConnectorCategoryConfig`, `constructConnectorUsageConfig`, `getComponentStatus`. Hide a status tag whose
   label is empty.
+- **Unknown, never hidden.** A list of facts always shows every fact. A value that cannot be known says 'Unknown'. It
+  is never left blank or dropped, because a missing row reads as "not there", not "not known".
 - **Translate in a `computed`** that reads `localeId.value`, never in a watcher or on load. Translating re-creates the
   objects, so a watcher on a selection watches its id, not the object.
 - **TODOs about JSON contents** go as a trailing comment on the import line, naming the key and languages, because

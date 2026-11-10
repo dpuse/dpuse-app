@@ -2,7 +2,7 @@
 import type { Component } from 'vue';
 
 // ── DPUse Framework
-import type { ColumnAuditConfig, DataSubtypeId, DataTypeId, StorageTypeId } from '@dpuse/dpuse-shared';
+import type { ColumnAuditConfig, DataSubtypeId, DataTypeId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { TEXT } from './_previewColumnRows_.json';
@@ -45,7 +45,6 @@ export const PREVIEW_COLUMN_KEYS = [
     'blankValueText',
     'missingValueText',
     'uniqueText',
-    'storageTypeLabel',
     'readingText',
     'formatText'
 ] as const;
@@ -84,26 +83,6 @@ const DATA_SUBTYPE_LABEL_KEYS: Record<DataSubtypeId, keyof typeof TEXT> = {
     uuid: 'dataSubtype.uuid.label'
 };
 
-const STORAGE_TYPE_LABEL_KEYS: Record<StorageTypeId, keyof typeof TEXT> = {
-    binary: 'storageType.binary.label',
-    boolean: 'storageType.boolean.label',
-    byte: 'storageType.byte.label',
-    date: 'storageType.date.label',
-    dateTime: 'storageType.dateTime.label',
-    dateTimeOffset: 'storageType.dateTimeOffset.label',
-    decimal: 'storageType.decimal.label',
-    double: 'storageType.double.label',
-    int8: 'storageType.int8.label',
-    int16: 'storageType.int16.label',
-    int32: 'storageType.int32.label',
-    int64: 'storageType.int64.label',
-    object: 'storageType.object.label',
-    single: 'storageType.single.label',
-    string: 'storageType.string.label',
-    time: 'storageType.time.label',
-    unknown: 'storageType.unknown.label'
-};
-
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function constructDataTypeLabel(dataTypeId: DataTypeId): string {
@@ -125,7 +104,6 @@ export function constructPreviewColumnHeaders(): PreviewColumnRow {
         label: t(TEXT, 'column.label'),
         missingValueText: t(TEXT, 'column.missingValues.label'),
         readingText: t(TEXT, 'column.reading.label'),
-        storageTypeLabel: t(TEXT, 'column.storageType.label'),
         uniqueText: t(TEXT, 'column.unique.label')
     };
 }
@@ -145,7 +123,6 @@ export function constructPreviewColumnRows(itemReading: Pick<ItemReading, 'colum
             blankValueText: formatCount(columnConfig.blankValueCount, numberFormat),
             missingValueText: formatCount(columnConfig.missingValueCount, numberFormat),
             uniqueText: formatYesNo(columnConfig.validIsUnique),
-            storageTypeLabel: columnConfig.storageTypeId == null ? '' : t(TEXT, STORAGE_TYPE_LABEL_KEYS[columnConfig.storageTypeId]),
             readingText: constructReadingText(columnConfig),
             formatText: formatCounts(columnConfig.validFormats, numberFormat)
         };
@@ -200,8 +177,9 @@ export function isColumnComplete(itemReading: Pick<ItemReading, 'columnConfigs' 
     return itemReading.columnConfigs.at(columnIndex)?.isComplete === true && countChosenTypeMisfits(itemReading, columnIndex, detectedColumnType) === 0;
 }
 
+// A fact the engine could not settle says so, rather than leaving its row out.
 export function formatYesNo(isTrue: boolean | undefined): string {
-    if (isTrue == null) return '';
+    if (isTrue == null) return t(TEXT, 'answer.unknown.label');
     return t(TEXT, isTrue ? 'answer.yes.label' : 'answer.no.label');
 }
 
@@ -214,12 +192,12 @@ function formatCounts(counts: Record<string, number> | undefined, numberFormat: 
 }
 
 // How values that could be taken two ways are read. It says so when the column's own values did not settle it.
-function constructReadingText({ dateOrderId, decimalSeparatorId, isFormatAmbiguous }: ColumnAuditConfig): string {
+function constructReadingText({ dateOrderId, decimalSeparatorId, formatIssueIds }: ColumnAuditConfig): string {
     const readings: string[] = [];
     if (dateOrderId != null) readings.push(t(TEXT, dateOrderId === 'dayFirst' ? 'reading.dayFirst.text' : 'reading.monthFirst.text'));
     if (decimalSeparatorId != null) readings.push(t(TEXT, decimalSeparatorId === ',' ? 'reading.decimalComma.text' : 'reading.decimalPoint.text'));
     const readingText = readings.join(', ');
-    if (isFormatAmbiguous !== true) return readingText;
+    if ((formatIssueIds?.length ?? 0) === 0) return readingText;
     return readingText === '' ? t(TEXT, 'reading.unclearOnly.text') : t(TEXT, 'reading.unclear.text', { reading: readingText }); // A column of mixed currencies, say, has no reading to name.
 }
 

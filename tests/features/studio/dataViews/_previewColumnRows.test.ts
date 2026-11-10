@@ -80,20 +80,18 @@ describe('constructPreviewColumnRows', () => {
             validFrequentValues: { '7': 2 },
             invalidValueCount: 1,
             invalidValues: { none: 'string.plain' },
-            isFormatAmbiguous: true,
+            formatIssueIds: ['decimalSeparatorUnproven'],
             isComplete: false,
             validIsUnique: false,
             validMaxDecimals: 2,
             validMaxWholeDigits: 2,
             validMinDecimals: 2,
-            validMinWholeDigits: 1,
-            storageTypeId: 'int32'
+            validMinWholeDigits: 1
         });
 
         expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({
             formatText: '9999,9 (5), 9999 (3)',
             readingText: 'Decimal comma (unclear, check this column)',
-            storageTypeLabel: '32-bit integer',
             uniqueText: 'No'
         });
     });
@@ -105,7 +103,7 @@ describe('constructPreviewColumnRows', () => {
     });
 
     it('calls a column unclear on its own when there is no reading to name', () => {
-        const itemReading = buildItemReading(false, { dataTypeId: 'numeric', isFormatAmbiguous: true });
+        const itemReading = buildItemReading(false, { dataTypeId: 'numeric', formatIssueIds: ['currencyMixed'] });
 
         expect(constructPreviewColumnRows(itemReading)[0]?.readingText).toBe('Unclear, check this column');
     });

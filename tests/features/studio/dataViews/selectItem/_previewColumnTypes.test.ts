@@ -86,8 +86,8 @@ describe('applyPreviewDecimalSeparators', () => {
 
 describe('applyPreviewDecimalSeparator', () => {
     const NUMERIC_READINGS = {
-        ',': { dataSubtypeId: 'integer', validMaxDecimals: 0, storageTypeId: 'int16' },
-        '.': { dataSubtypeId: 'decimal', validMaxDecimals: 3, storageTypeId: 'double' }
+        ',': { dataSubtypeId: 'integer', validMaxDecimals: 0 },
+        '.': { dataSubtypeId: 'decimal', validMaxDecimals: 3 }
     };
     const READ_ITEM = {
         columnConfigs: [
@@ -99,8 +99,7 @@ describe('applyPreviewDecimalSeparator', () => {
         expect(applyPreviewDecimalSeparator(READ_ITEM, 0, ',').columnConfigs[0]).toMatchObject({
             dataSubtypeId: 'integer',
             decimalSeparatorId: ',',
-            validMaxDecimals: 0,
-            storageTypeId: 'int16'
+            validMaxDecimals: 0
         });
     });
 

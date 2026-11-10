@@ -10,6 +10,16 @@
         "decimalPlaces.other.text": { "en": "{count} decimal places", "es": "{count} decimales" },
         "decimalPlaces.range.text": { "en": "{minimum} to {maximum} decimal places", "es": "entre {minimum} y {maximum} decimales" },
         "decimalSeparator.label": { "en": "Decimal separator", "es": "Separador decimal" },
+        "declared.misfit.one.text": {
+            "en": "1 value does not fit the chosen type and will load empty. Stated by the source as {type}",
+            "es": "1 valor no encaja en el tipo elegido y se cargará vacío. Indicado por el origen como {type}"
+        },
+        "declared.misfit.other.text": {
+            "en": "{count} values do not fit the chosen type and will load empty. Stated by the source as {type}",
+            "es": "{count} valores no encajan en el tipo elegido y se cargarán vacíos. Indicado por el origen como {type}"
+        },
+        "declared.text": { "en": "Stated by the source as {type}", "es": "Indicado por el origen como {type}" },
+        "declared.type.text": { "en": "Type stated by the source", "es": "Tipo indicado por el origen" },
         "detected.misfit.one.text": {
             "en": "1 value does not fit the chosen type and will load empty. Detected as {type}",
             "es": "1 valor no encaja en el tipo elegido y se cargará vacío. Detectado como {type}"
@@ -25,7 +35,46 @@
         "edgeCount.all.text": { "en": "All {count} distinct", "es": "Los {count} distintos" },
         "edgeCount.shown.text": { "en": "{shown} shown", "es": "{shown} mostrados" },
         "edgeCount.text": { "en": "{shown} of {distinctCount} distinct", "es": "{shown} de {distinctCount} distintos" },
-        "formatUnclear.label": { "en": "Format unclear", "es": "Formato dudoso" },
+        "formatIssue.booleanPairMixed.text": {
+            "en": "Yes/no values are written in more than one way, such as 'true' and 'no'. The column may join two sources.",
+            "es": "Los valores sí/no se escriben de más de una forma, como 'true' y 'no'. La columna puede unir dos orígenes."
+        },
+        "formatIssue.currencyMixed.text": {
+            "en": "Values are in more than one currency, so they cannot be added up.",
+            "es": "Los valores están en más de una moneda, así que no se pueden sumar."
+        },
+        "formatIssue.dateOrderMixed.text": {
+            "en": "Some dates put the day first and others the month. Check the date order.",
+            "es": "Algunas fechas ponen primero el día y otras el mes. Revise el orden de fecha."
+        },
+        "formatIssue.dateOrderUnproven.text": {
+            "en": "No date shows whether the day or the month comes first, so your browser's setting is used. Check the date order.",
+            "es": "Ninguna fecha muestra si va primero el día o el mes, así que se usa la configuración del navegador. Revise el orden de fecha."
+        },
+        "formatIssue.decimalSeparatorMixed.text": {
+            "en": "Some values use a decimal comma and others a decimal point. Check the decimal separator.",
+            "es": "Algunos valores usan coma decimal y otros punto decimal. Revise el separador decimal."
+        },
+        "formatIssue.decimalSeparatorUnproven.text": {
+            "en": "No value shows whether a comma or a point marks the decimals, so your browser's setting is used. Check the decimal separator.",
+            "es": "Ningún valor muestra si los decimales se marcan con coma o con punto, así que se usa la configuración del navegador. Revise el separador decimal."
+        },
+        "formatIssue.decimalSeparatorWeaklyProven.text": {
+            "en": "Only a few values show the decimal separator, yet they decide how many more are read. Check the decimal separator.",
+            "es": "Solo unos pocos valores muestran el separador decimal, pero deciden cómo se leen muchos más. Revise el separador decimal."
+        },
+        "formatIssue.none.text": {
+            "en": "Format is clear. Every value reads only one way.",
+            "es": "Formato claro. Cada valor se lee de una sola manera."
+        },
+        "formatIssue.percentageMixed.text": {
+            "en": "Percentages and plain numbers are mixed, so values may be on different scales, such as 50% and 50.",
+            "es": "Se mezclan porcentajes y números simples, así que los valores pueden estar en escalas distintas, como 50% y 50."
+        },
+        "formatIssue.scientificNotationMixed.text": {
+            "en": "A few values are in scientific notation, such as 12E4, among plain numbers. They may be codes rather than numbers.",
+            "es": "Algunos valores están en notación científica, como 12E4, entre números simples. Pueden ser códigos y no números."
+        },
         "highest.title": { "en": "Highest", "es": "Más altos" },
         "histogram.aria": { "en": "How many values fall in each range", "es": "Cuántos valores caen en cada rango" },
         "ignore.label": { "en": "Ignore when loading", "es": "Ignorar al cargar" },
@@ -52,7 +101,8 @@
         "outliers.above.label": { "en": "{value} and above", "es": "{value} o más" },
         "outliers.below.label": { "en": "Below {value}", "es": "Por debajo de {value}" },
         "previous.aria": { "en": "Previous column", "es": "Columna anterior" },
-        "seenOnce.label": { "en": "Seen once", "es": "Vistos una vez" },
+        "seenOnce.one.text": { "en": "1 value is seen only once.", "es": "1 valor aparece una sola vez." },
+        "seenOnce.other.text": { "en": "{count} values are seen only once.", "es": "{count} valores aparecen una sola vez." },
         "singleValues.text": { "en": "{listed} of the {count} values seen only once are listed.", "es": "Se muestran {listed} de los {count} valores que aparecen una sola vez." },
         "tab.formats.label": { "en": "Formats", "es": "Formatos" },
         "tab.invalidCount.label": { "en": "({count})", "es": "({count})" },

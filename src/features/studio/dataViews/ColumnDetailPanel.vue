@@ -4,7 +4,7 @@ import { ArrowDownNarrowWideIcon, ArrowDownWideNarrowIcon, ChevronLeftIcon, Chev
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
-import type { ColumnAuditConfig } from '@dpuse/dpuse-shared';
+import type { ColumnAuditConfig, FormatIssueId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { TEXT } from './ColumnDetailPanel_.json';
@@ -52,6 +52,17 @@ const DAY_MILLISECONDS = 86_400_000;
 const EDGE_VALUE_COUNT = 20; // Values listed at each end, all the engine keeps.
 const VALUE_READERS: Partial<Record<string, (value: string) => number>> = { numeric: Number, temporal: Date.parse }; // How a valid value of each type is read for sorting.
 const FORMAT_ROW_COUNT = 50; // Bars on the Formats tab. A rare format is often the one worth finding, so the list is long before the rest are summed.
+const FORMAT_ISSUE_TEXT_KEYS: Record<FormatIssueId, keyof typeof TEXT> = {
+    booleanPairMixed: 'formatIssue.booleanPairMixed.text',
+    currencyMixed: 'formatIssue.currencyMixed.text',
+    dateOrderMixed: 'formatIssue.dateOrderMixed.text',
+    dateOrderUnproven: 'formatIssue.dateOrderUnproven.text',
+    decimalSeparatorMixed: 'formatIssue.decimalSeparatorMixed.text',
+    decimalSeparatorUnproven: 'formatIssue.decimalSeparatorUnproven.text',
+    decimalSeparatorWeaklyProven: 'formatIssue.decimalSeparatorWeaklyProven.text',
+    percentageMixed: 'formatIssue.percentageMixed.text',
+    scientificNotationMixed: 'formatIssue.scientificNotationMixed.text'
+};
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -116,15 +127,20 @@ const columnRow = computed((): PreviewColumnRow | undefined => constructPreviewC
 const headers = computed(() => constructPreviewColumnHeaders());
 
 // The detected type, shown only when it differs from the type in use, so a choice that disagrees with the data is seen.
-// Values that do not fit the chosen type load as empty, so then it is a warning that says how many.
+// Values that do not fit the chosen type load as empty, so then it is a warning that says how many. A source such as an
+// application states its columns' types, so the wording says the type was stated rather than detected, and a column
+// still of the stated type says so too.
 const misfitCount = computed(() => countChosenTypeMisfits(itemReading, columnIndex, detectedColumnType));
+const isTypeDeclared = computed(() => columnConfig.value?.isTypeDeclared === true);
 const detectedTypeText = computed(() => {
     if (detectedColumnType == null || columnConfig.value == null || constructColumnTypeId(detectedColumnType) === constructColumnTypeId(columnConfig.value)) return;
     const type = constructColumnTypeLabel(detectedColumnType);
-    if (misfitCount.value === 0) return t(TEXT, 'detected.text', { type });
+    const typeSource = isTypeDeclared.value ? 'declared' : 'detected';
+    if (misfitCount.value === 0) return t(TEXT, `${typeSource}.text`, { type });
     const count = new Intl.NumberFormat(localeId.value).format(misfitCount.value);
-    return t(TEXT, misfitCount.value === 1 ? 'detected.misfit.one.text' : 'detected.misfit.other.text', { count, type });
+    return t(TEXT, misfitCount.value === 1 ? `${typeSource}.misfit.one.text` : `${typeSource}.misfit.other.text`, { count, type });
 });
+const declaredTypeText = computed(() => (isTypeDeclared.value && detectedTypeText.value == null ? t(TEXT, 'declared.type.text') : undefined));
 
 // ── Lists
 const formatRows = computed(() => constructCountRows(columnConfig.value?.validFormats));
@@ -194,6 +210,11 @@ const digitsText = computed(() => {
 
 // The notes above the formats, run together as one paragraph.
 const formatNotesText = computed(() => [lengthText.value, digitsText.value, otherFormatsText.value].filter((text) => text != null).join(' '));
+
+// Why the column's format is unclear. The engine checks only numbers, dates and yes/no values, and leaves the list
+// unset for any other column, so only a checked column is said to be clear.
+const formatIssues = computed(() => (columnConfig.value?.formatIssueIds ?? []).map((id) => ({ id, text: t(TEXT, FORMAT_ISSUE_TEXT_KEYS[id]) })));
+const isFormatChecked = computed(() => columnConfig.value?.formatIssueIds != null);
 
 // ── Values ─ Every column has the same three blocks: the invalid values, how the valid values are spread, and the
 // lowest and highest valid values. The invalid and valid values share one bar scale, so how common an invalid value is
@@ -329,25 +350,30 @@ const uniformCountText = computed(() => {
     return t(TEXT, count === 1 ? 'uniformCount.one.text' : 'uniformCount.other.text', { count: numberFormat.format(count), distinctCount: numberFormat.format(distinctCount) });
 });
 
+// How many values are seen only once, which tells names and ids, nearly all seen once, from categories. The engine
+// counts them only up to its limit. Left out when none are, and when every value appearing once is already said.
+const seenOnceText = computed(() => {
+    const count = columnConfig.value?.validSingleValueCount;
+    if (count == null || count === 0 || uniformCountText.value != null) return;
+    return t(TEXT, count === 1 ? 'seenOnce.one.text' : 'seenOnce.other.text', { count: new Intl.NumberFormat(localeId.value).format(count) });
+});
+
 // ── Headings ─ Each section's title, with its counts apart on the right, in line with the counts of its rows. The
 // distinct count beside the count shows whether the values are a few categories or mostly one-offs such as names. Past
 // the limit the engine cannot count distinct values, so then only the count is given.
 const validCountText = computed(() => constructValueCountText(columnConfig.value?.validValueCount ?? 0, validDistinctValueCount.value));
 const invalidCountText = computed(() => constructValueCountText(columnConfig.value?.invalidValueCount ?? 0, columnConfig.value?.invalidDistinctValueCount));
 
-// ── Overview ─ Complete is only known once the whole item is read, because a value can be missing past the part audited.
+// ── Overview ─ Every fact is always listed, as unknown when it cannot be settled. Complete is unknown until the whole
+// item is read, because a value can be missing past the part audited.
 const overviewFacts = computed(() => {
     const row = columnRow.value;
     if (row == null) return [];
     const labels = headers.value;
-    const singleValueCount = columnConfig.value?.validSingleValueCount;
     return [
-        { label: labels.storageTypeLabel, value: row.storageTypeLabel },
         { label: labels.uniqueText, value: row.uniqueText },
-        { label: t(TEXT, 'seenOnce.label'), value: singleValueCount == null ? '' : new Intl.NumberFormat(localeId.value).format(singleValueCount) }, // Tells names and ids, nearly all seen once, from categories.
-        { label: t(TEXT, 'complete.label'), value: isAuditComplete ? formatYesNo(isColumnComplete(itemReading, columnIndex, detectedColumnType)) : '' },
-        { label: t(TEXT, 'formatUnclear.label'), value: formatYesNo(columnConfig.value?.isFormatAmbiguous === true) } // The engine leaves it unset when nothing was unclear.
-    ].filter((fact) => fact.value !== '');
+        { label: t(TEXT, 'complete.label'), value: formatYesNo(isAuditComplete ? isColumnComplete(itemReading, columnIndex, detectedColumnType) : undefined) }
+    ];
 });
 
 // ── Tabs ─ A tab with nothing to show is left out. The invalid count stays visible on Values, in the danger colour, so a
@@ -361,7 +387,7 @@ const detailTabs = computed(() => {
         {
             id: 'formats' as const,
             invalidCountText: undefined,
-            isShown: formatRows.value.length > 0 || formatNotesText.value !== '',
+            isShown: formatRows.value.length > 0 || formatNotesText.value !== '' || formatIssues.value.length > 0,
             label: t(TEXT, 'tab.formats.label')
         }
     ].filter((tab) => tab.isShown);
@@ -620,6 +646,7 @@ function constructValueChartRows(
                         <TriangleAlertIcon v-if="misfitCount > 0" aria-hidden="true" class="mt-0.5 size-4 flex-none" :stroke-width="1.5" />
                         {{ detectedTypeText }}
                     </p>
+                    <p v-else-if="declaredTypeText" class="mt-1 mb-0 text-muted">{{ declaredTypeText }}</p>
                     <SelectInput
                         v-if="decimalSeparatorOptions.length > 0 && decimalSeparatorValue != null"
                         class="mt-2"
@@ -698,6 +725,7 @@ function constructValueChartRows(
                     </p>
                     <p v-else-if="uniformCountText" class="mt-1 mb-0 text-muted">{{ uniformCountText }}</p>
                     <CountBarList v-else :bar-color-class="VALID_BAR_COLOR_CLASS" class="mt-1.5" :rows="frequencyRows" />
+                    <p v-if="seenOnceText" class="mt-1.5 mb-0 text-muted">{{ seenOnceText }}</p>
                 </section>
 
                 <!-- Edges ─ Side by side when the panel is wide, because each list is short. Stacked, the second list has
@@ -716,8 +744,15 @@ function constructValueChartRows(
 
             <!-- Formats ─ Every format up to the limit, most common first, as bars like the Values tab's. A note above
                  them, as on the Values tab, says how long text is or how many digits numbers have, and sums the formats
-                 past the limit. -->
+                 past the limit. Above that, why the format is unclear, or that it is clear. -->
             <template v-else-if="currentTabId === 'formats'">
+                <ul v-if="formatIssues.length > 0" class="mt-0 mb-1.5 list-none p-0 text-warning-text">
+                    <li v-for="formatIssue in formatIssues" :key="formatIssue.id" class="flex items-start gap-x-1.5">
+                        <TriangleAlertIcon aria-hidden="true" class="mt-0.5 size-4 flex-none" :stroke-width="1.5" />
+                        {{ formatIssue.text }}
+                    </li>
+                </ul>
+                <p v-else-if="isFormatChecked" class="mt-0 mb-1.5 text-muted">{{ t(TEXT, 'formatIssue.none.text') }}</p>
                 <p v-if="formatNotesText" class="mt-0 mb-1.5 text-muted">{{ formatNotesText }}</p>
                 <CountBarList :bar-color-class="VALID_BAR_COLOR_CLASS" :label="headers.formatText" :rows="formatChartRows" />
             </template>

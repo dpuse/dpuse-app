@@ -211,6 +211,9 @@ const TABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter((
 const READABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ supportId }) => supportId === 'supported').map(({ id }) => id)); // Marked as supported in the toolbar, and the formats the user can choose to read an item as data.
 const PLANNED_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ supportId }) => supportId === 'planned').map(({ id }) => id)); // Data the app means to read once each has a reader.
 
+// ── File Details ─ What the details tab says about a file. A table, read as its source says, has none of them.
+const FILE_DETAIL_LABEL_KEYS = new Set<keyof typeof TEXT>(['detail.dataFormat.label', 'detail.encoding.label', 'detail.fileType.label']);
+
 // ── Format Supports ─ How the toolbar marks the format: readable, planned but with no reader yet, or not data at all.
 const FORMAT_SUPPORTS: FormatSupport[] = [
     { ariaKey: 'format.supported.aria', colorClass: 'text-success-text', icon: markRaw(CheckIcon), id: 'supported' },
@@ -392,6 +395,10 @@ const activeConnectionConfig = computed(() => findConnectionLocalisedConfig(data
 const activeDataViewConnection = computed(() => (activeConnectionConfig.value ? constructDataViewConnection(activeConnectionConfig.value, localeId.value) : undefined));
 const itemSubject = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId ?? 'item'); // Wording names the connector's kind of item, e.g. 'File', and falls back to 'item' for a connector released before it said which.
 
+// A table comes from an application or a database, which says how it is read. It has no text to show and no file
+// settings to choose, such as its format or encoding.
+const itemIsTable = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId === 'table');
+
 // Every item shows the icon for the connector's kind of item, as the summary row does. A file's real format is only
 // known once it is previewed, so its name extension is not used to guess one.
 const itemTypeIcon = computed(() => {
@@ -500,7 +507,7 @@ const parserToolConfigs = computed(() => {
     return dataFormatId == null ? [] : localiseConfigs(listParserToolConfigs(toolConfigs.value, dataFormatId), localeId.value);
 });
 const parserOptions = computed<SelectOption[]>(() => parserToolConfigs.value.map(({ id, label }) => ({ id, label })));
-const parserIsChoosable = computed(() => parserOptions.value.length > 1);
+const parserIsChoosable = computed(() => !itemIsTable.value && parserOptions.value.length > 1);
 
 // A chosen encoding is the user's call. Left on Auto, an encoding the preview only assumed is the one value in doubt.
 const encodingSelectTone = computed(() => {
@@ -514,8 +521,8 @@ const valueDelimiterOptions = computed<SelectOption[]>(() => {
     const options: SelectOption[] = VALUE_DELIMITER_CONFIGS.map(({ id }) => ({ id, label: constructValueDelimiterLabel(id) }));
     return [constructAutoOption(detectedId == null ? undefined : constructValueDelimiterLabel(detectedId)), ...options];
 });
-const valueDelimiterIsChoosable = computed(() => activeItemReading.value?.dataFormatId === 'dtv');
-const previewHeadersAreChoosable = computed(() => activeItemReading.value?.dataFormatId === 'dtv' && activeItemReading.value.parsedRecords.length > 0);
+const valueDelimiterIsChoosable = computed(() => !itemIsTable.value && activeItemReading.value?.dataFormatId === 'dtv');
+const previewHeadersAreChoosable = computed(() => !itemIsTable.value && activeItemReading.value?.dataFormatId === 'dtv' && activeItemReading.value.parsedRecords.length > 0);
 
 // Whether the first record names the columns. Auto names what detection found. Each option names headers in full,
 // because a closed select shows only its value, and 'Yes' alone would not say what it is about.
@@ -670,9 +677,10 @@ const previewExtentText = computed(() => {
     return t(TEXT, 'preview.extent.text', { size: formatNumberAsStorageSize(previewSize) });
 });
 
+const previewTabs = computed(() => PREVIEW_TABS.filter((previewTab) => previewTab.id !== 'text' || !itemIsTable.value));
 const currentPreviewTab = computed(() =>
     assertDefined(
-        PREVIEW_TABS.find((previewTab) => previewTab.id === currentPreviewTabId.value),
+        previewTabs.value.find((previewTab) => previewTab.id === currentPreviewTabId.value),
         `Expected a preview tab with id '${currentPreviewTabId.value}'.`
     )
 );
@@ -754,7 +762,8 @@ const itemDetailGroups = computed(() => {
     ];
     if (activeContentAuditConfig.value) detailGroups.push(constructAuditDetailGroup(activeContentAuditConfig.value));
     return detailGroups
-        .map((detailGroup) => ({ ...detailGroup, details: detailGroup.details.filter((detail) => detail.value != null && detail.value !== '') }))
+        .filter((detailGroup) => !itemIsTable.value || detailGroup.id !== 'parsing')
+        .map((detailGroup) => ({ ...detailGroup, details: detailGroup.details.filter((detail) => isDetailShown(detail.labelKey, detail.value)) }))
         .filter((detailGroup) => detailGroup.details.length > 0);
 });
 
@@ -767,7 +776,7 @@ const columnRowsNeedingAttention = computed(() => {
         columnIndexes.filter(
             (index) =>
                 (columnConfigs[index]?.invalidValueCount ?? 0) > 0 ||
-                columnConfigs[index]?.isFormatAmbiguous === true ||
+                (columnConfigs[index]?.formatIssueIds?.length ?? 0) > 0 ||
                 (itemReading != null && countChosenTypeMisfits(itemReading, index, detectedColumnTypes.value[index]) > 0)
         )
     );
@@ -1062,12 +1071,12 @@ function handleNavigatePreviewTabs(event: KeyboardEvent, previewTabIndex: number
         ArrowLeft: stepToEnabledPreviewTabIndex(previewTabIndex, -1),
         ArrowRight: stepToEnabledPreviewTabIndex(previewTabIndex, 1),
         End: stepToEnabledPreviewTabIndex(0, -1),
-        Home: stepToEnabledPreviewTabIndex(PREVIEW_TABS.length - 1, 1)
+        Home: stepToEnabledPreviewTabIndex(previewTabs.value.length - 1, 1)
     };
     const nextIndex = nextIndexByKey[event.key];
     if (nextIndex === undefined) return;
     event.preventDefault();
-    currentPreviewTabId.value = assertDefined(PREVIEW_TABS[nextIndex]).id;
+    currentPreviewTabId.value = assertDefined(previewTabs.value[nextIndex]).id;
     const tabElements = (event.currentTarget as HTMLElement).parentElement?.querySelectorAll<HTMLElement>('[role="tab"]');
     tabElements?.[nextIndex]?.focus();
 }
@@ -1538,6 +1547,11 @@ function resolveValueDelimiterId(optionId: string): ValueDelimiterId | undefined
     return optionId === AUTO_OPTION_ID ? detectedValueDelimiterId.value : VALUE_DELIMITER_CONFIGS.find(({ id }) => id === optionId)?.id;
 }
 
+// A detail shows only when it has a value, and a table leaves out the details only a file has.
+function isDetailShown(labelKey: keyof typeof TEXT, value: string | undefined): boolean {
+    return value != null && value !== '' && (!itemIsTable.value || !FILE_DETAIL_LABEL_KEYS.has(labelKey));
+}
+
 // Sorted by label in the current language, because translation changes the order.
 function sortOptionsByLabel(options: SelectOption[]): SelectOption[] {
     return options.toSorted((left, right) => left.label.localeCompare(right.label, localeId.value));
@@ -1559,8 +1573,8 @@ function isPreviewTabDisabled(previewTabId: PreviewTabId): boolean {
 function stepToEnabledPreviewTabIndex(previewTabIndex: number, step: 1 | -1): number {
     let nextIndex = previewTabIndex;
     do {
-        nextIndex = (nextIndex + step + PREVIEW_TABS.length) % PREVIEW_TABS.length;
-    } while (isPreviewTabDisabled(assertDefined(PREVIEW_TABS[nextIndex]).id));
+        nextIndex = (nextIndex + step + previewTabs.value.length) % previewTabs.value.length;
+    } while (isPreviewTabDisabled(assertDefined(previewTabs.value[nextIndex]).id));
     return nextIndex;
 }
 
@@ -1854,14 +1868,16 @@ function showPreviewColumns(itemReading: ItemReading): void {
 }
 
 // The tab that shows the item as its format suggests: data as a table, anything else as text. Data with no usable
-// table opens on the text, so the user can see why. Every other tab stays available, apart from a disabled table.
+// table opens on the text, so the user can see why, or on the details for a table, which has no text tab. Every other
+// tab stays available, apart from a disabled table.
 function establishFirstPreviewTabId(itemReading: ItemReading): PreviewTabId {
     const requestedColumnIndex = (history.state as { columnIndex?: number } | null)?.columnIndex;
     if (requestedColumnIndex != null) {
         selectedColumnIndex.value = requestedColumnIndex; // Sent here to check this column, whose detail opens over the table.
     }
     const tableIsUsable = itemReading.parsedRecords.length > 0 && itemReading.issues.every((issue) => issue.severityId !== 'error');
-    return tableIsUsable && TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId) ? 'table' : 'text';
+    if (tableIsUsable && TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId)) return 'table';
+    return itemIsTable.value ? 'details' : 'text';
 }
 
 function constructSampleIssueLineText(issue: SampleIssue): string | undefined {
@@ -1982,12 +1998,13 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     <div :class="readChoicesAreFolded ? 'flex flex-col items-start gap-y-1' : 'contents'">
                         <!-- Format, Encoding, Parser and Value Delimiter ─ Choosing any of them reads the item again
                              that way. A binary file has no encoding to choose, the parser is offered only when more
-                             than one reads the format, and only delimited text has a value delimiter. -->
+                             than one reads the format, and only delimited text has a value delimiter. A table offers
+                             none of them, because its source says how it is read. -->
                         <!-- '-ml-1.75' cancels the select's own padding and border, so its icon lines up with the page
                              edge. Only in the row, because in the folded popover it would put this icon out of line with
                              the icons below it. -->
                         <SelectInput
-                            v-if="previewFormatText"
+                            v-if="previewFormatText && !itemIsTable"
                             v-model="previewDataFormatId"
                             :is-default="selectedDataFormatId == null"
                             :class="[readChoiceSelectClass, { '-ml-1.75': !readChoicesAreFolded }]"
@@ -2033,7 +2050,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             </template>
                         </SelectInput>
                         <SelectInput
-                            v-if="activeItemReading?.encodingId != null"
+                            v-if="activeItemReading?.encodingId != null && !itemIsTable"
                             v-model="previewEncodingId"
                             :is-default="selectedEncodingId == null"
                             :class="readChoiceSelectClass"
@@ -2205,7 +2222,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     role="tablist"
                 >
                     <ActionWrapper
-                        v-for="(previewTab, previewTabIndex) in PREVIEW_TABS"
+                        v-for="(previewTab, previewTabIndex) in previewTabs"
                         :id="createPreviewTabElementId(previewTab.id)"
                         :key="previewTab.id"
                         :aria-controls="`${elementIdPrefix}-panel`"
@@ -2240,7 +2257,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     </template>
                     <Menu.Content class="min-w-40" :label="t(TEXT, 'previewTabs.aria', { label: item.label })" placement="bottom-end">
                         <Menu.Item
-                            v-for="previewTab in PREVIEW_TABS"
+                            v-for="previewTab in previewTabs"
                             :key="previewTab.id"
                             :is-checked="previewTab.id === currentPreviewTabId"
                             :is-disabled="isPreviewTabDisabled(previewTab.id)"
@@ -2268,7 +2285,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                              which shows rendered rather than as lines. -->
                         <span class="min-w-0 wrap-break-word">
                             <ActionWrapper
-                                v-if="issueItem.lineNumber != null && !previewIsMarkdown"
+                                v-if="issueItem.lineNumber != null && !previewIsMarkdown && !itemIsTable"
                                 class="mr-2 text-accent hover:underline"
                                 @click="handleShowIssueLine(issueItem.lineNumber)"
                                 >{{ issueItem.lineText }}</ActionWrapper

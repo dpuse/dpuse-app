@@ -79,6 +79,20 @@ describe('ColumnDetailPanel', () => {
         expect(wrapper.find('[role="status"]').text()).toBe(t(TEXT, 'detected.misfit.other.text', { count: '3', type: 'Plain text' }));
     });
 
+    it('says the source stated the type, for a column still of that type', () => {
+        const wrapper = mountPanel([buildColumn({ isTypeDeclared: true })]);
+
+        expect(wrapper.text()).toContain(t(TEXT, 'declared.type.text'));
+        expect(wrapper.find('[role="status"]').exists()).toBe(false);
+    });
+
+    it('names the stated type rather than a detected one when the user chooses another', () => {
+        const wrapper = mountPanel([buildColumn({ dataTypeId: 'string', isTypeDeclared: true })]);
+
+        expect(wrapper.find('[role="status"]').text()).toContain(t(TEXT, 'declared.text', { type: '' }).trim());
+        expect(wrapper.text()).not.toContain(t(TEXT, 'declared.type.text'));
+    });
+
     it('lists the invalid examples before the values', async () => {
         const column = buildColumn({ validDistinctValueCount: 2, validFrequentValues: { '12': 2, 'n/a': 1 }, invalidValueCount: 1, invalidValues: { 'n/a': 'string' }, validValueCount: 2 });
         const wrapper = await openTab(mountPanel([column]), `${t(TEXT, 'tab.values.label')} ${t(TEXT, 'tab.invalidCount.label', { count: '1' })}`);
@@ -492,25 +506,70 @@ describe('ColumnDetailPanel', () => {
         expect(mountPanel([buildColumn({ dataTypeId: 'temporal' })], { ...properties, isDateOrderDisabled: true }).findAll('select-input-stub')[1]?.attributes('disabled')).toBe('true');
     });
 
-    it('lists the storage type and whether values are unique, and whether the column is complete once the whole item is read', () => {
-        const columnConfig = buildColumn({ isComplete: true, validIsUnique: true, storageTypeId: 'int32' });
+    it('lists whether values are unique, and whether the column is complete, as unknown until the whole item is read', () => {
+        const columnConfig = buildColumn({ isComplete: true, validIsUnique: true });
         const partialText = mountPanel([columnConfig]).get('dl').text();
         const completeText = mountPanel([columnConfig], { isAuditComplete: true }).get('dl').text();
+        const unsettledColumnConfig = buildColumn({});
+        const unsettledText = mountPanel([unsettledColumnConfig]).get('dl').text();
+        const unknownText = t(ROW_TEXT, 'answer.unknown.label');
 
-        expect(partialText).toContain(t(ROW_TEXT, 'column.storageType.label'));
-        expect(partialText).toContain(t(ROW_TEXT, 'column.unique.label'));
-        expect(partialText).not.toContain(t(TEXT, 'complete.label'));
-        expect(completeText).toContain(t(TEXT, 'complete.label'));
+        expect(partialText).toContain(`${t(ROW_TEXT, 'column.unique.label')}${t(ROW_TEXT, 'answer.yes.label')}`);
+        expect(partialText).toContain(`${t(TEXT, 'complete.label')}${unknownText}`);
+        expect(completeText).toContain(`${t(TEXT, 'complete.label')}${t(ROW_TEXT, 'answer.yes.label')}`);
+        expect(unsettledText).toContain(`${t(ROW_TEXT, 'column.unique.label')}${unknownText}`);
     });
 
-    it('lists how many values are seen once, when the engine counted them', () => {
-        expect(mountPanel([buildColumn({ validIsUnique: false, validSingleValueCount: 1204 })]).get('dl').text()).toContain(`${t(TEXT, 'seenOnce.label')}1,204`);
-        expect(mountPanel([buildColumn({ validIsUnique: false })]).get('dl').text()).not.toContain(t(TEXT, 'seenOnce.label'));
+    it('notes under the valid values how many are seen once, only when the engine counted some', async () => {
+        const values = { validDistinctValueCount: 3, validFrequentValues: { a: 2, b: 1, c: 1 }, validValueCount: 4 };
+        const countedWrapper = await openTab(mountPanel([buildColumn({ ...values, validSingleValueCount: 2 })]), t(TEXT, 'tab.values.label'));
+        const noneWrapper = await openTab(mountPanel([buildColumn({ ...values, validSingleValueCount: 0 })]), t(TEXT, 'tab.values.label'));
+        const uncountedWrapper = await openTab(mountPanel([buildColumn(values)]), t(TEXT, 'tab.values.label'));
+
+        expect(countedWrapper.find('[role="tabpanel"]').text()).toContain(t(TEXT, 'seenOnce.other.text', { count: '2' }));
+        expect(noneWrapper.find('[role="tabpanel"]').text()).not.toContain(t(TEXT, 'seenOnce.other.text', { count: '0' }));
+        expect(uncountedWrapper.find('[role="tabpanel"]').text()).toBe(noneWrapper.find('[role="tabpanel"]').text()); // Neither has the note.
     });
 
-    it('always says whether the format is unclear', () => {
-        expect(mountPanel([buildColumn({ isFormatAmbiguous: true })]).get('dl').text()).toContain(`${t(TEXT, 'formatUnclear.label')}${t(ROW_TEXT, 'answer.yes.label')}`);
-        expect(mountPanel([buildColumn({})]).get('dl').text()).toContain(`${t(TEXT, 'formatUnclear.label')}${t(ROW_TEXT, 'answer.no.label')}`);
+    it('leaves out the seen once note when every value appearing once is already said', async () => {
+        const column = buildColumn({ validDistinctValueCount: 2, validFrequentValues: { a: 1, b: 1 }, validSingleValueCount: 2, validValueCount: 2 });
+        const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
+
+        expect(wrapper.find('[role="tabpanel"]').text()).toContain(t(TEXT, 'uniformCount.one.text'));
+        expect(wrapper.find('[role="tabpanel"]').text()).not.toContain(t(TEXT, 'seenOnce.other.text', { count: '2' }));
+    });
+
+    it('says on the Formats tab why the format is unclear, one note for each issue', async () => {
+        const wrapper = await openTab(
+            mountPanel([buildColumn({ formatIssueIds: ['decimalSeparatorMixed', 'currencyMixed'], validFormats: { '9.9': 2 } })]),
+            t(TEXT, 'tab.formats.label')
+        );
+        const noteList = wrapper.get('[role="tabpanel"] ul'); // The first list, above the format bars.
+        const notes = noteList.findAll('li').map((note) => note.text());
+
+        expect(notes).toStrictEqual([t(TEXT, 'formatIssue.decimalSeparatorMixed.text'), t(TEXT, 'formatIssue.currencyMixed.text')]);
+        expect(wrapper.text()).not.toContain(t(TEXT, 'formatIssue.none.text'));
+    });
+
+    it('says the format is clear only when the engine checked it', async () => {
+        const checkedWrapper = await openTab(mountPanel([buildColumn({ formatIssueIds: [], validFormats: { '9.9': 2 } })]), t(TEXT, 'tab.formats.label'));
+        const uncheckedWrapper = await openTab(mountPanel([buildColumn({ dataTypeId: 'string', validFormats: { Xx: 2 } })]), t(TEXT, 'tab.formats.label'));
+
+        expect(checkedWrapper.find('[role="tabpanel"]').text()).toContain(t(TEXT, 'formatIssue.none.text'));
+        expect(uncheckedWrapper.find('[role="tabpanel"]').text()).not.toContain(t(TEXT, 'formatIssue.none.text'));
+    });
+
+    it('shows the Formats tab for an unclear format even with no formats to list', () => {
+        const wrapper = mountPanel([buildColumn({ formatIssueIds: ['currencyMixed'] })]);
+        const tabLabels = wrapper.findAll('[role="tab"]').map((tab) => tab.text());
+
+        expect(tabLabels).toContain(t(TEXT, 'tab.formats.label'));
+    });
+
+    it('leaves whether the format is unclear off the Overview', () => {
+        const wrapper = mountPanel([buildColumn({ formatIssueIds: ['currencyMixed'] })]);
+
+        expect(wrapper.get('[role="tabpanel"]').text()).not.toContain(t(TEXT, 'formatIssue.currencyMixed.text'));
     });
 
     it('offers to read null words as empty only when given the choice', async () => {
