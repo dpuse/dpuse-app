@@ -24,14 +24,15 @@ const shownSegments = computed(() => COLUMN_VALUE_SEGMENTS.filter((segment) => c
 
 // The rows below show only the preview, so the text says how many records the counts cover.
 const countsText = computed(() => {
-    const { blankCount, invalidCount, missingCount, validCount } = columnValueCounts;
+    const { blankCount, emptyCount, invalidCount, nullCount, validCount } = columnValueCounts;
     const numberFormat = new Intl.NumberFormat(localeId.value);
-    const recordCount = validCount + invalidCount + blankCount + missingCount;
+    const recordCount = validCount + invalidCount + blankCount + emptyCount + nullCount;
     return t(TEXT, 'counts.text', {
         blank: numberFormat.format(blankCount),
+        empty: numberFormat.format(emptyCount),
         invalid: numberFormat.format(invalidCount),
         label: columnLabel,
-        missing: numberFormat.format(missingCount),
+        null: numberFormat.format(nullCount),
         records: t(TEXT, recordCount === 1 ? 'record.one.text' : 'record.other.text', { count: numberFormat.format(recordCount) }),
         valid: numberFormat.format(validCount)
     });

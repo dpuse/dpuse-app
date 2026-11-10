@@ -157,12 +157,12 @@ export function applyPreviewNullWordChoice(itemReading: ItemReading, columnIndex
 function applyNullWordChoice(columnConfig: ColumnAuditConfig, areNullWordsEmpty: boolean): ColumnAuditConfig {
     if (columnConfig.dataTypeId !== 'string' || (columnConfig.nullWordsAreEmpty === true) === areNullWordsEmpty) return columnConfig;
     const movedCount = (columnConfig.nullWordValueCount ?? 0) * (areNullWordsEmpty ? 1 : -1);
-    const missingValueCount = (columnConfig.missingValueCount ?? 0) + movedCount;
+    const nullValueCount = (columnConfig.nullValueCount ?? 0) + movedCount;
     return {
         ...columnConfig,
-        hasMissingValues: (columnConfig.blankValueCount ?? 0) + missingValueCount > 0 || (columnConfig.invalidValueCount ?? 0) > 0,
+        hasMissingValues: (columnConfig.blankValueCount ?? 0) + (columnConfig.emptyValueCount ?? 0) + nullValueCount > 0,
         inferenceCounts: { ...columnConfig.inferenceCounts, 'string.plain': (columnConfig.inferenceCounts['string.plain'] ?? 0) - movedCount },
-        missingValueCount,
+        nullValueCount,
         nullWordsAreEmpty: areNullWordsEmpty,
         validValueCount: (columnConfig.validValueCount ?? 0) - movedCount
     };

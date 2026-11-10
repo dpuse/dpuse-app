@@ -148,18 +148,18 @@ describe('applyPreviewNullWordChoice', () => {
                 hasMissingValues: false,
                 inferenceCounts: { 'string.plain': 4 },
                 label: { en: 'country' },
-                missingValueCount: 0,
+                nullValueCount: 0,
                 nullWordValueCount: 2,
                 validValueCount: 4
             }
         ]
     } as unknown as ItemReading;
 
-    it('moves the null words from values to missing values', () => {
+    it('moves the null words from values to null values', () => {
         expect(applyPreviewNullWordChoice(TEXT_ITEM, 0, true).columnConfigs[0]).toMatchObject({
             hasMissingValues: true,
             inferenceCounts: { 'string.plain': 2 },
-            missingValueCount: 2,
+            nullValueCount: 2,
             nullWordsAreEmpty: true,
             validValueCount: 2
         });
@@ -169,7 +169,7 @@ describe('applyPreviewNullWordChoice', () => {
         const emptyItemReading = applyPreviewNullWordChoice(applyPreviewNullWordChoice(TEXT_ITEM, 0, true), 0, true);
 
         expect(emptyItemReading.columnConfigs[0]?.validValueCount).toBe(2);
-        expect(applyPreviewNullWordChoice(emptyItemReading, 0, false).columnConfigs[0]).toMatchObject({ hasMissingValues: false, missingValueCount: 0, validValueCount: 4 });
+        expect(applyPreviewNullWordChoice(emptyItemReading, 0, false).columnConfigs[0]).toMatchObject({ hasMissingValues: false, nullValueCount: 0, validValueCount: 4 });
     });
 });
 

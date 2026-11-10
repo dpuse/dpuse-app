@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowDownNarrowWideIcon, ArrowDownWideNarrowIcon, ChevronLeftIcon, ChevronRightIcon, TriangleAlertIcon } from '@lucide/vue';
+import { ArrowDownNarrowWideIcon, ArrowDownWideNarrowIcon, AsteriskIcon, ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
+import { FingerprintPatternIcon, KeyRoundIcon, TriangleAlertIcon } from '@lucide/vue';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
@@ -151,11 +152,18 @@ const invalidSamples = computed(() => Object.keys(columnConfig.value?.invalidVal
 const valueSegments = computed(() => {
     const config = columnConfig.value;
     if (config == null) return [];
-    const counts = { blankCount: config.blankValueCount, invalidCount: config.invalidValueCount, missingCount: config.missingValueCount, validCount: config.validValueCount };
+    const counts = {
+        blankCount: config.blankValueCount,
+        emptyCount: config.emptyValueCount,
+        invalidCount: config.invalidValueCount,
+        nullCount: config.nullValueCount,
+        validCount: config.validValueCount
+    };
     const labels = {
         blankCount: headers.value.blankValueText,
+        emptyCount: headers.value.emptyValueText,
         invalidCount: t(TEXT, 'legend.invalid.label'), // Shorter than the table's 'Invalid values', so the legend fits on one line.
-        missingCount: headers.value.missingValueText,
+        nullCount: headers.value.nullValueText,
         validCount: t(TEXT, 'legend.valid.label')
     };
     const numberFormat = new Intl.NumberFormat(localeId.value);
@@ -364,15 +372,22 @@ const seenOnceText = computed(() => {
 const validCountText = computed(() => constructValueCountText(columnConfig.value?.validValueCount ?? 0, validDistinctValueCount.value));
 const invalidCountText = computed(() => constructValueCountText(columnConfig.value?.invalidValueCount ?? 0, columnConfig.value?.invalidDistinctValueCount));
 
-// ── Overview ─ Every fact is always listed, as unknown when it cannot be settled. Whether a column has missing values
-// is unknown until the whole item is read, because a value can be missing past the part audited.
+// ── Overview ─ What the values suggest about the column, as a guess the data supports rather than a rule the source
+// states. Every fact is always listed, as unknown when it cannot be settled. A column appears to be mandatory when no value
+// is missing, which is unknown until the whole item is read, because a value can be missing past the part audited. A
+// key is unique and has a value that loads in every record. The key comes first, as the conclusion the other two
+// facts explain.
 const overviewFacts = computed(() => {
     const row = columnRow.value;
     if (row == null) return [];
     const labels = headers.value;
+    const hasMissingValues = isAuditComplete ? columnConfig.value?.hasMissingValues : undefined;
+    const isUnique = columnConfig.value?.validIsUnique;
+    const isKey = isAuditComplete && isUnique != null ? isUnique && isColumnComplete(itemReading, columnIndex, detectedColumnType) : undefined;
     return [
-        { label: labels.uniqueText, value: row.uniqueText },
-        { label: t(TEXT, 'missingValues.label'), value: formatYesNo(isAuditComplete ? !isColumnComplete(itemReading, columnIndex, detectedColumnType) : undefined) }
+        { icon: KeyRoundIcon, id: 'key', label: t(TEXT, 'key.label'), value: formatYesNo(isKey) },
+        { icon: FingerprintPatternIcon, id: 'unique', label: labels.uniqueText, value: row.uniqueText },
+        { icon: AsteriskIcon, id: 'mandatory', label: t(TEXT, 'mandatory.label'), value: formatYesNo(hasMissingValues == null ? undefined : !hasMissingValues) }
     ];
 });
 
@@ -612,25 +627,47 @@ function constructValueChartRows(
             class="min-h-0 flex-1 overflow-y-auto overscroll-none px-4 pt-3 pb-[calc(var(--vertical-scroll-bottom-screen-inset)-var(--status-bar-height))] text-sm"
             role="tabpanel"
         >
-            <!-- Overview ─ The value bar first, as what people most often want, then the choices, then the figures. The
-                 blocks flow into columns when the panel is wide, as it is over the table. -->
-            <div v-if="currentTabId === 'overview'" class="grid items-start gap-x-8 gap-y-4 @3xl:grid-cols-2 @6xl:grid-cols-3">
-                <!-- Values ─ The audit's counts, labelled with their numbers, so colour is never the only cue. -->
-                <div v-if="shownValueSegments.length > 0">
-                    <h3 class="m-0 text-sm font-medium">{{ t(TEXT, 'valueChart.label') }}</h3>
-                    <span aria-hidden="true" class="mt-1.5 flex h-2 w-full gap-0.5 overflow-hidden rounded-full">
-                        <span v-for="segment in shownValueSegments" :key="segment.id" class="min-w-1 basis-0" :class="segment.colorClass" :style="{ flexGrow: segment.count }" />
-                    </span>
-                    <!-- Legend ─ One line, wrapping only when the panel is too narrow for it. The shares are left out
+            <!-- Overview ─ The value bar first, as what people most often want, with the facts about the values under it,
+                 then the choices. The two blocks sit side by side when the panel is wide, as it is over the table. -->
+            <div v-if="currentTabId === 'overview'" class="grid items-start gap-x-8 gap-y-4 @3xl:grid-cols-2">
+                <div class="flex flex-col gap-y-4">
+                    <!-- Values ─ The audit's counts, labelled with their numbers, so colour is never the only cue. -->
+                    <div v-if="shownValueSegments.length > 0">
+                        <h3 class="m-0 text-sm font-medium">{{ t(TEXT, 'valueChart.label') }}</h3>
+                        <span aria-hidden="true" class="mt-1.5 flex h-2 w-full gap-0.5 overflow-hidden rounded-full">
+                            <span
+                                v-for="segment in shownValueSegments"
+                                :key="segment.id"
+                                class="min-w-1 basis-0"
+                                :class="segment.colorClass"
+                                :style="{ flexGrow: segment.count }"
+                            />
+                        </span>
+                        <!-- Legend ─ One line, wrapping only when the panel is too narrow for it. The shares are left out
                          of a narrow panel, because the counts say everything and the bar shows the proportions. -->
-                    <ul class="mt-1.5 flex list-none flex-wrap gap-x-4 gap-y-1 p-0">
-                        <li v-for="segment in valueSegments" :key="segment.id" class="flex items-center gap-x-1.5">
-                            <span aria-hidden="true" class="size-2 rounded-full" :class="segment.colorClass" />
-                            <span class="text-muted">{{ segment.label }}</span>
-                            <span class="tabular-nums">{{ segment.countText }}</span>
-                            <span v-if="segment.percentText" class="hidden text-muted tabular-nums @md:inline"><span aria-hidden="true">· </span>{{ segment.percentText }}</span>
-                        </li>
-                    </ul>
+                        <ul class="mt-1.5 flex list-none flex-wrap gap-x-4 gap-y-1 p-0">
+                            <li v-for="segment in valueSegments" :key="segment.id" class="flex items-center gap-x-1.5">
+                                <span aria-hidden="true" class="size-2 rounded-full" :class="segment.colorClass" />
+                                <span class="text-muted">{{ segment.label }}</span>
+                                <span class="tabular-nums">{{ segment.countText }}</span>
+                                <span v-if="segment.percentText" class="hidden text-muted tabular-nums @md:inline"
+                                    ><span aria-hidden="true">· </span>{{ segment.percentText }}</span
+                                >
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Facts -->
+                    <dl v-if="overviewFacts.length > 0" class="m-0 grid grid-cols-[minmax(7.5rem,max-content)_1fr] *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
+                        <!-- Each fact has the icon its column's tab shows for it, so the tab's icons are explained here. -->
+                        <template v-for="fact in overviewFacts" :key="fact.id">
+                            <dt class="flex items-center gap-x-1.5 text-muted">
+                                <component :is="fact.icon" aria-hidden="true" class="size-3.5 flex-none" :stroke-width="1.5" />
+                                {{ fact.label }}
+                            </dt>
+                            <dd class="m-0 min-w-0 wrap-break-word">{{ fact.value }}</dd>
+                        </template>
+                    </dl>
                 </div>
 
                 <!-- Choices -->
@@ -690,14 +727,6 @@ function constructValueChartRows(
                     </label>
                     <slot name="choices-end" />
                 </div>
-
-                <!-- Facts -->
-                <dl v-if="overviewFacts.length > 0" class="m-0 grid grid-cols-[minmax(7.5rem,max-content)_1fr] *:border-b *:border-separator *:py-1 [&>dt]:pr-4">
-                    <template v-for="fact in overviewFacts" :key="fact.label">
-                        <dt class="text-muted">{{ fact.label }}</dt>
-                        <dd class="m-0 min-w-0 wrap-break-word">{{ fact.value }}</dd>
-                    </template>
-                </dl>
             </div>
 
             <!-- Values ─ Invalid values first, because they are the ones to act on, then the valid values. Each block has

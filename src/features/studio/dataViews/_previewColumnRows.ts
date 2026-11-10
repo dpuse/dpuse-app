@@ -12,10 +12,12 @@ import { localeId, t } from '@/state/locale';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Blank, empty and null values together are the column's missing values.
 export interface ColumnValueCounts {
     blankCount: number;
+    emptyCount: number;
     invalidCount: number;
-    missingCount: number;
+    nullCount: number;
     validCount: number;
 }
 
@@ -33,8 +35,9 @@ export interface PreviewColumnIcons {
 export const COLUMN_VALUE_SEGMENTS: { colorClass: string; id: keyof ColumnValueCounts }[] = [
     { colorClass: 'bg-[color-mix(in_srgb,var(--color-success-text)_40%,var(--color-card))]', id: 'validCount' },
     { colorClass: 'bg-danger-text', id: 'invalidCount' },
+    { colorClass: 'bg-null-value', id: 'nullCount' },
     { colorClass: 'bg-blank-value', id: 'blankCount' },
-    { colorClass: 'bg-subtle', id: 'missingCount' }
+    { colorClass: 'bg-subtle', id: 'emptyCount' }
 ];
 
 export const PREVIEW_COLUMN_KEYS = [
@@ -42,8 +45,9 @@ export const PREVIEW_COLUMN_KEYS = [
     'dataTypeLabel',
     'dataSubtypeLabel',
     'invalidValueText',
+    'nullValueText',
     'blankValueText',
-    'missingValueText',
+    'emptyValueText',
     'uniqueText',
     'readingText',
     'formatText'
@@ -99,10 +103,11 @@ export function constructPreviewColumnHeaders(): PreviewColumnRow {
         blankValueText: t(TEXT, 'column.blankValues.label'),
         dataSubtypeLabel: t(TEXT, 'column.dataSubtype.label'),
         dataTypeLabel: t(TEXT, 'column.dataType.label'),
+        emptyValueText: t(TEXT, 'column.emptyValues.label'),
         formatText: t(TEXT, 'column.formats.label'),
         invalidValueText: t(TEXT, 'column.invalidValues.label'),
         label: t(TEXT, 'column.label'),
-        missingValueText: t(TEXT, 'column.missingValues.label'),
+        nullValueText: t(TEXT, 'column.nullValues.label'),
         readingText: t(TEXT, 'column.reading.label'),
         uniqueText: t(TEXT, 'column.unique.label')
     };
@@ -120,8 +125,9 @@ export function constructPreviewColumnRows(itemReading: Pick<ItemReading, 'colum
             dataSubtypeLabel:
                 columnConfig.dataSubtypeId === undefined || columnConfig.dataSubtypeId === 'plain' ? '' : t(TEXT, DATA_SUBTYPE_LABEL_KEYS[columnConfig.dataSubtypeId]), // Plain text has no special format, so it gets no subtype label and real subtypes stand out.
             invalidValueText: total === 0 ? '' : numberFormat.format(total - count),
+            nullValueText: formatCount(columnConfig.nullValueCount, numberFormat),
             blankValueText: formatCount(columnConfig.blankValueCount, numberFormat),
-            missingValueText: formatCount(columnConfig.missingValueCount, numberFormat),
+            emptyValueText: formatCount(columnConfig.emptyValueCount, numberFormat),
             uniqueText: formatYesNo(columnConfig.validIsUnique),
             readingText: constructReadingText(columnConfig),
             formatText: formatCounts(columnConfig.validFormats, numberFormat)
@@ -139,7 +145,13 @@ function constructColumnLabel(columnConfig: ItemReading['columnConfigs'][number]
 export function constructColumnValueCounts(itemReading: ItemReading): ColumnValueCounts[] {
     return itemReading.columnConfigs.map((columnConfig) => {
         const { count, total } = countColumnValues(columnConfig, itemReading.hasHeaders === true);
-        return { blankCount: columnConfig.blankValueCount ?? 0, invalidCount: total - count, missingCount: columnConfig.missingValueCount ?? 0, validCount: count };
+        return {
+            blankCount: columnConfig.blankValueCount ?? 0,
+            emptyCount: columnConfig.emptyValueCount ?? 0,
+            invalidCount: total - count,
+            nullCount: columnConfig.nullValueCount ?? 0,
+            validCount: count
+        };
     });
 }
 
@@ -174,7 +186,8 @@ function formatCount(count: number | undefined, numberFormat: Intl.NumberFormat)
 
 // Every record has a value that loads. A value that does not fit a type the user chose loads empty, like an invalid one.
 export function isColumnComplete(itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders'>, columnIndex: number, detectedColumnType: ColumnType | undefined): boolean {
-    return itemReading.columnConfigs.at(columnIndex)?.hasMissingValues === false && countChosenTypeMisfits(itemReading, columnIndex, detectedColumnType) === 0;
+    const columnConfig = itemReading.columnConfigs.at(columnIndex);
+    return columnConfig?.hasMissingValues === false && (columnConfig.invalidValueCount ?? 0) === 0 && countChosenTypeMisfits(itemReading, columnIndex, detectedColumnType) === 0;
 }
 
 // A fact the engine could not settle says so, rather than leaving its row out.

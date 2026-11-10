@@ -84,7 +84,8 @@ const toneClass = computed(() => (tone ? TONE_CLASSES[tone] : undefined));
         <label :for="selectId" :class="labelHidden ? 'sr-only' : 'mb-1 block text-xs font-medium text-muted'">{{ label }}</label>
 
         <!-- Select ─ The browser's own control, for its keyboard, screen reader and touch support. 'select-picker' drops
-             its arrow for a chevron drawn over it, and styles the open list where the browser allows.
+             its arrow for a chevron drawn over it, and styles the open list where the browser allows. 'items-center'
+             centres the value, because a 'base-select' select is a flex box that otherwise puts it at the top.
              Compact ─ iOS Safari zooms into a form field whose text is under 16px, so 'main.css' sets every field to 16px
              there. A compact select shows its value in a span instead, and lies over it unseen, so a tap still opens
              the select and nothing zooms. The span also sizes it to its value.
@@ -100,7 +101,7 @@ const toneClass = computed(() => (tone ? TONE_CLASSES[tone] : undefined));
                     isCompact
                         ? 'peer absolute inset-0 size-full opacity-0'
                         : [
-                              'h-9 w-full max-w-full min-w-0 truncate rounded-md border pr-8 pl-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring disabled:opacity-50',
+                              'h-9 w-full max-w-full min-w-0 items-center truncate rounded-md border pr-8 pl-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-focus-ring disabled:opacity-50',
                               toneClass ?? 'border-boundary bg-surface',
                               isDefault ? 'text-muted italic' : 'text-content'
                           ]

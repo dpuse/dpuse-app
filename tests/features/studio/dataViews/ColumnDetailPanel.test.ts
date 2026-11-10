@@ -506,18 +506,33 @@ describe('ColumnDetailPanel', () => {
         expect(mountPanel([buildColumn({ dataTypeId: 'temporal' })], { ...properties, isDateOrderDisabled: true }).findAll('select-input-stub')[1]?.attributes('disabled')).toBe('true');
     });
 
-    it('lists whether values are unique, and whether the column has missing values, as unknown until the whole item is read', () => {
+    it('lists whether the column appears to be unique, and to be mandatory, as unknown until the whole item is read', () => {
         const columnConfig = buildColumn({ hasMissingValues: false, validIsUnique: true });
         const partialText = mountPanel([columnConfig]).get('dl').text();
         const completeText = mountPanel([columnConfig], { isAuditComplete: true }).get('dl').text();
         const unsettledColumnConfig = buildColumn({});
         const unsettledText = mountPanel([unsettledColumnConfig]).get('dl').text();
+        const missingColumnConfig = buildColumn({ hasMissingValues: true });
+        const missingText = mountPanel([missingColumnConfig], { isAuditComplete: true }).get('dl').text();
         const unknownText = t(ROW_TEXT, 'answer.unknown.label');
 
         expect(partialText).toContain(`${t(ROW_TEXT, 'column.unique.label')}${t(ROW_TEXT, 'answer.yes.label')}`);
-        expect(partialText).toContain(`${t(TEXT, 'missingValues.label')}${unknownText}`);
-        expect(completeText).toContain(`${t(TEXT, 'missingValues.label')}${t(ROW_TEXT, 'answer.no.label')}`);
+        expect(partialText).toContain(`${t(TEXT, 'mandatory.label')}${unknownText}`);
+        expect(completeText).toContain(`${t(TEXT, 'mandatory.label')}${t(ROW_TEXT, 'answer.yes.label')}`);
+        expect(missingText).toContain(`${t(TEXT, 'mandatory.label')}${t(ROW_TEXT, 'answer.no.label')}`);
         expect(unsettledText).toContain(`${t(ROW_TEXT, 'column.unique.label')}${unknownText}`);
+    });
+
+    it('lists whether the column appears to be a key, which needs it unique with a value that loads in every record', () => {
+        const keyColumnConfig = buildColumn({ hasMissingValues: false, inferenceCounts: { 'numeric.integer': 2 }, validIsUnique: true });
+        const uniqueColumnConfig = buildColumn({ hasMissingValues: true, inferenceCounts: { 'numeric.integer': 2 }, validIsUnique: true });
+        const keyText = mountPanel([keyColumnConfig], { isAuditComplete: true }).get('dl').text();
+        const uniqueText = mountPanel([uniqueColumnConfig], { isAuditComplete: true }).get('dl').text();
+        const partialText = mountPanel([keyColumnConfig]).get('dl').text();
+
+        expect(keyText).toContain(`${t(TEXT, 'key.label')}${t(ROW_TEXT, 'answer.yes.label')}`);
+        expect(uniqueText).toContain(`${t(TEXT, 'key.label')}${t(ROW_TEXT, 'answer.no.label')}`);
+        expect(partialText).toContain(`${t(TEXT, 'key.label')}${t(ROW_TEXT, 'answer.unknown.label')}`);
     });
 
     it('notes under the valid values how many are seen once, only when the engine counted some', async () => {

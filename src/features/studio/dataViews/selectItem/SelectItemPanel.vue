@@ -19,6 +19,7 @@ import {
     DatabaseIcon,
     FileIcon,
     FileTextIcon,
+    FingerprintPatternIcon,
     FolderIcon,
     InfoIcon,
     KeyRoundIcon,
@@ -29,7 +30,8 @@ import {
     SheetIcon,
     SlidersHorizontalIcon,
     TextIcon,
-    TriangleAlertIcon
+    TriangleAlertIcon,
+    XIcon
 } from '@lucide/vue';
 import { type Component, computed, type CSSProperties, markRaw, nextTick, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
 import { until, useElementSize } from '@vueuse/core';
@@ -286,17 +288,19 @@ const READ_CHOICES_GAP_PX = 4; // Between the toolbar and the folded read choice
 const VIEWPORT_MARGIN_PX = 8; // Keeps the folded read choices clear of the window's edges.
 
 // ── Value Tints ─ Each a layer inset from the cell's edges, so neighbouring marked values stay apart and nothing in the cell
-// moves. Red is the strongest, because only an invalid value is a problem. Blank and missing take the colours of the
+// moves. Red is the strongest, because only an invalid value is a problem. Blank, empty and null take the colours of the
 // header's value bar.
 const VALUE_TINT_CLASSES: Partial<Record<PreviewValueStateId, string>> = {
     blank: 'before:pointer-events-none before:absolute before:inset-0.5 before:rounded-sm before:bg-blank-tint',
+    empty: 'before:pointer-events-none before:absolute before:inset-0.5 before:rounded-sm before:bg-empty-tint',
     invalid: 'before:pointer-events-none before:absolute before:inset-0.5 before:rounded-sm before:bg-invalid-tint',
-    missing: 'before:pointer-events-none before:absolute before:inset-0.5 before:rounded-sm before:bg-missing-tint'
+    null: 'before:pointer-events-none before:absolute before:inset-0.5 before:rounded-sm before:bg-null-tint'
 };
 const VALUE_TITLE_KEYS: Partial<Record<PreviewValueStateId, keyof typeof TEXT>> = {
     blank: 'value.blank.aria',
+    empty: 'value.empty.aria',
     invalid: 'value.invalid.text',
-    missing: 'value.missing.aria'
+    null: 'value.null.aria'
 };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -1040,10 +1044,12 @@ function handleSelectNullWords(columnId: string, areNullWordsEmpty: boolean): vo
     activeItemReading.value = applyPreviewNullWordChoice(activeItemReading.value, Number(columnId), areNullWordsEmpty);
 }
 
-// Only what a load stores changes, so the preview stays as it is.
+// Only what a load stores changes, so the preview stays as it is. The draft is updated here, because the watcher that
+// updates it runs only when the preview changes.
 function handleSelectIgnored(columnId: string, isIgnored: boolean): void {
     readingIsChanged.value = true;
     selectedIgnoredColumns.value[columnId] = isIgnored ? true : undefined; // Not ignored is the default, so it is not saved.
+    changeDataView(constructEditedDataViewConfig() ?? constructItemlessDataViewConfig());
 }
 
 // For a column whose values did not settle it. Only how the values read changes, so nothing is read again.
@@ -1161,10 +1167,10 @@ function constructValueDecimalPadding(columnId: string, rowIndex: number): Retur
     return valuePadding.hiddenPadding === '' && valuePadding.shownPadding === '' ? undefined : valuePadding;
 }
 
-// A blank value can hold spaces, and a missing one can be a null word such as 'NULL', which still shows as written.
+// A blank value can hold spaces, which show as a mark. A null word such as 'NULL' still shows as written.
 function isValueEmpty(columnId: string, rowIndex: number): boolean {
     const valueState = constructValueState(columnId, rowIndex);
-    return (valueState === 'blank' || valueState === 'missing') && findRecordValue(columnId, rowIndex).trim() === '';
+    return (valueState === 'blank' || valueState === 'empty') && findRecordValue(columnId, rowIndex).trim() === '';
 }
 
 // Every record has a value that loads. Only the whole item can show that.
@@ -1173,9 +1179,20 @@ function isCompleteColumn(columnId: string): boolean {
     return activeContentAuditConfig.value?.isComplete === true && activeItemReading.value != null && isColumnComplete(activeItemReading.value, columnIndex, detectedColumnTypes.value[columnIndex]);
 }
 
+// The user chose to leave the column out of the load. It stays in the preview, so it can still be checked.
+function isIgnoredColumn(columnId: string): boolean {
+    return selectedIgnoredColumns.value[columnId] === true;
+}
+
 // Every value is unique and none is missing, so the column could identify each record.
 function isKeyColumn(columnId: string): boolean {
     return isCompleteColumn(columnId) && activeItemReading.value?.columnConfigs[Number(columnId)]?.validIsUnique === true;
+}
+
+// Every value there is unique, though some are missing, so the column could take a unique index but not be a key. Only
+// the whole item can show that.
+function isUniqueColumn(columnId: string): boolean {
+    return activeContentAuditConfig.value?.isComplete === true && activeItemReading.value?.columnConfigs[Number(columnId)]?.validIsUnique === true && !isKeyColumn(columnId);
 }
 
 // The detail opens in the tab the user is in, so they keep their place. The table scrolls the clicked column's tab into
@@ -1521,9 +1538,18 @@ function constructColumnTypeValue(columnId: string): string {
 }
 
 // The type a column is read as, named for its menu button, because the icon alone does not say it.
+// Screen readers hear that a column is left out of the load with its type, because the ✕ that shows it is only seen.
 function constructColumnTypeText(columnId: string): string {
     const columnConfig = activeItemReading.value?.columnConfigs.at(Number(columnId));
-    return columnConfig == null ? '' : constructColumnTypeLabel(columnConfig);
+    if (columnConfig == null) return '';
+    const type = constructColumnTypeLabel(columnConfig);
+    return isIgnoredColumn(columnId) ? t(TEXT, 'columnType.ignored.aria', { type }) : type;
+}
+
+function constructColumnDetailTitleKey(columnId: string): keyof typeof TEXT {
+    const isSelected = Number(columnId) === selectedColumnIndex.value;
+    if (isIgnoredColumn(columnId)) return isSelected ? 'columnDetail.close.ignored.label' : 'columnDetail.ignored.label';
+    return isSelected ? 'columnDetail.close.label' : 'columnDetail.label';
 }
 
 // The icon for a column's type select. Undefined until the preview holds the column.
@@ -2380,31 +2406,36 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     >
                         <!-- Column Name ─ Opens the column's detail over the rows, or closes it on the selected tab. The
                          button's overlay covers the whole tab, so a click anywhere on it does the same, while the name
-                         stays the button's accessible name. -->
+                         stays the button's accessible name. An ignored column is dimmed, and its title says why. -->
                         <template #header-label="{ columnId }">
                             <ActionWrapper
                                 :aria-current="Number(columnId) === selectedColumnIndex ? 'true' : undefined"
                                 class="min-w-0 flex-1 truncate text-left text-sm font-medium after:absolute after:inset-0"
-                                :class="Number(columnId) === selectedColumnIndex ? 'text-emphasis' : 'text-muted'"
-                                :title="
-                                    t(TEXT, Number(columnId) === selectedColumnIndex ? 'columnDetail.close.label' : 'columnDetail.label', {
-                                        label: String(previewTableColumnDefinitions[Number(columnId)]?.header)
-                                    })
-                                "
+                                :class="[Number(columnId) === selectedColumnIndex ? 'text-emphasis' : 'text-muted', { 'opacity-50': isIgnoredColumn(columnId) }]"
+                                :title="t(TEXT, constructColumnDetailTitleKey(columnId), { label: String(previewTableColumnDefinitions[Number(columnId)]?.header) })"
                                 @click="handleToggleColumnDetail(Number(columnId))"
                                 >{{ previewTableColumnDefinitions[Number(columnId)]?.header }}</ActionWrapper
                             >
                         </template>
-                        <!-- Complete and Key ─ Only after a whole audit, because the rest of the item could still lack or repeat a
-                         value. A key is always complete, so 'isCompleteColumn' covers both. The value bar is placed on the
-                         header cell, along its bottom edge, so it sits here only to be in the cell. -->
+                        <!-- Key, Unique and Complete ─ Only after a whole audit, because the rest of the item could
+                         still lack or repeat a value. A key is complete and unique. A unique column with missing values
+                         gets its own icon, because it could take a unique index but not be a key. The icons follow the
+                         order of the Overview's facts. The value bar is placed on the header cell, along its bottom
+                         edge, so it sits here only to be in the cell. -->
                         <template #header-label-end="{ columnId }">
-                            <span v-if="isCompleteColumn(columnId)" class="ml-1 flex flex-none items-center gap-x-0.5 text-muted">
-                                <span :aria-label="t(TEXT, 'columnComplete.aria')" role="img" :title="t(TEXT, 'columnComplete.aria')">
-                                    <AsteriskIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
-                                </span>
+                            <span
+                                v-if="isCompleteColumn(columnId) || isUniqueColumn(columnId)"
+                                class="ml-1 flex flex-none items-center gap-x-0.5 text-muted"
+                                :class="{ 'opacity-50': isIgnoredColumn(columnId) }"
+                            >
                                 <span v-if="isKeyColumn(columnId)" :aria-label="t(TEXT, 'columnKey.aria')" role="img" :title="t(TEXT, 'columnKey.aria')">
                                     <KeyRoundIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                                </span>
+                                <span v-else-if="isUniqueColumn(columnId)" :aria-label="t(TEXT, 'columnUnique.aria')" role="img" :title="t(TEXT, 'columnUnique.aria')">
+                                    <FingerprintPatternIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                                </span>
+                                <span v-if="isCompleteColumn(columnId)" :aria-label="t(TEXT, 'columnComplete.aria')" role="img" :title="t(TEXT, 'columnComplete.aria')">
+                                    <AsteriskIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
                                 </span>
                             </span>
                             <ColumnValueBar
@@ -2416,15 +2447,28 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             />
                             <!-- Type Icon ─ Shows the column's type after its name. The type is chosen in the column's
                              detail, so a click on the icon opens the detail like the rest of the tab. The dot marks a
-                             type the user chose. 'pointer-events-none' lets a click through to the tab, because the
-                             dot's positioning would otherwise lift the icon above the tab's overlay. -->
+                             type the user chose. A ✕ in its place marks a column left out of the load, because its
+                             type no longer matters then.
+                             'pointer-events-none' lets a click through to the tab, because the dot's positioning would
+                             otherwise lift the icon above the tab's overlay. -->
                             <span
                                 :aria-label="constructColumnTypeText(columnId)"
                                 class="pointer-events-none relative ml-1.5 flex flex-none items-center text-sm text-muted"
                                 role="img"
                             >
-                                <component :is="constructColumnTypeIcon(columnId)" aria-hidden="true" class="size-[1.25em] flex-none" />
-                                <span v-if="selectedColumnTypes[columnId] != null" aria-hidden="true" class="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-muted" />
+                                <component
+                                    :is="constructColumnTypeIcon(columnId)"
+                                    aria-hidden="true"
+                                    class="size-[1.25em] flex-none"
+                                    :class="{ 'opacity-50': isIgnoredColumn(columnId) }"
+                                />
+                                <XIcon
+                                    v-if="isIgnoredColumn(columnId)"
+                                    aria-hidden="true"
+                                    class="absolute -top-1 -right-1 size-2.5 rounded-full bg-surface text-danger-text"
+                                    :stroke-width="3"
+                                />
+                                <span v-else-if="selectedColumnTypes[columnId] != null" aria-hidden="true" class="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-muted" />
                             </span>
                         </template>
                         <!-- Value Marks ─ A shape as well as the tint, so an invalid value does not rely on colour. It goes at the far
@@ -2443,7 +2487,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             </template>
                             <span v-else-if="isValueEmpty(columnId, rowIndex)" class="absolute inset-0 flex items-center justify-center text-sm text-subtle">
                                 <span aria-hidden="true">{{ constructValueState(columnId, rowIndex) === 'blank' ? '""' : '–' }}</span>
-                                <span class="sr-only">{{ t(TEXT, constructValueState(columnId, rowIndex) === 'blank' ? 'value.blank.aria' : 'value.missing.aria') }}</span>
+                                <span class="sr-only">{{ t(TEXT, constructValueState(columnId, rowIndex) === 'blank' ? 'value.blank.aria' : 'value.empty.aria') }}</span>
                             </span>
                         </template>
                         <!-- Decimal Padding ─ A number's missing separator and zeros show in a light colour straight after its last

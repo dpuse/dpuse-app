@@ -23,7 +23,9 @@
             "en": "Every record has a value in this column that fits its type",
             "es": "Todos los registros tienen en esta columna un valor que encaja con su tipo"
         },
+        "columnDetail.close.ignored.label": { "en": "Close the detail of {label}, ignored when loading", "es": "Cerrar el detalle de {label}, ignorada al cargar" },
         "columnDetail.close.label": { "en": "Close the detail of {label}", "es": "Cerrar el detalle de {label}" },
+        "columnDetail.ignored.label": { "en": "Show the detail of {label}, ignored when loading", "es": "Ver el detalle de {label}, ignorada al cargar" },
         "columnDetail.label": { "en": "Show the detail of {label}", "es": "Ver el detalle de {label}" },
         "columnKey.aria": {
             "en": "Every value is unique and none are missing, so this column could identify each record",
@@ -33,6 +35,11 @@
         "columnSearch.empty.text": { "en": "No columns match", "es": "Ninguna columna coincide" },
         "columnSearch.placeholder": { "en": "Find column", "es": "Buscar columna" },
         "columnType.aria": { "en": "Data type of {label}", "es": "Tipo de dato de {label}" },
+        "columnType.ignored.aria": { "en": "{type}, ignored when loading", "es": "{type}, ignorada al cargar" },
+        "columnUnique.aria": {
+            "en": "Every value is unique, but some are missing, so this column could take a unique index but not identify each record",
+            "es": "Todos los valores son únicos, pero faltan algunos, por lo que esta columna admite un índice único pero no puede identificar cada registro"
+        },
         "dateOrder.dayFirst.label": { "en": "Day first", "es": "Día primero" },
         "dateOrder.monthFirst.label": { "en": "Month first", "es": "Mes primero" },
         "decimalSeparator.comma.label": { "en": "Decimal comma", "es": "Coma decimal" },
@@ -136,9 +143,10 @@
         "table.label": { "en": "Table", "es": "Tabla" },
         "table.select.text": { "en": "Select a table from the list.", "es": "Selecciona una tabla de la lista." },
         "value.blank.aria": { "en": "Blank", "es": "En blanco" },
+        "value.empty.aria": { "en": "Empty", "es": "Vacío" },
         "value.invalid.aria": { "en": "Does not fit the column's type:", "es": "No se ajusta al tipo de la columna:" },
         "value.invalid.text": { "en": "Does not fit the column's type", "es": "No se ajusta al tipo de la columna" },
-        "value.missing.aria": { "en": "Missing", "es": "Ausente" },
+        "value.null.aria": { "en": "Null", "es": "Nulo" },
         "valueDelimiter.label": { "en": "Value delimiter", "es": "Delimitador de valores" }
     }
 }

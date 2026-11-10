@@ -88,9 +88,11 @@
     --color-warning-ring: var(--warning-ring);
     --color-warning-border: var(--warning-border); /* Edge of a guarded button or warning tag */
     --color-blank-value: var(--blank-value); /* A blank value's share of a value bar */
+    --color-null-value: var(--null-value); /* A null value's share of a value bar */
     --color-blank-tint: var(--blank-tint); /* Cell tints, strongest for an invalid value, which is the only problem. Stronger in dark mode, where a tint shows less. */
+    --color-empty-tint: var(--empty-tint);
     --color-invalid-tint: var(--invalid-tint);
-    --color-missing-tint: var(--missing-tint);
+    --color-null-tint: var(--null-tint);
 
     --color-danger: var(--danger);
     --color-danger-hover: var(--danger-hover);
@@ -160,9 +162,11 @@
     --warning-text: var(--color-amber-800);
     --warning-mark: var(--color-amber-600);
     --blank-value: var(--color-amber-500);
+    --null-value: var(--color-violet-400);
     --blank-tint: color-mix(in srgb, var(--blank-value) 18%, transparent);
+    --empty-tint: color-mix(in srgb, var(--subtle) 12%, transparent);
     --invalid-tint: color-mix(in srgb, var(--danger-text) 10%, transparent);
-    --missing-tint: color-mix(in srgb, var(--subtle) 12%, transparent);
+    --null-tint: color-mix(in srgb, var(--null-value) 15%, transparent);
     --warning-ring: var(--color-amber-500);
     --warning-border: var(--color-amber-200);
 
@@ -229,9 +233,11 @@
     --warning-text: var(--color-amber-400);
     --warning-mark: var(--color-amber-400);
     --blank-value: var(--color-amber-500);
+    --null-value: var(--color-violet-400);
     --blank-tint: color-mix(in srgb, var(--blank-value) 18%, transparent);
+    --empty-tint: color-mix(in srgb, var(--subtle) 20%, transparent);
     --invalid-tint: color-mix(in srgb, var(--danger-text) 22%, transparent);
-    --missing-tint: color-mix(in srgb, var(--subtle) 20%, transparent);
+    --null-tint: color-mix(in srgb, var(--null-value) 22%, transparent);
     --warning-ring: color-mix(in srgb, var(--color-amber-400) 20%, transparent);
     --warning-border: var(--color-amber-900);
 

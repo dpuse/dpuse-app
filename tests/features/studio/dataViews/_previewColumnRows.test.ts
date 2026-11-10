@@ -112,16 +112,18 @@ describe('constructPreviewColumnRows', () => {
         const itemReading = buildItemReading(false, {
             blankValueCount: 1,
             dataTypeId: 'string',
+            emptyValueCount: 2,
             inferenceCounts: { 'numeric.integer': 3, 'string.plain': 1 },
             invalidValueCount: 1,
-            missingValueCount: 2,
+            nullValueCount: 3,
             validValueCount: 3
         });
 
         expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({
             blankValueText: '1',
+            emptyValueText: '2',
             invalidValueText: '0',
-            missingValueText: '2'
+            nullValueText: '3'
         });
     });
 
@@ -130,11 +132,12 @@ describe('constructPreviewColumnRows', () => {
             blankValueCount: 1,
             dataTypeId: 'numeric',
             inferenceCounts: { 'numeric.integer': 4, 'string.plain': 3 },
+            emptyValueCount: 2,
             leadingInferenceCounts: { 'string.plain': 1 },
-            missingValueCount: 2
+            nullValueCount: 3
         });
 
-        expect(constructColumnValueCounts(itemReading)[0]).toEqual({ blankCount: 1, invalidCount: 2, missingCount: 2, validCount: 4 });
+        expect(constructColumnValueCounts(itemReading)[0]).toEqual({ blankCount: 1, emptyCount: 2, invalidCount: 2, nullCount: 3, validCount: 4 });
     });
 
     it('shows no invalid count for a column with no sampled values', () => {
@@ -174,6 +177,12 @@ describe('isColumnComplete', () => {
 
     it('is not complete when a chosen type leaves values that load empty', () => {
         const itemReading = buildItemReading(false, { dataSubtypeId: 'integer', dataTypeId: 'numeric', inferenceCounts: { 'numeric.integer': 6, 'string.plain': 1 }, hasMissingValues: false });
+
+        expect(isColumnComplete(itemReading, 0, detectedText)).toBe(false);
+    });
+
+    it('is not complete when an invalid value loads empty, though invalid values are not missing ones', () => {
+        const itemReading = buildItemReading(false, { dataTypeId: 'string', hasMissingValues: false, invalidValueCount: 1 });
 
         expect(isColumnComplete(itemReading, 0, detectedText)).toBe(false);
     });
