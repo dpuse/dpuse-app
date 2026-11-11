@@ -40,7 +40,7 @@ describe('useItemAudit', () => {
 
         await audit.startAudit(2048);
 
-        expect(auditDataViewContent).toHaveBeenCalledWith(DATA_VIEW, 2048, expect.any(Function), true);
+        expect(auditDataViewContent).toHaveBeenCalledWith(DATA_VIEW, 2048, expect.any(Function), true, expect.any(String));
         expect(audit.auditedByteCount.value).toBe(1000);
         expect(audit.auditedRecordCount.value).toBe(5);
         expect(audit.auditIsRunning.value).toBe(false);
@@ -53,7 +53,7 @@ describe('useItemAudit', () => {
 
         await audit.startAudit(undefined);
 
-        expect(auditDataViewContent).toHaveBeenCalledWith(DATA_VIEW, undefined, expect.any(Function), false);
+        expect(auditDataViewContent).toHaveBeenCalledWith(DATA_VIEW, undefined, expect.any(Function), false, expect.any(String));
     });
 
     it('does nothing with no item to audit', async () => {
@@ -84,7 +84,7 @@ describe('useItemAudit', () => {
         audit.stopAudit();
         await started;
 
-        expect(stopDataViewContentAudit).toHaveBeenCalledWith('source1');
+        expect(stopDataViewContentAudit).toHaveBeenCalledWith('source1', vi.mocked(auditDataViewContent).mock.calls[0]?.[4]); // Only the audit this request started.
         expect(abortDataViewContentAudit).not.toHaveBeenCalled();
         expect(handleAudited).toHaveBeenCalledWith(AUDIT);
     });
@@ -99,7 +99,7 @@ describe('useItemAudit', () => {
         audit.abortAudit();
         await started;
 
-        expect(abortDataViewContentAudit).toHaveBeenCalledWith('source1');
+        expect(abortDataViewContentAudit).toHaveBeenCalledWith('source1', vi.mocked(auditDataViewContent).mock.calls[0]?.[4]); // Only the audit this request started.
         expect(raiseAppFailure).not.toHaveBeenCalled();
         expect(handleAudited).not.toHaveBeenCalled();
     });
@@ -112,7 +112,7 @@ describe('useItemAudit', () => {
         void audit.startAudit(undefined);
         unmount();
 
-        expect(abortDataViewContentAudit).toHaveBeenCalledWith('source1');
+        expect(abortDataViewContentAudit).toHaveBeenCalledWith('source1', vi.mocked(auditDataViewContent).mock.calls[0]?.[4]); // Only the audit this request started.
     });
 });
 

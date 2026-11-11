@@ -148,7 +148,8 @@ export async function auditDataViewContent(
     dataViewConfig: DataViewConfig,
     byteLimit: number | undefined,
     onProgress: (recordCount: number, byteCount: number) => void,
-    headersAreChosen = true
+    headersAreChosen = true,
+    requestId?: string // Names the audit, so 'abortDataViewContentAudit' can stop it. Undefined when it is never stopped.
 ): Promise<AuditObjectContentResult> {
     const connectionLocalisedConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
     const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
@@ -162,6 +163,7 @@ export async function auditDataViewContent(
         hasHeaders: headersAreChosen || appliedReading.hasHeaders === true ? appliedReading.hasHeaders === true : undefined,
         parserId: appliedReading.parserId, // The tool that read the sample, so the audit reads it the same way.
         path: constructItemPath(connectionNodeConfig),
+        requestId,
         valueDelimiterId: itemIsFile ? assertDefined(appliedReading.valueDelimiterId, 'No value delimiter in the sample.') : undefined
     }; // The engine adds 'stopSignal' and 'supportsTransferableStreams', because they only exist in the worker.
     const { processRequest } = await establishEngineWorker();
@@ -170,20 +172,20 @@ export async function auditDataViewContent(
     })) as AuditObjectContentResult;
 }
 
-// Ends the audit at the next record, and the audit still returns what it read.
-export async function stopDataViewContentAudit(connectionId: string): Promise<void> {
+// Ends the audit the request id names at its next record, and the audit still returns what it read.
+export async function stopDataViewContentAudit(connectionId: string, requestId: string): Promise<void> {
     const connectionLocalisedConfig = findConnectionLocalisedConfig(connectionId);
     if (connectionLocalisedConfig == null) return;
     const { processRequest } = await establishEngineWorker();
-    await processRequest('stopAudit', connectionLocalisedConfig, {});
+    await processRequest('stopAudit', connectionLocalisedConfig, { requestId });
 }
 
-// A connector keeps one abort controller, so this stops whichever operation it started last.
-export async function abortDataViewContentAudit(connectionId: string): Promise<void> {
+// Stops only the audit the request id names, so the connection's other requests run on.
+export async function abortDataViewContentAudit(connectionId: string, requestId: string): Promise<void> {
     const connectionLocalisedConfig = findConnectionLocalisedConfig(connectionId);
     if (connectionLocalisedConfig == null) return;
     const { processRequest } = await establishEngineWorker();
-    await processRequest('abort', connectionLocalisedConfig, {});
+    await processRequest('abort', connectionLocalisedConfig, { requestId });
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

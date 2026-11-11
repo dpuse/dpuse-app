@@ -8,6 +8,7 @@ import type { DataViewConfig, EngineWorker } from '@dpuse/dpuse-shared';
 import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import {
+    abortDataViewRecordLoad,
     findDataViewInvalidValueCounts,
     findDataViewStoreLabel,
     forgetDataViewLoads,
@@ -106,6 +107,17 @@ describe('_dataViewStore', () => {
         expect(onProgress).toHaveBeenCalledWith(10);
         expect(isDataViewLoaded(DATA_VIEW, false)).toBe(true);
         expect(isDataViewLoaded({ ...DATA_VIEW, contentAuditConfig: { ...DATA_VIEW.contentAuditConfig, asAt: 6 } } as DataViewConfig, false)).toBe(false);
+    });
+
+    it('names a load with its request id, and stops only the load that id names', async () => {
+        const requestedDataView = { ...DATA_VIEW, id: 'requestedDataView' };
+        processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
+
+        await loadDataViewRecords(requestedDataView, false, vi.fn(), 'load-1');
+        await abortDataViewRecordLoad(requestedDataView, 'load-1');
+
+        expect(processRequest.mock.calls[0]?.[2]).toMatchObject({ requestId: 'load-1' });
+        expect(processRequest.mock.calls[1]?.slice(0, 3)).toEqual(['abort', { connectorConfig: { itemTypeId: 'file' }, id: 'source1' }, { requestId: 'load-1' }]);
     });
 
     it('sends no encoding or value delimiter for a source that is not a file', async () => {

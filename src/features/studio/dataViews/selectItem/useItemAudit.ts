@@ -40,6 +40,7 @@ export function useItemAudit(
     const auditElapsedDuration = ref(0);
     const auditStartedAt = ref(0);
     const auditedConnectionId = ref<string>();
+    const auditRequestId = ref<string>(); // Names the running audit, so stopping or aborting it touches nothing else.
     const wasAuditAborted = (): boolean => auditIsAborted.value; // Read through a function, because 'abortAudit' sets it while the audit is awaited.
 
     async function startAudit(byteLimit: number | undefined): Promise<void> {
@@ -53,6 +54,7 @@ export function useItemAudit(
         auditElapsedDuration.value = 0;
         auditStartedAt.value = Date.now();
         auditedConnectionId.value = dataViewConfig.connectionId;
+        auditRequestId.value = crypto.randomUUID();
         try {
             const auditResult = await auditDataViewContent(
                 dataViewConfig,
@@ -61,7 +63,8 @@ export function useItemAudit(
                     auditedByteCount.value = byteCount;
                     auditedRecordCount.value = recordCount;
                 },
-                areHeadersChosen()
+                areHeadersChosen(),
+                auditRequestId.value
             );
             if (!wasAuditAborted()) handleAudited(auditResult);
         } catch (error) {
@@ -73,16 +76,16 @@ export function useItemAudit(
     }
 
     function stopAudit(): void {
-        if (!auditIsRunning.value || auditedConnectionId.value == null) return;
-        void stopDataViewContentAudit(auditedConnectionId.value).catch((error: unknown) => {
+        if (!auditIsRunning.value || auditedConnectionId.value == null || auditRequestId.value == null) return;
+        void stopDataViewContentAudit(auditedConnectionId.value, auditRequestId.value).catch((error: unknown) => {
             raiseAppFailure(new AppError('Failed to stop the audit.', 'dpuse-app.useItemAudit.stopAudit', { typeId: 'handled' }, { cause: error }));
         });
     }
 
     function abortAudit(): void {
-        if (!auditIsRunning.value || auditedConnectionId.value == null) return;
+        if (!auditIsRunning.value || auditedConnectionId.value == null || auditRequestId.value == null) return;
         auditIsAborted.value = true;
-        void abortDataViewContentAudit(auditedConnectionId.value).catch((error: unknown) => {
+        void abortDataViewContentAudit(auditedConnectionId.value, auditRequestId.value).catch((error: unknown) => {
             raiseAppFailure(new AppError('Failed to abort the audit.', 'dpuse-app.useItemAudit.abortAudit', { typeId: 'handled' }, { cause: error }));
         });
     }

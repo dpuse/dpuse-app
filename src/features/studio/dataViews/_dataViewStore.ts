@@ -37,7 +37,7 @@ export type DataViewColumnValueCounts = Required<Pick<ColumnAuditConfig, 'validD
 // choice loads into the default, SQLite, because it needs far less memory and a much smaller download than DuckDB.
 export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-sqlite-wasm';
 //export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-duckdb-wasm';
-const INVESTIGATE_STORE_CONNECTOR_IDS = ['dpuse-connector-sqlite-wasm', 'dpuse-connector-duckdb-wasm'];
+const INVESTIGATE_STORE_CONNECTOR_IDS = ['dpuse-connector-sqlite-wasm', 'dpuse-connector-duckdb-wasm', 'dpuse-connector-dexie-js']; // Dexie last, because it answers queries in memory.
 
 const DRAFT_LOAD_SUFFIX = '|draft';
 const OLDER_DRAFT_LOAD_SUFFIX = '|working'; // Left by a build that stored drafts.
@@ -90,7 +90,13 @@ export function isDataViewLoaded(dataViewConfig: Pick<DataViewConfig, 'columnCho
 // Reads the data view from its source again, the way its preview read it, and stores each value as its column's type.
 // The records go from the source connector to the store inside the engine, never through the app. An item whose columns
 // have moved since the preview loads nothing, so the earlier load stays.
-export async function loadDataViewRecords(dataViewConfig: DataViewConfig, isDraft: boolean, onProgress: (recordCount: number) => void): Promise<EngineLoadObjectRecordsResult> {
+// 'requestId' names the load, so 'abortDataViewRecordLoad' can stop it. Undefined when it is never stopped.
+export async function loadDataViewRecords(
+    dataViewConfig: DataViewConfig,
+    isDraft: boolean,
+    onProgress: (recordCount: number) => void,
+    requestId?: string
+): Promise<EngineLoadObjectRecordsResult> {
     const columnsVersion = assertDefined(constructColumnsVersion(dataViewConfig), 'No columns for this data view.');
     const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
     const appliedReading = constructAppliedReading(assertDefined(dataViewConfig.sampleConfig, 'No sample for this data view.'));
@@ -104,6 +110,7 @@ export async function loadDataViewRecords(dataViewConfig: DataViewConfig, isDraf
         ignoredColumnIndexes: constructIgnoredColumnIndexes(dataViewConfig),
         headerValues: appliedReading.hasHeaders === true ? dataViewConfig.sampleConfig?.parsedRecords[0]?.map((parsedValue) => parsedValue.value) : undefined,
         path: establishTablePath(storeConnectorId, dataViewConfig.id, isDraft),
+        requestId,
         sourceConnectionConfig,
         sourceOptions: {
             chunkSize: undefined,
@@ -125,12 +132,12 @@ export async function loadDataViewRecords(dataViewConfig: DataViewConfig, isDraf
     return loadResult;
 }
 
-// A load is stopped at its source, which then stops the store, so the earlier load is kept.
-export async function abortDataViewRecordLoad(dataViewConfig: DataViewConfig): Promise<void> {
+// Stops only the load the request id names. Its source and its store both stop, so the earlier load is kept.
+export async function abortDataViewRecordLoad(dataViewConfig: DataViewConfig, requestId: string): Promise<void> {
     const sourceConnectionConfig = findConnectionLocalisedConfig(dataViewConfig.connectionId);
     if (sourceConnectionConfig == null) return;
     const { processRequest } = await establishEngineWorker();
-    await processRequest('abort', sourceConnectionConfig, {});
+    await processRequest('abort', sourceConnectionConfig, { requestId });
 }
 
 export async function queryDataViewRecords(storeConnectorId: string, tablePath: string, query: DataViewRecordQuery): Promise<QueryRecordsResult> {

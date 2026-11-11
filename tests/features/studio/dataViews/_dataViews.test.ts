@@ -325,21 +325,21 @@ describe('data views', () => {
     });
 
     describe('abortDataViewContentAudit', () => {
-        it('asks the engine to stop the connection’s operation', async () => {
+        it('asks the engine to stop the audit its request id names', async () => {
             const connectionConfig = { id: 'connection-a' };
             const processRequest = vi.fn(() => Promise.resolve());
             vi.mocked(findConnectionLocalisedConfig).mockReturnValue(connectionConfig as never);
             vi.mocked(establishEngineWorker).mockResolvedValue({ processRequest } as never);
 
-            await abortDataViewContentAudit('connection-a');
+            await abortDataViewContentAudit('connection-a', 'request-1');
 
-            expect(processRequest).toHaveBeenCalledWith('abort', connectionConfig, {});
+            expect(processRequest).toHaveBeenCalledWith('abort', connectionConfig, { requestId: 'request-1' });
         });
 
         it('does nothing for a connection that no longer exists', async () => {
             vi.mocked(findConnectionLocalisedConfig).mockReturnValue(undefined);
 
-            await abortDataViewContentAudit('connection-gone');
+            await abortDataViewContentAudit('connection-gone', 'request-1');
 
             expect(establishEngineWorker).not.toHaveBeenCalled();
         });

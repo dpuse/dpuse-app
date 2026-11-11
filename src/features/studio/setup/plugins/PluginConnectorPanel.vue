@@ -19,7 +19,6 @@ import StudioDocumentSection from '@/features/studio/_components/StudioDocumentS
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const ACTION_LABEL_KEYS: Record<ConnectorActionName, keyof typeof TEXT> = {
-    abortOperation: 'action.abortOperation.label',
     auditObjectContent: 'action.auditObjectContent.label',
     closeStore: 'action.closeStore.label',
     createObject: 'action.createObject.label',

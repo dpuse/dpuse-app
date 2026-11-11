@@ -122,6 +122,7 @@ const loadDuration = ref<number>(); // How long this panel's last finished load 
 const loadedRecordCount = ref(0);
 const loadIsAbandoned = ref(false); // Set on leaving the panel, so the stopped load is not shown as a failure.
 const loadIsStopped = ref(false); // Set by 'Stop', so the stopped load is shown as stopped, not as a failure.
+const loadRequestId = ref<string>(); // Names the running load, so stopping it stops nothing else.
 const loadVersion = ref(0); // Counts loads, so the table drops the records it holds after each one.
 const firstPageColumnWidths = shallowRef<{ dataSourceId: string; widths: number[] }>(); // Measured once per load, so scrolling back cannot move the columns.
 
@@ -328,9 +329,9 @@ watch([selectedColumnIndex, (): string | undefined => dataSource.value.id], asyn
 // Leaving stops a load rather than letting it run on unseen, and closes the store so another tab can use it.
 onBeforeUnmount(() => {
     const leftDataViewConfig = dataViewConfig.value;
-    if (leftDataViewConfig != null && investigateState.value.typeId === 'loading') {
+    if (leftDataViewConfig != null && investigateState.value.typeId === 'loading' && loadRequestId.value != null) {
         loadIsAbandoned.value = true;
-        void abortDataViewRecordLoad(leftDataViewConfig).catch((error: unknown) => {
+        void abortDataViewRecordLoad(leftDataViewConfig, loadRequestId.value).catch((error: unknown) => {
             raiseFailure(new AppError('Failed to stop loading the records.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
         });
     }
@@ -400,9 +401,9 @@ function handleLoadAgainIntoStore(chosenStoreConnectorId: string): void {
 }
 
 function handleStopLoad(): void {
-    if (dataViewConfig.value == null) return;
+    if (dataViewConfig.value == null || loadRequestId.value == null) return;
     loadIsStopped.value = true;
-    void abortDataViewRecordLoad(dataViewConfig.value).catch((error: unknown) => {
+    void abortDataViewRecordLoad(dataViewConfig.value, loadRequestId.value).catch((error: unknown) => {
         raiseFailure(new AppError('Failed to stop loading the records.', 'dpuse-app.InvestigateDataPanel.handleStopLoad', { typeId: 'handled' }, { cause: error }));
     });
 }
@@ -426,10 +427,16 @@ async function openAndLoad(isReloaded: boolean): Promise<void> {
             loadDuration.value = undefined;
             loadedRecordCount.value = 0;
             loadIsStopped.value = false;
+            loadRequestId.value = crypto.randomUUID();
             const loadStartTime = performance.now();
-            const { columnsHaveChanged } = await loadDataViewRecords(openedDataViewConfig, draftIsCurrent.value, (recordCount) => {
-                loadedRecordCount.value = recordCount;
-            });
+            const { columnsHaveChanged } = await loadDataViewRecords(
+                openedDataViewConfig,
+                draftIsCurrent.value,
+                (recordCount) => {
+                    loadedRecordCount.value = recordCount;
+                },
+                loadRequestId.value
+            );
             if (columnsHaveChanged) {
                 investigateState.value = { typeId: 'columnsChanged' };
                 return;
