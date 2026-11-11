@@ -8,6 +8,7 @@ import type { DataViewConfig, EngineWorker } from '@dpuse/dpuse-shared';
 import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import {
+    findDataViewInvalidValueCounts,
     findDataViewStoreLabel,
     forgetDataViewLoads,
     forgetDraftLoad,
@@ -16,6 +17,7 @@ import {
     loadDataViewRecords,
     openDataViewStore,
     promoteDraftLoad,
+    queryDataViewColumnValueCounts,
     queryDataViewRecords,
     resolveDataViewTablePath
 } from '@/features/studio/dataViews/_dataViewStore';
@@ -42,7 +44,14 @@ const DATA_VIEW = {
     contentAuditConfig: { asAt: 5, columns: [{ dataTypeId: 'string', label: { en: 'Name' } }] },
     id: 'dataView1',
     readingConfig: { dataFormatId: 'dsv', encodingId: 'utf-8', hasHeaders: true, parserId: 'parser1', valueDelimiterId: ',' },
-    sampleConfig: { parsedRecords: [[{ value: 'Name', valueWasQuoted: false }]] }
+    sampleConfig: {
+        dataFormatId: 'dsv',
+        decodedEncodingId: 'utf-8',
+        hasHeaders: true,
+        parsedRecords: [[{ value: 'Name', valueWasQuoted: false }]],
+        parserId: 'parser1',
+        valueDelimiterId: ','
+    }
 } as unknown as DataViewConfig;
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -155,6 +164,24 @@ describe('_dataViewStore', () => {
         expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: 'dataView6' });
     });
 
+    it('keeps each load’s counts of values that did not fit, moves them with the draft on Save, and forgets them on Discard', async () => {
+        const editedDataView = { ...DATA_VIEW, id: 'dataView20' };
+        processRequest.mockResolvedValue({ columnsHaveChanged: false, invalidValueCounts: [3], recordCount: 9 });
+
+        expect(findDataViewInvalidValueCounts(editedDataView, true)).toBeUndefined();
+        await loadDataViewRecords(editedDataView, true, vi.fn());
+        expect(findDataViewInvalidValueCounts(editedDataView, true)).toEqual([3]);
+
+        promoteDraftLoad(editedDataView);
+        expect(findDataViewInvalidValueCounts(editedDataView, false)).toEqual([3]);
+        expect(findDataViewInvalidValueCounts(editedDataView, true)).toBeUndefined();
+
+        await loadDataViewRecords(editedDataView, true, vi.fn());
+        forgetDraftLoad(editedDataView.id);
+        expect(findDataViewInvalidValueCounts(editedDataView, true)).toBeUndefined();
+        expect(findDataViewInvalidValueCounts(editedDataView, false)).toEqual([3]);
+    });
+
     it('drops only the draft’s table on Discard', async () => {
         const editedDataView = { ...DATA_VIEW, id: 'dataView7' };
         processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
@@ -216,6 +243,55 @@ describe('_dataViewStore', () => {
 
         expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: 'dataView12' });
         expect(isDataViewLoaded(chosenStoreDataView, false)).toBe(true);
+    });
+
+    it('counts a column’s valid values in full, listing the least frequent apart from the most frequent', async () => {
+        const mostFrequent = Array.from({ length: 10 }, (_, index) => [`v${String(index)}`, 100 - index]);
+        processRequest
+            .mockResolvedValueOnce({ records: mostFrequent, totalCount: 12 })
+            .mockResolvedValueOnce({
+                records: [
+                    [new Date('2026-01-02T00:00:00.000Z'), 1],
+                    ['v9', 91]
+                ],
+                totalCount: 12
+            })
+            .mockResolvedValueOnce({ records: [[1]], totalCount: 1234 });
+
+        const valueCounts = await queryDataViewColumnValueCounts(INVESTIGATE_STORE_CONNECTOR_ID, 'dataView1', 2);
+
+        expect(valueCounts.validDistinctValueCount).toBe(12);
+        expect(valueCounts.validValueCount).toBe(1234);
+        expect(Object.keys(valueCounts.validFrequentValues ?? {})).toHaveLength(10);
+        expect(valueCounts.validLeastFrequentValues).toStrictEqual({ '2026-01-02T00:00:00.000Z': 1 }); // 'v9' is already among the most frequent.
+        const notEmptyFilter = [{ columnIndex: 2, operatorId: 'isNotEmpty', value: null }];
+        expect(processRequest.mock.calls.map((call) => call[2])).toStrictEqual([
+            {
+                aggregates: [{ columnIndex: undefined, functionId: 'count' }],
+                filters: notEmptyFilter,
+                groupColumnIndexes: [2],
+                limit: 10,
+                offset: 0,
+                path: 'dataView1',
+                sorts: [
+                    { columnIndex: 1, directionId: 'descending' },
+                    { columnIndex: 0, directionId: 'ascending' }
+                ]
+            },
+            {
+                aggregates: [{ columnIndex: undefined, functionId: 'count' }],
+                filters: notEmptyFilter,
+                groupColumnIndexes: [2],
+                limit: 2, // Only two values are not among the most frequent.
+                offset: 0,
+                path: 'dataView1',
+                sorts: [
+                    { columnIndex: 1, directionId: 'ascending' },
+                    { columnIndex: 0, directionId: 'ascending' }
+                ]
+            },
+            { aggregates: [], filters: notEmptyFilter, groupColumnIndexes: [], limit: 1, offset: 0, path: 'dataView1', sorts: [] }
+        ]);
     });
 
     it('queries a page of the data view by its id', async () => {

@@ -6,7 +6,7 @@ import { type RouteLocationRaw, useRoute } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError, formatNumberAsStorageSize } from '@dpuse/dpuse-shared';
-import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
+import type { DataViewConfig, LocalisedConfig, ReadingConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { defineLazyComponent } from '@/utilities/index.ts';
@@ -94,29 +94,40 @@ const itemDescription = computed(() => {
     return itemLabel === itemName.value ? undefined : itemLabel;
 });
 
-// The encoding the preview detected, with how sure the detection was. Without a confidence level nothing was detected and
-// the preview fell back to UTF-8, so the encoding is marked as assumed.
+// The encoding the sample was decoded with, and why: the user's choice, or how detection found it. A chosen encoding the
+// browser cannot decode is named, because the text was decoded as UTF-8 instead.
 const itemEncodingText = computed(() => {
-    const readingConfig = dataViewLocalisedConfig.readingConfig;
-    if (readingConfig?.encodingId == null) return;
-    const encoding = readingConfig.encodingId;
-    if (readingConfig.encodingConfidenceLevel == null) return t(TEXT, 'item.encoding.assumed.text', { encoding });
-    const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(readingConfig.encodingConfidenceLevel);
-    return t(TEXT, 'item.encoding.text', { confidence, encoding });
+    const { readingChoiceConfig, readingConfig, sampleConfig } = dataViewLocalisedConfig;
+    const encoding = sampleConfig?.decodedEncodingId ?? readingConfig?.encodingId;
+    if (encoding == null) return;
+    const chosenEncodingId = readingChoiceConfig?.encodingId;
+    if (chosenEncodingId != null && chosenEncodingId !== encoding) return t(TEXT, 'item.encoding.undecodable.text', { encoding: chosenEncodingId });
+    const sourceText = chosenEncodingId == null ? constructEncodingSourceText(readingConfig) : t(TEXT, 'item.encodingSource.choice.text');
+    return sourceText == null ? encoding : t(TEXT, 'item.encoding.sourced.text', { encoding, source: sourceText });
 });
 
-// The file's type and its encoding on one line, and its data type, delimiters and header row on another. Either line
-// shows whichever of its parts there are.
-const itemTypeText = computed(() => formatListOfParts([dataViewLocalisedConfig.connectionNodeConfig?.mimeType, itemEncodingText.value]));
+// How many characters the encoding could not read. Shown only when there are some, because then the encoding is in doubt.
+const itemUnreadableCharactersText = computed(() => {
+    const count = dataViewLocalisedConfig.sampleConfig?.replacementCharacterCount ?? 0;
+    return count > 0 ? t(TEXT, 'item.unreadableCharacters.text', { count: new Intl.NumberFormat(localeId.value).format(count) }) : undefined;
+});
+
+// The file's type and its encoding on one line, and its data type, delimiters and header row on another, as the sample
+// was read. Either line shows whichever of its parts there are.
+const itemTypeText = computed(() => formatListOfParts([dataViewLocalisedConfig.connectionNodeConfig?.mimeType, itemEncodingText.value, itemUnreadableCharactersText.value]));
 const itemDataFormatText = computed(() => {
-    const readingConfig = dataViewLocalisedConfig.readingConfig;
+    const { readingConfig, sampleConfig } = dataViewLocalisedConfig;
     if (!readingConfig) return;
+    const dataFormatId = sampleConfig?.dataFormatId ?? readingConfig.dataFormatId;
+    const hasHeaders = sampleConfig?.hasHeaders ?? readingConfig.hasHeaders;
+    const valueDelimiterId = sampleConfig?.valueDelimiterId ?? readingConfig.valueDelimiterId;
+    const recordDelimiterId = sampleConfig?.recordDelimiterId ?? readingConfig.recordDelimiterId;
     let headerRowText: string | undefined;
-    if (readingConfig.hasHeaders != null) headerRowText = t(TEXT, readingConfig.hasHeaders ? 'item.headerRow.text' : 'item.noHeaderRow.text');
+    if (hasHeaders != null) headerRowText = t(TEXT, hasHeaders ? 'item.headerRow.text' : 'item.noHeaderRow.text');
     return formatListOfParts([
-        constructDataFormatLabel(readingConfig.dataFormatId),
-        readingConfig.valueDelimiterId == null ? undefined : constructValueDelimiterLabel(readingConfig.valueDelimiterId),
-        readingConfig.recordDelimiterId == null ? undefined : constructRecordDelimiterLabel(readingConfig.recordDelimiterId),
+        constructDataFormatLabel(dataFormatId),
+        valueDelimiterId == null ? undefined : constructValueDelimiterLabel(valueDelimiterId),
+        recordDelimiterId == null ? undefined : constructRecordDelimiterLabel(recordDelimiterId),
         headerRowText
     ]);
 });
@@ -176,6 +187,13 @@ async function handleSaveEdits(): Promise<void> {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+function constructEncodingSourceText(readingConfig: ReadingConfig | undefined): string | undefined {
+    if (readingConfig?.encodingSourceId == null) return;
+    const { encodingSourceId } = readingConfig;
+    if (encodingSourceId !== 'detection' || readingConfig.encodingConfidenceLevel == null) return t(TEXT, `item.encodingSource.${encodingSourceId}.text`);
+    const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(readingConfig.encodingConfidenceLevel);
+    return t(TEXT, 'item.encodingSource.detection.text', { confidence });
+}
 
 // The route of one of the data view's steps, which each section links to so the user can go and change what it shows.
 function constructStepRoute(stepId: DataViewStepId): RouteLocationRaw {

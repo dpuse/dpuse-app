@@ -1,5 +1,5 @@
 {
-  "version": "1.0.277",
+  "version": "1.0.278",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -157,7 +157,7 @@
           }
         },
         "vite": {
-          "version": "8.3.7"
+          "version": "8.3.8"
         },
         "wrangler": {
           "version": "4.157.0",
@@ -221,7 +221,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.205"
+          "version": "1.0.210"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1369,8 +1369,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.205",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.205.tgz",
+      "version": "1.0.210",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.210.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1456,7 +1456,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.205"
+          "version": "1.0.210"
         },
         "@tanstack/charts": {
           "version": "1.1.0",
@@ -4320,8 +4320,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.71.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.71.0.tgz",
+      "version": "1.72.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.72.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -4477,7 +4477,7 @@
           "version": "4.3.5"
         },
         "vite": {
-          "version": "8.3.7"
+          "version": "8.3.8"
         }
       }
     },
@@ -4911,7 +4911,7 @@
           "overridden": false
         },
         "vite": {
-          "version": "8.3.7"
+          "version": "8.3.8"
         },
         "vue": {
           "version": "3.5.45"
@@ -5204,7 +5204,7 @@
               }
             },
             "prettier": {
-              "version": "3.9.10"
+              "version": "3.10.0"
             },
             "synckit": {
               "version": "0.12.3",
@@ -5227,7 +5227,7 @@
           "version": "10.14.0"
         },
         "prettier": {
-          "version": "3.9.10"
+          "version": "3.10.0"
         }
       }
     },
@@ -6745,13 +6745,13 @@
         "prettier-plugin-sort-imports": {},
         "prettier-plugin-svelte": {},
         "prettier": {
-          "version": "3.9.10"
+          "version": "3.10.0"
         }
       }
     },
     "prettier": {
-      "version": "3.9.10",
-      "resolved": "https://registry.npmjs.org/prettier/-/prettier-3.9.10.tgz",
+      "version": "3.10.0",
+      "resolved": "https://registry.npmjs.org/prettier/-/prettier-3.10.0.tgz",
       "overridden": false
     },
     "sonda": {
@@ -6790,8 +6790,8 @@
       }
     },
     "squire-rte": {
-      "version": "2.4.10",
-      "resolved": "https://registry.npmjs.org/squire-rte/-/squire-rte-2.4.10.tgz",
+      "version": "2.4.11",
+      "resolved": "https://registry.npmjs.org/squire-rte/-/squire-rte-2.4.11.tgz",
       "overridden": false
     },
     "tailwind-csstree": {
@@ -6864,8 +6864,8 @@
       "overridden": false
     },
     "vite": {
-      "version": "8.3.7",
-      "resolved": "https://registry.npmjs.org/vite/-/vite-8.3.7.tgz",
+      "version": "8.3.8",
+      "resolved": "https://registry.npmjs.org/vite/-/vite-8.3.8.tgz",
       "overridden": false,
       "dependencies": {
         "@types/node": {
@@ -7089,7 +7089,7 @@
             },
             "msw": {},
             "vite": {
-              "version": "8.3.7"
+              "version": "8.3.8"
             }
           }
         },
@@ -7150,7 +7150,7 @@
           "version": "0.2.17"
         },
         "vite": {
-          "version": "8.3.7"
+          "version": "8.3.8"
         },
         "why-is-node-running": {
           "version": "3.2.1",
@@ -7160,8 +7160,8 @@
       }
     },
     "vue-router": {
-      "version": "5.4.0",
-      "resolved": "https://registry.npmjs.org/vue-router/-/vue-router-5.4.0.tgz",
+      "version": "5.5.0",
+      "resolved": "https://registry.npmjs.org/vue-router/-/vue-router-5.5.0.tgz",
       "overridden": false,
       "dependencies": {
         "@pinia/colada": {},
@@ -7509,7 +7509,7 @@
             "rollup": {},
             "unloader": {},
             "vite": {
-              "version": "8.3.7"
+              "version": "8.3.8"
             },
             "webpack-virtual-modules": {
               "version": "0.6.2",
@@ -7520,7 +7520,7 @@
           }
         },
         "vite": {
-          "version": "8.3.7"
+          "version": "8.3.8"
         },
         "vue": {
           "version": "3.5.45"
@@ -7705,8 +7705,8 @@
       "overridden": false
     },
     "wrangler": {
-      "version": "4.160.0",
-      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.160.0.tgz",
+      "version": "4.160.1",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.160.1.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/kv-asset-handler": {
@@ -7752,8 +7752,8 @@
           "version": "2.3.3"
         },
         "miniflare": {
-          "version": "5.20261110.0-beta",
-          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261110.0-beta.tgz",
+          "version": "5.20261110.1-beta",
+          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261110.1-beta.tgz",
           "overridden": false,
           "dependencies": {
             "@cspotcode/source-map-support": {

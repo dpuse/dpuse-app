@@ -246,7 +246,7 @@ describe('data views', () => {
     });
 
     describe('auditDataViewContent', () => {
-        it('audits the item the way the data view reads it, passing on progress', async () => {
+        it('audits the item the way its sample was read, not as detected, passing on progress', async () => {
             const connectionConfig = { id: 'connection-a' };
             const auditResult = { contentAuditConfig: { recordCount: 2 }, hasHeaders: false };
             const processRequest = vi.fn((_id: string, _config: unknown, _options: unknown, callback: (callbackData: unknown) => void) => {
@@ -259,8 +259,9 @@ describe('data views', () => {
                 ...buildDataView('a', 'Sales'),
                 connectionId: 'connection-a',
                 connectionNodeConfig: { extension: 'csv', folderPath: '/reports', name: 'sales' },
-                readingConfig: { dataFormatId: 'dtv', encodingId: 'utf-8', hasHeaders: true, parserId: 'dpuse-tool-adaltas-csv-parser', valueDelimiterId: ';' }
-            } as DataViewConfig;
+                readingConfig: { dataFormatId: 'dtv', encodingId: 'windows-1252', hasHeaders: false, parserId: 'dpuse-tool-rust-csv-core-parser', valueDelimiterId: ',' },
+                sampleConfig: { dataFormatId: 'dtv', decodedEncodingId: 'utf-8', hasHeaders: true, parserId: 'dpuse-tool-adaltas-csv-parser', valueDelimiterId: ';' }
+            } as DataViewConfig; // The sample was read with the user's choices, so it differs from what was detected.
             const onProgress = vi.fn();
 
             expect(await auditDataViewContent(dataViewConfig, 2048, onProgress)).toBe(auditResult);
@@ -291,7 +292,8 @@ describe('data views', () => {
                     ...buildDataView('a', 'Sales'),
                     connectionId: 'connection-a',
                     connectionNodeConfig: { extension: 'csv', folderPath: '/reports', name: 'sales' },
-                    readingConfig: { dataFormatId: 'dtv', encodingId: 'utf-8', hasHeaders, parserId: undefined, valueDelimiterId: ',' }
+                    readingConfig: { dataFormatId: 'dtv', encodingId: 'utf-8', hasHeaders, parserId: undefined, valueDelimiterId: ',' },
+                    sampleConfig: { dataFormatId: 'dtv', decodedEncodingId: 'utf-8', hasHeaders, parserId: undefined, valueDelimiterId: ',' }
                 }) as DataViewConfig;
             const findSentHasHeaders = (): unknown => (processRequest.mock.lastCall as unknown as [string, unknown, { hasHeaders: unknown }])[2].hasHeaders;
 

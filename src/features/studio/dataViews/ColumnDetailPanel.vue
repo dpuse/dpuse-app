@@ -15,8 +15,8 @@ import {
     constructPreviewColumnHeaders,
     constructPreviewColumnRows,
     countChosenTypeMisfits,
+    constructColumnFacts,
     formatYesNo,
-    isColumnComplete,
     type PreviewColumnRow
 } from '@/features/studio/dataViews/_previewColumnRows';
 import { type ColumnType, constructColumnTypeId, type ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
@@ -373,21 +373,15 @@ const validCountText = computed(() => constructValueCountText(columnConfig.value
 const invalidCountText = computed(() => constructValueCountText(columnConfig.value?.invalidValueCount ?? 0, columnConfig.value?.invalidDistinctValueCount));
 
 // ── Overview ─ What the values suggest about the column, as a guess the data supports rather than a rule the source
-// states. Every fact is always listed, as unknown when it cannot be settled. A column appears to be mandatory when no value
-// is missing, which is unknown until the whole item is read, because a value can be missing past the part audited. A
-// key is unique and has a value that loads in every record. The key comes first, as the conclusion the other two
-// facts explain.
+// states. Every fact is always listed, as unknown when it cannot be settled. The key comes first, as the conclusion the
+// other two facts explain. 'constructColumnFacts' holds the rules, which the column's tab icons share.
 const overviewFacts = computed(() => {
-    const row = columnRow.value;
-    if (row == null) return [];
-    const labels = headers.value;
-    const hasMissingValues = isAuditComplete ? columnConfig.value?.hasMissingValues : undefined;
-    const isUnique = columnConfig.value?.validIsUnique;
-    const isKey = isAuditComplete && isUnique != null ? isUnique && isColumnComplete(itemReading, columnIndex, detectedColumnType) : undefined;
+    if (columnConfig.value == null) return [];
+    const facts = constructColumnFacts(itemReading, columnIndex, detectedColumnType, isAuditComplete);
     return [
-        { icon: KeyRoundIcon, id: 'key', label: t(TEXT, 'key.label'), value: formatYesNo(isKey) },
-        { icon: FingerprintPatternIcon, id: 'unique', label: labels.uniqueText, value: row.uniqueText },
-        { icon: AsteriskIcon, id: 'mandatory', label: t(TEXT, 'mandatory.label'), value: formatYesNo(hasMissingValues == null ? undefined : !hasMissingValues) }
+        { icon: KeyRoundIcon, id: 'key', label: t(TEXT, 'key.label'), value: formatYesNo(facts.isKey) },
+        { icon: FingerprintPatternIcon, id: 'unique', label: headers.value.uniqueText, value: formatYesNo(facts.isUnique) },
+        { icon: AsteriskIcon, id: 'mandatory', label: t(TEXT, 'mandatory.label'), value: formatYesNo(facts.isMandatory) }
     ];
 });
 

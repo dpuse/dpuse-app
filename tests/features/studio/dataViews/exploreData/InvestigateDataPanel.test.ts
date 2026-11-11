@@ -11,11 +11,13 @@ import { settle } from '~/tests/support/settle';
 import { TEXT } from '@/features/studio/dataViews/exploreData/InvestigateDataPanel_.json';
 import {
     closeDataViewStore,
+    findDataViewInvalidValueCounts,
     findDataViewStoreLabel,
     hasDataViewLoad,
     isDataViewLoaded,
     loadDataViewRecords,
     openDataViewStore,
+    queryDataViewColumnValueCounts,
     queryDataViewRecords
 } from '@/features/studio/dataViews/_dataViewStore';
 import { localeId, t } from '@/state/locale';
@@ -43,12 +45,14 @@ vi.mock('@/features/studio/dataViews/_dataViews', async (importOriginal) => {
 vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
     abortDataViewRecordLoad: vi.fn(),
     closeDataViewStore: vi.fn(),
+    findDataViewInvalidValueCounts: vi.fn(),
     findDataViewStoreLabel: vi.fn(),
     hasDataViewLoad: vi.fn(),
     isDataViewLoaded: vi.fn(),
     listDataViewStoreConnections: vi.fn(() => []),
     loadDataViewRecords: vi.fn(),
     openDataViewStore: vi.fn(),
+    queryDataViewColumnValueCounts: vi.fn(),
     queryDataViewRecords: vi.fn(),
     resolveDataViewTablePath: ({ id }: { id: string }): string => id,
     resolveStoreConnectorId: (): string => 'dpuse-connector-sqlite-wasm'
@@ -100,6 +104,7 @@ beforeEach(() => {
     vi.mocked(isDataViewLoaded).mockReturnValue(true);
     vi.mocked(hasDataViewLoad).mockReturnValue(false);
     vi.mocked(loadDataViewRecords).mockResolvedValue({ columnsHaveChanged: false, invalidValueCounts: [], recordCount: 0 });
+    vi.mocked(findDataViewInvalidValueCounts).mockReturnValue(undefined);
 });
 
 afterEach(() => {
@@ -264,11 +269,33 @@ describe('InvestigateDataPanel', () => {
         expect(wrapper.findComponent(RouterLinkStub).props('to')).toMatchObject({ name: 'item', state: { columnIndex: 1 } });
     });
 
-    it('shows how many values did not fit, by column', async () => {
+    it('counts a column’s values in the store when the audit stopped counting them, and shows the counts in its detail', async () => {
+        const uncountedColumn = { ...AUDITED_DATA_VIEW.contentAuditConfig.columns[1], inferenceCounts: {}, validFormats: {}, validFrequentValues: {}, validValueCount: 5000 }; // An audit keeps no counts for a column past its limit.
+        dataView.config = {
+            ...AUDITED_DATA_VIEW,
+            contentAuditConfig: { asAt: 1, columns: [{ ...AUDITED_DATA_VIEW.contentAuditConfig.columns[0], inferenceCounts: {}, validFormats: {} }, uncountedColumn] },
+            readingConfig: { dataFormatId: 'dsv' },
+            sampleConfig: { parsedRecords: [], size: 0, text: '' }
+        };
+        const valueCounts = { validDistinctValueCount: 4321, validFrequentValues: { a: 9 }, validLeastFrequentValues: { z: 1 }, validValueCount: 6000 };
+        vi.mocked(queryDataViewColumnValueCounts).mockResolvedValue(valueCounts);
+        const wrapper = mount(InvestigateDataPanel, { global: { stubs: { RouterLink: RouterLinkStub, Table: TableStub } } });
+        await settle();
+
+        await wrapper
+            .findAll('button')
+            .find((button) => button.text() === 'Day')
+            ?.trigger('click');
+        await settle();
+
+        expect(queryDataViewColumnValueCounts).toHaveBeenCalledWith('dpuse-connector-sqlite-wasm', 'dataView1', 1);
+        const { columnConfigs } = wrapper.findComponent(ColumnDetailPanel).props('itemReading');
+        expect(columnConfigs[1]).toMatchObject(valueCounts);
+    });
+
+    it('shows how many values did not fit, by column, from the counts kept with an earlier load', async () => {
         dataView.config = AUDITED_DATA_VIEW;
-        vi.mocked(isDataViewLoaded).mockReturnValue(false);
-        vi.mocked(loadDataViewRecords).mockResolvedValue({ columnsHaveChanged: false, invalidValueCounts: [312, 0], recordCount: 400 });
-        history.replaceState({ loadIsRequested: true }, '');
+        vi.mocked(findDataViewInvalidValueCounts).mockReturnValue([312, 0]);
         const wrapper = mountPanel();
         await settle();
 

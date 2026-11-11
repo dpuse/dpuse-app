@@ -5,13 +5,15 @@ import type {
     ColumnChoiceConfig,
     ColumnChoiceConfigs,
     ContentAuditConfig,
+    DataFormatId,
     DataViewConfig,
     DateOrderId,
     DecimalSeparatorId,
     PreviewObjectResult,
     ReadingConfig,
     SampleConfig,
-    StoreRecord
+    StoreRecord,
+    ValueDelimiterId
 } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -19,6 +21,16 @@ import type {
 // An item as it shows on screen: how it is read, its sample and its columns, kept together so a change of one stays in
 // step with the others.
 export type ItemReading = SampleConfig & ReadingConfig & { columnConfigs: ColumnAuditConfig[] };
+
+// How an item is actually read: the way its sample was read, which follows the user's choices. An audit and a load read
+// the item this way.
+export interface AppliedReading {
+    dataFormatId: DataFormatId;
+    encodingId: string | undefined;
+    hasHeaders: boolean | undefined;
+    parserId: string | undefined;
+    valueDelimiterId: ValueDelimiterId | undefined;
+}
 
 export type ColumnType = Pick<ColumnAuditConfig, 'dataSubtypeId' | 'dataTypeId'>;
 
@@ -38,14 +50,17 @@ export function constructItemReading({ contentAuditConfig, readingConfig, sample
     return { ...readingConfig, ...sampleConfig, columnConfigs: contentAuditConfig.columns };
 }
 
-export function constructReadingConfig(itemReading: ItemReading): ReadingConfig {
-    const { columnConfigs: _columnConfigs, issues: _issues, parsedRecords: _parsedRecords, size: _size, text: _text, ...readingConfig } = itemReading;
-    return readingConfig;
+// The text is saved with the records it was parsed into, so the two always match. The sample also keeps how it was read,
+// so an audit and a load read the item the same way.
+export function constructSampleConfig(itemReading: ItemReading): SampleConfig {
+    const { dataFormatId, decodedEncodingId, hasHeaders, issues, parsedRecords, parserId, recordDelimiterId, replacementCharacterCount, size, text, valueDelimiterId } =
+        itemReading;
+    return { dataFormatId, decodedEncodingId, hasHeaders, issues, parsedRecords, parserId, recordDelimiterId, replacementCharacterCount, size, text, valueDelimiterId };
 }
 
-// The text is saved with the records it was parsed into, so the two always match.
-export function constructSampleConfig({ issues, parsedRecords, size, text }: ItemReading): SampleConfig {
-    return { issues, parsedRecords, size, text };
+export function constructAppliedReading(sampleConfig: SampleConfig): AppliedReading {
+    const { dataFormatId = 'unknown', decodedEncodingId, hasHeaders, parserId, valueDelimiterId } = sampleConfig;
+    return { dataFormatId, encodingId: decodedEncodingId, hasHeaders, parserId, valueDelimiterId };
 }
 
 // What the sample's records alone show, for when the columns have to be counted again from them. The columns are the

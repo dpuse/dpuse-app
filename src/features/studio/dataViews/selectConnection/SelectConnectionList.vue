@@ -18,16 +18,10 @@ import { TEXT } from './SelectConnectionList_.json';
 import { useDialogs } from '@/state/dialogs';
 import { type Action, useCardRowHeight } from '@/components/ui/config/configCard';
 import { connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
-import {
-    constructNewDataViewConfig,
-    DATA_VIEW_ADD_ACTION_ID,
-    DATA_VIEW_STEP_ACTION_ID,
-    dataViewActionLabelsAreHidden,
-    NEW_DATA_VIEW_ID,
-    useCurrentDataView,
-    useDataViews
-} from '@/features/studio/dataViews/_dataViews';
+import { constructNewDataViewConfig, DATA_VIEW_ADD_ACTION_ID } from '@/features/studio/dataViews/_dataViews';
+import { DATA_VIEW_STEP_ACTION_ID, dataViewActionLabelsAreHidden } from '@/features/studio/dataViews/_dataViews';
 import { localeId, t } from '@/state/locale';
+import { NEW_DATA_VIEW_ID, useCurrentDataView, useDataViews } from '@/features/studio/dataViews/_dataViews';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';

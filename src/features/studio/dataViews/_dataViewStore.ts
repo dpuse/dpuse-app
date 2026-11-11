@@ -3,6 +3,7 @@ import { useLocalStorage } from '@vueuse/core';
 
 // ── DPUse Framework
 import type {
+    ColumnAuditConfig,
     ConnectionConfig,
     DataViewConfig,
     DropObjectOptions,
@@ -12,6 +13,7 @@ import type {
     OpenStoreResult,
     QueryRecordsOptions,
     QueryRecordsResult,
+    StoreRecord,
     StoreStateId
 } from '@dpuse/dpuse-shared';
 
@@ -20,11 +22,14 @@ import { assertDefined } from '@/utilities/index.ts';
 import { constructItemPath } from './dataViewSummary';
 import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
-import { constructColumnsVersion, constructIgnoredColumnIndexes, constructLoadColumnConfigs } from './_dataViewColumns';
+import { constructAppliedReading, constructColumnsVersion, constructIgnoredColumnIndexes, constructLoadColumnConfigs } from './_dataViewColumns';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export type DataViewRecordQuery = Pick<QueryRecordsOptions, 'aggregates' | 'filters' | 'groupColumnIndexes' | 'limit' | 'offset' | 'sorts'>;
+
+// A column's valid values as the store holds them, counted in full, in the shape the audit gives them.
+export type DataViewColumnValueCounts = Required<Pick<ColumnAuditConfig, 'validDistinctValueCount' | 'validFrequentValues' | 'validLeastFrequentValues' | 'validValueCount'>>;
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -36,6 +41,7 @@ const INVESTIGATE_STORE_CONNECTOR_IDS = ['dpuse-connector-sqlite-wasm', 'dpuse-c
 
 const DRAFT_LOAD_SUFFIX = '|draft';
 const OLDER_DRAFT_LOAD_SUFFIX = '|working'; // Left by a build that stored drafts.
+const LISTED_VALUE_COUNT = 10; // Values in each of the most and least frequent lists, as many as the audit lists.
 const LOAD_FORMAT_VERSION = 2; // Raised when stored values change meaning, so that what is already loaded is loaded again. 2 stores dates in UTC, as true dates and times.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -43,6 +49,10 @@ const LOAD_FORMAT_VERSION = 2; // Raised when stored values change meaning, so t
 // The columns each data view was loaded with, by store and data view, kept in this browser because the store is too. A
 // data view whose columns have changed since is loaded again.
 const loadedColumnsVersions = useLocalStorage<Partial<Record<string, number | string>>>('dpuse-investigate-loads', {});
+
+// How many values in each column did not fit its type and loaded as empty, by load. The store holds them only as empty
+// values, the same as values missing from the source, so a later visit can only tell them apart from these counts.
+const loadInvalidValueCounts = useLocalStorage<Partial<Record<string, number[]>>>('dpuse-investigate-invalid-counts', {});
 
 // The table each load went into. A saved data view with no entry is in the table named by its id. A draft has a table
 // of its own, so loading it leaves the saved data view's records alone. Save makes that table the saved one.
@@ -83,31 +93,34 @@ export function isDataViewLoaded(dataViewConfig: Pick<DataViewConfig, 'columnCho
 export async function loadDataViewRecords(dataViewConfig: DataViewConfig, isDraft: boolean, onProgress: (recordCount: number) => void): Promise<EngineLoadObjectRecordsResult> {
     const columnsVersion = assertDefined(constructColumnsVersion(dataViewConfig), 'No columns for this data view.');
     const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
-    const readingConfig = assertDefined(dataViewConfig.readingConfig, 'No reading configuration for this data view.');
+    const appliedReading = constructAppliedReading(assertDefined(dataViewConfig.sampleConfig, 'No sample for this data view.'));
     const sourceConnectionConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
     const storeConnectorId = resolveStoreConnectorId(dataViewConfig);
     const loadKey = constructLoadKey(storeConnectorId, dataViewConfig.id, isDraft);
     const options: EngineLoadObjectRecordsOptions = {
         columnConfigs: constructLoadColumnConfigs(dataViewConfig),
-        hasHeaders: readingConfig.hasHeaders === true,
+        hasHeaders: appliedReading.hasHeaders === true,
         ignoredColumnIndexes: constructIgnoredColumnIndexes(dataViewConfig),
-        headerValues: readingConfig.hasHeaders === true ? dataViewConfig.sampleConfig?.parsedRecords[0]?.map((parsedValue) => parsedValue.value) : undefined,
+        headerValues: appliedReading.hasHeaders === true ? dataViewConfig.sampleConfig?.parsedRecords[0]?.map((parsedValue) => parsedValue.value) : undefined,
         path: establishTablePath(storeConnectorId, dataViewConfig.id, isDraft),
         sourceConnectionConfig,
         sourceOptions: {
             chunkSize: undefined,
-            dataFormatId: readingConfig.dataFormatId,
-            encodingId: assertDefined(readingConfig.encodingId, 'No encoding in the reading configuration.'),
-            parserId: readingConfig.parserId,
+            dataFormatId: appliedReading.dataFormatId,
+            encodingId: assertDefined(appliedReading.encodingId, 'No encoding in the sample.'),
+            parserId: appliedReading.parserId,
             path: constructItemPath(connectionNodeConfig),
-            valueDelimiterId: assertDefined(readingConfig.valueDelimiterId, 'No value delimiter in the reading configuration.')
+            valueDelimiterId: assertDefined(appliedReading.valueDelimiterId, 'No value delimiter in the sample.')
         }
     };
     const { processRequest } = await establishEngineWorker();
     const loadResult = (await processRequest('loadObjectRecords', findStoreConnectionLocalisedConfig(storeConnectorId), options, (callbackData) => {
         if (callbackData.typeId === 'progress') onProgress(Number(callbackData.properties.recordCount));
     })) as EngineLoadObjectRecordsResult;
-    if (!loadResult.columnsHaveChanged) loadedColumnsVersions.value = { ...loadedColumnsVersions.value, [loadKey]: columnsVersion };
+    if (!loadResult.columnsHaveChanged) {
+        loadedColumnsVersions.value = { ...loadedColumnsVersions.value, [loadKey]: columnsVersion };
+        loadInvalidValueCounts.value = { ...loadInvalidValueCounts.value, [loadKey]: loadResult.invalidValueCounts };
+    }
     return loadResult;
 }
 
@@ -123,6 +136,45 @@ export async function queryDataViewRecords(storeConnectorId: string, tablePath: 
     const options: QueryRecordsOptions = { ...query, path: tablePath };
     const { processRequest } = await establishEngineWorker();
     return (await processRequest('queryRecords', findStoreConnectionLocalisedConfig(storeConnectorId), options)) as QueryRecordsResult;
+}
+
+// The audit stops counting a column's values past a limit, so it holds every value in memory for no column. The store
+// holds every value already, so it counts them in full. Values that did not fit the column's type loaded as empty, so
+// they are not counted, the same as in the audit's valid values. The least frequent list leaves out the most frequent
+// values, as the audit's does.
+export async function queryDataViewColumnValueCounts(storeConnectorId: string, tablePath: string, columnIndex: number): Promise<DataViewColumnValueCounts> {
+    const filters = [{ columnIndex, operatorId: 'isNotEmpty' as const, value: null }];
+    const groupedQuery = { aggregates: [{ columnIndex: undefined, functionId: 'count' as const }], filters, groupColumnIndexes: [columnIndex], offset: 0 };
+    const mostFrequent = await queryDataViewRecords(storeConnectorId, tablePath, {
+        ...groupedQuery,
+        limit: LISTED_VALUE_COUNT,
+        sorts: [
+            { columnIndex: 1, directionId: 'descending' },
+            { columnIndex: 0, directionId: 'ascending' }
+        ]
+    });
+    const distinctCount = mostFrequent.totalCount;
+    const frequentValues = constructValueCounts(mostFrequent.records);
+    const leastLimit = Math.min(LISTED_VALUE_COUNT, distinctCount - LISTED_VALUE_COUNT);
+    const leastFrequent =
+        leastLimit > 0
+            ? await queryDataViewRecords(storeConnectorId, tablePath, {
+                  ...groupedQuery,
+                  limit: leastLimit,
+                  sorts: [
+                      { columnIndex: 1, directionId: 'ascending' },
+                      { columnIndex: 0, directionId: 'ascending' }
+                  ]
+              })
+            : undefined;
+    const leastFrequentValues = Object.fromEntries(Object.entries(constructValueCounts(leastFrequent?.records ?? [])).filter(([value]) => !Object.hasOwn(frequentValues, value)));
+    const valued = await queryDataViewRecords(storeConnectorId, tablePath, { aggregates: [], filters, groupColumnIndexes: [], limit: 1, offset: 0, sorts: [] });
+    return { validDistinctValueCount: distinctCount, validFrequentValues: frequentValues, validLeastFrequentValues: leastFrequentValues, validValueCount: valued.totalCount };
+}
+
+// Undefined for a load made before the counts were kept, or when there is no load.
+export function findDataViewInvalidValueCounts(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): number[] | undefined {
+    return loadInvalidValueCounts.value[constructDataViewLoadKey(dataViewConfig, isDraft)];
 }
 
 export function hasDataViewLoad(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): boolean {
@@ -152,6 +204,9 @@ export function promoteDraftLoad(dataViewConfig: Pick<DataViewConfig, 'id' | 'st
     const draftVersion = loadedColumnsVersions.value[draftKey];
     const { [savedKey]: _savedVersion, [draftKey]: _draftVersion, ...otherVersions } = loadedColumnsVersions.value;
     loadedColumnsVersions.value = draftVersion == null ? otherVersions : { ...otherVersions, [savedKey]: draftVersion };
+    const draftInvalidValueCounts = loadInvalidValueCounts.value[draftKey];
+    const { [savedKey]: _savedCounts, [draftKey]: _draftCounts, ...otherInvalidValueCounts } = loadInvalidValueCounts.value;
+    loadInvalidValueCounts.value = draftInvalidValueCounts == null ? otherInvalidValueCounts : { ...otherInvalidValueCounts, [savedKey]: draftInvalidValueCounts };
     const { [draftKey]: _draftTablePath, ...otherTablePaths } = loadTablePaths.value;
     loadTablePaths.value = { ...otherTablePaths, [savedKey]: draftTablePath };
 }
@@ -225,6 +280,8 @@ function forgetLoad(storeConnectorId: string, loadKey: string): void {
     if (tablePath != null) addUnwantedTablePaths(storeConnectorId, [tablePath]);
     const { [loadKey]: _version, ...otherVersions } = loadedColumnsVersions.value;
     loadedColumnsVersions.value = otherVersions;
+    const { [loadKey]: _invalidValueCounts, ...otherInvalidValueCounts } = loadInvalidValueCounts.value;
+    loadInvalidValueCounts.value = otherInvalidValueCounts;
     const { [loadKey]: _tablePath, ...otherTablePaths } = loadTablePaths.value;
     loadTablePaths.value = otherTablePaths;
 }
@@ -248,6 +305,11 @@ async function dropUnwantedTables(storeConnectorId: string): Promise<void> {
             console.warn(`Failed to drop store table '${tablePath}'.`, error);
         }
     }
+}
+
+// Each grouped record holds the value, then its count. A value is listed as its text, as the audit lists it.
+function constructValueCounts(records: StoreRecord[]): Record<string, number> {
+    return Object.fromEntries(records.map(([value, count]) => [value instanceof Date ? value.toISOString() : String(value), Number(count)]));
 }
 
 // The store connector needs no sign-in, so its connection is known by the connector's own id.

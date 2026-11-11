@@ -19,12 +19,15 @@ import { useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import {
     abortDataViewRecordLoad,
     closeDataViewStore,
+    type DataViewColumnValueCounts,
+    findDataViewInvalidValueCounts,
     findDataViewStoreLabel,
     hasDataViewLoad,
     isDataViewLoaded,
     listDataViewStoreConnections,
     loadDataViewRecords,
     openDataViewStore,
+    queryDataViewColumnValueCounts,
     queryDataViewRecords,
     resolveDataViewTablePath,
     resolveStoreConnectorId
@@ -121,16 +124,17 @@ const loadIsAbandoned = ref(false); // Set on leaving the panel, so the stopped 
 const loadIsStopped = ref(false); // Set by 'Stop', so the stopped load is shown as stopped, not as a failure.
 const loadVersion = ref(0); // Counts loads, so the table drops the records it holds after each one.
 const firstPageColumnWidths = shallowRef<{ dataSourceId: string; widths: number[] }>(); // Measured once per load, so scrolling back cannot move the columns.
-const invalidValueCounts = shallowRef<number[]>([]); // From this panel's last finished load. A load from an earlier visit has none.
 
 // ── Overlays ─ Transform and a column's detail cover the records one at a time.
 const selectedColumnIndex = ref<number>(); // The column whose detail is showing over the records.
 const tableComponent = useTemplateRef<{ scrollColumnIntoView: (columnId: string) => void }>('table'); // Typed by what it exposes, because 'Table' is generic.
 const transformIsOpen = ref(false);
+const selectedColumnValueCounts = shallowRef<{ columnIndex: number; dataSourceId: string | undefined; valueCounts: DataViewColumnValueCounts }>(); // From the store, for a column the audit stopped counting.
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const storeConnectorId = computed(() => resolveStoreConnectorId(dataViewConfig.value)); // Chosen on the item step, or by 'Load again'.
+const invalidValueCounts = computed(() => (dataViewConfig.value == null ? [] : (findDataViewInvalidValueCounts(dataViewConfig.value, draftIsCurrent.value) ?? []))); // Kept with the load, so they show on every visit. A load made before they were kept has none.
 const storeConnections = computed(() => listDataViewStoreConnections());
 const storeIsChoosable = computed(() => storeConnections.value.length > 1);
 const selectedStoreConnection = computed(() => storeConnections.value.find((connection) => connection.id === storeConnectorId.value)); // For its icon in the status bar.
@@ -239,10 +243,16 @@ const numberFormats = computed(() =>
 
 // ── Column Detail ─ Read only, from the reading and audit the data view saved, because changing how a column is read
 // would make the loaded records out of date. The choices show as they are, each as its one option, and link to the item
-// step, where they can be changed.
+// step, where they can be changed. A column with more different values than the audit counts gets its counts from the
+// store, which holds every value.
 const itemReading = computed((): ItemReading | undefined => {
     const { readingConfig, sampleConfig } = dataViewConfig.value ?? {};
-    return readingConfig == null || sampleConfig == null ? undefined : { ...readingConfig, ...sampleConfig, columnConfigs: columnConfigs.value };
+    if (readingConfig == null || sampleConfig == null) return undefined;
+    const storeCounts = selectedColumnValueCounts.value?.dataSourceId === dataSource.value.id ? selectedColumnValueCounts.value : undefined;
+    const readingColumnConfigs = columnConfigs.value.map((columnConfig, index) =>
+        index === storeCounts?.columnIndex ? { ...columnConfig, ...storeCounts.valueCounts } : columnConfig
+    );
+    return { ...readingConfig, ...sampleConfig, columnConfigs: readingColumnConfigs };
 });
 const detailColumnIndexes = computed(() =>
     columnConfigs.value.map((columnConfig, index) => (isDerivedColumn(columnConfig) || ignoredColumnIndexes.value.has(index) ? undefined : index)).filter((index) => index !== undefined)
@@ -299,6 +309,21 @@ watch(
     },
     { immediate: true }
 );
+
+// The audit stops counting a column's values past a limit and keeps none of its counts. When such a column's detail
+// opens, the store counts them, and again after a new load. A count that arrives after the user has moved on is dropped.
+watch([selectedColumnIndex, (): string | undefined => dataSource.value.id], async ([columnIndex, dataSourceId]) => {
+    const columnConfig = columnIndex == null ? undefined : columnConfigs.value[columnIndex];
+    const isCounted = columnConfig?.validFrequentValues == null || Object.keys(columnConfig.validFrequentValues).length > 0 || columnConfig.validDistinctValueCount != null;
+    if (columnIndex == null || isCounted || dataViewConfig.value == null) return;
+    try {
+        const tablePath = resolveDataViewTablePath(dataViewConfig.value, draftIsCurrent.value);
+        const valueCounts = await queryDataViewColumnValueCounts(storeConnectorId.value, tablePath, columnIndex);
+        if (selectedColumnIndex.value === columnIndex && dataSource.value.id === dataSourceId) selectedColumnValueCounts.value = { columnIndex, dataSourceId, valueCounts };
+    } catch (error) {
+        raiseFailure(new AppError('Failed to count the column’s values.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
+    }
+});
 
 // Leaving stops a load rather than letting it run on unseen, and closes the store so another tab can use it.
 onBeforeUnmount(() => {
@@ -402,14 +427,13 @@ async function openAndLoad(isReloaded: boolean): Promise<void> {
             loadedRecordCount.value = 0;
             loadIsStopped.value = false;
             const loadStartTime = performance.now();
-            const { columnsHaveChanged, invalidValueCounts: newInvalidValueCounts } = await loadDataViewRecords(openedDataViewConfig, draftIsCurrent.value, (recordCount) => {
+            const { columnsHaveChanged } = await loadDataViewRecords(openedDataViewConfig, draftIsCurrent.value, (recordCount) => {
                 loadedRecordCount.value = recordCount;
             });
             if (columnsHaveChanged) {
                 investigateState.value = { typeId: 'columnsChanged' };
                 return;
             }
-            invalidValueCounts.value = newInvalidValueCounts;
             loadDuration.value = performance.now() - loadStartTime;
             loadVersion.value++;
         }

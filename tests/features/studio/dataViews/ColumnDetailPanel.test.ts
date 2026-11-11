@@ -516,7 +516,8 @@ describe('ColumnDetailPanel', () => {
         const missingText = mountPanel([missingColumnConfig], { isAuditComplete: true }).get('dl').text();
         const unknownText = t(ROW_TEXT, 'answer.unknown.label');
 
-        expect(partialText).toContain(`${t(ROW_TEXT, 'column.unique.label')}${t(ROW_TEXT, 'answer.yes.label')}`);
+        expect(partialText).toContain(`${t(ROW_TEXT, 'column.unique.label')}${unknownText}`);
+        expect(completeText).toContain(`${t(ROW_TEXT, 'column.unique.label')}${t(ROW_TEXT, 'answer.yes.label')}`);
         expect(partialText).toContain(`${t(TEXT, 'mandatory.label')}${unknownText}`);
         expect(completeText).toContain(`${t(TEXT, 'mandatory.label')}${t(ROW_TEXT, 'answer.yes.label')}`);
         expect(missingText).toContain(`${t(TEXT, 'mandatory.label')}${t(ROW_TEXT, 'answer.no.label')}`);

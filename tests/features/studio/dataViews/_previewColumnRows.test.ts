@@ -9,12 +9,13 @@ import { describe, expect, it } from 'vitest';
 import type { ColumnAuditConfig } from '@dpuse/dpuse-shared';
 import type { ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
 import {
+    constructColumnFacts,
     constructColumnValueCounts,
     constructPreviewColumnHeaders,
     constructPreviewColumnIcons,
     constructPreviewColumnRows,
     countChosenTypeMisfits,
-    isColumnComplete,
+    doesEveryColumnValueLoad,
     PREVIEW_COLUMN_KEYS
 } from '@/features/studio/dataViews/_previewColumnRows';
 import { DATA_SUBTYPE_ICONS, DATA_TYPE_ICONS, getColumnTypeIcon } from '@/features/studio/dataViews/_columnTypeIcons';
@@ -91,7 +92,6 @@ describe('constructPreviewColumnRows', () => {
 
         expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({
             formatText: '9999,9 (5), 9999 (3)',
-            readingText: 'Decimal comma (unclear, check this column)',
             uniqueText: 'No'
         });
     });
@@ -100,12 +100,6 @@ describe('constructPreviewColumnRows', () => {
         const itemReading = buildItemReading(false, { derivedFromColumnIndex: 0, label: { en: 'Amount currency' } });
 
         expect(constructPreviewColumnRows(itemReading)[0]?.label).toBe('Amount currency (derived)');
-    });
-
-    it('calls a column unclear on its own when there is no reading to name', () => {
-        const itemReading = buildItemReading(false, { dataTypeId: 'numeric', formatIssueIds: ['currencyMixed'] });
-
-        expect(constructPreviewColumnRows(itemReading)[0]?.readingText).toBe('Unclear, check this column');
     });
 
     it('keeps the counts in step with a type the user chose', () => {
@@ -165,25 +159,53 @@ describe('countChosenTypeMisfits', () => {
     });
 });
 
-describe('isColumnComplete', () => {
+describe('doesEveryColumnValueLoad', () => {
     const detectedText = { dataSubtypeId: 'plain', dataTypeId: 'string' } as const;
 
-    it('is complete when the audit found every value, and the type in use fits them all', () => {
+    it('is true when every record has a value, and the type in use fits them all', () => {
         const textReading = buildItemReading(false, { dataSubtypeId: 'plain', dataTypeId: 'string', inferenceCounts: { 'string.plain': 3 }, hasMissingValues: false });
 
-        expect(isColumnComplete(textReading, 0, detectedText)).toBe(true);
-        expect(isColumnComplete(buildItemReading(false, { dataTypeId: 'string', hasMissingValues: true }), 0, detectedText)).toBe(false);
+        expect(doesEveryColumnValueLoad(textReading, 0, detectedText)).toBe(true);
+        expect(doesEveryColumnValueLoad(buildItemReading(false, { dataTypeId: 'string', hasMissingValues: true }), 0, detectedText)).toBe(false);
     });
 
-    it('is not complete when a chosen type leaves values that load empty', () => {
+    it('is false when a chosen type leaves values that load empty', () => {
         const itemReading = buildItemReading(false, { dataSubtypeId: 'integer', dataTypeId: 'numeric', inferenceCounts: { 'numeric.integer': 6, 'string.plain': 1 }, hasMissingValues: false });
 
-        expect(isColumnComplete(itemReading, 0, detectedText)).toBe(false);
+        expect(doesEveryColumnValueLoad(itemReading, 0, detectedText)).toBe(false);
     });
 
-    it('is not complete when an invalid value loads empty, though invalid values are not missing ones', () => {
+    it('is false when an invalid value loads empty, though invalid values are not missing ones', () => {
         const itemReading = buildItemReading(false, { dataTypeId: 'string', hasMissingValues: false, invalidValueCount: 1 });
 
-        expect(isColumnComplete(itemReading, 0, detectedText)).toBe(false);
+        expect(doesEveryColumnValueLoad(itemReading, 0, detectedText)).toBe(false);
+    });
+});
+
+describe('constructColumnFacts', () => {
+    const detectedText = { dataSubtypeId: 'plain', dataTypeId: 'string' } as const;
+
+    it('settles nothing until the whole item is read', () => {
+        const itemReading = buildItemReading(false, { hasMissingValues: false, validIsUnique: true });
+
+        expect(constructColumnFacts(itemReading, 0, detectedText, false)).toEqual({ isKey: undefined, isMandatory: undefined, isUnique: undefined });
+    });
+
+    it('calls a unique column with every value present a key', () => {
+        const itemReading = buildItemReading(false, { hasMissingValues: false, validIsUnique: true });
+
+        expect(constructColumnFacts(itemReading, 0, detectedText, true)).toEqual({ isKey: true, isMandatory: true, isUnique: true });
+    });
+
+    it('keeps a column with an invalid value mandatory, but not a key, because the value loads empty', () => {
+        const itemReading = buildItemReading(false, { hasMissingValues: false, invalidValueCount: 1, validIsUnique: true });
+
+        expect(constructColumnFacts(itemReading, 0, detectedText, true)).toEqual({ isKey: false, isMandatory: true, isUnique: true });
+    });
+
+    it('keeps a column with missing values unique, but neither mandatory nor a key', () => {
+        const itemReading = buildItemReading(false, { hasMissingValues: true, validIsUnique: true });
+
+        expect(constructColumnFacts(itemReading, 0, detectedText, true)).toEqual({ isKey: false, isMandatory: false, isUnique: true });
     });
 });

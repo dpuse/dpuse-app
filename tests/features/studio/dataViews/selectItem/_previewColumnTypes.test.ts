@@ -110,8 +110,8 @@ describe('applyPreviewDecimalSeparator', () => {
 
 describe('applyPreviewDateOrder', () => {
     const DATE_READINGS = {
-        dayFirst: { validFormats: { 'dd/MM/yyyy': 2 } },
-        monthFirst: { validFormats: { 'MM/dd/yyyy': 2 } }
+        dayFirst: { validFormats: { 'dd/MM/yyyy': 2 }, validHighestValues: [['2024-06-05', 1]] },
+        monthFirst: { validFormats: { 'MM/dd/yyyy': 2 }, validHighestValues: [['2024-05-06', 1]] }
     };
     const READ_ITEM = {
         columnConfigs: [
@@ -121,7 +121,11 @@ describe('applyPreviewDateOrder', () => {
     } as unknown as ItemReading;
 
     it('swaps in the figures measured for the order chosen', () => {
-        expect(applyPreviewDateOrder(READ_ITEM, 0, 'dayFirst').columnConfigs[0]).toMatchObject({ dateOrderId: 'dayFirst', validFormats: { 'dd/MM/yyyy': 2 } });
+        expect(applyPreviewDateOrder(READ_ITEM, 0, 'dayFirst').columnConfigs[0]).toMatchObject({
+            dateOrderId: 'dayFirst',
+            validFormats: { 'dd/MM/yyyy': 2 },
+            validHighestValues: [['2024-06-05', 1]] // The Values tab's lists follow the order too.
+        });
     });
 
     it('reads only the chosen columns in the chosen order', () => {

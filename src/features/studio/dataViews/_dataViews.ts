@@ -8,6 +8,7 @@ import type { AuditObjectContentOptions, AuditObjectContentResult, DataViewConfi
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
+import { constructAppliedReading } from './_dataViewColumns';
 import { constructItemPath } from './dataViewSummary';
 import { draftDataViewConfig } from './_dataViewDraft';
 import { establishEngineWorker } from '@/services/engine';
@@ -30,7 +31,6 @@ import {
 const DATA_VIEW_LIST_KEY = constructWorkspaceStoreListKey('dataViews');
 export const DATA_VIEW_ADD_ACTION_ID = 'dpuse-data-view-add-action'; // Where a step's list places its add segment when the list fills the pane, before Discard.
 export const DATA_VIEW_SCROLL_ACTIONS_ID = 'dpuse-data-view-scroll-actions'; // Where a step places its scroll segments, at the start of the pill.
-export const DATA_VIEW_SIDE_ACTION_ID = 'dpuse-data-view-side-action'; // Where a step places a control of its own, right of the pill.
 export const DATA_VIEW_STEP_ACTION_ID = 'dpuse-data-view-step-action'; // Where a step places its action, at the end of the pill.
 export const NEW_DATA_VIEW_ID = 'new'; // Stands in the URL for the id of a data view being added, which has none until it is saved.
 const UNTITLED_DATA_VIEW_LABEL = { en: 'Untitled Data View', es: 'Vista de datos sin título' }; // Stored with the record, so it carries every language rather than reading the current one.
@@ -152,16 +152,16 @@ export async function auditDataViewContent(
 ): Promise<AuditObjectContentResult> {
     const connectionLocalisedConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
     const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
-    const readingConfig = assertDefined(dataViewConfig.readingConfig, 'No reading configuration for this data view.');
+    const appliedReading = constructAppliedReading(assertDefined(dataViewConfig.sampleConfig, 'No sample for this data view.'));
     const options: Omit<AuditObjectContentOptions, 'stopSignal' | 'supportsTransferableStreams'> = {
         byteLimit,
         chunkSize: undefined,
-        dataFormatId: readingConfig.dataFormatId,
-        encodingId: assertDefined(readingConfig.encodingId, 'No encoding in the reading configuration.'),
-        hasHeaders: headersAreChosen || readingConfig.hasHeaders === true ? readingConfig.hasHeaders === true : undefined,
-        parserId: readingConfig.parserId, // The tool that read the item first, so the audit reads it the same way.
+        dataFormatId: appliedReading.dataFormatId,
+        encodingId: assertDefined(appliedReading.encodingId, 'No encoding in the sample.'),
+        hasHeaders: headersAreChosen || appliedReading.hasHeaders === true ? appliedReading.hasHeaders === true : undefined,
+        parserId: appliedReading.parserId, // The tool that read the sample, so the audit reads it the same way.
         path: constructItemPath(connectionNodeConfig),
-        valueDelimiterId: assertDefined(readingConfig.valueDelimiterId, 'No value delimiter in the reading configuration.')
+        valueDelimiterId: assertDefined(appliedReading.valueDelimiterId, 'No value delimiter in the sample.')
     }; // The engine adds 'stopSignal' and 'supportsTransferableStreams', because they only exist in the worker.
     const { processRequest } = await establishEngineWorker();
     return (await processRequest('auditObjectContent', connectionLocalisedConfig, options, (callbackData) => {

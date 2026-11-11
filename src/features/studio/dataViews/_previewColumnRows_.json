@@ -12,7 +12,6 @@
         "column.invalidValues.label": { "en": "Invalid", "es": "No válidos" },
         "column.label": { "en": "Name", "es": "Nombre" },
         "column.nullValues.label": { "en": "Null", "es": "Nulo" },
-        "column.reading.label": { "en": "Read as", "es": "Leído como" },
         "column.unique.label": { "en": "Appears to be unique", "es": "Parece ser único" },
         "dataSubtype.bigint.label": { "en": "Big integer", "es": "Entero grande" },
         "dataSubtype.countryCode.label": { "en": "Country code", "es": "Código de país" },
@@ -41,12 +40,6 @@
         "dataType.numeric.label": { "en": "Number", "es": "Número" },
         "dataType.string.label": { "en": "Text", "es": "Texto" },
         "dataType.temporal.label": { "en": "Date/Time", "es": "Fecha/Hora" },
-        "dataType.unknown.label": { "en": "Unknown", "es": "Desconocido" },
-        "reading.dayFirst.text": { "en": "Day first", "es": "Día primero" },
-        "reading.decimalComma.text": { "en": "Decimal comma", "es": "Coma decimal" },
-        "reading.decimalPoint.text": { "en": "Decimal point", "es": "Punto decimal" },
-        "reading.monthFirst.text": { "en": "Month first", "es": "Mes primero" },
-        "reading.unclear.text": { "en": "{reading} (unclear, check this column)", "es": "{reading} (dudoso, revise esta columna)" },
-        "reading.unclearOnly.text": { "en": "Unclear, check this column", "es": "Dudoso, revise esta columna" }
+        "dataType.unknown.label": { "en": "Unknown", "es": "Desconocido" }
     }
 }

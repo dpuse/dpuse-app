@@ -21,6 +21,13 @@ export interface ColumnValueCounts {
     validCount: number;
 }
 
+// What a whole audit suggests about a column. Each is undefined while it cannot be settled.
+export interface ColumnFacts {
+    isKey: boolean | undefined;
+    isMandatory: boolean | undefined;
+    isUnique: boolean | undefined;
+}
+
 export type PreviewColumnRow = Record<(typeof PREVIEW_COLUMN_KEYS)[number], string>;
 
 export interface PreviewColumnIcons {
@@ -49,7 +56,6 @@ export const PREVIEW_COLUMN_KEYS = [
     'blankValueText',
     'emptyValueText',
     'uniqueText',
-    'readingText',
     'formatText'
 ] as const;
 
@@ -108,7 +114,6 @@ export function constructPreviewColumnHeaders(): PreviewColumnRow {
         invalidValueText: t(TEXT, 'column.invalidValues.label'),
         label: t(TEXT, 'column.label'),
         nullValueText: t(TEXT, 'column.nullValues.label'),
-        readingText: t(TEXT, 'column.reading.label'),
         uniqueText: t(TEXT, 'column.unique.label')
     };
 }
@@ -129,7 +134,6 @@ export function constructPreviewColumnRows(itemReading: Pick<ItemReading, 'colum
             blankValueText: formatCount(columnConfig.blankValueCount, numberFormat),
             emptyValueText: formatCount(columnConfig.emptyValueCount, numberFormat),
             uniqueText: formatYesNo(columnConfig.validIsUnique),
-            readingText: constructReadingText(columnConfig),
             formatText: formatCounts(columnConfig.validFormats, numberFormat)
         };
     });
@@ -184,8 +188,28 @@ function formatCount(count: number | undefined, numberFormat: Intl.NumberFormat)
     return count == null ? '' : numberFormat.format(count);
 }
 
+// The rules shared by a column's tab icons and its Overview, so the two always agree. Each is unknown until the whole
+// item is read, because the rest of it could still lack or repeat a value.
+// Mandatory ─ every record has a value. An invalid value still counts, because the field was filled in.
+// Unique ─ no value repeats. Missing values are left out, as a unique index allows.
+// Key ─ unique, mandatory and with no invalid value, because a key must hold in the loaded table and an invalid value
+// loads empty.
+export function constructColumnFacts(
+    itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders'>,
+    columnIndex: number,
+    detectedColumnType: ColumnType | undefined,
+    isAuditComplete: boolean
+): ColumnFacts {
+    const columnConfig = itemReading.columnConfigs.at(columnIndex);
+    if (!isAuditComplete || columnConfig == null) return { isKey: undefined, isMandatory: undefined, isUnique: undefined };
+    const isMandatory = columnConfig.hasMissingValues == null ? undefined : !columnConfig.hasMissingValues;
+    const isUnique = columnConfig.validIsUnique;
+    const isKey = isMandatory == null || isUnique == null ? undefined : isUnique && doesEveryColumnValueLoad(itemReading, columnIndex, detectedColumnType);
+    return { isKey, isMandatory, isUnique };
+}
+
 // Every record has a value that loads. A value that does not fit a type the user chose loads empty, like an invalid one.
-export function isColumnComplete(itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders'>, columnIndex: number, detectedColumnType: ColumnType | undefined): boolean {
+export function doesEveryColumnValueLoad(itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders'>, columnIndex: number, detectedColumnType: ColumnType | undefined): boolean {
     const columnConfig = itemReading.columnConfigs.at(columnIndex);
     return columnConfig?.hasMissingValues === false && (columnConfig.invalidValueCount ?? 0) === 0 && countChosenTypeMisfits(itemReading, columnIndex, detectedColumnType) === 0;
 }
@@ -202,16 +226,6 @@ function formatCounts(counts: Record<string, number> | undefined, numberFormat: 
         .toSorted((left, right) => right[1] - left[1])
         .map(([key, count]) => `${key} (${numberFormat.format(count)})`)
         .join(', ');
-}
-
-// How values that could be taken two ways are read. It says so when the column's own values did not settle it.
-function constructReadingText({ dateOrderId, decimalSeparatorId, formatIssueIds }: ColumnAuditConfig): string {
-    const readings: string[] = [];
-    if (dateOrderId != null) readings.push(t(TEXT, dateOrderId === 'dayFirst' ? 'reading.dayFirst.text' : 'reading.monthFirst.text'));
-    if (decimalSeparatorId != null) readings.push(t(TEXT, decimalSeparatorId === ',' ? 'reading.decimalComma.text' : 'reading.decimalPoint.text'));
-    const readingText = readings.join(', ');
-    if ((formatIssueIds?.length ?? 0) === 0) return readingText;
-    return readingText === '' ? t(TEXT, 'reading.unclearOnly.text') : t(TEXT, 'reading.unclear.text', { reading: readingText }); // A column of mixed currencies, say, has no reading to name.
 }
 
 // How many of a column's values fit its current type, of those it holds. A header record's own value is not data.

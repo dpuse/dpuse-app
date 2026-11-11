@@ -6,6 +6,7 @@ import type { ColumnAuditConfig, ColumnChoiceConfig, ColumnChoiceConfigs, Conten
 
 // ── Local Framework
 import {
+    constructAppliedReading,
     constructChosenColumnTypes,
     constructChosenDateOrders,
     constructChosenDecimalSeparators,
@@ -18,7 +19,6 @@ import {
     constructItemReading,
     constructLoadColumnConfigs,
     constructPreviewContentAuditConfig,
-    constructReadingConfig,
     constructSampleConfig,
     isDerivedColumn,
     isEmptyUnitColumn,
@@ -59,13 +59,16 @@ describe('the parts of an item saved with a data view', () => {
         text: '"a",'
     } as unknown as ItemReading;
 
-    it('keeps only how the item is read in the reading configuration', () => {
-        expect(constructReadingConfig(itemReading)).toStrictEqual({ dataFormatId: 'dtv' });
-    });
-
     it('keeps the text with the records it was parsed into, each value with whether it was quoted', () => {
         expect(constructSampleConfig(itemReading)).toStrictEqual({
+            dataFormatId: 'dtv',
+            decodedEncodingId: undefined,
+            hasHeaders: undefined,
             issues: [],
+            parserId: undefined,
+            recordDelimiterId: undefined,
+            replacementCharacterCount: undefined,
+            valueDelimiterId: undefined,
             parsedRecords: [
                 [
                     { value: 'a', valueWasQuoted: true },
@@ -74,6 +77,24 @@ describe('the parts of an item saved with a data view', () => {
             ],
             size: 4,
             text: '"a",'
+        });
+    });
+
+    it('reads the item the way its sample was read, with the encoding the sample was decoded with', () => {
+        const sampleConfig = {
+            ...constructSampleConfig(itemReading),
+            decodedEncodingId: 'utf-8',
+            hasHeaders: true,
+            parserId: 'dpuse-tool-adaltas-csv-parser',
+            valueDelimiterId: ';' as const
+        };
+
+        expect(constructAppliedReading(sampleConfig)).toStrictEqual({
+            dataFormatId: 'dtv',
+            encodingId: 'utf-8',
+            hasHeaders: true,
+            parserId: 'dpuse-tool-adaltas-csv-parser',
+            valueDelimiterId: ';'
         });
     });
 });
@@ -188,7 +209,7 @@ describe('resolveColumnConfig', () => {
         const dateReadings = {
             dayFirst: { validFormats: { 'dd/MM/yyyy': 2 } },
             monthFirst: { validFormats: { 'MM/dd/yyyy': 2 } }
-        } as ColumnAuditConfig['dateReadings'];
+        } as unknown as ColumnAuditConfig['dateReadings']; // Only the formats matter here.
         const columnConfig = buildColumn({ dataTypeId: 'temporal', dateOrderId: 'monthFirst', dateReadings });
 
         expect(resolveColumnConfig(columnConfig, buildColumnChoice({ dateOrderId: 'dayFirst' }))).toMatchObject({
@@ -330,7 +351,15 @@ function buildColumn(overrides: Partial<ColumnAuditConfig>): ColumnAuditConfig {
 }
 
 function buildColumnChoice(overrides: Partial<ColumnChoiceConfig>): ColumnChoiceConfig {
-    return { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: undefined, decimalSeparatorId: undefined, isIgnored: undefined, nullWordsAreEmpty: undefined, ...overrides };
+    return {
+        dataSubtypeId: undefined,
+        dataTypeId: undefined,
+        dateOrderId: undefined,
+        decimalSeparatorId: undefined,
+        isIgnored: undefined,
+        nullWordsAreEmpty: undefined,
+        ...overrides
+    };
 }
 
 function buildAuditedColumns(

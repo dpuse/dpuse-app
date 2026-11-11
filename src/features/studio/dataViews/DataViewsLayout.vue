@@ -22,7 +22,6 @@ import { completeDataViewDraft, dataViewCanBeSaved, dataViewHasChanges, discardD
 import {
     DATA_VIEW_ADD_ACTION_ID,
     DATA_VIEW_SCROLL_ACTIONS_ID,
-    DATA_VIEW_SIDE_ACTION_ID,
     DATA_VIEW_STEP_ACTION_ID,
     dataViewActionLabelsAreHidden,
     NEW_DATA_VIEW_ID,
@@ -390,7 +389,6 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
                     <div :id="DATA_VIEW_STEP_ACTION_ID" class="contents" />
                 </div>
             </div>
-            <div :id="DATA_VIEW_SIDE_ACTION_ID" class="pointer-events-auto contents" />
         </div>
 
         <ConfirmDialog

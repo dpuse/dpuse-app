@@ -24,6 +24,7 @@ import {
     InfoIcon,
     KeyRoundIcon,
     LanguagesIcon,
+    RefreshCwIcon,
     RotateCwIcon,
     ScanTextIcon,
     SeparatorVerticalIcon,
@@ -56,9 +57,12 @@ import type {
     ConnectionNodeConfig,
     ContentAuditConfig,
     DataFormatId,
+    DataFormatSourceId,
     DataViewConfig,
     DateOrderId,
     DecimalSeparatorId,
+    EncodingDetectionConfig,
+    EncodingSourceId,
     GetInfoOptions,
     GetInfoResult,
     ListNodesOptions,
@@ -67,6 +71,7 @@ import type {
     PreviewObjectOptions,
     PreviewObjectResult,
     PreviewValueStateId,
+    ReadingChoiceConfig,
     ReadingConfig,
     RecountPreviewColumnsOptions,
     SampleIssue,
@@ -111,6 +116,7 @@ import {
     type ChosenDecimalSeparators,
     type ChosenIgnoredColumns,
     type ChosenNullWords,
+    constructAppliedReading,
     constructChosenColumnTypes,
     constructChosenDateOrders,
     constructChosenDecimalSeparators,
@@ -121,18 +127,18 @@ import {
     constructDataTypeCellClass,
     constructItemReading,
     constructPreviewContentAuditConfig,
-    constructReadingConfig,
     constructSampleConfig,
     isDerivedColumn,
     type ItemReading
 } from '../_dataViewColumns';
 import {
+    type ColumnFacts,
+    constructColumnFacts,
     constructColumnTypeLabel,
     constructColumnValueCounts,
     constructDataTypeLabel,
     constructPreviewColumnRows,
-    countChosenTypeMisfits,
-    isColumnComplete
+    countChosenTypeMisfits
 } from '../_previewColumnRows';
 import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from '../_readingLabels';
 import { constructDataViewConnection, constructItemPath } from '../dataViewSummary';
@@ -219,6 +225,9 @@ const PREVIEW_TABS: PreviewTab[] = [
 // not parsed and its table tab is disabled. JSON, JSON Lines and the other planned formats wait for their own reader, so
 // they show as text and cannot be selected.
 const TEXT_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ isText }) => isText).map(({ id }) => id));
+const DETECTED_ENCODING_OPTION_PREFIX = 'detected:';
+const ENCODING_CANDIDATE_LIMIT = 5; // In hard cases many candidates tie at a low confidence, so only the best few are offered.
+
 const TABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ isTable }) => isTable).map(({ id }) => id));
 const READABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ supportId }) => supportId === 'supported').map(({ id }) => id)); // Marked as supported in the toolbar, and the formats the user can choose to read an item as data.
 const PLANNED_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ supportId }) => supportId === 'planned').map(({ id }) => id)); // Data the app means to read once each has a reader.
@@ -334,9 +343,9 @@ const activeItemReading = shallowRef<ItemReading>(); // Goes into the draft with
 const activeContentAuditConfig = shallowRef<ContentAuditConfig>(); // What the latest audit found, starting from what opening the item read. Its columns are as detected, before any choice of the user's.
 const readingIsChanged = ref(false); // The user changed the item or how it is read. Opening the step, or a preview arriving, does not count.
 
-// ── Read Choices ─ How the user chose to read the item, in place of what the preview detected. Cleared for each item.
-// What was detected is kept apart, because a preview read the user's way reports their choice, and the selects' Auto
-// option still names what detection found.
+// ── Read Choices ─ How the user chose to read the item, in place of what the preview detected. A saved item opens with
+// its saved choices, and any other item starts with none. What was detected is kept apart and saved unchanged, so the
+// selects' Auto option always names what detection found.
 const selectedDataFormatId = ref<DataFormatId>();
 const selectedEncodingId = ref<string>();
 const selectedParserId = ref<string>(); // The config id of the tool chosen to read the item.
@@ -347,6 +356,8 @@ const detectedEncodingId = ref<string>();
 const detectedEncodingIsAssumed = ref(false);
 const detectedValueDelimiterId = ref<ValueDelimiterId>();
 const detectedHasHeaders = ref<boolean>();
+const detectedReadingConfig = shallowRef<ReadingConfig>(); // The latest preview's detection, saved as the data view's reading.
+const detectedEncodingCandidates = shallowRef<EncodingDetectionConfig[]>(); // Only from a preview, so a saved item opened without one has none.
 
 // ── Column Types ─ The type, date order and decimal separator the user chose for a column, by its id in the table,
 // which is its position. Cleared by every new reading. What was detected is kept apart, so Auto can return to it.
@@ -505,17 +516,28 @@ const dataFormatOptions = computed<SelectOption[]>(() => {
         { groupLabel: documentGroupLabel, id: 'markdown', label: constructDataFormatLabel('markdown') } // Shown rendered, so a file read another way can be read as markdown again.
     ];
     const detectedText = detectedDataFormatId.value == null ? undefined : constructDataFormatText(detectedDataFormatId.value);
-    return [constructAutoOption(detectedText), ...options];
+    return [constructAutoOption(detectedText, false, constructDataFormatSourceText(detectedReadingConfig.value?.dataFormatSourceId)), ...options];
 });
 
 // Only encodings the browser can decode. Each shows its code alone, because its group label names the language, so the
-// closed select stays short. Auto says when the encoding was assumed rather than detected; the details tab gives the
-// confidence too.
+// closed select stays short. Auto says how the encoding was found. The best few candidates detection found come first,
+// each with its confidence. Their ids carry a prefix, because each encoding is also listed in its own group below.
 const encodingOptions = computed<SelectOption[]>(() => {
-    const options: SelectOption[] = getEncodingTypeConfigs(localeId.value)
-        .filter((encodingTypeConfig) => encodingTypeConfig.isDecodable)
-        .map(({ groupLabel, id }) => ({ groupLabel: groupLabel === '' ? undefined : groupLabel, id, label: id }));
-    return [constructAutoOption(detectedEncodingId.value, detectedEncodingIsAssumed.value), ...options];
+    const encodingTypeConfigs = getEncodingTypeConfigs(localeId.value).filter((encodingTypeConfig) => encodingTypeConfig.isDecodable);
+    const decodableIds = new Set<string>(encodingTypeConfigs.map(({ id }) => id));
+    const detectedGroupLabel = t(TEXT, 'encodingGroup.detected.label');
+    const candidateOptions: SelectOption[] = (detectedEncodingCandidates.value ?? [])
+        .filter(({ id }) => decodableIds.has(id))
+        .slice(0, ENCODING_CANDIDATE_LIMIT)
+        .map(({ confidenceLevel, id }) => ({
+            groupLabel: detectedGroupLabel,
+            id: `${DETECTED_ENCODING_OPTION_PREFIX}${id}`,
+            label: confidenceLevel == null ? id : t(TEXT, 'encodingCandidate.label', { confidence: formatPercent(confidenceLevel), encoding: id })
+        }));
+    const options: SelectOption[] = encodingTypeConfigs.map(({ groupLabel, id }) => ({ groupLabel: groupLabel === '' ? undefined : groupLabel, id, label: id }));
+    const detectedReading = detectedReadingConfig.value;
+    const sourceText = constructEncodingSourceText(detectedReading?.encodingSourceId, detectedReading?.encodingConfidenceLevel);
+    return [constructAutoOption(detectedEncodingId.value, detectedEncodingIsAssumed.value, sourceText), ...candidateOptions, ...options];
 });
 
 // The tools that read the previewed format. The select shows only when there is a choice, because most formats have a
@@ -527,8 +549,12 @@ const parserToolConfigs = computed(() => {
 const parserOptions = computed<SelectOption[]>(() => parserToolConfigs.value.map(({ id, label }) => ({ id, label })));
 const parserIsChoosable = computed(() => !itemIsTable.value && parserOptions.value.length > 1);
 
-// A chosen encoding is the user's call. Left on Auto, an encoding the preview only assumed is the one value in doubt.
+// A warning when the text did not decode cleanly, or a chosen encoding could not be used. Otherwise a chosen encoding is
+// the user's call, and left on Auto, an encoding the preview only assumed is the one value in doubt.
 const encodingSelectTone = computed(() => {
+    const itemReading = activeItemReading.value;
+    const isChosenUndecodable = selectedEncodingId.value != null && itemReading?.decodedEncodingId != null && itemReading.decodedEncodingId !== selectedEncodingId.value;
+    if (isChosenUndecodable || (itemReading?.replacementCharacterCount ?? 0) > 0) return 'warning';
     if (selectedEncodingId.value != null) return 'info';
     return detectedEncodingIsAssumed.value ? 'warning' : undefined;
 });
@@ -543,10 +569,10 @@ const valueDelimiterIsChoosable = computed(() => !readingIsFixed.value && active
 const previewHeadersAreChoosable = computed(() => !readingIsFixed.value && activeItemReading.value?.dataFormatId === 'dtv' && activeItemReading.value.parsedRecords.length > 0);
 
 // The format, encoding, value delimiter and headers, in the order of their choices, with the same icons. Only delimited
-// text has a value delimiter and headers.
+// text has a value delimiter and headers. A table shows none of them, because it is read as a table, not as a file.
 const fixedReadSettings = computed((): FixedReadSetting[] => {
     const itemReading = activeItemReading.value;
-    if (itemReading == null || !readingIsFixed.value) return [];
+    if (itemReading == null || !readingIsFixed.value || itemIsTable.value) return [];
     const isDelimitedText = itemReading.dataFormatId === 'dtv';
     const settings: (FixedReadSetting | undefined)[] = [
         previewFormatText.value == null ? undefined : { icon: FileTextIcon, id: 'format', labelKey: 'format.label', value: previewFormatText.value },
@@ -624,7 +650,7 @@ const previewEncodingId = computed({
     get: () => selectedEncodingId.value ?? AUTO_OPTION_ID,
     set: (encodingId: string) => {
         readingIsChanged.value = true;
-        selectedEncodingId.value = encodingId === AUTO_OPTION_ID ? undefined : encodingId;
+        selectedEncodingId.value = encodingId === AUTO_OPTION_ID ? undefined : encodingId.replace(DETECTED_ENCODING_OPTION_PREFIX, ''); // A detected candidate chooses its encoding.
     }
 });
 const previewParserId = computed({
@@ -789,6 +815,10 @@ const itemDetailGroups = computed(() => {
             details: [
                 { labelKey: 'detail.dataFormat.label', value: previewFormatText.value },
                 { labelKey: 'detail.encoding.label', value: constructEncodingText(itemReading) },
+                {
+                    labelKey: 'detail.unreadableCharacters.label',
+                    value: itemReading.replacementCharacterCount == null ? undefined : new Intl.NumberFormat(localeId.value).format(itemReading.replacementCharacterCount)
+                },
                 { labelKey: 'detail.issues.label', value: sampleIssueCountText.value } // Listed in the band above the tabs.
             ]
         },
@@ -893,6 +923,7 @@ watch(
         const savedItemConfig = dataViewConfig.value?.connectionNodeConfig;
         currentFolderNodes.value = savedItemConfig ? constructFolderNodeConfigs(savedItemConfig.folderPath) : [];
         activeConnectionObjectConfig.value = savedItemConfig;
+        restoreReadChoices(dataViewConfig.value?.readingChoiceConfig);
         loadFolderNodes(activeConnectionConfig.value, savedItemConfig?.folderPath ?? '');
     },
     { immediate: true }
@@ -908,8 +939,11 @@ watch(
         itemFailure.value = undefined;
         const [oldActiveItem, oldItemAttempt] = oldValues; // Empty on the first, immediate run, which is never a read choice.
         const isNewReadChoice = newActiveItem === oldActiveItem && newItemAttempt === oldItemAttempt;
+        const isRetry = newItemAttempt !== (oldItemAttempt ?? newItemAttempt); // A retry, or 'Preview again'. Never the first, immediate run.
         if (!isNewReadChoice) {
             resetPreviewState();
+            detectedReadingConfig.value = undefined;
+            detectedEncodingCandidates.value = undefined;
             detectedDataFormatId.value = undefined;
             detectedEncodingId.value = undefined;
             detectedValueDelimiterId.value = undefined;
@@ -919,12 +953,10 @@ watch(
 
         previewIsPending.value = true;
         try {
-            const { processRequest } = await establishEngineWorker();
-            if (!activeConnectionConfig.value) return;
-
-            const options = constructPreviewOptions(newActiveItem, isNewReadChoice);
-            const previewObjectResult = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewObjectResult;
-            if (currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
+            const previewObjectResult = await readPreviewObjectResult(newActiveItem, isNewReadChoice, isRetry);
+            if (previewObjectResult == null || currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
+            detectedReadingConfig.value = previewObjectResult.readingConfig;
+            detectedEncodingCandidates.value = previewObjectResult.encodingCandidates;
 
             const itemReading = constructItemReading(previewObjectResult);
             const headedItemReading = await applyHeaderChoice(itemReading, newActiveItem);
@@ -948,7 +980,7 @@ watch(
             activeContentAuditConfig.value = constructFirstContentAuditConfig(previewObjectResult.contentAuditConfig, headedItemReading);
             const typedItemReading = isNewReadChoice ? headedItemReading : applySavedAudit(headedItemReading, newActiveItem);
             applyItemReading(isNewReadChoice && wereColumnTypesChosen ? addColumnTypesResetIssue(typedItemReading) : typedItemReading, isNewReadChoice);
-            recordDetectedValues(itemReading);
+            recordDetectedValues(previewObjectResult.readingConfig);
             hasLastPreviewSucceeded.value = true;
         } catch (error) {
             if (currentRequestId !== previewRequestId.value) return; // A newer selection owns the panel now.
@@ -1173,10 +1205,17 @@ function isValueEmpty(columnId: string, rowIndex: number): boolean {
     return (valueState === 'blank' || valueState === 'empty') && findRecordValue(columnId, rowIndex).trim() === '';
 }
 
-// Every record has a value that loads. Only the whole item can show that.
-function isCompleteColumn(columnId: string): boolean {
+// The same facts the column's Overview lists, under the same rules.
+function constructTabColumnFacts(columnId: string): ColumnFacts {
     const columnIndex = Number(columnId);
-    return activeContentAuditConfig.value?.isComplete === true && activeItemReading.value != null && isColumnComplete(activeItemReading.value, columnIndex, detectedColumnTypes.value[columnIndex]);
+    const isAuditComplete = activeContentAuditConfig.value?.isComplete === true;
+    return activeItemReading.value == null
+        ? { isKey: undefined, isMandatory: undefined, isUnique: undefined }
+        : constructColumnFacts(activeItemReading.value, columnIndex, detectedColumnTypes.value[columnIndex], isAuditComplete);
+}
+
+function isMandatoryColumn(columnId: string): boolean {
+    return constructTabColumnFacts(columnId).isMandatory === true;
 }
 
 // The user chose to leave the column out of the load. It stays in the preview, so it can still be checked.
@@ -1184,15 +1223,13 @@ function isIgnoredColumn(columnId: string): boolean {
     return selectedIgnoredColumns.value[columnId] === true;
 }
 
-// Every value is unique and none is missing, so the column could identify each record.
 function isKeyColumn(columnId: string): boolean {
-    return isCompleteColumn(columnId) && activeItemReading.value?.columnConfigs[Number(columnId)]?.validIsUnique === true;
+    return constructTabColumnFacts(columnId).isKey === true;
 }
 
-// Every value there is unique, though some are missing, so the column could take a unique index but not be a key. Only
-// the whole item can show that.
+// A key is unique too, so a unique column takes the fingerprint only when it is not a key.
 function isUniqueColumn(columnId: string): boolean {
-    return activeContentAuditConfig.value?.isComplete === true && activeItemReading.value?.columnConfigs[Number(columnId)]?.validIsUnique === true && !isKeyColumn(columnId);
+    return constructTabColumnFacts(columnId).isUnique === true && !isKeyColumn(columnId);
 }
 
 // The detail opens in the tab the user is in, so they keep their place. The table scrolls the clicked column's tab into
@@ -1303,17 +1340,20 @@ function constructEditedDataViewConfig(): DataViewConfig | undefined {
     const connectionNodeConfig = activeConnectionObjectConfig.value;
     const itemReading = activeItemReading.value;
     const contentAuditConfig = activeContentAuditConfig.value;
-    if (connectionNodeConfig == null || itemReading == null || contentAuditConfig == null || !previewIsSelectable.value || dataViewConfig.value == null) return;
+    const readingConfig = detectedReadingConfig.value;
+    if (connectionNodeConfig == null || itemReading == null || contentAuditConfig == null || readingConfig == null || !previewIsSelectable.value || dataViewConfig.value == null) {
+        return;
+    }
 
-    const readingConfig: ReadingConfig = {
-        ...constructReadingConfig(itemReading),
-        dataFormatId: TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId) ? itemReading.dataFormatId : 'dtv' // Markdown opened as a table was parsed as delimited text, so it is saved as that.
-    };
     return {
         ...dataViewConfig.value,
         connectionNodeConfig,
         readingConfig,
-        sampleConfig: constructSampleConfig(itemReading),
+        readingChoiceConfig: constructReadChoices(),
+        sampleConfig: {
+            ...constructSampleConfig(itemReading),
+            dataFormatId: TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId) ? itemReading.dataFormatId : 'dtv' // Markdown opened as a table was parsed as delimited text, so it is saved as that.
+        },
         contentAuditConfig,
         columnChoiceConfigs: constructColumnChoiceConfigs(
             selectedColumnTypes.value,
@@ -1341,22 +1381,59 @@ async function waitForActiveConnectionConfig(): Promise<LocalisedConfig<Connecti
     return activeConnectionConfig.value;
 }
 
-// What the user chose first. The data view's own item then opens the way the data view reads it, not as detection would
-// read it afresh.
+// The preview detects afresh and reads the sample with the user's choices. A saved item's choices are already in the
+// selects.
 function constructPreviewOptions(connectionNodeConfig: ConnectionNodeConfig, isNewReadChoice: boolean): PreviewObjectOptions {
     const isOwnItem = !isNewReadChoice && isDataViewItem(connectionNodeConfig);
-    const dataViewReading = isOwnItem ? dataViewConfig.value?.readingConfig : undefined;
     const savedPreviewSize = isOwnItem ? dataViewConfig.value?.sampleConfig?.size : undefined;
     return {
         chunkSize: savedPreviewSize != null && savedPreviewSize > 0 ? savedPreviewSize : undefined, // A preview that grew reads as much again.
-        dataFormatId: selectedDataFormatId.value ?? dataViewReading?.dataFormatId,
-        encodingId: selectedEncodingId.value ?? dataViewReading?.encodingId,
+        dataFormatId: selectedDataFormatId.value,
+        encodingId: selectedEncodingId.value,
         extension: undefined,
         mimeType: connectionNodeConfig.mimeType,
-        parserId: selectedParserId.value ?? dataViewReading?.parserId,
+        parserId: selectedParserId.value,
         path: constructItemPath(connectionNodeConfig),
-        valueDelimiterId: selectedValueDelimiterId.value ?? dataViewReading?.valueDelimiterId
+        valueDelimiterId: selectedValueDelimiterId.value
     };
+}
+
+// A saved item opens as it was saved. It is previewed again only on a retry, which 'Preview again' also makes, or when a
+// read choice changes. Undefined when there is no connection to preview with.
+async function readPreviewObjectResult(connectionNodeConfig: ConnectionNodeConfig, isNewReadChoice: boolean, isRetry: boolean): Promise<PreviewObjectResult | undefined> {
+    const savedPreviewObjectResult = isNewReadChoice || isRetry ? undefined : findSavedPreviewObjectResult(connectionNodeConfig);
+    if (savedPreviewObjectResult != null) return savedPreviewObjectResult;
+    const { processRequest } = await establishEngineWorker();
+    if (!activeConnectionConfig.value) return;
+    const options = constructPreviewOptions(connectionNodeConfig, isNewReadChoice);
+    return (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewObjectResult;
+}
+
+// The saved reading, sample and audit of the data view's own item, so it opens as it was saved. Undefined for any other
+// item.
+function findSavedPreviewObjectResult(connectionNodeConfig: ConnectionNodeConfig): PreviewObjectResult | undefined {
+    const savedConfig = dataViewConfig.value;
+    if (savedConfig == null || !isDataViewItem(connectionNodeConfig)) return;
+    const { contentAuditConfig, readingConfig, sampleConfig } = savedConfig;
+    return contentAuditConfig == null || readingConfig == null || sampleConfig == null ? undefined : { contentAuditConfig, readingConfig, sampleConfig };
+}
+
+function constructReadChoices(): ReadingChoiceConfig {
+    return {
+        dataFormatId: selectedDataFormatId.value,
+        encodingId: selectedEncodingId.value,
+        hasHeaders: selectedHasHeaders.value,
+        parserId: selectedParserId.value,
+        valueDelimiterId: selectedValueDelimiterId.value
+    };
+}
+
+function restoreReadChoices(readingChoiceConfig: ReadingChoiceConfig | undefined): void {
+    selectedDataFormatId.value = readingChoiceConfig?.dataFormatId;
+    selectedEncodingId.value = readingChoiceConfig?.encodingId;
+    selectedParserId.value = readingChoiceConfig?.parserId;
+    selectedValueDelimiterId.value = readingChoiceConfig?.valueDelimiterId;
+    selectedHasHeaders.value = readingChoiceConfig?.hasHeaders;
 }
 
 // Only picking a different item changes the data view. Browsing folders, or clearing the selection, leaves it as it is.
@@ -1364,12 +1441,9 @@ function pickItem(connectionNodeConfig?: ConnectionNodeConfig): void {
     abortAudit(); // An audit reads one item, so it ends when the user moves to another.
     selectedColumnIndex.value = undefined;
     activeConnectionObjectConfig.value = connectionNodeConfig;
-    selectedDataFormatId.value = undefined;
-    selectedEncodingId.value = undefined;
-    selectedParserId.value = undefined;
-    selectedValueDelimiterId.value = undefined;
-    selectedHasHeaders.value = undefined;
-    if (connectionNodeConfig == null || isDataViewItem(connectionNodeConfig)) return;
+    const isOwnItem = connectionNodeConfig != null && isDataViewItem(connectionNodeConfig);
+    restoreReadChoices(isOwnItem ? dataViewConfig.value?.readingChoiceConfig : undefined); // The data view's own item keeps its saved choices.
+    if (connectionNodeConfig == null || isOwnItem) return;
 
     readingIsChanged.value = true;
     changeDataView(constructItemlessDataViewConfig());
@@ -1413,25 +1487,26 @@ function constructFolderNodeConfigs(folderPath: string): ConnectionNodeConfig[] 
     }));
 }
 
-// The encoding the preview detected, with how sure the detection was. Without a confidence level nothing was detected
-// and the preview fell back to UTF-8, so the encoding is marked as assumed.
+// The encoding the sample was decoded with, and why: the user's choice, or how detection found it. A chosen encoding the
+// browser cannot decode is named, because the text was decoded as UTF-8 instead.
 function constructEncodingText(itemReading: ItemReading): string | undefined {
-    if (itemReading.encodingId == null) return;
-    const encoding = itemReading.encodingId;
-    if (itemReading.encodingConfidenceLevel == null) return t(TEXT, 'detail.encoding.assumed.text', { encoding });
-    const confidence = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(itemReading.encodingConfidenceLevel);
-    return t(TEXT, 'detail.encoding.text', { confidence, encoding });
+    const encoding = itemReading.decodedEncodingId ?? itemReading.encodingId;
+    if (encoding == null) return;
+    const chosenEncodingId = selectedEncodingId.value;
+    if (chosenEncodingId != null && chosenEncodingId !== encoding) return t(TEXT, 'detail.encoding.undecodable.text', { encoding: chosenEncodingId });
+    const detectedReading = detectedReadingConfig.value;
+    const sourceText =
+        chosenEncodingId == null ? constructEncodingSourceText(detectedReading?.encodingSourceId, detectedReading?.encodingConfidenceLevel) : t(TEXT, 'encodingSource.choice.text');
+    return sourceText == null ? encoding : t(TEXT, 'detail.sourced.text', { source: sourceText, value: encoding });
 }
 
-// What detection found, from a preview the user has not chosen how to read. A choice of one value leaves the other to
-// detection, so each is taken only while it was not chosen.
-function recordDetectedValues(itemReading: ItemReading): void {
-    if (selectedDataFormatId.value == null) detectedDataFormatId.value = itemReading.dataFormatId;
-    if (selectedValueDelimiterId.value == null) detectedValueDelimiterId.value = itemReading.valueDelimiterId;
-    if (selectedHasHeaders.value == null) detectedHasHeaders.value = itemReading.hasHeaders;
-    if (selectedEncodingId.value != null) return;
-    detectedEncodingId.value = itemReading.encodingId;
-    detectedEncodingIsAssumed.value = itemReading.encodingConfidenceLevel == null;
+// What detection found. A preview always reports detection, whatever the user chose.
+function recordDetectedValues(readingConfig: ReadingConfig): void {
+    detectedDataFormatId.value = readingConfig.dataFormatId;
+    detectedValueDelimiterId.value = readingConfig.valueDelimiterId;
+    detectedHasHeaders.value = readingConfig.hasHeaders;
+    detectedEncodingId.value = readingConfig.encodingId;
+    detectedEncodingIsAssumed.value = readingConfig.encodingConfidenceLevel == null;
 }
 
 // One decimal place, with more only for a time too short to show in one, so a quick preview does not read as 0. A time
@@ -1574,10 +1649,26 @@ function addColumnTypesResetIssue(itemReading: ItemReading): ItemReading {
 
 // Auto, naming what detection found once it is known. A closed select shows only the value, to save room, and its muted
 // italics say it is a default. The line after it sets it apart from the values it chooses between.
-function constructAutoOption(detectedText?: string, isAssumed = false): SelectOption {
+// Auto names what detection found, and how it was found when that is known.
+function constructAutoOption(detectedText?: string, isAssumed = false, sourceText?: string): SelectOption {
     let label = t(TEXT, 'readOption.auto.label');
-    if (detectedText != null) label = t(TEXT, isAssumed ? 'readOption.autoAssumed.label' : 'readOption.autoDetected.label', { value: detectedText });
+    if (detectedText != null && sourceText != null) label = t(TEXT, 'readOption.autoFound.label', { source: sourceText, value: detectedText });
+    else if (detectedText != null) label = t(TEXT, isAssumed ? 'readOption.autoAssumed.label' : 'readOption.autoDetected.label', { value: detectedText });
     return { closedLabel: detectedText, hasSeparatorAfter: true, id: AUTO_OPTION_ID, label };
+}
+
+function constructDataFormatSourceText(dataFormatSourceId: DataFormatSourceId | undefined): string | undefined {
+    return dataFormatSourceId == null ? undefined : t(TEXT, `dataFormatSource.${dataFormatSourceId}.text`);
+}
+
+function constructEncodingSourceText(encodingSourceId: EncodingSourceId | undefined, confidenceLevel: number | undefined): string | undefined {
+    if (encodingSourceId == null) return;
+    if (encodingSourceId === 'detection' && confidenceLevel != null) return t(TEXT, 'encodingSource.detection.text', { confidence: formatPercent(confidenceLevel) });
+    return t(TEXT, `encodingSource.${encodingSourceId}.text`);
+}
+
+function formatPercent(level: number): string {
+    return new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 }).format(level);
 }
 
 // A file recognised as something other than data, such as a PDF or an image, has no format, so the type the preview
@@ -1605,6 +1696,11 @@ function findParserToolConfig(parserId: string | undefined): LocalisedConfig<Too
 
 function findStoreConnection(storeConnectorId: string): LocalisedConfig<ConnectionConfig> | undefined {
     return storeConnections.value.find((storeConnection) => storeConnection.id === storeConnectorId);
+}
+
+// Whether an option in the headers select stands for headers. Auto stands for what was detected, if anything was.
+function resolveHasHeaders(optionId: string): boolean | undefined {
+    return optionId === AUTO_OPTION_ID ? detectedHasHeaders.value : optionId === HEADERS_OPTION_IDS.yes;
 }
 
 // The delimiter an option in the value delimiter select stands for. Auto stands for the one detected.
@@ -1647,21 +1743,23 @@ function createPreviewTabElementId(previewTabId: PreviewTabId): string {
     return `${elementIdPrefix}-${previewTabId}-tab`;
 }
 
-// Whether the item is the data view's own, unchanged since, and read the same way, so the data view's audit still applies.
-function isSameAsSavedItem(dataViewConfig: DataViewConfig, connectionNodeConfig: ConnectionNodeConfig, readingConfig: ReadingConfig): boolean {
+// Whether the item is the data view's own, unchanged since, and its sample read the same way, so the data view's audit
+// still applies.
+function isSameAsSavedItem(dataViewConfig: DataViewConfig, connectionNodeConfig: ConnectionNodeConfig, itemReading: ItemReading): boolean {
     const savedNodeConfig = dataViewConfig.connectionNodeConfig;
-    const savedReadingConfig = dataViewConfig.readingConfig;
+    const savedSampleConfig = dataViewConfig.sampleConfig;
+    if (savedNodeConfig == null || savedSampleConfig == null) return false;
+    const savedReading = constructAppliedReading(savedSampleConfig);
+    const reading = constructAppliedReading(itemReading);
     return (
-        savedNodeConfig != null &&
-        savedReadingConfig != null &&
         constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig) &&
         savedNodeConfig.lastModifiedAt === connectionNodeConfig.lastModifiedAt &&
-        savedReadingConfig.dataFormatId === readingConfig.dataFormatId &&
-        savedReadingConfig.encodingId === readingConfig.encodingId &&
-        savedReadingConfig.parserId === readingConfig.parserId &&
-        savedReadingConfig.hasHeaders === readingConfig.hasHeaders &&
-        savedReadingConfig.recordDelimiterId === readingConfig.recordDelimiterId &&
-        savedReadingConfig.valueDelimiterId === readingConfig.valueDelimiterId
+        savedReading.dataFormatId === reading.dataFormatId &&
+        savedReading.encodingId === reading.encodingId &&
+        savedReading.parserId === reading.parserId &&
+        savedReading.hasHeaders === reading.hasHeaders &&
+        savedSampleConfig.recordDelimiterId === itemReading.recordDelimiterId &&
+        savedReading.valueDelimiterId === reading.valueDelimiterId
     );
 }
 
@@ -1688,7 +1786,9 @@ function applyHeaderChoice(itemReading: ItemReading, connectionNodeConfig: Conne
 function findChosenHasHeaders(connectionNodeConfig: ConnectionNodeConfig): boolean | undefined {
     const savedNodeConfig = dataViewConfig.value?.connectionNodeConfig;
     const savedHasHeaders =
-        savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig) ? dataViewConfig.value?.readingConfig?.hasHeaders : undefined;
+        savedNodeConfig != null && constructItemPath(savedNodeConfig) === constructItemPath(connectionNodeConfig)
+            ? dataViewConfig.value?.readingChoiceConfig?.hasHeaders
+            : undefined;
     return selectedHasHeaders.value ?? savedHasHeaders;
 }
 
@@ -1743,7 +1843,7 @@ async function recountActivePreview(hasHeaders: boolean): Promise<void> {
 function applySavedAudit(itemReading: ItemReading, connectionNodeConfig: ConnectionNodeConfig): ItemReading {
     const savedConfig = dataViewConfig.value;
     const savedContentAuditConfig = savedConfig?.contentAuditConfig;
-    if (savedConfig == null || savedContentAuditConfig == null || !isSameAsSavedItem(savedConfig, connectionNodeConfig, constructReadingConfig(itemReading))) {
+    if (savedConfig == null || savedContentAuditConfig == null || !isSameAsSavedItem(savedConfig, connectionNodeConfig, itemReading)) {
         return applyChosenColumns(itemReading);
     }
     activeContentAuditConfig.value = savedContentAuditConfig;
@@ -1782,18 +1882,13 @@ async function readLargerPreview(): Promise<AuditObjectContentResult | undefined
     previewIsPending.value = true;
     try {
         const { processRequest } = await establishEngineWorker();
-        const options: PreviewObjectOptions = {
-            chunkSize: PREVIEW_BYTE_LIMIT,
-            dataFormatId: itemReading.dataFormatId,
-            encodingId: itemReading.encodingId,
-            extension: undefined,
-            mimeType: connectionNodeConfig.mimeType,
-            parserId: itemReading.parserId,
-            path: constructItemPath(connectionNodeConfig),
-            valueDelimiterId: itemReading.valueDelimiterId
-        };
+        const options: PreviewObjectOptions = { ...constructPreviewOptions(connectionNodeConfig, true), chunkSize: PREVIEW_BYTE_LIMIT };
         const previewObjectResult = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewObjectResult;
         if (currentRequestId !== previewRequestId.value) return;
+        // More of the item gives detection more to go on, so its result replaces the first one.
+        detectedReadingConfig.value = previewObjectResult.readingConfig;
+        detectedEncodingCandidates.value = previewObjectResult.encodingCandidates;
+        recordDetectedValues(previewObjectResult.readingConfig);
         // More records can show a header the first preview missed, unless the user chose whether there is one.
         const detectedReading = constructItemReading(previewObjectResult);
         const headersAreFound = itemReading.hasHeaders !== true && !areHeadersChosen() && detectedReading.hasHeaders === true;
@@ -2001,7 +2096,14 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 <template>
     <ErrorNotice v-if="listFailure" :failures="[listFailure]" @retry="handleRetryList" />
 
-    <GridDetailPanel v-else ref="gridDetailPanel" :selected-item="activeConnectionObjectConfig" :data-source="connectionNodeConfigsDataSource" :is-compact="true" max-grid-width="320px">
+    <GridDetailPanel
+        v-else
+        ref="gridDetailPanel"
+        :selected-item="activeConnectionObjectConfig"
+        :data-source="connectionNodeConfigsDataSource"
+        :is-compact="true"
+        max-grid-width="320px"
+    >
         <!-- Explore ─ In the header slot because it is always rendered. It stays in the pill, dimmed until an item that
              is data has previewed and its audit has finished, because it is the step's way on. -->
         <template #header>
@@ -2170,7 +2272,15 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             :options="valueDelimiterOptions"
                             :tone="selectedValueDelimiterId == null ? undefined : 'info'"
                         >
-                            <template #icon><SeparatorVerticalIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
+                            <!-- The chosen delimiter's own mark, or the detected one's on Auto. Before anything is detected
+                                 there is no mark, so a generic icon stands in. -->
+                            <template #icon>
+                                <ValueDelimiterIcon
+                                    v-if="resolveValueDelimiterId(previewValueDelimiterId)"
+                                    :value-delimiter-id="resolveValueDelimiterId(previewValueDelimiterId)"
+                                />
+                                <SeparatorVerticalIcon v-else aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
+                            </template>
                             <template #option-icon="{ option }"><ValueDelimiterIcon :value-delimiter-id="resolveValueDelimiterId(option.id)" /></template>
                         </SelectInput>
                         <!-- Headers ─ Changes how the records already read are shown and counted, so the item is not
@@ -2191,6 +2301,15 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         >
                             <template #icon>
                                 <HeadersIcon class="size-[1.25em] flex-none text-muted" :has-headers="previewHasHeaders" />
+                            </template>
+                            <!-- An empty box of the same size stands in on Auto before detection, so the labels line up. -->
+                            <template #option-icon="{ option }">
+                                <HeadersIcon
+                                    v-if="resolveHasHeaders(option.id) != null"
+                                    class="size-[1.25em] flex-none text-muted"
+                                    :has-headers="resolveHasHeaders(option.id) === true"
+                                />
+                                <span v-else aria-hidden="true" class="size-[1.25em] flex-none" />
                             </template>
                         </SelectInput>
                         <!-- Fixed Read Settings ─ In place of the choices above, for an item whose source says how it is
@@ -2272,6 +2391,20 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 <RotateCwIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" :stroke-width="1.5" />
                             </AuditMenu>
                         </template>
+                        <!-- Preview Again ─ A saved item opens as it was saved, so this is how it is read afresh. Detection runs
+                             again, and the sample is read with the choices above. Hidden with the other read choices when
+                             the item's source says how it is read, such as a table. -->
+                        <ActionWrapper
+                            v-if="!auditIsRunning && !readingIsFixed"
+                            class="flex h-7 max-w-full min-w-0 items-center gap-x-1 rounded-md px-1.5 text-sm text-content hover:state-hover active:state-press disabled:opacity-50"
+                            :class="readChoiceSelectClass"
+                            :disabled="readChoicesAreLocked || previewIsPending"
+                            :title="readChoiceValuesAreHidden ? t(TEXT, 'previewAgain.label') : undefined"
+                            @click="handleRetryItem"
+                        >
+                            <RefreshCwIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" :stroke-width="1.5" />
+                            <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ t(TEXT, 'previewAgain.label') }}</span>
+                        </ActionWrapper>
                     </div>
                 </Teleport>
                 <!-- Folded Read Choices ─ In the top layer, so the preview cannot cover them. The browser closes them on
@@ -2417,14 +2550,12 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 >{{ previewTableColumnDefinitions[Number(columnId)]?.header }}</ActionWrapper
                             >
                         </template>
-                        <!-- Key, Unique and Complete ─ Only after a whole audit, because the rest of the item could
-                         still lack or repeat a value. A key is complete and unique. A unique column with missing values
-                         gets its own icon, because it could take a unique index but not be a key. The icons follow the
-                         order of the Overview's facts. The value bar is placed on the header cell, along its bottom
-                         edge, so it sits here only to be in the cell. -->
+                        <!-- Key, Unique and Mandatory ─ The Overview's facts, under the same rules and in the same order. A
+                         key shows in place of the fingerprint, because a key is unique too. The value bar is placed on
+                         the header cell, along its bottom edge, so it sits here only to be in the cell. -->
                         <template #header-label-end="{ columnId }">
                             <span
-                                v-if="isCompleteColumn(columnId) || isUniqueColumn(columnId)"
+                                v-if="isKeyColumn(columnId) || isUniqueColumn(columnId) || isMandatoryColumn(columnId)"
                                 class="ml-1 flex flex-none items-center gap-x-0.5 text-muted"
                                 :class="{ 'opacity-50': isIgnoredColumn(columnId) }"
                             >
@@ -2434,7 +2565,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 <span v-else-if="isUniqueColumn(columnId)" :aria-label="t(TEXT, 'columnUnique.aria')" role="img" :title="t(TEXT, 'columnUnique.aria')">
                                     <FingerprintPatternIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
                                 </span>
-                                <span v-if="isCompleteColumn(columnId)" :aria-label="t(TEXT, 'columnComplete.aria')" role="img" :title="t(TEXT, 'columnComplete.aria')">
+                                <span v-if="isMandatoryColumn(columnId)" :aria-label="t(TEXT, 'columnMandatory.aria')" role="img" :title="t(TEXT, 'columnMandatory.aria')">
                                     <AsteriskIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
                                 </span>
                             </span>
@@ -2514,7 +2645,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 :column-index="selectedColumnIndex"
                                 :date-order-options="constructDateOrderOptions(String(selectedColumnIndex))"
                                 :date-order-value="constructDateOrderValue(String(selectedColumnIndex))"
-                                                                :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
+                                :decimal-separator-options="constructDecimalSeparatorOptions(String(selectedColumnIndex))"
                                 :decimal-separator-value="constructDecimalSeparatorValue(String(selectedColumnIndex))"
                                 :detected-column-type="detectedColumnTypes[selectedColumnIndex]"
                                 :has-next-column="selectedColumnStepIndex != null && selectedColumnStepIndex < tableColumnIndexes.length - 1"
@@ -2647,7 +2778,6 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <p v-if="previewExtentText" class="flex-none whitespace-nowrap [text-box:trim-both_cap_alphabetic]">{{ previewExtentText }}</p>
             </div>
         </template>
-
 
         <template #no-selection>
             {{ infoString }}
