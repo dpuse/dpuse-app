@@ -35,7 +35,6 @@ const ACTION_LABEL_KEYS: Record<ConnectorActionName, keyof typeof TEXT> = {
     previewObject: 'action.previewObject.label',
     queryRecords: 'action.queryRecords.label',
     removeRecords: 'action.removeRecords.label',
-    retrieveChunks: 'action.retrieveChunks.label',
     retrieveRecords: 'action.retrieveRecords.label',
     upsertRecords: 'action.upsertRecords.label'
 };

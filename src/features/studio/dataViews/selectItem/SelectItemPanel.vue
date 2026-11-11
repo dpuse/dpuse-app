@@ -420,13 +420,13 @@ const activeConnectionConfig = computed(() => findConnectionLocalisedConfig(data
 const activeDataViewConnection = computed(() => (activeConnectionConfig.value ? constructDataViewConnection(activeConnectionConfig.value, localeId.value) : undefined));
 const itemSubject = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId ?? 'item'); // Wording names the connector's kind of item, e.g. 'File', and falls back to 'item' for a connector released before it said which.
 
-// A table comes from an application or a database, which says how it is read. It has no text to show and no file
-// settings to choose, such as its format or encoding.
-const itemIsTable = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId === 'table');
+// Only a file has text to show, and settings to choose such as its format or encoding. A table or an API endpoint comes
+// from an application or a database, which says how it is read and gives its values already typed.
+const itemIsFile = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId === 'file');
 
 // An item's source can also say how it is read, such as a resource file beside a file. The toolbar then shows the
 // settings as text rather than as choices that would change nothing.
-const readingIsFixed = computed(() => itemIsTable.value || activeItemReading.value?.isDeclared === true);
+const readingIsFixed = computed(() => !itemIsFile.value || activeItemReading.value?.isDeclared === true);
 
 // Every item shows the icon for the connector's kind of item, as the summary row does. A file's real format is only
 // known once it is previewed, so its name extension is not used to guess one.
@@ -439,7 +439,7 @@ const itemTypeIcon = computed(() => {
 const backLabel = computed(() => currentFolderNodes.value.at(-1)?.label ?? t(TEXT, 'home.label')); // Names the folder the back button returns to.
 
 // ── Preview ─ A file the preview could not read as text says so on the details tab.
-const previewIsUnsupported = computed(() => activeItemReading.value != null && !TEXT_DATA_FORMAT_IDS.has(activeItemReading.value.dataFormatId));
+const previewIsUnsupported = computed(() => itemIsFile.value && activeItemReading.value != null && !TEXT_DATA_FORMAT_IDS.has(activeItemReading.value.dataFormatId));
 const previewIsMarkdown = computed(() => activeItemReading.value?.dataFormatId === 'markdown'); // The text tab shows markdown rendered rather than as source.
 
 const previewFormatText = computed(() => (activeItemReading.value == null ? undefined : constructDataFormatText(activeItemReading.value.dataFormatId)));
@@ -449,7 +449,7 @@ const previewFormatIconConfig = computed(() => {
 });
 const previewFormatSupport = computed(() => {
     const dataFormatId = activeItemReading.value?.dataFormatId;
-    if (dataFormatId == null || dataFormatId === 'markdown') return; // Markdown is a document, not data, so it is not marked either way.
+    if (dataFormatId == null || dataFormatId === 'markdown' || !itemIsFile.value) return; // Only a file has a format. Markdown is a document, not data, so it is not marked either way.
     let id: FormatSupportId = 'unsupported';
     if (READABLE_DATA_FORMAT_IDS.has(dataFormatId)) id = 'supported';
     else if (PLANNED_DATA_FORMAT_IDS.has(dataFormatId)) id = 'planned';
@@ -547,7 +547,7 @@ const parserToolConfigs = computed(() => {
     return dataFormatId == null ? [] : localiseConfigs(listParserToolConfigs(toolConfigs.value, dataFormatId), localeId.value);
 });
 const parserOptions = computed<SelectOption[]>(() => parserToolConfigs.value.map(({ id, label }) => ({ id, label })));
-const parserIsChoosable = computed(() => !itemIsTable.value && parserOptions.value.length > 1);
+const parserIsChoosable = computed(() => itemIsFile.value && parserOptions.value.length > 1);
 
 // A warning when the text did not decode cleanly, or a chosen encoding could not be used. Otherwise a chosen encoding is
 // the user's call, and left on Auto, an encoding the preview only assumed is the one value in doubt.
@@ -569,10 +569,10 @@ const valueDelimiterIsChoosable = computed(() => !readingIsFixed.value && active
 const previewHeadersAreChoosable = computed(() => !readingIsFixed.value && activeItemReading.value?.dataFormatId === 'dtv' && activeItemReading.value.parsedRecords.length > 0);
 
 // The format, encoding, value delimiter and headers, in the order of their choices, with the same icons. Only delimited
-// text has a value delimiter and headers. A table shows none of them, because it is read as a table, not as a file.
+// text has a value delimiter and headers. Only a file shows them, because a table or an API endpoint is not read as a file.
 const fixedReadSettings = computed((): FixedReadSetting[] => {
     const itemReading = activeItemReading.value;
-    if (itemReading == null || !readingIsFixed.value || itemIsTable.value) return [];
+    if (itemReading == null || !readingIsFixed.value || !itemIsFile.value) return [];
     const isDelimitedText = itemReading.dataFormatId === 'dtv';
     const settings: (FixedReadSetting | undefined)[] = [
         previewFormatText.value == null ? undefined : { icon: FileTextIcon, id: 'format', labelKey: 'format.label', value: previewFormatText.value },
@@ -746,7 +746,7 @@ const previewExtentText = computed(() => {
     return t(TEXT, 'preview.extent.text', { size: formatNumberAsStorageSize(previewSize) });
 });
 
-const previewTabs = computed(() => PREVIEW_TABS.filter((previewTab) => previewTab.id !== 'text' || !itemIsTable.value));
+const previewTabs = computed(() => PREVIEW_TABS.filter((previewTab) => previewTab.id !== 'text' || itemIsFile.value));
 const currentPreviewTab = computed(() =>
     assertDefined(
         previewTabs.value.find((previewTab) => previewTab.id === currentPreviewTabId.value),
@@ -762,6 +762,7 @@ const currentPreviewTab = computed(() =>
 const previewIsSelectable = computed(() => {
     const itemReading = activeItemReading.value;
     if (itemReading == null || itemReading.parsedRecords.length === 0 || sampleHasErrorIssue.value) return false;
+    if (!itemIsFile.value) return true; // A table or an API endpoint has no format, and its records are already a table.
     const isOpenedAsTable = TEXT_DATA_FORMAT_IDS.has(itemReading.dataFormatId) && currentPreviewTabId.value === 'table';
     return TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId) || isOpenedAsTable;
 });
@@ -835,7 +836,7 @@ const itemDetailGroups = computed(() => {
     ];
     if (activeContentAuditConfig.value) detailGroups.push(constructAuditDetailGroup(activeContentAuditConfig.value));
     return detailGroups
-        .filter((detailGroup) => !itemIsTable.value || detailGroup.id !== 'parsing')
+        .filter((detailGroup) => itemIsFile.value || detailGroup.id !== 'parsing')
         .map((detailGroup) => ({ ...detailGroup, details: detailGroup.details.filter((detail) => isDetailShown(detail.labelKey, detail.value)) }))
         .filter((detailGroup) => detailGroup.details.length > 0);
 });
@@ -1708,9 +1709,9 @@ function resolveValueDelimiterId(optionId: string): ValueDelimiterId | undefined
     return optionId === AUTO_OPTION_ID ? detectedValueDelimiterId.value : VALUE_DELIMITER_CONFIGS.find(({ id }) => id === optionId)?.id;
 }
 
-// A detail shows only when it has a value, and a table leaves out the details only a file has.
+// A detail shows only when it has a value, and only a file shows the details only a file has.
 function isDetailShown(labelKey: keyof typeof TEXT, value: string | undefined): boolean {
-    return value != null && value !== '' && (!itemIsTable.value || !FILE_DETAIL_LABEL_KEYS.has(labelKey));
+    return value != null && value !== '' && (itemIsFile.value || !FILE_DETAIL_LABEL_KEYS.has(labelKey));
 }
 
 // Sorted by label in the current language, because translation changes the order.
@@ -1719,14 +1720,15 @@ function sortOptionsByLabel(options: SelectOption[]): SelectOption[] {
 }
 
 // Only a format the app can read as data has tables to show, and only when something was parsed without an error.
-// Markdown, a format not supported yet and one that never will be all show as text. The table stays enabled while
-// there is no preview, so the tabs do not flicker as it loads.
+// Markdown, a format not supported yet and one that never will be all show as text. A table or an API endpoint has no
+// format, so its records show as a table whenever there are some. The table stays enabled while there is no preview, so
+// the tabs do not flicker as it loads.
 function isPreviewTabDisabled(previewTabId: PreviewTabId): boolean {
     const itemReading = activeItemReading.value;
     return (
         previewTabId === 'table' &&
         itemReading != null &&
-        (sampleHasErrorIssue.value || itemReading.parsedRecords.length === 0 || !READABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId))
+        (sampleHasErrorIssue.value || itemReading.parsedRecords.length === 0 || (itemIsFile.value && !READABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId)))
     );
 }
 
@@ -2036,8 +2038,8 @@ function establishFirstPreviewTabId(itemReading: ItemReading): PreviewTabId {
         selectedColumnIndex.value = requestedColumnIndex; // Sent here to check this column, whose detail opens over the table.
     }
     const tableIsUsable = itemReading.parsedRecords.length > 0 && itemReading.issues.every((issue) => issue.severityId !== 'error');
-    if (tableIsUsable && TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId)) return 'table';
-    return itemIsTable.value ? 'details' : 'text';
+    if (tableIsUsable && (!itemIsFile.value || TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId))) return 'table';
+    return itemIsFile.value ? 'text' : 'details';
 }
 
 function constructSampleIssueLineText(issue: SampleIssue): string | undefined {
@@ -2496,7 +2498,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                              which shows rendered rather than as lines. -->
                         <span class="min-w-0 wrap-break-word">
                             <ActionWrapper
-                                v-if="issueItem.lineNumber != null && !previewIsMarkdown && !itemIsTable"
+                                v-if="issueItem.lineNumber != null && !previewIsMarkdown && itemIsFile"
                                 class="mr-2 text-accent hover:underline"
                                 @click="handleShowIssueLine(issueItem.lineNumber)"
                                 >{{ issueItem.lineText }}</ActionWrapper

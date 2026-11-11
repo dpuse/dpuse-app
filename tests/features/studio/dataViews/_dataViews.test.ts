@@ -247,7 +247,7 @@ describe('data views', () => {
 
     describe('auditDataViewContent', () => {
         it('audits the item the way its sample was read, not as detected, passing on progress', async () => {
-            const connectionConfig = { id: 'connection-a' };
+            const connectionConfig = { connectorConfig: { itemTypeId: 'file' }, id: 'connection-a' };
             const auditResult = { contentAuditConfig: { recordCount: 2 }, hasHeaders: false };
             const processRequest = vi.fn((_id: string, _config: unknown, _options: unknown, callback: (callbackData: unknown) => void) => {
                 callback({ typeId: 'progress', properties: { byteCount: 90, recordCount: 2 } });
@@ -285,7 +285,7 @@ describe('data views', () => {
 
         it('asks the audit to check again for a header only when none was found and none was chosen', async () => {
             const processRequest = vi.fn(() => Promise.resolve({ contentAuditConfig: { recordCount: 2 } }));
-            vi.mocked(findConnectionLocalisedConfig).mockReturnValue({ id: 'connection-a' } as never);
+            vi.mocked(findConnectionLocalisedConfig).mockReturnValue({ connectorConfig: { itemTypeId: 'file' }, id: 'connection-a' } as never);
             vi.mocked(establishEngineWorker).mockResolvedValue({ processRequest } as never);
             const constructDataView = (hasHeaders: boolean): DataViewConfig =>
                 ({
@@ -303,6 +303,24 @@ describe('data views', () => {
             expect(findSentHasHeaders()).toBe(false);
             await auditDataViewContent(constructDataView(true), undefined, vi.fn(), false);
             expect(findSentHasHeaders()).toBe(true);
+        });
+    });
+
+    describe('auditDataViewContent for a table', () => {
+        it('sends no encoding or value delimiter, because only a file has them', async () => {
+            const processRequest = vi.fn(() => Promise.resolve({ contentAuditConfig: { recordCount: 2 } }));
+            vi.mocked(findConnectionLocalisedConfig).mockReturnValue({ connectorConfig: { itemTypeId: 'table' }, id: 'connection-a' } as never);
+            vi.mocked(establishEngineWorker).mockResolvedValue({ processRequest } as never);
+            const dataViewConfig = {
+                ...buildDataView('a', 'People'),
+                connectionId: 'connection-a',
+                connectionNodeConfig: { extension: undefined, folderPath: '/database', name: 'people' },
+                sampleConfig: { dataFormatId: 'unknown', hasHeaders: false }
+            } as DataViewConfig;
+
+            await auditDataViewContent(dataViewConfig, undefined, vi.fn());
+
+            expect((processRequest.mock.lastCall as unknown as [string, unknown, object])[2]).toMatchObject({ encodingId: undefined, valueDelimiterId: undefined });
         });
     });
 

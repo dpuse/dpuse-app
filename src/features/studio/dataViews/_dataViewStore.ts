@@ -95,6 +95,7 @@ export async function loadDataViewRecords(dataViewConfig: DataViewConfig, isDraf
     const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
     const appliedReading = constructAppliedReading(assertDefined(dataViewConfig.sampleConfig, 'No sample for this data view.'));
     const sourceConnectionConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
+    const sourceIsFile = sourceConnectionConfig.connectorConfig.itemTypeId === 'file'; // Only a file has an encoding and a value delimiter.
     const storeConnectorId = resolveStoreConnectorId(dataViewConfig);
     const loadKey = constructLoadKey(storeConnectorId, dataViewConfig.id, isDraft);
     const options: EngineLoadObjectRecordsOptions = {
@@ -107,10 +108,10 @@ export async function loadDataViewRecords(dataViewConfig: DataViewConfig, isDraf
         sourceOptions: {
             chunkSize: undefined,
             dataFormatId: appliedReading.dataFormatId,
-            encodingId: assertDefined(appliedReading.encodingId, 'No encoding in the sample.'),
+            encodingId: sourceIsFile ? assertDefined(appliedReading.encodingId, 'No encoding in the sample.') : undefined,
             parserId: appliedReading.parserId,
             path: constructItemPath(connectionNodeConfig),
-            valueDelimiterId: assertDefined(appliedReading.valueDelimiterId, 'No value delimiter in the sample.')
+            valueDelimiterId: sourceIsFile ? assertDefined(appliedReading.valueDelimiterId, 'No value delimiter in the sample.') : undefined
         }
     };
     const { processRequest } = await establishEngineWorker();

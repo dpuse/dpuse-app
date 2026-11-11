@@ -58,7 +58,10 @@ const DATA_VIEW = {
 
 beforeEach(() => {
     vi.mocked(establishEngineWorker).mockResolvedValue({ initialise: vi.fn(), processRequest });
-    vi.mocked(findConnectionLocalisedConfig).mockImplementation((connectionId) => ({ id: connectionId }) as ReturnType<typeof findConnectionLocalisedConfig>);
+    vi.mocked(findConnectionLocalisedConfig).mockImplementation(
+        (connectionId) =>
+            (connectionId === 'source1' ? { connectorConfig: { itemTypeId: 'file' }, id: connectionId } : { id: connectionId }) as ReturnType<typeof findConnectionLocalisedConfig> // The source's kind of item decides whether it has an encoding.
+    );
 });
 
 afterEach(() => {
@@ -97,12 +100,28 @@ describe('_dataViewStore', () => {
             headerValues: ['Name'],
             ignoredColumnIndexes: [],
             path: 'dataView1',
-            sourceConnectionConfig: { id: 'source1' },
+            sourceConnectionConfig: { connectorConfig: { itemTypeId: 'file' }, id: 'source1' },
             sourceOptions: { dataFormatId: 'dsv', encodingId: 'utf-8', parserId: 'parser1', valueDelimiterId: ',' }
         });
         expect(onProgress).toHaveBeenCalledWith(10);
         expect(isDataViewLoaded(DATA_VIEW, false)).toBe(true);
         expect(isDataViewLoaded({ ...DATA_VIEW, contentAuditConfig: { ...DATA_VIEW.contentAuditConfig, asAt: 6 } } as DataViewConfig, false)).toBe(false);
+    });
+
+    it('sends no encoding or value delimiter for a source that is not a file', async () => {
+        vi.mocked(findConnectionLocalisedConfig).mockImplementation(
+            (connectionId) => ({ connectorConfig: { itemTypeId: 'table' }, id: connectionId }) as ReturnType<typeof findConnectionLocalisedConfig>
+        );
+        const tableDataView = {
+            ...DATA_VIEW,
+            id: 'tableDataView',
+            sampleConfig: { ...DATA_VIEW.sampleConfig, decodedEncodingId: undefined, valueDelimiterId: undefined }
+        } as DataViewConfig;
+        processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
+
+        await loadDataViewRecords(tableDataView, false, vi.fn());
+
+        expect(processRequest.mock.calls[0]?.[2]).toMatchObject({ sourceOptions: { encodingId: undefined, valueDelimiterId: undefined } });
     });
 
     it('does not count a data view as loaded when a chosen type changes after its load', async () => {

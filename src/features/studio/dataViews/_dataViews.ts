@@ -153,15 +153,16 @@ export async function auditDataViewContent(
     const connectionLocalisedConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
     const connectionNodeConfig = assertDefined(dataViewConfig.connectionNodeConfig, 'No item for this data view.');
     const appliedReading = constructAppliedReading(assertDefined(dataViewConfig.sampleConfig, 'No sample for this data view.'));
+    const itemIsFile = connectionLocalisedConfig.connectorConfig.itemTypeId === 'file'; // Only a file has an encoding and a value delimiter.
     const options: Omit<AuditObjectContentOptions, 'stopSignal' | 'supportsTransferableStreams'> = {
         byteLimit,
         chunkSize: undefined,
         dataFormatId: appliedReading.dataFormatId,
-        encodingId: assertDefined(appliedReading.encodingId, 'No encoding in the sample.'),
+        encodingId: itemIsFile ? assertDefined(appliedReading.encodingId, 'No encoding in the sample.') : undefined,
         hasHeaders: headersAreChosen || appliedReading.hasHeaders === true ? appliedReading.hasHeaders === true : undefined,
         parserId: appliedReading.parserId, // The tool that read the sample, so the audit reads it the same way.
         path: constructItemPath(connectionNodeConfig),
-        valueDelimiterId: assertDefined(appliedReading.valueDelimiterId, 'No value delimiter in the sample.')
+        valueDelimiterId: itemIsFile ? assertDefined(appliedReading.valueDelimiterId, 'No value delimiter in the sample.') : undefined
     }; // The engine adds 'stopSignal' and 'supportsTransferableStreams', because they only exist in the worker.
     const { processRequest } = await establishEngineWorker();
     return (await processRequest('auditObjectContent', connectionLocalisedConfig, options, (callbackData) => {
