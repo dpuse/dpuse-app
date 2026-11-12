@@ -38,10 +38,7 @@ interface WorkspaceStore {
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const CONFIG_CELL_ID = 'config'; // Each config is one cell holding the whole object, so the later save of a config wins.
-const GUEST_META_STORE_ID = 'dpuMetaStore'; // The Dexie database guest work was saved in before the workspace store. Each account's was this name, a hyphen and the account id.
 const GUEST_WORKSPACE_STORE_ID = 'dpuseWorkspaceStore';
-const META_STORE_IS_MOVED_VALUE_ID = 'metaStoreIsMoved';
-const OLDER_DRAFT_TABLE_ID = 'dataViewWorkingCopies';
 const WORKSPACE_STORE_QUERY_KEY = ['workspaceStore'] as const;
 const WORKSPACE_STORE_TABLE_IDS: WorkspaceStoreTableId[] = ['dataViews'];
 
@@ -137,10 +134,7 @@ export async function moveGuestWorkspaceStoreRecords(): Promise<void> {
     await queryClient.invalidateQueries({ queryKey: WORKSPACE_STORE_QUERY_KEY });
 }
 
-// ── Account Work ─ Removes the signed-in account's work from this browser, for a user leaving a shared computer. The
-// tables are emptied rather than the database deleted, so the note that the meta store was moved stays and a later
-// sign-in does not copy the old work back. The account's meta store database is left in place, so work saved before
-// the workspace store stays in this browser until that database is deleted.
+// ── Account Work ─ Removes the signed-in account's work from this browser, for a user leaving a shared computer.
 export async function removeAccountWorkspaceStoreRecords(): Promise<void> {
     const accountWorkspaceStoreId = await establishCurrentWorkspaceStoreId();
     if (accountWorkspaceStoreId === GUEST_WORKSPACE_STORE_ID) return;
@@ -240,16 +234,7 @@ async function constructWorkspaceStore(storeId: string): Promise<WorkspaceStore>
     });
     const workspaceStore = { persistenceErrors, persister, store };
     await loadWorkspaceStore(workspaceStore);
-    await removeStoredDrafts(workspaceStore);
-    await moveMetaStoreRecords(workspaceStore, `${GUEST_META_STORE_ID}${storeId.slice(GUEST_WORKSPACE_STORE_ID.length)}`);
     return workspaceStore;
-}
-
-// An older build stored unsaved changes. Changes are now held only in memory until Save, so any left behind are removed.
-async function removeStoredDrafts(workspaceStore: WorkspaceStore): Promise<void> {
-    if (!workspaceStore.store.hasTable(OLDER_DRAFT_TABLE_ID)) return;
-    workspaceStore.store.delTable(OLDER_DRAFT_TABLE_ID);
-    await saveWorkspaceStore(workspaceStore);
 }
 
 // A store that has never been saved has no TinyBase tables in its database, which IndexedDB reports as 'NotFoundError'.
@@ -269,43 +254,4 @@ async function saveWorkspaceStore({ persistenceErrors, persister }: WorkspaceSto
     await persister.save();
     const [persistenceError] = persistenceErrors;
     if (persistenceError != null) throw new Error('Failed to save the workspace store.', { cause: persistenceError });
-}
-
-// ── Meta Store Move ─ Work saved before the workspace store is in the account's meta store, a Dexie database. It is
-// copied across once, and only into an empty store, so work removed later does not come back. The meta store database
-// is left in place.
-async function moveMetaStoreRecords(workspaceStore: WorkspaceStore, metaStoreId: string): Promise<void> {
-    const { store } = workspaceStore;
-    if (store.getValue(META_STORE_IS_MOVED_VALUE_ID) === true) return;
-
-    if (!store.hasTables()) {
-        for (const tableId of WORKSPACE_STORE_TABLE_IDS) setStoreRecords(store, tableId, await retrieveMetaStoreRecords(metaStoreId, tableId));
-    }
-    store.setValue(META_STORE_IS_MOVED_VALUE_ID, true);
-    await saveWorkspaceStore(workspaceStore);
-}
-
-// Read through IndexedDB itself, because the app no longer loads Dexie. Only a database that exists is opened, because
-// opening one by name creates it.
-async function retrieveMetaStoreRecords(metaStoreId: string, tableId: WorkspaceStoreTableId): Promise<{ id: string }[]> {
-    const databaseInfos = await indexedDB.databases();
-    if (databaseInfos.every((databaseInfo) => databaseInfo.name !== metaStoreId)) return [];
-
-    const database = await completeRequest(indexedDB.open(metaStoreId));
-    try {
-        return database.objectStoreNames.contains(tableId) ? ((await completeRequest(database.transaction(tableId).objectStore(tableId).getAll())) as { id: string }[]) : [];
-    } finally {
-        database.close();
-    }
-}
-
-async function completeRequest<T>(request: IDBRequest<T>): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
-        request.addEventListener('success', () => {
-            resolve(request.result);
-        });
-        request.addEventListener('error', () => {
-            reject(request.error ?? new Error('IndexedDB request failed.'));
-        });
-    });
 }

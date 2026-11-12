@@ -10,6 +10,7 @@ import type {
     EngineLoadObjectRecordsOptions,
     EngineLoadObjectRecordsResult,
     LocalisedConfig,
+    ObjectColumnConfig,
     OpenStoreResult,
     QueryRecordsOptions,
     QueryRecordsResult,
@@ -40,9 +41,8 @@ export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-sqlite-wasm';
 const INVESTIGATE_STORE_CONNECTOR_IDS = ['dpuse-connector-sqlite-wasm', 'dpuse-connector-duckdb-wasm', 'dpuse-connector-dexie-js']; // Dexie last, because it answers queries in memory.
 
 const DRAFT_LOAD_SUFFIX = '|draft';
-const OLDER_DRAFT_LOAD_SUFFIX = '|working'; // Left by a build that stored drafts.
 const LISTED_VALUE_COUNT = 10; // Values in each of the most and least frequent lists, as many as the audit lists.
-const LOAD_FORMAT_VERSION = 2; // Raised when stored values change meaning, so that what is already loaded is loaded again. 2 stores dates in UTC, as true dates and times.
+const LOAD_FORMAT_VERSION = 3; // Raised when stored values change meaning, so that what is already loaded is loaded again. 2 stores dates in UTC, as true dates and times. 3 keeps no column types in the store, because every query brings them.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -104,12 +104,14 @@ export async function loadDataViewRecords(
     const sourceIsFile = sourceConnectionConfig.connectorConfig.itemTypeId === 'file'; // Only a file has an encoding and a value delimiter.
     const storeConnectorId = resolveStoreConnectorId(dataViewConfig);
     const loadKey = constructLoadKey(storeConnectorId, dataViewConfig.id, isDraft);
+    const tablePath = `${dataViewConfig.id}-${crypto.randomUUID()}`;
+    addUnwantedTablePaths(storeConnectorId, [tablePath]); // Until the load succeeds, so a table left by a failure, reload or crash is dropped.
     const options: EngineLoadObjectRecordsOptions = {
         columnConfigs: constructLoadColumnConfigs(dataViewConfig),
         hasHeaders: appliedReading.hasHeaders === true,
         ignoredColumnIndexes: constructIgnoredColumnIndexes(dataViewConfig),
         headerValues: appliedReading.hasHeaders === true ? dataViewConfig.sampleConfig?.parsedRecords[0]?.map((parsedValue) => parsedValue.value) : undefined,
-        path: establishTablePath(storeConnectorId, dataViewConfig.id, isDraft),
+        path: tablePath,
         requestId,
         sourceConnectionConfig,
         sourceOptions: {
@@ -122,14 +124,22 @@ export async function loadDataViewRecords(
         }
     };
     const { processRequest } = await establishEngineWorker();
-    const loadResult = (await processRequest('loadObjectRecords', findStoreConnectionLocalisedConfig(storeConnectorId), options, (callbackData) => {
-        if (callbackData.typeId === 'progress') onProgress(Number(callbackData.properties.recordCount));
-    })) as EngineLoadObjectRecordsResult;
-    if (!loadResult.columnsHaveChanged) {
-        loadedColumnsVersions.value = { ...loadedColumnsVersions.value, [loadKey]: columnsVersion };
-        loadInvalidValueCounts.value = { ...loadInvalidValueCounts.value, [loadKey]: loadResult.invalidValueCounts };
+    try {
+        const loadResult = (await processRequest('loadObjectRecords', findStoreConnectionLocalisedConfig(storeConnectorId), options, (callbackData) => {
+            if (callbackData.typeId === 'progress') onProgress(Number(callbackData.properties.recordCount));
+        })) as EngineLoadObjectRecordsResult;
+        if (!loadResult.columnsHaveChanged) {
+            const earlierTablePath = isDraft ? loadTablePaths.value[loadKey] : resolveSavedTablePath(storeConnectorId, dataViewConfig.id);
+            loadTablePaths.value = { ...loadTablePaths.value, [loadKey]: tablePath };
+            removeUnwantedTablePath(storeConnectorId, tablePath);
+            if (earlierTablePath != null) addUnwantedTablePaths(storeConnectorId, [earlierTablePath]);
+            loadedColumnsVersions.value = { ...loadedColumnsVersions.value, [loadKey]: columnsVersion };
+            loadInvalidValueCounts.value = { ...loadInvalidValueCounts.value, [loadKey]: loadResult.invalidValueCounts };
+        }
+        return loadResult;
+    } finally {
+        await dropUnwantedTables(storeConnectorId); // The earlier table after a success, or the new one after a failure.
     }
-    return loadResult;
 }
 
 // Stops only the load the request id names. Its source and its store both stop, so the earlier load is kept.
@@ -140,8 +150,15 @@ export async function abortDataViewRecordLoad(dataViewConfig: DataViewConfig, re
     await processRequest('abort', sourceConnectionConfig, { requestId });
 }
 
-export async function queryDataViewRecords(storeConnectorId: string, tablePath: string, query: DataViewRecordQuery): Promise<QueryRecordsResult> {
-    const options: QueryRecordsOptions = { ...query, path: tablePath };
+// 'columnConfigs' are the columns the table was loaded with, from 'constructStoredColumnConfigs', because the store keeps
+// no column types of its own.
+export async function queryDataViewRecords(
+    storeConnectorId: string,
+    tablePath: string,
+    columnConfigs: ObjectColumnConfig[],
+    query: DataViewRecordQuery
+): Promise<QueryRecordsResult> {
+    const options: QueryRecordsOptions = { ...query, columnConfigs, path: tablePath };
     const { processRequest } = await establishEngineWorker();
     return (await processRequest('queryRecords', findStoreConnectionLocalisedConfig(storeConnectorId), options)) as QueryRecordsResult;
 }
@@ -150,10 +167,15 @@ export async function queryDataViewRecords(storeConnectorId: string, tablePath: 
 // holds every value already, so it counts them in full. Values that did not fit the column's type loaded as empty, so
 // they are not counted, the same as in the audit's valid values. The least frequent list leaves out the most frequent
 // values, as the audit's does.
-export async function queryDataViewColumnValueCounts(storeConnectorId: string, tablePath: string, columnIndex: number): Promise<DataViewColumnValueCounts> {
+export async function queryDataViewColumnValueCounts(
+    storeConnectorId: string,
+    tablePath: string,
+    columnConfigs: ObjectColumnConfig[],
+    columnIndex: number
+): Promise<DataViewColumnValueCounts> {
     const filters = [{ columnIndex, operatorId: 'isNotEmpty' as const, value: null }];
     const groupedQuery = { aggregates: [{ columnIndex: undefined, functionId: 'count' as const }], filters, groupColumnIndexes: [columnIndex], offset: 0 };
-    const mostFrequent = await queryDataViewRecords(storeConnectorId, tablePath, {
+    const mostFrequent = await queryDataViewRecords(storeConnectorId, tablePath, columnConfigs, {
         ...groupedQuery,
         limit: LISTED_VALUE_COUNT,
         sorts: [
@@ -166,7 +188,7 @@ export async function queryDataViewColumnValueCounts(storeConnectorId: string, t
     const leastLimit = Math.min(LISTED_VALUE_COUNT, distinctCount - LISTED_VALUE_COUNT);
     const leastFrequent =
         leastLimit > 0
-            ? await queryDataViewRecords(storeConnectorId, tablePath, {
+            ? await queryDataViewRecords(storeConnectorId, tablePath, columnConfigs, {
                   ...groupedQuery,
                   limit: leastLimit,
                   sorts: [
@@ -176,7 +198,7 @@ export async function queryDataViewColumnValueCounts(storeConnectorId: string, t
               })
             : undefined;
     const leastFrequentValues = Object.fromEntries(Object.entries(constructValueCounts(leastFrequent?.records ?? [])).filter(([value]) => !Object.hasOwn(frequentValues, value)));
-    const valued = await queryDataViewRecords(storeConnectorId, tablePath, { aggregates: [], filters, groupColumnIndexes: [], limit: 1, offset: 0, sorts: [] });
+    const valued = await queryDataViewRecords(storeConnectorId, tablePath, columnConfigs, { aggregates: [], filters, groupColumnIndexes: [], limit: 1, offset: 0, sorts: [] });
     return { validDistinctValueCount: distinctCount, validFrequentValues: frequentValues, validLeastFrequentValues: leastFrequentValues, validValueCount: valued.totalCount };
 }
 
@@ -187,6 +209,15 @@ export function findDataViewInvalidValueCounts(dataViewConfig: Pick<DataViewConf
 
 export function hasDataViewLoad(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): boolean {
     return loadedColumnsVersions.value[constructDataViewLoadKey(dataViewConfig, isDraft)] != null;
+}
+
+// The columns a data view's table holds, for its queries. Ignored columns are not stored, and only the type and label
+// are sent, so each query stays small.
+export function constructStoredColumnConfigs(dataViewConfig: Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig'>): ObjectColumnConfig[] {
+    const ignoredColumnIndexes = new Set(constructIgnoredColumnIndexes(dataViewConfig));
+    return constructLoadColumnConfigs(dataViewConfig)
+        .filter((_columnConfig, columnIndex) => !ignoredColumnIndexes.has(columnIndex))
+        .map(({ dataSubtypeId, dataTypeId, label }) => ({ dataSubtypeId, dataTypeId, label }));
 }
 
 export function resolveDataViewTablePath(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): string {
@@ -262,23 +293,12 @@ function forgetSavedLoad(storeConnectorId: string, dataViewId: string): void {
     forgetLoad(storeConnectorId, savedKey);
 }
 
-function establishTablePath(storeConnectorId: string, dataViewId: string, isDraft: boolean): string {
-    const loadKey = constructLoadKey(storeConnectorId, dataViewId, isDraft);
-    const tablePath = loadTablePaths.value[loadKey];
-    if (tablePath != null || !isDraft) return tablePath ?? dataViewId;
-
-    const newTablePath = `${dataViewId}-${crypto.randomUUID()}`;
-    loadTablePaths.value = { ...loadTablePaths.value, [loadKey]: newTablePath };
-    return newTablePath;
-}
-
 // Every store's, because a draft can load into any of them. Each key starts with its store's id.
 function forgetAbandonedDraftLoads(openDraftDataViewId: string | undefined): void {
     for (const storeConnectorId of INVESTIGATE_STORE_CONNECTOR_IDS) {
         const openLoadKey = openDraftDataViewId == null ? undefined : constructLoadKey(storeConnectorId, openDraftDataViewId, true);
         for (const loadKey of Object.keys(loadTablePaths.value)) {
-            const isDraftLoadKey = loadKey.endsWith(DRAFT_LOAD_SUFFIX) || loadKey.endsWith(OLDER_DRAFT_LOAD_SUFFIX);
-            if (isDraftLoadKey && loadKey !== openLoadKey && loadKey.startsWith(`${storeConnectorId}|`)) forgetLoad(storeConnectorId, loadKey);
+            if (loadKey !== openLoadKey && loadKey.endsWith(DRAFT_LOAD_SUFFIX) && loadKey.startsWith(`${storeConnectorId}|`)) forgetLoad(storeConnectorId, loadKey);
         }
     }
 }
@@ -300,6 +320,11 @@ function addUnwantedTablePaths(storeConnectorId: string, tablePaths: string[]): 
 }
 
 // A table that cannot be dropped stays on the list for the next time, because it only takes up space.
+function removeUnwantedTablePath(storeConnectorId: string, tablePath: string): void {
+    const storeTablePaths = unwantedTablePaths.value[storeConnectorId] ?? [];
+    unwantedTablePaths.value = { ...unwantedTablePaths.value, [storeConnectorId]: storeTablePaths.filter((candidate) => candidate !== tablePath) };
+}
+
 async function dropUnwantedTables(storeConnectorId: string): Promise<void> {
     const { processRequest } = await establishEngineWorker();
     const tablePaths = unwantedTablePaths.value[storeConnectorId] ?? [];
@@ -307,8 +332,7 @@ async function dropUnwantedTables(storeConnectorId: string): Promise<void> {
         try {
             const options: DropObjectOptions = { path: tablePath };
             await processRequest('dropObject', findStoreConnectionLocalisedConfig(storeConnectorId), options);
-            const storeTablePaths = unwantedTablePaths.value[storeConnectorId] ?? [];
-            unwantedTablePaths.value = { ...unwantedTablePaths.value, [storeConnectorId]: storeTablePaths.filter((candidate) => candidate !== tablePath) };
+            removeUnwantedTablePath(storeConnectorId, tablePath);
         } catch (error) {
             console.warn(`Failed to drop store table '${tablePath}'.`, error);
         }

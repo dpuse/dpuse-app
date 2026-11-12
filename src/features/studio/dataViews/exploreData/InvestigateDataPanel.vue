@@ -19,6 +19,7 @@ import { useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import {
     abortDataViewRecordLoad,
     closeDataViewStore,
+    constructStoredColumnConfigs,
     type DataViewColumnValueCounts,
     findDataViewInvalidValueCounts,
     findDataViewStoreLabel,
@@ -196,6 +197,7 @@ const hiddenColumnIds = computed(() =>
 // The records are read a block at a time as the table scrolls.
 const dataSource = computed<DataSource<DisplayRow>>(() => {
     const tablePath = dataViewConfig.value == null ? undefined : resolveDataViewTablePath(dataViewConfig.value, draftIsCurrent.value);
+    const storedColumnConfigs = dataViewConfig.value == null ? [] : constructStoredColumnConfigs(dataViewConfig.value);
     const queriedStoreConnectorId = storeConnectorId.value;
     const dataSourceId = `${tablePath ?? ''}|${String(loadVersion.value)}`;
     return {
@@ -205,7 +207,7 @@ const dataSource = computed<DataSource<DisplayRow>>(() => {
             if (tablePath == null) return { rows: [], totalCount: 0 };
             try {
                 const query = { aggregates: [], filters: [], groupColumnIndexes: [], limit: endRow - startRow, offset: startRow, sorts: [] };
-                const { records, totalCount } = await queryDataViewRecords(queriedStoreConnectorId, tablePath, query);
+                const { records, totalCount } = await queryDataViewRecords(queriedStoreConnectorId, tablePath, storedColumnConfigs, query);
                 const rows = records.map((storeRecord) => constructDisplayRow(placeLoadedValues(storeRecord, columnConfigs.value.length, ignoredColumnIndexes.value)));
                 if (startRow === 0) fitColumnsToFirstPage(dataSourceId, rows);
                 return { rows, totalCount };
@@ -319,7 +321,7 @@ watch([selectedColumnIndex, (): string | undefined => dataSource.value.id], asyn
     if (columnIndex == null || isCounted || dataViewConfig.value == null) return;
     try {
         const tablePath = resolveDataViewTablePath(dataViewConfig.value, draftIsCurrent.value);
-        const valueCounts = await queryDataViewColumnValueCounts(storeConnectorId.value, tablePath, columnIndex);
+        const valueCounts = await queryDataViewColumnValueCounts(storeConnectorId.value, tablePath, constructStoredColumnConfigs(dataViewConfig.value), columnIndex);
         if (selectedColumnIndex.value === columnIndex && dataSource.value.id === dataSourceId) selectedColumnValueCounts.value = { columnIndex, dataSourceId, valueCounts };
     } catch (error) {
         raiseFailure(new AppError('Failed to count the column’s values.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));

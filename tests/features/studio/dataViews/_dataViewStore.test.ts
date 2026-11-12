@@ -9,6 +9,7 @@ import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import {
     abortDataViewRecordLoad,
+    constructStoredColumnConfigs,
     findDataViewInvalidValueCounts,
     findDataViewStoreLabel,
     forgetDataViewLoads,
@@ -54,6 +55,7 @@ const DATA_VIEW = {
         valueDelimiterId: ','
     }
 } as unknown as DataViewConfig;
+const STORED_COLUMN_CONFIGS = [{ dataSubtypeId: undefined, dataTypeId: 'string' as const, label: { en: 'Name' } }];
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -100,7 +102,7 @@ describe('_dataViewStore', () => {
             hasHeaders: true,
             headerValues: ['Name'],
             ignoredColumnIndexes: [],
-            path: 'dataView1',
+            path: expect.stringMatching(/^dataView1-/u) as unknown,
             sourceConnectionConfig: { connectorConfig: { itemTypeId: 'file' }, id: 'source1' },
             sourceOptions: { dataFormatId: 'dsv', encodingId: 'utf-8', parserId: 'parser1', valueDelimiterId: ',' }
         });
@@ -117,7 +119,7 @@ describe('_dataViewStore', () => {
         await abortDataViewRecordLoad(requestedDataView, 'load-1');
 
         expect(processRequest.mock.calls[0]?.[2]).toMatchObject({ requestId: 'load-1' });
-        expect(processRequest.mock.calls[1]?.slice(0, 3)).toEqual(['abort', { connectorConfig: { itemTypeId: 'file' }, id: 'source1' }, { requestId: 'load-1' }]);
+        expect(processRequest).toHaveBeenLastCalledWith('abort', { connectorConfig: { itemTypeId: 'file' }, id: 'source1' }, { requestId: 'load-1' });
     });
 
     it('sends no encoding or value delimiter for a source that is not a file', async () => {
@@ -155,12 +157,49 @@ describe('_dataViewStore', () => {
         expect(isDataViewLoaded(movedDataView, false)).toBe(false);
     });
 
-    it('does not count a data view as loaded when its load fails', async () => {
+    it('does not count a data view as loaded when its load fails, and drops the table the load went into', async () => {
         const failedDataView = { ...DATA_VIEW, id: 'dataView2' }; // The loaded record is kept for the session, so another id starts clean.
         processRequest.mockRejectedValueOnce(new Error('Source failed.'));
 
         await expect(loadDataViewRecords(failedDataView, false, vi.fn())).rejects.toThrow('Source failed.');
+        const loadPath = (processRequest.mock.calls[0]?.[2] as { path: string }).path;
         expect(isDataViewLoaded(failedDataView, false)).toBe(false);
+        expect(resolveDataViewTablePath(failedDataView, false)).toBe('dataView2');
+        expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: loadPath });
+        expect(processRequest).not.toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: 'dataView2' });
+    });
+
+    it('loads each time into a new table, and drops the earlier table once the load succeeds', async () => {
+        const reloadedDataView = { ...DATA_VIEW, id: 'dataView13' };
+        processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
+        await loadDataViewRecords(reloadedDataView, false, vi.fn());
+        const firstTablePath = resolveDataViewTablePath(reloadedDataView, false);
+        processRequest.mockClear();
+        processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
+
+        await loadDataViewRecords(reloadedDataView, false, vi.fn());
+
+        const secondTablePath = resolveDataViewTablePath(reloadedDataView, false);
+        expect(firstTablePath).toMatch(/^dataView13-/u);
+        expect(secondTablePath).not.toBe(firstTablePath);
+        expect(processRequest.mock.calls[0]?.[2]).toMatchObject({ path: secondTablePath });
+        expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: firstTablePath });
+        expect(processRequest).not.toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: secondTablePath });
+    });
+
+    it('sends only the columns that were not ignored, with their types and labels, for every query', () => {
+        const columns = [
+            { dataSubtypeId: undefined, dataTypeId: 'string', label: { en: 'Name' }, validValueCount: 3 },
+            { dataSubtypeId: 'integer', dataTypeId: 'numeric', label: { en: 'Skipped' } },
+            { dataSubtypeId: 'integer', dataTypeId: 'numeric', label: { en: 'Count' } }
+        ];
+        const columnChoiceConfigs = { 1: { isIgnored: true } };
+        const ignoringDataView = { ...DATA_VIEW, columnChoiceConfigs, contentAuditConfig: { asAt: 5, columns, isComplete: true } } as unknown as DataViewConfig;
+
+        expect(constructStoredColumnConfigs(ignoringDataView)).toStrictEqual([
+            { dataSubtypeId: undefined, dataTypeId: 'string', label: { en: 'Name' } },
+            { dataSubtypeId: 'integer', dataTypeId: 'numeric', label: { en: 'Count' } }
+        ]);
     });
 
     it('loads a working copy into its own table, leaving the saved data view unloaded', async () => {
@@ -289,7 +328,7 @@ describe('_dataViewStore', () => {
             })
             .mockResolvedValueOnce({ records: [[1]], totalCount: 1234 });
 
-        const valueCounts = await queryDataViewColumnValueCounts(INVESTIGATE_STORE_CONNECTOR_ID, 'dataView1', 2);
+        const valueCounts = await queryDataViewColumnValueCounts(INVESTIGATE_STORE_CONNECTOR_ID, 'dataView1', STORED_COLUMN_CONFIGS, 2);
 
         expect(valueCounts.validDistinctValueCount).toBe(12);
         expect(valueCounts.validValueCount).toBe(1234);
@@ -299,6 +338,7 @@ describe('_dataViewStore', () => {
         expect(processRequest.mock.calls.map((call) => call[2])).toStrictEqual([
             {
                 aggregates: [{ columnIndex: undefined, functionId: 'count' }],
+                columnConfigs: STORED_COLUMN_CONFIGS,
                 filters: notEmptyFilter,
                 groupColumnIndexes: [2],
                 limit: 10,
@@ -311,6 +351,7 @@ describe('_dataViewStore', () => {
             },
             {
                 aggregates: [{ columnIndex: undefined, functionId: 'count' }],
+                columnConfigs: STORED_COLUMN_CONFIGS,
                 filters: notEmptyFilter,
                 groupColumnIndexes: [2],
                 limit: 2, // Only two values are not among the most frequent.
@@ -321,16 +362,16 @@ describe('_dataViewStore', () => {
                     { columnIndex: 0, directionId: 'ascending' }
                 ]
             },
-            { aggregates: [], filters: notEmptyFilter, groupColumnIndexes: [], limit: 1, offset: 0, path: 'dataView1', sorts: [] }
+            { aggregates: [], columnConfigs: STORED_COLUMN_CONFIGS, filters: notEmptyFilter, groupColumnIndexes: [], limit: 1, offset: 0, path: 'dataView1', sorts: [] }
         ]);
     });
 
-    it('queries a page of the data view by its id', async () => {
+    it('queries a page of the data view by its table, with the columns it was loaded with', async () => {
         processRequest.mockResolvedValueOnce({ records: [], totalCount: 0 });
         const query = { aggregates: [], filters: [], groupColumnIndexes: [], limit: 50, offset: 100, sorts: [] };
 
-        await queryDataViewRecords(INVESTIGATE_STORE_CONNECTOR_ID, 'dataView1', query);
+        await queryDataViewRecords(INVESTIGATE_STORE_CONNECTOR_ID, 'dataView1', STORED_COLUMN_CONFIGS, query);
 
-        expect(processRequest).toHaveBeenCalledWith('queryRecords', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { ...query, path: 'dataView1' });
+        expect(processRequest).toHaveBeenCalledWith('queryRecords', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { ...query, columnConfigs: STORED_COLUMN_CONFIGS, path: 'dataView1' });
     });
 });

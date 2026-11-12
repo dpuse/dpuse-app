@@ -45,6 +45,7 @@ vi.mock('@/features/studio/dataViews/_dataViews', async (importOriginal) => {
 vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
     abortDataViewRecordLoad: vi.fn(),
     closeDataViewStore: vi.fn(),
+    constructStoredColumnConfigs: (): { label: string }[] => STORED_COLUMN_CONFIGS,
     findDataViewInvalidValueCounts: vi.fn(),
     findDataViewStoreLabel: vi.fn(),
     hasDataViewLoad: vi.fn(),
@@ -94,6 +95,7 @@ const AUDITED_DATA_VIEW = {
     },
     id: 'dataView1'
 };
+const STORED_COLUMN_CONFIGS = [{ label: 'Stored' }]; // Stands for the columns the store module works out, which the panel passes on to every query.
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -146,7 +148,7 @@ describe('InvestigateDataPanel', () => {
 
         expect(loadDataViewRecords).not.toHaveBeenCalled();
         expect(table.columnDefinitions.map((column) => column.header)).toEqual(['Id', 'Day']);
-        expect(queryDataViewRecords).toHaveBeenCalledWith('dpuse-connector-sqlite-wasm', 'dataView1', {
+        expect(queryDataViewRecords).toHaveBeenCalledWith('dpuse-connector-sqlite-wasm', 'dataView1', STORED_COLUMN_CONFIGS, {
             aggregates: [],
             filters: [],
             groupColumnIndexes: [],
@@ -288,7 +290,7 @@ describe('InvestigateDataPanel', () => {
             ?.trigger('click');
         await settle();
 
-        expect(queryDataViewColumnValueCounts).toHaveBeenCalledWith('dpuse-connector-sqlite-wasm', 'dataView1', 1);
+        expect(queryDataViewColumnValueCounts).toHaveBeenCalledWith('dpuse-connector-sqlite-wasm', 'dataView1', STORED_COLUMN_CONFIGS, 1);
         const { columnConfigs } = wrapper.findComponent(ColumnDetailPanel).props('itemReading');
         expect(columnConfigs[1]).toMatchObject(valueCounts);
     });

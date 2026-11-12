@@ -54,21 +54,6 @@ describe('workspace store', () => {
         await expect(app.workspaceStore.getWorkspaceStoreRecord('dataViews', 'a')).rejects.toThrow("No record 'a' in 'dataViews'.");
     });
 
-    it('removes changes an older build stored before Save, and leaves saved work alone', async () => {
-        const database = 'dpuseWorkspaceStore';
-        const olderApp = await importApp();
-        await signIn(olderApp, undefined);
-        await olderApp.workspaceStore.upsertWorkspaceStoreRecord('dataViews', { id: 'a' });
-        await olderApp.workspaceStore.upsertWorkspaceStoreRecord('dataViewWorkingCopies' as 'dataViews', { id: 'a' });
-
-        const app = await importApp();
-        await signIn(app, undefined);
-
-        expect(await listIds(app)).toStrictEqual(['a']);
-        expect(await app.workspaceStore.retrieveWorkspaceStoreRecords('dataViewWorkingCopies' as 'dataViews')).toStrictEqual([]);
-        expect(database).toBe(await app.workspaceStore.upsertWorkspaceStoreRecord('dataViews', { id: 'b' }));
-    });
-
     it('waits for the session check before choosing a store', async () => {
         const app = await importApp();
         const saving = app.workspaceStore.upsertWorkspaceStoreRecord('dataViews', { id: 'a' });
@@ -132,44 +117,6 @@ describe('workspace store', () => {
         await expect(reading).rejects.toThrow('Cancelled.');
     });
 
-    describe('meta store move', () => {
-        it('copies each store’s meta store work across once, leaving the meta store in place', async () => {
-            await seedMetaStore('dpuMetaStore', [{ id: 'guest' }]);
-            await seedMetaStore('dpuMetaStore-account-1', [{ id: 'a' }, { id: 'b' }]);
-            const app = await importApp();
-            await signIn(app, undefined);
-
-            expect(await listIds(app)).toStrictEqual(['guest']);
-
-            await signIn(app, 'account-1');
-
-            expect(await listIds(app)).toStrictEqual(['a', 'b']);
-            const databaseInfos = await indexedDB.databases();
-            expect(databaseInfos.map((databaseInfo) => databaseInfo.name)).toContain('dpuMetaStore-account-1');
-        });
-
-        it('does not bring back meta store work that was removed after the move', async () => {
-            await seedMetaStore('dpuMetaStore', [{ id: 'a' }]);
-            const app = await importApp();
-            await signIn(app, undefined);
-            await app.workspaceStore.removeWorkspaceStoreRecord('dataViews', 'a');
-
-            const reloadedApp = await importApp();
-            await signIn(reloadedApp, undefined);
-
-            expect(await listIds(reloadedApp)).toStrictEqual([]);
-        });
-
-        it('opens a store with no meta store and creates no meta store database', async () => {
-            const app = await importApp();
-            await signIn(app, undefined);
-
-            expect(await listIds(app)).toStrictEqual([]);
-            const databaseInfos = await indexedDB.databases();
-            expect(databaseInfos.map((databaseInfo) => databaseInfo.name)).not.toContain('dpuMetaStore');
-        });
-    });
-
     describe('guest and account work', () => {
         it('counts guest work and moves it into the account, out of the guest store', async () => {
             const app = await importApp();
@@ -218,23 +165,4 @@ async function signIn({ session }: App, accountId: string | undefined): Promise<
 async function listIds({ workspaceStore }: App): Promise<string[]> {
     const records = await workspaceStore.retrieveWorkspaceStoreRecords<{ id: string }>('dataViews');
     return records.map((record) => record.id).toSorted((leftId, rightId) => leftId.localeCompare(rightId));
-}
-
-// A meta store database as the Dexie connector left it: a 'dataViews' table keyed by id, at a Dexie version number.
-async function seedMetaStore(metaStoreId: string, records: { id: string }[]): Promise<void> {
-    const request = indexedDB.open(metaStoreId, 10);
-    request.addEventListener('upgradeneeded', () => {
-        request.result.createObjectStore('dataViews', { keyPath: 'id' });
-    });
-    const database = await new Promise<IDBDatabase>((resolve) => {
-        request.addEventListener('success', () => {
-            resolve(request.result);
-        });
-    });
-    const transaction = database.transaction('dataViews', 'readwrite');
-    for (const record of records) transaction.objectStore('dataViews').put(record);
-    await new Promise((resolve) => {
-        transaction.addEventListener('complete', resolve);
-    });
-    database.close();
 }
