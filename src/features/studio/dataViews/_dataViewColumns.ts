@@ -1,5 +1,4 @@
 // ── DPUse Framework
-import { DATA_TYPE_CONFIGS } from '@dpuse/dpuse-shared';
 import type {
     ColumnAuditConfig,
     ColumnChoiceConfig,
@@ -13,8 +12,13 @@ import type {
     ReadingConfig,
     SampleConfig,
     StoreRecord,
+    StructurePath,
     ValueDelimiterId
 } from '@dpuse/dpuse-shared';
+import { DATA_FORMAT_CONFIGS, DATA_TYPE_CONFIGS } from '@dpuse/dpuse-shared';
+
+// ── Local Framework
+import { assertDefined } from '@/utilities/index.ts';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -29,6 +33,7 @@ export interface AppliedReading {
     encodingId: string | undefined;
     hasHeaders: boolean | undefined;
     parserId: string | undefined;
+    structurePath: StructurePath | undefined; // The part of a nested item read as the table.
     valueDelimiterId: ValueDelimiterId | undefined;
 }
 
@@ -44,6 +49,10 @@ export type ChosenIgnoredColumns = Partial<Record<string, boolean>>; // Whether 
 
 export type ChosenNullWords = Partial<Record<string, boolean>>; // Whether a text column reads null words as empty, keyed by its position, as a string.
 
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const STRUCTURED_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ isStructured }) => isStructured).map(({ id }) => id));
+
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function constructItemReading({ contentAuditConfig, readingConfig, sampleConfig }: PreviewObjectResult): ItemReading {
@@ -53,14 +62,47 @@ export function constructItemReading({ contentAuditConfig, readingConfig, sample
 // The text is saved with the records it was parsed into, so the two always match. The sample also keeps how it was read,
 // so an audit and a load read the item the same way.
 export function constructSampleConfig(itemReading: ItemReading): SampleConfig {
-    const { dataFormatId, decodedEncodingId, hasHeaders, issues, parsedRecords, parserId, recordDelimiterId, replacementCharacterCount, size, text, valueDelimiterId } =
-        itemReading;
-    return { dataFormatId, decodedEncodingId, hasHeaders, issues, parsedRecords, parserId, recordDelimiterId, replacementCharacterCount, size, text, valueDelimiterId };
+    const {
+        dataFormatId,
+        decodedEncodingId,
+        hasHeaders,
+        issues,
+        parsedRecords,
+        parserId,
+        recordDelimiterId,
+        replacementCharacterCount,
+        size,
+        structurePath,
+        text,
+        valueDelimiterId
+    } = itemReading;
+    return {
+        dataFormatId,
+        decodedEncodingId,
+        hasHeaders,
+        issues,
+        parsedRecords,
+        parserId,
+        recordDelimiterId,
+        replacementCharacterCount,
+        size,
+        structurePath,
+        text,
+        valueDelimiterId
+    };
 }
 
 export function constructAppliedReading(sampleConfig: SampleConfig): AppliedReading {
-    const { dataFormatId = 'unknown', decodedEncodingId, hasHeaders, parserId, valueDelimiterId } = sampleConfig;
-    return { dataFormatId, encodingId: decodedEncodingId, hasHeaders, parserId, valueDelimiterId };
+    const { dataFormatId = 'unknown', decodedEncodingId, hasHeaders, parserId, structurePath, valueDelimiterId } = sampleConfig;
+    return { dataFormatId, encodingId: decodedEncodingId, hasHeaders, parserId, structurePath, valueDelimiterId };
+}
+
+// The value delimiter a file is read with. Delimited text cannot be read without one. A nested format, such as JSON, has
+// none.
+export function establishFileValueDelimiterId(appliedReading: AppliedReading): ValueDelimiterId | undefined {
+    return STRUCTURED_DATA_FORMAT_IDS.has(appliedReading.dataFormatId)
+        ? appliedReading.valueDelimiterId
+        : assertDefined(appliedReading.valueDelimiterId, 'No value delimiter in the sample.');
 }
 
 // What the sample's records alone show, for when the columns have to be counted again from them. The columns are the

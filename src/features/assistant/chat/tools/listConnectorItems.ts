@@ -11,7 +11,7 @@ import type { ListNodesOptions, ListNodesResult } from '@dpuse/dpuse-shared';
 
 export async function executeListConnectorItems(
     arguments_: unknown
-): Promise<{ items: { name: string; label: string; typeId: string; folderPath: string; extension: string | undefined; size: number | undefined }[] } | { error: string }> {
+): Promise<{ items: { name: string; label: string; typeId: string; folderPath: string; extension: string | null; size: number | null }[] } | { error: string }> {
     const { connectionId, folderPath = '' } = arguments_ as { connectionId: string; folderPath?: string };
 
     const connection = findConnectionLocalisedConfig(connectionId);
@@ -30,8 +30,8 @@ export async function executeListConnectorItems(
                 label: node.label,
                 typeId: node.typeId,
                 folderPath: node.folderPath,
-                extension: node.extension,
-                size: node.size
+                extension: node.extension ?? null, // Not 'undefined': the chat client rejects a tool result holding 'undefined', so the model gets 'null' instead.
+                size: node.size ?? null // Not 'undefined': the chat client rejects a tool result holding 'undefined', so the model gets 'null' instead.
             }))
         };
     } catch (error) {

@@ -1,0 +1,22 @@
+{
+    "TEXT": {
+        "candidate.aria": { "en": "Reads as rows", "es": "Se lee como filas" },
+        "current.label": { "en": "Read as the table", "es": "Leído como tabla" },
+        "failed.text": { "en": "This part could not be read. Select to try again.", "es": "No se pudo leer esta parte. Selecciona para intentarlo de nuevo." },
+        "intro.text": {
+            "en": "Choose the part of the file to read as the table. A list of objects reads naturally as rows.",
+            "es": "Elige la parte del archivo que se lee como tabla. Una lista de objetos se lee de forma natural como filas."
+        },
+        "issue.line.text": { "en": "Line {line}: {message}", "es": "Línea {line}: {message}" },
+        "issue.lineColumn.text": { "en": "Line {line}, column {column}: {message}", "es": "Línea {line}, columna {column}: {message}" },
+        "item.one.text": { "en": "{count} item", "es": "{count} elemento" },
+        "item.other.text": { "en": "{count} items", "es": "{count} elementos" },
+        "key.one.text": { "en": "{count} key", "es": "{count} clave" },
+        "key.other.text": { "en": "{count} keys", "es": "{count} claves" },
+        "more.label": { "en": "Show more", "es": "Mostrar más" },
+        "pending.text": { "en": "Reading…", "es": "Leyendo…" },
+        "readAsTable.label": { "en": "Read as table", "es": "Leer como tabla" },
+        "top.label": { "en": "Whole file", "es": "Archivo completo" },
+        "tree.aria": { "en": "Structure of {label}", "es": "Estructura de {label}" }
+    }
+}

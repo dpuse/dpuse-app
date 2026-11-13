@@ -295,6 +295,28 @@ describe('InvestigateDataPanel', () => {
         expect(columnConfigs[1]).toMatchObject(valueCounts);
     });
 
+    it('counts a column at its position in the store, which leaves ignored columns out', async () => {
+        const uncountedColumn = { ...AUDITED_DATA_VIEW.contentAuditConfig.columns[1], inferenceCounts: {}, validFormats: {}, validFrequentValues: {}, validValueCount: 5000 };
+        dataView.config = {
+            ...AUDITED_DATA_VIEW,
+            columnChoiceConfigs: { 0: { isIgnored: true } },
+            contentAuditConfig: { asAt: 1, columns: [{ ...AUDITED_DATA_VIEW.contentAuditConfig.columns[0], inferenceCounts: {}, validFormats: {} }, uncountedColumn] },
+            readingConfig: { dataFormatId: 'dsv' },
+            sampleConfig: { parsedRecords: [], size: 0, text: '' }
+        };
+        vi.mocked(queryDataViewColumnValueCounts).mockResolvedValue({ validDistinctValueCount: 1, validFrequentValues: {}, validLeastFrequentValues: {}, validValueCount: 1 });
+        const wrapper = mount(InvestigateDataPanel, { global: { stubs: { RouterLink: RouterLinkStub, Table: TableStub } } });
+        await settle();
+
+        await wrapper
+            .findAll('button')
+            .find((button) => button.text() === 'Day')
+            ?.trigger('click');
+        await settle();
+
+        expect(queryDataViewColumnValueCounts).toHaveBeenCalledWith('dpuse-connector-sqlite-wasm', 'dataView1', STORED_COLUMN_CONFIGS, 0);
+    });
+
     it('shows how many values did not fit, by column, from the counts kept with an earlier load', async () => {
         dataView.config = AUDITED_DATA_VIEW;
         vi.mocked(findDataViewInvalidValueCounts).mockReturnValue([312, 0]);

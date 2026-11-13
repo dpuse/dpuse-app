@@ -22,6 +22,7 @@ import type {
 import { assertDefined } from '@/utilities/index.ts';
 import { constructItemPath } from './dataViewSummary';
 import { establishEngineWorker } from '@/services/engine';
+import { establishFileValueDelimiterId } from './_dataViewColumns';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import { constructAppliedReading, constructColumnsVersion, constructIgnoredColumnIndexes, constructLoadColumnConfigs } from './_dataViewColumns';
 
@@ -120,7 +121,8 @@ export async function loadDataViewRecords(
             encodingId: sourceIsFile ? assertDefined(appliedReading.encodingId, 'No encoding in the sample.') : undefined,
             parserId: appliedReading.parserId,
             path: constructItemPath(connectionNodeConfig),
-            valueDelimiterId: sourceIsFile ? assertDefined(appliedReading.valueDelimiterId, 'No value delimiter in the sample.') : undefined
+            structurePath: appliedReading.structurePath,
+            valueDelimiterId: sourceIsFile ? establishFileValueDelimiterId(appliedReading) : undefined
         }
     };
     const { processRequest } = await establishEngineWorker();

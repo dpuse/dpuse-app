@@ -5,6 +5,7 @@ import { useMutation, type UseMutationReturnType, useQuery, type UseQueryReturnT
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
 import type { AuditObjectContentOptions, AuditObjectContentResult, DataViewConfig } from '@dpuse/dpuse-shared';
+import type { ListObjectStructureEntriesOptions, ListStructureEntriesResult } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
@@ -12,6 +13,7 @@ import { constructAppliedReading } from './_dataViewColumns';
 import { constructItemPath } from './dataViewSummary';
 import { draftDataViewConfig } from './_dataViewDraft';
 import { establishEngineWorker } from '@/services/engine';
+import { establishFileValueDelimiterId } from './_dataViewColumns';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import { forgetDataViewLoads } from './_dataViewStore';
 import { queryClient } from '@/services/queryClient';
@@ -164,7 +166,8 @@ export async function auditDataViewContent(
         parserId: appliedReading.parserId, // The tool that read the sample, so the audit reads it the same way.
         path: constructItemPath(connectionNodeConfig),
         requestId,
-        valueDelimiterId: itemIsFile ? assertDefined(appliedReading.valueDelimiterId, 'No value delimiter in the sample.') : undefined
+        structurePath: appliedReading.structurePath,
+        valueDelimiterId: itemIsFile ? establishFileValueDelimiterId(appliedReading) : undefined
     }; // The engine adds 'stopSignal' and 'supportsTransferableStreams', because they only exist in the worker.
     const { processRequest } = await establishEngineWorker();
     return (await processRequest('auditObjectContent', connectionLocalisedConfig, options, (callbackData) => {
@@ -186,6 +189,14 @@ export async function abortDataViewContentAudit(connectionId: string, requestId:
     if (connectionLocalisedConfig == null) return;
     const { processRequest } = await establishEngineWorker();
     await processRequest('abort', connectionLocalisedConfig, { requestId });
+}
+
+// Lists one page of a part of a nested item, such as one level of a JSON file, so the user can choose the part read as
+// the table. The connector reads only the bytes of that part.
+export async function listItemStructureEntries(connectionId: string, options: ListObjectStructureEntriesOptions): Promise<ListStructureEntriesResult> {
+    const connectionLocalisedConfig = assertDefined(findConnectionLocalisedConfig(connectionId), 'No connection for this data view.');
+    const { processRequest } = await establishEngineWorker();
+    return (await processRequest('listObjectStructureEntries', connectionLocalisedConfig, options)) as ListStructureEntriesResult;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

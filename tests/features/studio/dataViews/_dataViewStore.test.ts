@@ -138,6 +138,19 @@ describe('_dataViewStore', () => {
         expect(processRequest.mock.calls[0]?.[2]).toMatchObject({ sourceOptions: { encodingId: undefined, valueDelimiterId: undefined } });
     });
 
+    it('loads the part of a nested file its sample was read from, with no value delimiter', async () => {
+        const jsonDataView = {
+            ...DATA_VIEW,
+            id: 'jsonDataView',
+            sampleConfig: { ...DATA_VIEW.sampleConfig, dataFormatId: 'json', structurePath: ['orders'], valueDelimiterId: undefined }
+        } as DataViewConfig;
+        processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
+
+        await loadDataViewRecords(jsonDataView, false, vi.fn());
+
+        expect(processRequest.mock.calls[0]?.[2]).toMatchObject({ sourceOptions: { dataFormatId: 'json', structurePath: ['orders'], valueDelimiterId: undefined } });
+    });
+
     it('does not count a data view as loaded when a chosen type changes after its load', async () => {
         const typedDataView = { ...DATA_VIEW, id: 'dataView3' };
         processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });

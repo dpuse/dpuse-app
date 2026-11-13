@@ -24,6 +24,7 @@ import {
     InfoIcon,
     KeyRoundIcon,
     LanguagesIcon,
+    ListTreeIcon,
     RefreshCwIcon,
     RotateCwIcon,
     ScanTextIcon,
@@ -76,6 +77,8 @@ import type {
     RecountPreviewColumnsOptions,
     SampleIssue,
     SampleIssueSeverityId,
+    StructureIndex,
+    StructurePath,
     ToolConfig,
     ValueDelimiterId
 } from '@dpuse/dpuse-shared';
@@ -169,6 +172,7 @@ import ScrollEndButtons from '@/components/ui/scroll/ScrollEndButtons.vue';
 import SelectInput from '@/components/ui/SelectInput.vue';
 import type { SelectOption } from '@/components/ui/SelectInput.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
+import StructureTree from './StructureTree.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
 import Table from '@/components/ui/table/Table.vue';
@@ -185,7 +189,7 @@ interface PreviewTab {
     labelKey: keyof typeof TEXT;
 }
 
-type PreviewTabId = 'table' | 'text' | 'details';
+type PreviewTabId = 'table' | 'structure' | 'text' | 'details';
 
 // A read setting shown as text, for an item whose source says how it is read.
 interface FixedReadSetting {
@@ -214,15 +218,17 @@ interface PreviewToolbarStage {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// ── Preview Tabs ─ Ways to show the item. Only delimited text has a table of records and of columns to show.
+// ── Preview Tabs ─ Ways to show the item. Only data has a table of records and of columns to show. Only a nested
+// format, such as JSON, has a structure to choose the table from.
 const PREVIEW_TABS: PreviewTab[] = [
     { icon: markRaw(SheetIcon), id: 'table', labelKey: 'tab.table.label' },
+    { icon: markRaw(ListTreeIcon), id: 'structure', labelKey: 'tab.structure.label' },
     { icon: markRaw(TextIcon), id: 'text', labelKey: 'tab.text.label' },
     { icon: markRaw(InfoIcon), id: 'details', labelKey: 'tab.details.label' }
 ];
 
-// ── Data Formats ─ The formats the app can read today. Only delimited text is data. Markdown is a document, so it is
-// not parsed and its table tab is disabled. JSON, JSON Lines and the other planned formats wait for their own reader, so
+// ── Data Formats ─ The formats the app can read today. Delimited text, JSON and JSON Lines are data. Markdown is a
+// document, so it is not parsed and its table tab is disabled. The other planned formats wait for their own reader, so
 // they show as text and cannot be selected.
 const TEXT_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ isText }) => isText).map(({ id }) => id));
 const DETECTED_ENCODING_OPTION_PREFIX = 'detected:';
@@ -231,6 +237,9 @@ const ENCODING_CANDIDATE_LIMIT = 5; // In hard cases many candidates tie at a lo
 const TABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ isTable }) => isTable).map(({ id }) => id));
 const READABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ supportId }) => supportId === 'supported').map(({ id }) => id)); // Marked as supported in the toolbar, and the formats the user can choose to read an item as data.
 const PLANNED_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ supportId }) => supportId === 'planned').map(({ id }) => id)); // Data the app means to read once each has a reader.
+const STRUCTURED_DATA_FORMAT_IDS = new Set<DataFormatId>(
+    DATA_FORMAT_CONFIGS.filter(({ isStructured, supportId }) => isStructured && supportId === 'supported').map(({ id }) => id)
+); // Nested formats the app can read, which show their structure.
 
 // ── File Details ─ What the details tab says about a file. A table, read as its source says, has none of them.
 const FILE_DETAIL_LABEL_KEYS = new Set<keyof typeof TEXT>(['detail.dataFormat.label', 'detail.encoding.label', 'detail.fileType.label']);
@@ -351,6 +360,7 @@ const selectedEncodingId = ref<string>();
 const selectedParserId = ref<string>(); // The config id of the tool chosen to read the item.
 const selectedValueDelimiterId = ref<ValueDelimiterId>();
 const selectedHasHeaders = ref<boolean>();
+const selectedStructurePath = shallowRef<StructurePath>(); // The part of a nested item the user chose to read as the table.
 const detectedDataFormatId = ref<DataFormatId>();
 const detectedEncodingId = ref<string>();
 const detectedEncodingIsAssumed = ref(false);
@@ -358,6 +368,7 @@ const detectedValueDelimiterId = ref<ValueDelimiterId>();
 const detectedHasHeaders = ref<boolean>();
 const detectedReadingConfig = shallowRef<ReadingConfig>(); // The latest preview's detection, saved as the data view's reading.
 const detectedEncodingCandidates = shallowRef<EncodingDetectionConfig[]>(); // Only from a preview, so a saved item opened without one has none.
+const detectedStructureIndex = shallowRef<StructureIndex>(); // Only from a preview, so a saved item opened without one has none.
 
 // ── Column Types ─ The type, date order and decimal separator the user chose for a column, by its id in the table,
 // which is its position. Cleared by every new reading. What was detected is kept apart, so Auto can return to it.
@@ -441,6 +452,7 @@ const backLabel = computed(() => currentFolderNodes.value.at(-1)?.label ?? t(TEX
 // ── Preview ─ A file the preview could not read as text says so on the details tab.
 const previewIsUnsupported = computed(() => itemIsFile.value && activeItemReading.value != null && !TEXT_DATA_FORMAT_IDS.has(activeItemReading.value.dataFormatId));
 const previewIsMarkdown = computed(() => activeItemReading.value?.dataFormatId === 'markdown'); // The text tab shows markdown rendered rather than as source.
+const previewIsStructured = computed(() => itemIsFile.value && activeItemReading.value != null && STRUCTURED_DATA_FORMAT_IDS.has(activeItemReading.value.dataFormatId));
 
 const previewFormatText = computed(() => (activeItemReading.value == null ? undefined : constructDataFormatText(activeItemReading.value.dataFormatId)));
 const previewFormatIconConfig = computed(() => {
@@ -613,6 +625,7 @@ const previewDataFormatId = computed({
         readingIsChanged.value = true;
         selectedDataFormatId.value = dataFormatId === AUTO_OPTION_ID ? undefined : (dataFormatId as DataFormatId); // The other options are all format ids.
         selectedParserId.value = undefined;
+        selectedStructurePath.value = undefined;
         selectedValueDelimiterId.value = undefined;
     }
 });
@@ -746,7 +759,9 @@ const previewExtentText = computed(() => {
     return t(TEXT, 'preview.extent.text', { size: formatNumberAsStorageSize(previewSize) });
 });
 
-const previewTabs = computed(() => PREVIEW_TABS.filter((previewTab) => previewTab.id !== 'text' || itemIsFile.value));
+const previewTabs = computed(() =>
+    PREVIEW_TABS.filter((previewTab) => (previewTab.id !== 'text' || itemIsFile.value) && (previewTab.id !== 'structure' || previewIsStructured.value))
+);
 const currentPreviewTab = computed(() =>
     assertDefined(
         previewTabs.value.find((previewTab) => previewTab.id === currentPreviewTabId.value),
@@ -934,7 +949,7 @@ watch(
 // retry of the item, and a new selection or retry clears the item's last failure. A new read choice keeps the current
 // preview on show while the item is read again, so the toolbar, and the select the user is on, stay in place.
 watch(
-    [activeConnectionObjectConfig, itemAttempt, selectedDataFormatId, selectedEncodingId, selectedParserId, selectedValueDelimiterId],
+    [activeConnectionObjectConfig, itemAttempt, selectedDataFormatId, selectedEncodingId, selectedParserId, selectedStructurePath, selectedValueDelimiterId],
     async ([newActiveItem, newItemAttempt], oldValues) => {
         const currentRequestId = ++previewRequestId.value;
         itemFailure.value = undefined;
@@ -945,6 +960,7 @@ watch(
             resetPreviewState();
             detectedReadingConfig.value = undefined;
             detectedEncodingCandidates.value = undefined;
+            detectedStructureIndex.value = undefined;
             detectedDataFormatId.value = undefined;
             detectedEncodingId.value = undefined;
             detectedValueDelimiterId.value = undefined;
@@ -958,6 +974,7 @@ watch(
             if (previewObjectResult == null || currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
             detectedReadingConfig.value = previewObjectResult.readingConfig;
             detectedEncodingCandidates.value = previewObjectResult.encodingCandidates;
+            detectedStructureIndex.value = previewObjectResult.structureIndex; // A saved item opens without a preview, so it has no map until it is read again.
 
             const itemReading = constructItemReading(previewObjectResult);
             const headedItemReading = await applyHeaderChoice(itemReading, newActiveItem);
@@ -1277,6 +1294,13 @@ function handlePlaceReadChoices(event: ToggleEvent): void {
     };
 }
 
+// Reads the part the user chose as the table, and shows the table it gives.
+function handleSelectStructurePath(structurePath: StructurePath): void {
+    readingIsChanged.value = true;
+    selectedStructurePath.value = structurePath;
+    currentPreviewTabId.value = 'table';
+}
+
 function handleSelectPreviewTab(previewTabId: PreviewTabId): void {
     currentPreviewTabId.value = previewTabId;
 }
@@ -1395,6 +1419,7 @@ function constructPreviewOptions(connectionNodeConfig: ConnectionNodeConfig, isN
         mimeType: connectionNodeConfig.mimeType,
         parserId: selectedParserId.value,
         path: constructItemPath(connectionNodeConfig),
+        structurePath: selectedStructurePath.value,
         valueDelimiterId: selectedValueDelimiterId.value
     };
 }
@@ -1425,6 +1450,7 @@ function constructReadChoices(): ReadingChoiceConfig {
         encodingId: selectedEncodingId.value,
         hasHeaders: selectedHasHeaders.value,
         parserId: selectedParserId.value,
+        structurePath: selectedStructurePath.value,
         valueDelimiterId: selectedValueDelimiterId.value
     };
 }
@@ -1435,6 +1461,7 @@ function restoreReadChoices(readingChoiceConfig: ReadingChoiceConfig | undefined
     selectedParserId.value = readingChoiceConfig?.parserId;
     selectedValueDelimiterId.value = readingChoiceConfig?.valueDelimiterId;
     selectedHasHeaders.value = readingChoiceConfig?.hasHeaders;
+    selectedStructurePath.value = readingChoiceConfig?.structurePath;
 }
 
 // Only picking a different item changes the data view. Browsing folders, or clearing the selection, leaves it as it is.
@@ -1722,14 +1749,13 @@ function sortOptionsByLabel(options: SelectOption[]): SelectOption[] {
 // Only a format the app can read as data has tables to show, and only when something was parsed without an error.
 // Markdown, a format not supported yet and one that never will be all show as text. A table or an API endpoint has no
 // format, so its records show as a table whenever there are some. The table stays enabled while there is no preview, so
-// the tabs do not flicker as it loads.
+// the tabs do not flicker as it loads. A structure can be browsed unless an error stopped it being mapped at all.
 function isPreviewTabDisabled(previewTabId: PreviewTabId): boolean {
     const itemReading = activeItemReading.value;
-    return (
-        previewTabId === 'table' &&
-        itemReading != null &&
-        (sampleHasErrorIssue.value || itemReading.parsedRecords.length === 0 || (itemIsFile.value && !READABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId)))
-    );
+    if (itemReading == null) return false;
+    const structureIsUnmapped = sampleHasErrorIssue.value && (detectedStructureIndex.value?.nodes.length ?? 0) === 0;
+    const tableIsEmpty = sampleHasErrorIssue.value || itemReading.parsedRecords.length === 0 || (itemIsFile.value && !READABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId));
+    return (previewTabId === 'structure' && structureIsUnmapped) || (previewTabId === 'table' && tableIsEmpty);
 }
 
 // The next enabled tab in the direction given, wrapping round at either end.
@@ -1760,6 +1786,7 @@ function isSameAsSavedItem(dataViewConfig: DataViewConfig, connectionNodeConfig:
         savedReading.encodingId === reading.encodingId &&
         savedReading.parserId === reading.parserId &&
         savedReading.hasHeaders === reading.hasHeaders &&
+        JSON.stringify(savedReading.structurePath) === JSON.stringify(reading.structurePath) &&
         savedSampleConfig.recordDelimiterId === itemReading.recordDelimiterId &&
         savedReading.valueDelimiterId === reading.valueDelimiterId
     );
@@ -2039,11 +2066,13 @@ function establishFirstPreviewTabId(itemReading: ItemReading): PreviewTabId {
     }
     const tableIsUsable = itemReading.parsedRecords.length > 0 && itemReading.issues.every((issue) => issue.severityId !== 'error');
     if (tableIsUsable && (!itemIsFile.value || TABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId))) return 'table';
+    if (previewIsStructured.value && !isPreviewTabDisabled('structure')) return 'structure'; // No part, or several, read as the table, so the user chooses one.
     return itemIsFile.value ? 'text' : 'details';
 }
 
 function constructSampleIssueLineText(issue: SampleIssue): string | undefined {
     if (issue.lineNumber == null) return;
+    if (issue.columnNumber != null) return t(TEXT, 'issue.lineColumn.text', { column: formatCount(issue.columnNumber), line: formatCount(issue.lineNumber) });
     if (issue.endLineNumber == null) return t(TEXT, 'issue.line.text', { line: formatCount(issue.lineNumber) });
     return t(TEXT, 'issue.lines.text', { end: formatCount(issue.endLineNumber), start: formatCount(issue.lineNumber) });
 }
@@ -2501,8 +2530,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 v-if="issueItem.lineNumber != null && !previewIsMarkdown && itemIsFile"
                                 class="mr-2 text-accent hover:underline"
                                 @click="handleShowIssueLine(issueItem.lineNumber)"
-                                >{{ issueItem.lineText }}</ActionWrapper
-                            ><span v-else-if="issueItem.lineText" class="mr-2 text-muted">{{ issueItem.lineText }}</span
+                                >{{ issueItem.lineText }}</ActionWrapper><span v-else-if="issueItem.lineText" class="mr-2 text-muted">{{ issueItem.lineText }}</span
                             ><span v-if="issueItem.recordText" class="mr-2 text-muted">{{ issueItem.recordText }}</span
                             ><span v-if="issueItem.fieldText" class="mr-2 text-muted">{{ issueItem.fieldText }}</span
                             >{{ issueItem.text }}
@@ -2671,6 +2699,20 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         </Transition>
                     </div>
                 </div>
+                <!-- Structure ─ Only while shown, because it reads the item's parts as they are opened. Keyed by the item, so
+                     another item starts closed. -->
+                <StructureTree
+                    v-if="currentPreviewTabId === 'structure' && previewIsStructured && activeItemReading != null && activeConnectionObjectConfig != null && dataViewConfig != null"
+                    :key="constructItemPath(activeConnectionObjectConfig)"
+                    :connection-id="dataViewConfig.connectionId"
+                    :current-structure-path="activeItemReading.structurePath"
+                    :data-format-id="activeItemReading.dataFormatId"
+                    :item-label="activeConnectionObjectConfig.label"
+                    :item-path="constructItemPath(activeConnectionObjectConfig)"
+                    :parser-id="activeItemReading.parserId"
+                    :structure-index="detectedStructureIndex"
+                    @select="handleSelectStructurePath"
+                />
                 <TextViewer
                     v-show="currentPreviewTabId === 'text' && activeItemReading != null && !previewIsMarkdown"
                     ref="textViewer"

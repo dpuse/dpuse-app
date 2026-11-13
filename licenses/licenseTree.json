@@ -1,5 +1,5 @@
 {
-  "version": "1.0.283",
+  "version": "1.0.284",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -159,7 +159,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261112.1"
+              "version": "5.20261113.1"
             },
             "@cspotcode/source-map-support": {
               "version": "0.8.1"
@@ -199,17 +199,17 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261112.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261112.1.tgz",
+      "version": "5.20261113.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261113.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
-      "version": "1.0.149",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.149.tgz",
+      "version": "1.0.151",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.151.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.213"
+          "version": "1.0.216"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1357,8 +1357,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.213",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.213.tgz",
+      "version": "1.0.216",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.216.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1444,7 +1444,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.213"
+          "version": "1.0.216"
         },
         "@tanstack/charts": {
           "version": "1.1.0",
@@ -6464,8 +6464,8 @@
       "overridden": false
     },
     "jsdom": {
-      "version": "31.0.0",
-      "resolved": "https://registry.npmjs.org/jsdom/-/jsdom-31.0.0.tgz",
+      "version": "31.0.1",
+      "resolved": "https://registry.npmjs.org/jsdom/-/jsdom-31.0.1.tgz",
       "overridden": false,
       "dependencies": {
         "@exodus/bytes": {
@@ -6805,7 +6805,7 @@
         "@automerge/automerge-repo": {},
         "@capacitor-community/sqlite": {},
         "@cloudflare/workers-types": {
-          "version": "5.20261112.1"
+          "version": "5.20261113.1"
         },
         "@electric-sql/pglite": {},
         "@libsql/client": {},
@@ -7097,7 +7097,7 @@
         },
         "happy-dom": {},
         "jsdom": {
-          "version": "31.0.0"
+          "version": "31.0.1"
         },
         "magic-string": {
           "version": "1.4.3",
@@ -7704,7 +7704,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261112.1"
+          "version": "5.20261113.1"
         },
         "@cspotcode/source-map-support": {
           "version": "0.8.1",

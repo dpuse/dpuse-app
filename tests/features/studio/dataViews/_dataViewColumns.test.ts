@@ -6,6 +6,7 @@ import type { ColumnAuditConfig, ColumnChoiceConfig, ColumnChoiceConfigs, Conten
 
 // ── Local Framework
 import {
+    type AppliedReading,
     constructAppliedReading,
     constructChosenColumnTypes,
     constructChosenDateOrders,
@@ -20,6 +21,7 @@ import {
     constructLoadColumnConfigs,
     constructPreviewContentAuditConfig,
     constructSampleConfig,
+    establishFileValueDelimiterId,
     isDerivedColumn,
     isEmptyUnitColumn,
     type ItemReading,
@@ -68,6 +70,7 @@ describe('the parts of an item saved with a data view', () => {
             parserId: undefined,
             recordDelimiterId: undefined,
             replacementCharacterCount: undefined,
+            structurePath: undefined,
             valueDelimiterId: undefined,
             parsedRecords: [
                 [
@@ -94,8 +97,32 @@ describe('the parts of an item saved with a data view', () => {
             encodingId: 'utf-8',
             hasHeaders: true,
             parserId: 'dpuse-tool-adaltas-csv-parser',
+            structurePath: undefined,
             valueDelimiterId: ';'
         });
+    });
+
+    // A nested item, such as a JSON file, is read from the part chosen as the table, so an audit and a load read the same
+    // part as the sample.
+    it('keeps the part of a nested item its sample was read from', () => {
+        const sampleConfig = constructSampleConfig({ ...itemReading, dataFormatId: 'json', structurePath: ['orders', 0, 'lines'] });
+
+        expect(sampleConfig.structurePath).toEqual(['orders', 0, 'lines']);
+        expect(constructAppliedReading(sampleConfig).structurePath).toEqual(['orders', 0, 'lines']);
+    });
+});
+
+describe('establishFileValueDelimiterId', () => {
+    it('gives the value delimiter delimited text was read with', () => {
+        expect(establishFileValueDelimiterId(buildAppliedReading({ valueDelimiterId: ';' }))).toBe(';');
+    });
+
+    it('fails for delimited text read without a value delimiter', () => {
+        expect(() => establishFileValueDelimiterId(buildAppliedReading({}))).toThrow('No value delimiter in the sample.');
+    });
+
+    it('needs none for a nested format', () => {
+        expect(establishFileValueDelimiterId(buildAppliedReading({ dataFormatId: 'json' }))).toBeUndefined();
     });
 });
 
@@ -345,6 +372,10 @@ describe('constructDataTypeCellClass', () => {
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function buildAppliedReading(overrides: Partial<AppliedReading>): AppliedReading {
+    return { dataFormatId: 'dtv', encodingId: 'utf-8', hasHeaders: true, parserId: undefined, structurePath: undefined, valueDelimiterId: undefined, ...overrides };
+}
 
 function buildColumn(overrides: Partial<ColumnAuditConfig>): ColumnAuditConfig {
     return { dataSubtypeId: undefined, dataTypeId: 'string', label: { en: 'Column' }, ...overrides } as ColumnAuditConfig;

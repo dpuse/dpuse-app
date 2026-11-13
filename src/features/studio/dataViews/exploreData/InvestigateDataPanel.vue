@@ -321,7 +321,8 @@ watch([selectedColumnIndex, (): string | undefined => dataSource.value.id], asyn
     if (columnIndex == null || isCounted || dataViewConfig.value == null) return;
     try {
         const tablePath = resolveDataViewTablePath(dataViewConfig.value, draftIsCurrent.value);
-        const valueCounts = await queryDataViewColumnValueCounts(storeConnectorId.value, tablePath, constructStoredColumnConfigs(dataViewConfig.value), columnIndex);
+        const storedColumnIndex = columnIndex - [...ignoredColumnIndexes.value].filter((ignoredColumnIndex) => ignoredColumnIndex < columnIndex).length; // The store's table leaves ignored columns out.
+        const valueCounts = await queryDataViewColumnValueCounts(storeConnectorId.value, tablePath, constructStoredColumnConfigs(dataViewConfig.value), storedColumnIndex);
         if (selectedColumnIndex.value === columnIndex && dataSource.value.id === dataSourceId) selectedColumnValueCounts.value = { columnIndex, dataSourceId, valueCounts };
     } catch (error) {
         raiseFailure(new AppError('Failed to count the column’s values.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));

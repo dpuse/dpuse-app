@@ -18,6 +18,7 @@ import {
     auditDataViewContent,
     cancelDataViewRetrieval,
     constructNewDataViewConfig,
+    listItemStructureEntries,
     NEW_DATA_VIEW_ID,
     resolveDataViewIdParameter,
     useCurrentDataView,
@@ -303,6 +304,67 @@ describe('data views', () => {
             expect(findSentHasHeaders()).toBe(false);
             await auditDataViewContent(constructDataView(true), undefined, vi.fn(), false);
             expect(findSentHasHeaders()).toBe(true);
+        });
+    });
+
+    // A JSON file is read from the part chosen as its table, and is not delimited text, so it has no value delimiter.
+    describe('auditDataViewContent for a nested file', () => {
+        it('audits the part its sample was read from, with no value delimiter', async () => {
+            const processRequest = vi.fn(() => Promise.resolve({ contentAuditConfig: { recordCount: 2 } }));
+            vi.mocked(findConnectionLocalisedConfig).mockReturnValue({ connectorConfig: { itemTypeId: 'file' }, id: 'connection-a' } as never);
+            vi.mocked(establishEngineWorker).mockResolvedValue({ processRequest } as never);
+            const dataViewConfig = {
+                ...buildDataView('a', 'Orders'),
+                connectionId: 'connection-a',
+                connectionNodeConfig: { extension: 'json', folderPath: '/reports', name: 'orders' },
+                sampleConfig: { dataFormatId: 'json', decodedEncodingId: 'utf-8', hasHeaders: true, structurePath: ['orders'], valueDelimiterId: undefined }
+            } as DataViewConfig;
+
+            await auditDataViewContent(dataViewConfig, undefined, vi.fn());
+
+            expect((processRequest.mock.lastCall as unknown as [string, unknown, object])[2]).toMatchObject({
+                dataFormatId: 'json',
+                structurePath: ['orders'],
+                valueDelimiterId: undefined
+            });
+        });
+    });
+
+    describe('listItemStructureEntries', () => {
+        it('asks the engine for one page of a part of the item', async () => {
+            const connectionConfig = { id: 'connection-a' };
+            const listResult = { entries: [], issues: [], nextLocator: undefined };
+            const processRequest = vi.fn(() => Promise.resolve(listResult));
+            vi.mocked(findConnectionLocalisedConfig).mockReturnValue(connectionConfig as never);
+            vi.mocked(establishEngineWorker).mockResolvedValue({ processRequest } as never);
+            const options = {
+                dataFormatId: 'json' as const,
+                entryCount: 100,
+                locator: { endOffset: 90, startOffset: 10, state: undefined },
+                maxValueLength: 200,
+                parserId: undefined,
+                path: '/reports/orders.json',
+                structurePath: ['orders']
+            };
+
+            expect(await listItemStructureEntries('connection-a', options)).toBe(listResult);
+            expect(processRequest).toHaveBeenCalledWith('listObjectStructureEntries', connectionConfig, options);
+        });
+
+        it('fails for a connection that no longer exists', async () => {
+            vi.mocked(findConnectionLocalisedConfig).mockReturnValue(undefined);
+
+            await expect(
+                listItemStructureEntries('connection-gone', {
+                    dataFormatId: 'json',
+                    entryCount: 100,
+                    locator: { endOffset: undefined, startOffset: 0, state: undefined },
+                    maxValueLength: undefined,
+                    parserId: undefined,
+                    path: '/orders.json',
+                    structurePath: []
+                })
+            ).rejects.toThrow('No connection for this data view.');
         });
     });
 
