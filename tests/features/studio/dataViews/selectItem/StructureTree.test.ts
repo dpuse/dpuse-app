@@ -59,7 +59,8 @@ const wrappers: VueWrapper[] = [];
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
-    vi.mocked(listItemStructureEntries).mockImplementation((_connectionId, options) => Promise.resolve(buildPage(options)));
+    // Cloned as the engine worker's 'postMessage' does, so options holding a reactive proxy fail here as they do in the app.
+    vi.mocked(listItemStructureEntries).mockImplementation((_connectionId, options) => Promise.resolve(buildPage(structuredClone(options))));
 });
 
 afterEach(() => {

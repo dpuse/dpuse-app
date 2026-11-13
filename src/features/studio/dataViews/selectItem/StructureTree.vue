@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { ChevronRightIcon, SheetIcon } from '@lucide/vue';
-import { computed, nextTick, ref, useTemplateRef } from 'vue';
+import { computed, nextTick, ref, shallowRef, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
 import { AppError, formatNumberAsDecimalNumber } from '@dpuse/dpuse-shared';
@@ -83,7 +83,7 @@ const emit = defineEmits<{ select: [structurePath: StructurePath] }>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const structureParts = ref<Partial<Record<string, StructurePart>>>({});
+const structureParts = shallowRef<Partial<Record<string, StructurePart>>>({});
 const expandedPartKeys = ref(new Set<string>());
 const selectedRowKey = ref(TOP_KEY);
 const treeElement = useTemplateRef<HTMLUListElement>('tree');
@@ -239,14 +239,16 @@ async function readPartPage(partKey: string, isNextPage: boolean): Promise<void>
     const locator = isNextPage && part.nextLocator != null ? part.nextLocator : part.locator;
     updatePart(partKey, { hasFailed: false, isPending: true, locator });
     try {
+        // Copied into plain values, because the engine worker cannot be sent a reactive proxy, such as a locator read from
+        // the map in the props.
         const result = await listItemStructureEntries(connectionId, {
             dataFormatId,
             entryCount: PAGE_ENTRY_COUNT,
-            locator,
+            locator: { endOffset: locator.endOffset, startOffset: locator.startOffset, state: locator.state },
             maxValueLength: MAX_VALUE_LENGTH,
             parserId,
             path: itemPath,
-            structurePath: part.path
+            structurePath: [...part.path]
         });
         const readPart = assertPart(structureParts.value[partKey]);
         updatePart(partKey, {
