@@ -223,6 +223,15 @@ describe('browser storage', () => {
             expect(root.listNames()).toStrictEqual([]);
         });
 
+        it('says a database is open elsewhere when the browser refuses to remove its files', async () => {
+            const root = buildOpfsRoot();
+            root.removeEntry = (): Promise<void> => Promise.reject(new DOMException('The file is in use.', 'NoModificationAllowedError'));
+            stubStorageManager(root);
+            const { opfsItems = [] } = await retrieveBrowserStorageSnapshot();
+
+            await expect(removeOpfsItem(findOpfsItem(opfsItems, 'sqlitePool'))).rejects.toThrow('This database is open in another tab or window. Close it there first.');
+        });
+
         it('removes everything it can before failing with every failure', async () => {
             const root = buildDirectory('', [buildFile('b.duckdb', 10, 5)]);
             root.removeEntry = (): Promise<void> => Promise.reject(new Error('Locked.'));

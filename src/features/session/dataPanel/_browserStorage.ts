@@ -141,7 +141,7 @@ export async function removeOpfsItem(item: OpfsItemSummary): Promise<void> {
         const entryName = segments.pop() ?? '';
         let directory = root;
         for (const segment of segments) directory = await directory.getDirectoryHandle(segment);
-        await directory.removeEntry(entryName, { recursive: true });
+        await removeOpfsEntry(directory, entryName, 'dpuse-app._browserStorage.removeOpfsItem');
     }
 }
 
@@ -269,5 +269,18 @@ async function clearOpfs(): Promise<void> {
     const names: string[] = [];
     // eslint-disable-next-line unicorn/prefer-array-from-async -- 'Array.fromAsync' is not in the ES2023 library the app builds with.
     for await (const name of root.keys()) names.push(name);
-    for (const name of names) await root.removeEntry(name, { recursive: true });
+    for (const name of names) await removeOpfsEntry(root, name, 'dpuse-app._browserStorage.clearOpfs');
+}
+
+// The browser refuses to remove a file another tab or window has open, as one does while it uses a SQLite or DuckDB
+// database. That is said plainly, because the user can do something about it.
+async function removeOpfsEntry(directory: FileSystemDirectoryHandle, name: string, locator: string): Promise<void> {
+    try {
+        await directory.removeEntry(name, { recursive: true });
+    } catch (error) {
+        if (error instanceof DOMException && error.name === 'NoModificationAllowedError') {
+            throw new AppError('This database is open in another tab or window. Close it there first.', locator, undefined, { cause: error });
+        }
+        throw error;
+    }
 }
