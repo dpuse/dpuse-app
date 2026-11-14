@@ -1,0 +1,55 @@
+{
+    "TEXT": {
+        "back.aria": { "en": "Back to the list", "es": "Volver a la lista" },
+        "clearAll.confirm.label": { "en": "Clear and reload", "es": "Borrar y recargar" },
+        "clearAll.confirm.text": {
+            "en": "Everything DPUse keeps in this browser will be removed, including data views that are not saved anywhere else. The app then reloads.",
+            "es": "Se eliminará todo lo que DPUse guarda en este navegador, incluidas las vistas de datos que no se guardan en ningún otro lugar. Después, la aplicación se recarga."
+        },
+        "clearAll.confirm.title": { "en": "Clear All Data?", "es": "¿Borrar todos los datos?" },
+        "clearAll.label": { "en": "Clear all data", "es": "Borrar todos los datos" },
+        "clearLocalStorage.confirm.label": { "en": "Clear", "es": "Borrar" },
+        "clearLocalStorage.confirm.text": {
+            "en": "Settings kept in this browser, such as appearance and pane sizes, return to their defaults the next time the app loads.",
+            "es": "Los ajustes guardados en este navegador, como la apariencia y el tamaño de los paneles, vuelven a sus valores predeterminados la próxima vez que se cargue la aplicación."
+        },
+        "clearLocalStorage.confirm.title": { "en": "Clear Local Storage?", "es": "¿Borrar el almacenamiento local?" },
+        "clearLocalStorage.label": { "en": "Clear local storage", "es": "Borrar el almacenamiento local" },
+        "delete.confirm.text": {
+            "en": "'{label}' will be removed from this browser. It cannot be brought back.",
+            "es": "'{label}' se eliminará de este navegador. No se puede recuperar."
+        },
+        "delete.confirm.title": { "en": "Delete Item?", "es": "¿Eliminar el elemento?" },
+        "delete.label": { "en": "Delete", "es": "Eliminar" },
+        "duckdbDatabase.label": { "en": "{name} (DuckDB)", "es": "{name} (DuckDB)" },
+        "duckdbTemporaryFiles.label": { "en": "DuckDB temporary files", "es": "Archivos temporales de DuckDB" },
+        "estimate.text": {
+            "en": "Sizes are the browser's estimates. The browser sets the space allowed from your disk, and it may be different next time.",
+            "es": "Los tamaños son estimaciones del navegador. El navegador fija el espacio permitido según tu disco, y puede ser distinto la próxima vez."
+        },
+        "fileSystem.label": { "en": "File system (OPFS)", "es": "Sistema de archivos (OPFS)" },
+        "indexedDatabase.label": { "en": "IndexedDB", "es": "IndexedDB" },
+        "indexedDatabaseAndOther.label": { "en": "IndexedDB and other", "es": "IndexedDB y otros" },
+        "key.label": { "en": "Key", "es": "Clave" },
+        "lastModified.label": { "en": "Last modified", "es": "Última modificación" },
+        "localStorage.label": { "en": "Local storage", "es": "Almacenamiento local" },
+        "manageData.title": { "en": "Manage Data", "es": "Administrar Datos" },
+        "name.label": { "en": "Name", "es": "Nombre" },
+        "none.text": { "en": "None", "es": "Ninguno" },
+        "other.label": { "en": "Other", "es": "Otros" },
+        "overview.label": { "en": "Overview", "es": "Resumen" },
+        "path.label": { "en": "Path", "es": "Ruta" },
+        "size.label": { "en": "Size", "es": "Tamaño" },
+        "spaceAllowed.label": { "en": "Space allowed", "es": "Espacio permitido" },
+        "spaceFree.label": { "en": "Free space", "es": "Espacio libre" },
+        "spaceUsed.label": { "en": "Space used", "es": "Espacio usado" },
+        "sqlitePool.label": { "en": "SQLite databases", "es": "Bases de datos SQLite" },
+        "unavailable.text": { "en": "Not available in this browser", "es": "No disponible en este navegador" },
+        "unknown.text": { "en": "Unknown", "es": "Desconocido" },
+        "usage.text": { "en": "{used} used of {quota} ({share})", "es": "{used} usados de {quota} ({share})" },
+        "usagePart.text": { "en": "{label} {size} ({share})", "es": "{label} {size} ({share})" },
+        "usageParts.label": { "en": "What uses the space", "es": "Qué usa el espacio" },
+        "value.label": { "en": "Value", "es": "Valor" },
+        "version.label": { "en": "Version", "es": "Versión" }
+    }
+}

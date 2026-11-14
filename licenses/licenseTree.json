@@ -1,5 +1,5 @@
 {
-  "version": "1.0.285",
+  "version": "1.0.286",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -13,8 +13,8 @@
           "overridden": false
         },
         "playwright-core": {
-          "version": "1.65.0",
-          "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.65.0.tgz",
+          "version": "1.65.1",
+          "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.65.1.tgz",
           "overridden": false
         }
       }
@@ -33,7 +33,20 @@
               "version": "2.0.0-rc.24"
             },
             "workerd": {
-              "version": "1.20261110.1"
+              "version": "1.20261110.1",
+              "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261110.1.tgz",
+              "overridden": false,
+              "dependencies": {
+                "@cloudflare/workerd-darwin-64": {},
+                "@cloudflare/workerd-darwin-arm64": {
+                  "version": "1.20261110.1",
+                  "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261110.1.tgz",
+                  "overridden": false
+                },
+                "@cloudflare/workerd-linux-64": {},
+                "@cloudflare/workerd-linux-arm64": {},
+                "@cloudflare/workerd-windows-64": {}
+              }
             }
           }
         },
@@ -159,7 +172,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261113.1"
+              "version": "5.20261114.1"
             },
             "@cspotcode/source-map-support": {
               "version": "0.8.1"
@@ -199,17 +212,17 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261113.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261113.1.tgz",
+      "version": "5.20261114.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261114.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
-      "version": "1.0.151",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.151.tgz",
+      "version": "1.0.152",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.152.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.217"
+          "version": "1.0.218"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1357,8 +1370,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.217",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.217.tgz",
+      "version": "1.0.218",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.218.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1444,7 +1457,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.217"
+          "version": "1.0.218"
         },
         "@tanstack/charts": {
           "version": "1.1.0",
@@ -3074,7 +3087,7 @@
               "version": "4.0.0"
             },
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "ignore": {
               "version": "7.0.5",
@@ -3092,7 +3105,7 @@
           "overridden": false,
           "dependencies": {
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             }
           }
         },
@@ -3125,7 +3138,7 @@
             },
             "eslint-plugin-import": {},
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "get-tsconfig": {
               "version": "4.14.0",
@@ -3233,13 +3246,20 @@
             },
             "eslint-import-resolver-node": {},
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "is-glob": {
               "version": "4.0.3"
             },
             "minimatch": {
-              "version": "10.2.6"
+              "version": "10.2.6",
+              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-10.2.6.tgz",
+              "overridden": false,
+              "dependencies": {
+                "brace-expansion": {
+                  "version": "5.0.12"
+                }
+              }
             },
             "semver": {
               "version": "7.8.6"
@@ -3345,7 +3365,7 @@
               "overridden": false
             },
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "espree": {
               "version": "11.2.0"
@@ -3453,7 +3473,7 @@
                   "overridden": false,
                   "dependencies": {
                     "eslint": {
-                      "version": "10.14.0"
+                      "version": "10.15.0"
                     },
                     "semver": {
                       "version": "7.8.6"
@@ -3461,12 +3481,12 @@
                   }
                 },
                 "eslint": {
-                  "version": "10.14.0"
+                  "version": "10.15.0"
                 }
               }
             },
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "get-tsconfig": {
               "version": "4.14.0"
@@ -3522,7 +3542,7 @@
               "version": "1.4.9"
             },
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "jsdoc-type-pratt-parser": {
               "version": "9.5.0",
@@ -3616,7 +3636,7 @@
               "overridden": false
             },
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "functional-red-black-tree": {
               "version": "1.0.1",
@@ -3708,7 +3728,7 @@
               "overridden": false
             },
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "find-up-simple": {
               "version": "1.0.1",
@@ -4111,7 +4131,7 @@
           }
         },
         "eslint": {
-          "version": "10.14.0"
+          "version": "10.15.0"
         },
         "globals": {
           "version": "17.14.0",
@@ -4193,7 +4213,7 @@
               "version": "8.72.2"
             },
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "typescript": {
               "version": "6.0.3"
@@ -4267,7 +4287,7 @@
       "overridden": false,
       "dependencies": {
         "eslint": {
-          "version": "10.14.0"
+          "version": "10.15.0"
         }
       }
     },
@@ -4308,8 +4328,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.72.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.72.0.tgz",
+      "version": "1.73.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.73.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -4318,17 +4338,17 @@
       }
     },
     "@playwright/test": {
-      "version": "1.65.0",
-      "resolved": "https://registry.npmjs.org/@playwright/test/-/test-1.65.0.tgz",
+      "version": "1.65.1",
+      "resolved": "https://registry.npmjs.org/@playwright/test/-/test-1.65.1.tgz",
       "overridden": false,
       "dependencies": {
         "playwright": {
-          "version": "1.65.0",
-          "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.65.0.tgz",
+          "version": "1.65.1",
+          "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.65.1.tgz",
           "overridden": false,
           "dependencies": {
             "playwright-core": {
-              "version": "1.65.0"
+              "version": "1.65.1"
             }
           }
         }
@@ -5063,7 +5083,7 @@
                   "version": "4.4.3"
                 },
                 "eslint": {
-                  "version": "10.14.0"
+                  "version": "10.15.0"
                 },
                 "ts-api-utils": {
                   "version": "2.5.0"
@@ -5092,7 +5112,7 @@
               }
             },
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "ignore": {
               "version": "7.0.5"
@@ -5139,7 +5159,7 @@
               "version": "8.72.2"
             },
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "typescript": {
               "version": "6.0.3"
@@ -5147,7 +5167,7 @@
           }
         },
         "eslint": {
-          "version": "10.14.0"
+          "version": "10.15.0"
         },
         "typescript": {
           "version": "6.0.3"
@@ -5177,7 +5197,7 @@
               "version": "10.1.8"
             },
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "prettier-linter-helpers": {
               "version": "1.0.1",
@@ -5212,7 +5232,7 @@
           }
         },
         "eslint": {
-          "version": "10.14.0"
+          "version": "10.15.0"
         },
         "prettier": {
           "version": "3.10.1"
@@ -5231,7 +5251,7 @@
           "version": "10.12.1"
         },
         "eslint": {
-          "version": "10.14.0"
+          "version": "10.15.0"
         },
         "fast-glob": {
           "version": "3.3.3",
@@ -5362,7 +5382,7 @@
               "overridden": false
             },
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "espree": {
               "version": "11.2.0"
@@ -5724,7 +5744,7 @@
           "version": "4.29.3"
         },
         "eslint": {
-          "version": "10.14.0"
+          "version": "10.15.0"
         },
         "find-up": {
           "version": "5.0.0",
@@ -5787,7 +5807,7 @@
       "overridden": false,
       "dependencies": {
         "eslint": {
-          "version": "10.14.0"
+          "version": "10.15.0"
         },
         "globals": {
           "version": "17.14.0"
@@ -5803,7 +5823,7 @@
           "version": "8.72.2"
         },
         "eslint": {
-          "version": "10.14.0"
+          "version": "10.15.0"
         },
         "postcss-nested": {
           "version": "7.0.2",
@@ -5860,7 +5880,22 @@
               "version": "2.7.0"
             },
             "local-pkg": {
-              "version": "1.2.1"
+              "version": "1.2.1",
+              "resolved": "https://registry.npmjs.org/local-pkg/-/local-pkg-1.2.1.tgz",
+              "overridden": false,
+              "dependencies": {
+                "mlly": {
+                  "version": "1.8.2"
+                },
+                "pkg-types": {
+                  "version": "2.3.1"
+                },
+                "quansync": {
+                  "version": "0.2.11",
+                  "resolved": "https://registry.npmjs.org/quansync/-/quansync-0.2.11.tgz",
+                  "overridden": false
+                }
+              }
             },
             "tailwindcss": {
               "version": "4.3.5"
@@ -5888,7 +5923,7 @@
               "overridden": false
             },
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             }
           }
         },
@@ -5914,7 +5949,7 @@
               "version": "4.4.3"
             },
             "eslint": {
-              "version": "10.14.0"
+              "version": "10.15.0"
             },
             "typescript": {
               "version": "6.0.3"
@@ -5922,7 +5957,7 @@
           }
         },
         "eslint": {
-          "version": "10.14.0"
+          "version": "10.15.0"
         },
         "natural-compare": {
           "version": "1.4.0"
@@ -5975,7 +6010,7 @@
           "overridden": false
         },
         "eslint": {
-          "version": "10.14.0"
+          "version": "10.15.0"
         },
         "globals": {
           "version": "17.14.0"
@@ -5986,8 +6021,8 @@
       }
     },
     "eslint": {
-      "version": "10.14.0",
-      "resolved": "https://registry.npmjs.org/eslint/-/eslint-10.14.0.tgz",
+      "version": "10.15.0",
+      "resolved": "https://registry.npmjs.org/eslint/-/eslint-10.15.0.tgz",
       "overridden": false,
       "dependencies": {
         "@eslint-community/eslint-utils": {
@@ -5999,8 +6034,8 @@
           "overridden": false
         },
         "@eslint/config-array": {
-          "version": "0.23.5",
-          "resolved": "https://registry.npmjs.org/@eslint/config-array/-/config-array-0.23.5.tgz",
+          "version": "0.23.6",
+          "resolved": "https://registry.npmjs.org/@eslint/config-array/-/config-array-0.23.6.tgz",
           "overridden": false,
           "dependencies": {
             "@eslint/object-schema": {
@@ -6012,7 +6047,17 @@
               "version": "4.4.3"
             },
             "minimatch": {
-              "version": "10.2.6"
+              "version": "11.0.8",
+              "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-11.0.8.tgz",
+              "overridden": false,
+              "dependencies": {
+                "@isaacs/nonrecursive-glob-match": {
+                  "version": "1.1.0"
+                },
+                "brace-expansion": {
+                  "version": "5.0.12"
+                }
+              }
             }
           }
         },
@@ -6395,10 +6440,15 @@
           "overridden": false
         },
         "minimatch": {
-          "version": "10.2.6",
-          "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-10.2.6.tgz",
+          "version": "11.0.8",
+          "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-11.0.8.tgz",
           "overridden": false,
           "dependencies": {
+            "@isaacs/nonrecursive-glob-match": {
+              "version": "1.1.0",
+              "resolved": "https://registry.npmjs.org/@isaacs/nonrecursive-glob-match/-/nonrecursive-glob-match-1.1.0.tgz",
+              "overridden": false
+            },
             "brace-expansion": {
               "version": "5.0.12",
               "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-5.0.12.tgz",
@@ -6805,7 +6855,7 @@
         "@automerge/automerge-repo": {},
         "@capacitor-community/sqlite": {},
         "@cloudflare/workers-types": {
-          "version": "5.20261113.1"
+          "version": "5.20261114.1"
         },
         "@electric-sql/pglite": {},
         "@libsql/client": {},
@@ -7146,14 +7196,14 @@
       }
     },
     "vue-router": {
-      "version": "5.5.0",
-      "resolved": "https://registry.npmjs.org/vue-router/-/vue-router-5.5.0.tgz",
+      "version": "5.5.1",
+      "resolved": "https://registry.npmjs.org/vue-router/-/vue-router-5.5.1.tgz",
       "overridden": false,
       "dependencies": {
         "@pinia/colada": {},
         "@vue-macros/common": {
-          "version": "3.1.3",
-          "resolved": "https://registry.npmjs.org/@vue-macros/common/-/common-3.1.3.tgz",
+          "version": "3.1.4",
+          "resolved": "https://registry.npmjs.org/@vue-macros/common/-/common-3.1.4.tgz",
           "overridden": false,
           "dependencies": {
             "@vue/compiler-sfc": {
@@ -7328,25 +7378,25 @@
           }
         },
         "chokidar": {
-          "version": "5.0.0",
-          "resolved": "https://registry.npmjs.org/chokidar/-/chokidar-5.0.0.tgz",
+          "version": "6.0.0",
+          "resolved": "https://registry.npmjs.org/chokidar/-/chokidar-6.0.0.tgz",
           "overridden": false,
           "dependencies": {
             "readdirp": {
-              "version": "5.0.0",
-              "resolved": "https://registry.npmjs.org/readdirp/-/readdirp-5.0.0.tgz",
+              "version": "5.1.1",
+              "resolved": "https://registry.npmjs.org/readdirp/-/readdirp-5.1.1.tgz",
               "overridden": false
             }
           }
         },
         "confbox": {
-          "version": "0.3.1",
-          "resolved": "https://registry.npmjs.org/confbox/-/confbox-0.3.1.tgz",
+          "version": "0.3.2",
+          "resolved": "https://registry.npmjs.org/confbox/-/confbox-0.3.2.tgz",
           "overridden": false
         },
         "local-pkg": {
-          "version": "1.2.1",
-          "resolved": "https://registry.npmjs.org/local-pkg/-/local-pkg-1.2.1.tgz",
+          "version": "2.0.0",
+          "resolved": "https://registry.npmjs.org/local-pkg/-/local-pkg-2.0.0.tgz",
           "overridden": false,
           "dependencies": {
             "mlly": {
@@ -7373,15 +7423,15 @@
               }
             },
             "quansync": {
-              "version": "0.2.11",
-              "resolved": "https://registry.npmjs.org/quansync/-/quansync-0.2.11.tgz",
+              "version": "1.0.0",
+              "resolved": "https://registry.npmjs.org/quansync/-/quansync-1.0.0.tgz",
               "overridden": false
             }
           }
         },
         "magic-string": {
-          "version": "1.4.3",
-          "resolved": "https://registry.npmjs.org/magic-string/-/magic-string-1.4.3.tgz",
+          "version": "1.4.5",
+          "resolved": "https://registry.npmjs.org/magic-string/-/magic-string-1.4.5.tgz",
           "overridden": false,
           "dependencies": {
             "@jridgewell/sourcemap-codec": {
@@ -7463,20 +7513,23 @@
               "version": "2.0.3"
             },
             "picomatch": {
-              "version": "4.0.5",
-              "resolved": "https://registry.npmjs.org/picomatch/-/picomatch-4.0.5.tgz",
+              "version": "4.0.7",
+              "resolved": "https://registry.npmjs.org/picomatch/-/picomatch-4.0.7.tgz",
               "overridden": false
             }
           }
         },
         "unplugin": {
-          "version": "3.4.0",
-          "resolved": "https://registry.npmjs.org/unplugin/-/unplugin-3.4.0.tgz",
+          "version": "3.7.0",
+          "resolved": "https://registry.npmjs.org/unplugin/-/unplugin-3.7.0.tgz",
           "overridden": false,
           "dependencies": {
             "@farmfe/core": {},
             "@jridgewell/remapping": {
               "version": "2.3.5"
+            },
+            "@rolldown/pluginutils": {
+              "version": "1.0.1"
             },
             "@rsbuild/core": {},
             "@rspack/core": {},
@@ -7691,8 +7744,8 @@
       "overridden": false
     },
     "wrangler": {
-      "version": "4.161.0",
-      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.161.0.tgz",
+      "version": "4.162.0",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.162.0.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/kv-asset-handler": {
@@ -7704,7 +7757,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261113.1"
+          "version": "5.20261114.1"
         },
         "@cspotcode/source-map-support": {
           "version": "0.8.1",
@@ -7738,8 +7791,8 @@
           "version": "2.3.3"
         },
         "miniflare": {
-          "version": "5.20261110.2-beta",
-          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261110.2-beta.tgz",
+          "version": "5.20261113.0-beta",
+          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261113.0-beta.tgz",
           "overridden": false,
           "dependencies": {
             "@cspotcode/source-map-support": {
@@ -7755,7 +7808,7 @@
               "overridden": false
             },
             "workerd": {
-              "version": "1.20261110.1"
+              "version": "1.20261113.1"
             },
             "ws": {
               "version": "8.21.0",
@@ -7780,14 +7833,14 @@
           "version": "2.0.0-rc.24"
         },
         "workerd": {
-          "version": "1.20261110.1",
-          "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261110.1.tgz",
+          "version": "1.20261113.1",
+          "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261113.1.tgz",
           "overridden": false,
           "dependencies": {
             "@cloudflare/workerd-darwin-64": {},
             "@cloudflare/workerd-darwin-arm64": {
-              "version": "1.20261110.1",
-              "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261110.1.tgz",
+              "version": "1.20261113.1",
+              "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261113.1.tgz",
               "overridden": false
             },
             "@cloudflare/workerd-linux-64": {},

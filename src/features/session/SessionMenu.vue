@@ -40,6 +40,7 @@ const TEXT = {
     'language.label': { en: 'Language', es: 'Idioma' },
     'light.label': { en: 'Light', es: 'Clara' },
     'manageAccount.label': { en: 'Manage account', es: 'Administrar cuenta' },
+    'manageData.label': { en: 'Manage data', es: 'Administrar datos' },
     'reload.label': { en: 'Reload', es: 'Recargar' },
     'signInRegister.label': { en: 'Sign in / Register', es: 'Iniciar sesión / Registrarse' },
     'signOut.confirm.text': { en: 'Your unsaved changes will be lost.', es: 'Tus cambios sin guardar se perderán.' },
@@ -119,6 +120,11 @@ function handleClick(event: MouseEvent): void {
 
 async function handleManageAccount(): Promise<void> {
     await openDialog('account'); // Awaited so the menu closes only once the URL carries the dialog.
+    emit('continue');
+}
+
+async function handleManageData(): Promise<void> {
+    await openDialog('data'); // Awaited so the menu closes only once the URL carries the dialog.
     emit('continue');
 }
 
@@ -295,6 +301,9 @@ async function handleToggleWindowExpansion(): Promise<void> {
                 <RectangleButton v-if="sessionIsAuthenticated" class="mt-2 min-w-50 justify-start" @click="handleManageAccount">{{
                     t(TEXT, 'manageAccount.label')
                 }}</RectangleButton>
+
+                <!-- Manage Data ─ Shown signed out too, because use without an account keeps data in this browser as well. -->
+                <RectangleButton class="mt-2 min-w-50 justify-start" @click="handleManageData">{{ t(TEXT, 'manageData.label') }}</RectangleButton>
 
                 <!-- Reload -->
                 <RectangleButton v-if="isPWA" class="mt-2 min-w-50 justify-start" variant="guarded" @click="handleReloadApp">{{ t(TEXT, 'reload.label') }}</RectangleButton>

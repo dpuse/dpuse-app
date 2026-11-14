@@ -12,6 +12,7 @@ import { replaceRouteQuery } from '@/router';
 const ConnectionPanel = defineLazyComponent(() => import('@/features/studio/connectionPanel/ConnectionPanel.vue'), 'ConnectionPanel', { simulation: { delayMs: 0 } });
 const SessionAccountPanel = defineLazyComponent(() => import('@/features/session/accountPanel/SessionAccountPanel.vue'), 'SessionAccountPanel');
 const SessionAuthPanel = defineLazyComponent(() => import('@/features/session/authPanel/SessionAuthPanel.vue'), 'SessionAuthPanel');
+const SessionDataPanel = defineLazyComponent(() => import('@/features/session/dataPanel/SessionDataPanel.vue'), 'SessionDataPanel');
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -42,7 +43,8 @@ const DIALOG_CONFIGS = {
     // A minimum height rather than a fixed one, because the sign-in steps differ in height. The minimum stops the frame
     // collapsing around the loading spinner without being taller than the first step.
     auth: { component: SessionAuthPanel, maxWidth: '24rem', minHeight: '250px', sizing: 'reserved' },
-    connection: { component: ConnectionPanel, sizing: 'full' }
+    connection: { component: ConnectionPanel, sizing: 'full' },
+    data: { component: SessionDataPanel, sizing: 'full' }
 } satisfies Record<string, DialogConfig>;
 
 export type DialogId = keyof typeof DIALOG_CONFIGS;

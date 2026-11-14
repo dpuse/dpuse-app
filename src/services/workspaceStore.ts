@@ -144,6 +144,11 @@ export async function removeAccountWorkspaceStoreRecords(): Promise<void> {
     });
 }
 
+// For when a store's database is deleted from outside these functions, so nothing still shows the work it held.
+export async function resetWorkspaceStoreQueries(): Promise<void> {
+    await queryClient.resetQueries({ queryKey: WORKSPACE_STORE_QUERY_KEY });
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Waits for the session check, so a signed-in user's first read goes to their own store.
