@@ -10,6 +10,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 import { AppError, localiseConfig, localiseConfigs } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { dataViewRecordsAreLoading } from './_dataViewStore';
 import { PILL_CLASSES } from '@/components/ui/action/action';
 import { raiseAppFailure } from '@/state/errors';
 import { resolveCurrentDataViewStepId } from './dataViewSummary';
@@ -140,8 +141,14 @@ const summaryAndTaskBarArePending = computed(() => headerTitleIsPending.value ||
 // place when the panel changes.
 const taskPanelIsLoading = computed(() => navigationPendingDepth.value === 1);
 
-// ── Save ─ Why it is dimmed, shown as its tooltip. A change of connection or item cannot be saved until an item is open.
-const saveDisabledReason = computed(() => t(TEXT, dataViewHasChanges.value ? 'save.noItem.text' : 'save.noChanges.text'));
+// ── Save and Discard ─ Why each is dimmed, shown as its tooltip. A change of connection or item cannot be saved until an
+// item is open. Both wait while records load, because the load records its table under the data view as it was when
+// the load started.
+const saveDisabledReason = computed(() => {
+    if (dataViewRecordsAreLoading.value) return t(TEXT, 'save.loading.text');
+    return t(TEXT, dataViewHasChanges.value ? 'save.noItem.text' : 'save.noChanges.text');
+});
+const discardDisabledReason = computed(() => t(TEXT, dataViewRecordsAreLoading.value ? 'discard.loading.text' : 'discard.noChanges.text'));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -220,7 +227,7 @@ function handleRetryDataView(): void {
 
 async function handleSaveDataView(): Promise<void> {
     const draftDataViewConfig = dataViewConfig.value;
-    if (draftDataViewConfig == null || !dataViewCanBeSaved.value || dataViewIsSaving.value) return;
+    if (draftDataViewConfig == null || !dataViewCanBeSaved.value || dataViewIsSaving.value || dataViewRecordsAreLoading.value) return;
 
     try {
         await saveDataView(draftDataViewConfig);
@@ -235,7 +242,7 @@ async function handleSaveDataView(): Promise<void> {
 }
 
 async function handleDiscardDataView(): Promise<void> {
-    if (!dataViewHasChanges.value) return;
+    if (!dataViewHasChanges.value || dataViewRecordsAreLoading.value) return;
 
     discardIsForLeaving.value = false;
     const { isCanceled } = await revealDiscardConfirm();
@@ -371,15 +378,15 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
                     <div :id="DATA_VIEW_SCROLL_ACTIONS_ID" class="contents" />
                     <div :id="DATA_VIEW_ADD_ACTION_ID" class="contents" />
                     <PillSegment
-                        :disabled="!dataViewHasChanges"
-                        :disabled-reason="t(TEXT, 'discard.noChanges.text')"
+                        :disabled="!dataViewHasChanges || dataViewRecordsAreLoading"
+                        :disabled-reason="discardDisabledReason"
                         :icon="CircleXIcon"
                         :is-label-hidden="dataViewActionLabelsAreHidden"
                         :label="t(TEXT, 'discard.label')"
                         @click="handleDiscardDataView"
                     />
                     <PillSegment
-                        :disabled="!dataViewCanBeSaved || dataViewIsSaving"
+                        :disabled="!dataViewCanBeSaved || dataViewIsSaving || dataViewRecordsAreLoading"
                         :disabled-reason="dataViewIsSaving ? undefined : saveDisabledReason"
                         :icon="SaveIcon"
                         :is-label-hidden="dataViewActionLabelsAreHidden"

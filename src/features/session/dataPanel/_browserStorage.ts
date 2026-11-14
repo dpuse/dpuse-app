@@ -1,5 +1,5 @@
-// Lists and removes what the app keeps in this browser: local storage, session storage, IndexedDB databases and the
-// origin private file system (OPFS). The browser shows the app only its own origin's storage, so nothing another site
+// Lists and removes what the app keeps in this browser: cookies, local storage, session storage, IndexedDB databases
+// and the origin private file system (OPFS). The browser shows the app only its own origin's storage, so nothing another site
 // keeps is listed or removed.
 
 // ── DPUse Framework
@@ -8,9 +8,11 @@ import { AppError } from '@dpuse/dpuse-shared';
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface BrowserStorageSnapshot {
+    cookies: CookieSummary[] | undefined; // Undefined where the browser has no Cookie Store API.
     estimate: StorageEstimateSummary | undefined; // Undefined where the browser cannot estimate its storage.
     indexedDatabases: IndexedDatabaseSummary[];
     localStorageItems: LocalStorageItemSummary[];
+    sessionStorageItems: LocalStorageItemSummary[]; // This tab's only, because each tab has its own session storage.
     opfsItems: OpfsItemSummary[] | undefined; // Undefined where the browser has no OPFS.
 }
 
@@ -25,6 +27,12 @@ export interface StorageEstimateSummary {
 export interface LocalStorageItemSummary {
     key: string;
     size: number;
+    value: string;
+}
+
+// Only cookies that scripts may read. A cookie marked 'HttpOnly' is hidden from the app, so it is never listed.
+export interface CookieSummary {
+    name: string;
     value: string;
 }
 
@@ -79,17 +87,32 @@ const OPFS_ITEM_TYPE_IDS: OpfsItemTypeId[] = ['sqlitePool', 'duckdbDatabase', 'd
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function retrieveBrowserStorageSnapshot(): Promise<BrowserStorageSnapshot> {
-    const [estimate, indexedDatabases, opfsItems] = await Promise.all([retrieveStorageEstimate(), listIndexedDatabases(), listOpfsItems()]);
-    return { estimate, indexedDatabases, localStorageItems: listLocalStorageItems(), opfsItems };
+    const [cookies, estimate, indexedDatabases, opfsItems] = await Promise.all([listCookies(), retrieveStorageEstimate(), listIndexedDatabases(), listOpfsItems()]);
+    return { cookies, estimate, indexedDatabases, localStorageItems: listStorageItems(localStorage), opfsItems, sessionStorageItems: listStorageItems(sessionStorage) };
 }
 
 // ── Local Storage
-export function removeLocalStorageItem(key: string): void {
-    localStorage.removeItem(key);
-}
-
 export function clearLocalStorage(): void {
     localStorage.clear();
+}
+
+export function clearSessionStorage(): void {
+    sessionStorage.clear();
+}
+
+// ── Cookies ─ Most browsers do not tell a script where a cookie was set, so each is deleted for the whole site and for
+// each folder of the current address. One set anywhere else stays, and the clear then fails.
+export async function clearCookies(): Promise<void> {
+    const cookieStore = findCookieStore();
+    if (!cookieStore) return;
+
+    const pathSegments = location.pathname.split('/').filter((segment) => segment !== '');
+    const paths = ['/', ...pathSegments.map((_segment, index) => `/${pathSegments.slice(0, index + 1).join('/')}`)];
+    const cookies = (await listCookies()) ?? [];
+    for (const { name } of cookies) {
+        for (const path of paths) await cookieStore.delete({ name, path });
+    }
+    if (((await listCookies()) ?? []).length > 0) throw new AppError('Some cookies could not be removed from this browser.', 'dpuse-app._browserStorage.clearCookies');
 }
 
 // ── IndexedDB ─ A delete waits while another connection to the database is open. The browser asks that connection to
@@ -128,7 +151,7 @@ export async function clearBrowserStorage(): Promise<void> {
     localStorage.clear();
     sessionStorage.clear();
     const databases = await listIndexedDatabases();
-    const results = await Promise.allSettled([...databases.map(({ name }) => removeIndexedDatabase(name)), clearOpfs()]);
+    const results = await Promise.allSettled([clearCookies(), ...databases.map(({ name }) => removeIndexedDatabase(name)), clearOpfs()]);
     const errors = results.flatMap((result) => (result.status === 'rejected' ? [result.reason as unknown] : []));
     if (errors.length > 0) throw new AggregateError(errors, 'Failed to remove some data from this browser.');
 }
@@ -148,15 +171,28 @@ async function retrieveStorageEstimate(): Promise<StorageEstimateSummary | undef
     return { fileSystemUsage: estimate.usageDetails?.fileSystem, indexedDatabaseUsage: estimate.usageDetails?.indexedDB, quota: estimate.quota, usage: estimate.usage };
 }
 
-// The size is an estimate: two bytes for each character of the key and value, as browsers count local storage against
-// its limit.
-function listLocalStorageItems(): LocalStorageItemSummary[] {
-    return Object.keys(localStorage)
+// Lists local or session storage. The size is an estimate: two bytes for each character of the key and value, as
+// browsers count web storage against its limit.
+function listStorageItems(storage: Storage): LocalStorageItemSummary[] {
+    return Object.keys(storage)
         .map((key) => {
-            const value = localStorage.getItem(key) ?? '';
+            const value = storage.getItem(key) ?? '';
             return { key, size: (key.length + value.length) * 2, value };
         })
         .toSorted((left, right) => left.key.localeCompare(right.key));
+}
+
+// 'cookieStore' is missing outside a secure context, and in browsers older than Chrome 87, Safari 18.4 and Firefox 140.
+function findCookieStore(): CookieStore | undefined {
+    return typeof cookieStore === 'undefined' ? undefined : cookieStore;
+}
+
+async function listCookies(): Promise<CookieSummary[] | undefined> {
+    const cookieStore = findCookieStore();
+    if (!cookieStore) return;
+
+    const cookieItems = await cookieStore.getAll();
+    return cookieItems.map(({ name = '', value = '' }) => ({ name, value })).toSorted((left, right) => left.name.localeCompare(right.name));
 }
 
 // Firefox before 126 cannot list its databases, so there is nothing to show there.
@@ -196,7 +232,8 @@ async function listOpfsItems(): Promise<OpfsItemSummary[] | undefined> {
 // would remove the databases beside it.
 function placeOpfsFile(path: string): OpfsFilePlacement {
     if (path.startsWith(`${SQLITE_POOL_FOLDER}/`)) return { id: 'sqlitePool', name: SQLITE_POOL_FOLDER, removalPath: SQLITE_POOL_FOLDER, typeId: 'sqlitePool' };
-    if (path.startsWith(`${DUCKDB_SCRATCH_FOLDER}/`)) return { id: 'duckdbTemporaryFiles', name: DUCKDB_SCRATCH_FOLDER, removalPath: DUCKDB_SCRATCH_FOLDER, typeId: 'duckdbTemporaryFiles' };
+    if (path.startsWith(`${DUCKDB_SCRATCH_FOLDER}/`))
+        return { id: 'duckdbTemporaryFiles', name: DUCKDB_SCRATCH_FOLDER, removalPath: DUCKDB_SCRATCH_FOLDER, typeId: 'duckdbTemporaryFiles' };
     const databaseName = DUCKDB_DATABASE_FILE_PATTERN.exec(path)?.[1];
     if (databaseName != null) return { id: `duckdbDatabase:${databaseName}`, name: databaseName, removalPath: path, typeId: 'duckdbDatabase' };
     const topLevelName = path.split('/', 1)[0];

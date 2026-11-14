@@ -1,12 +1,13 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
+import { useConfirmDialog } from '@vueuse/core';
 import { useRoute } from 'vue-router';
 import { ChevronDownIcon, ClockIcon, DatabaseIcon, RefreshCwIcon, SlidersHorizontalIcon, TriangleAlertIcon } from '@lucide/vue';
 import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared';
+import { AppError, findStoreErrorId } from '@dpuse/dpuse-shared';
 import type { ColumnAuditConfig, DataSubtypeId, StoreRecord, StoreValue } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
@@ -14,15 +15,16 @@ import { assertDefined } from '@/utilities/index.ts';
 import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
 import { constructColumnTypeLabel } from '@/features/studio/dataViews/_previewColumnRows';
 import type { DataSource } from '@/composables/useDataWindow';
+import { findConnectionLocalisedConfig } from '@/state/configs';
 import { TEXT } from './InvestigateDataPanel_.json';
 import { useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import {
     abortDataViewRecordLoad,
-    closeDataViewStore,
     constructStoredColumnConfigs,
     type DataViewColumnValueCounts,
     findDataViewInvalidValueCounts,
     findDataViewStoreLabel,
+    forgetDataViewLoad,
     hasDataViewLoad,
     isDataViewLoaded,
     listDataViewStoreConnections,
@@ -47,6 +49,7 @@ import {
     placeLoadedValues
 } from '@/features/studio/dataViews/_dataViewColumns';
 import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
+import { holdStore, isStoreConnection, openStore, storeTakeover } from '@/services/storeUse';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -57,6 +60,7 @@ import ColumnDetailPanel from '@/features/studio/dataViews/ColumnDetailPanel.vue
 import ColumnSearch from '@/features/studio/dataViews/ColumnSearch.vue';
 import type { ColumnSearchOption } from '@/features/studio/dataViews/ColumnSearch.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
+import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import { Menu } from '@/components/ui/menu';
 import type { SelectOption } from '@/components/ui/SelectInput.vue';
@@ -126,6 +130,10 @@ const loadIsStopped = ref(false); // Set by 'Stop', so the stopped load is shown
 const loadRequestId = ref<string>(); // Names the running load, so stopping it stops nothing else.
 const loadVersion = ref(0); // Counts loads, so the table drops the records it holds after each one.
 const firstPageColumnWidths = shallowRef<{ dataSourceId: string; widths: number[] }>(); // Measured once per load, so scrolling back cannot move the columns.
+
+// ── Take Over ─ Using the store here closes it in the tab or window that has it, which loses the records loaded there
+// but not saved, so the user is asked first.
+const { cancel: cancelTakeOver, confirm: confirmTakeOver, isRevealed: takeOverConfirmIsOpen, reveal: revealTakeOverConfirm } = useConfirmDialog();
 
 // ── Overlays ─ Transform and a column's detail cover the records one at a time.
 const selectedColumnIndex = ref<number>(); // The column whose detail is showing over the records.
@@ -212,7 +220,9 @@ const dataSource = computed<DataSource<DisplayRow>>(() => {
                 if (startRow === 0) fitColumnsToFirstPage(dataSourceId, rows);
                 return { rows, totalCount };
             } catch (error) {
-                raiseAppFailure(new AppError("Failed to read the data view's records.", 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
+                if (!didShowStoreError(error)) {
+                    raiseAppFailure(new AppError("Failed to read the data view's records.", 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
+                }
                 return { rows: [], totalCount: 0 };
             }
         }
@@ -313,33 +323,63 @@ watch(
     { immediate: true }
 );
 
+// The panel holds its store for as long as it shows it, and lets go when it leaves or the data view moves to another
+// store. The last screen in this tab to let go closes the store, so another tab can use it.
+watch(
+    storeConnectorId,
+    (heldStoreConnectorId, _previousStoreConnectorId, onCleanup) => {
+        const releaseStore = holdStore(heldStoreConnectorId);
+        onCleanup(() => {
+            void releaseStore().catch((error: unknown) => {
+                raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
+            });
+        });
+    },
+    { immediate: true }
+);
+
+// Another tab has taken this store, so it says so at once, rather than when the table next reads.
+watch(storeTakeover, (takeover) => {
+    if (takeover?.connectorId !== storeConnectorId.value || !['loading', 'opening', 'ready'].includes(investigateState.value.typeId)) return;
+    investigateState.value = { typeId: 'heldElsewhere' };
+});
+
+// The records can go while they are on screen, such as when Manage Data deletes the store's database, or another tab
+// clears local storage.
+watch(
+    () => dataViewConfig.value != null && isDataViewLoaded(dataViewConfig.value, draftIsCurrent.value),
+    (isLoaded) => {
+        if (isLoaded || investigateState.value.typeId !== 'ready') return;
+        investigateState.value = { typeId: 'notLoaded' };
+    }
+);
+
 // The audit stops counting a column's values past a limit and keeps none of its counts. When such a column's detail
 // opens, the store counts them, and again after a new load. A count that arrives after the user has moved on is dropped.
 watch([selectedColumnIndex, (): string | undefined => dataSource.value.id], async ([columnIndex, dataSourceId]) => {
     const columnConfig = columnIndex == null ? undefined : columnConfigs.value[columnIndex];
     const isCounted = columnConfig?.validFrequentValues == null || Object.keys(columnConfig.validFrequentValues).length > 0 || columnConfig.validDistinctValueCount != null;
-    if (columnIndex == null || isCounted || dataViewConfig.value == null) return;
+    const tablePath = dataViewConfig.value == null ? undefined : resolveDataViewTablePath(dataViewConfig.value, draftIsCurrent.value);
+    if (tablePath == null || columnIndex == null || isCounted || dataViewConfig.value == null) return;
     try {
-        const tablePath = resolveDataViewTablePath(dataViewConfig.value, draftIsCurrent.value);
         const storedColumnIndex = columnIndex - [...ignoredColumnIndexes.value].filter((ignoredColumnIndex) => ignoredColumnIndex < columnIndex).length; // The store's table leaves ignored columns out.
         const valueCounts = await queryDataViewColumnValueCounts(storeConnectorId.value, tablePath, constructStoredColumnConfigs(dataViewConfig.value), storedColumnIndex);
         if (selectedColumnIndex.value === columnIndex && dataSource.value.id === dataSourceId) selectedColumnValueCounts.value = { columnIndex, dataSourceId, valueCounts };
     } catch (error) {
+        if (didShowStoreError(error)) return;
         raiseFailure(new AppError('Failed to count the column’s values.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
     }
 });
 
-// Leaving stops a load rather than letting it run on unseen, and closes the store so another tab can use it.
+// Leaving stops a load rather than letting it run on unseen. Letting go of the store, which frees it for another tab, is
+// the watcher on the store's id.
 onBeforeUnmount(() => {
     const leftDataViewConfig = dataViewConfig.value;
-    if (leftDataViewConfig != null && investigateState.value.typeId === 'loading' && loadRequestId.value != null) {
-        loadIsAbandoned.value = true;
-        void abortDataViewRecordLoad(leftDataViewConfig, loadRequestId.value).catch((error: unknown) => {
-            raiseFailure(new AppError('Failed to stop loading the records.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
-        });
-    }
-    void closeDataViewStore(storeConnectorId.value).catch((error: unknown) => {
-        raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
+    if (leftDataViewConfig == null || investigateState.value.typeId !== 'loading' || loadRequestId.value == null) return;
+
+    loadIsAbandoned.value = true;
+    void abortDataViewRecordLoad(leftDataViewConfig, loadRequestId.value).catch((error: unknown) => {
+        raiseFailure(new AppError('Failed to stop loading the records.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
     });
 });
 
@@ -356,6 +396,14 @@ function wasLoadRequested(): boolean {
 
 function handleRetry(): void {
     void openAndLoad(false);
+}
+
+// For a store another tab or window holds, including one the user cannot find. That tab closes its store.
+async function handleTakeOverStore(): Promise<void> {
+    const { isCanceled } = await revealTakeOverConfirm();
+    if (isCanceled) return;
+
+    void openAndLoad(false, true);
 }
 
 function handleLoadAgain(): void {
@@ -391,16 +439,11 @@ function handleStepColumn(direction: -1 | 1): void {
 }
 
 // A different store becomes the data view's unsaved choice, as on the item step, and takes the records from this load.
-// The old store is closed, so another tab can use it. Choosing the current store just loads again.
+// The panel lets go of the old store, so another tab can use it. Choosing the current store just loads again.
 function handleLoadAgainIntoStore(chosenStoreConnectorId: string): void {
-    const previousStoreConnectorId = storeConnectorId.value;
-    const storeIsChanged = dataViewConfig.value != null && chosenStoreConnectorId !== previousStoreConnectorId;
+    const storeIsChanged = dataViewConfig.value != null && chosenStoreConnectorId !== storeConnectorId.value;
     if (storeIsChanged) changeDataView({ ...assertDefined(dataViewConfig.value), storeConnectorId: chosenStoreConnectorId });
-    void openAndLoad(true); // Before the close, so the records leave the screen before their store goes.
-    if (!storeIsChanged) return;
-    void closeDataViewStore(previousStoreConnectorId).catch((error: unknown) => {
-        raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.InvestigateDataPanel.handleLoadAgainIntoStore', { typeId: 'handled' }, { cause: error }));
-    });
+    void openAndLoad(true);
 }
 
 function handleStopLoad(): void {
@@ -415,12 +458,15 @@ function handleStopLoad(): void {
 
 // A data view is loaded the first time it is investigated, and again when its columns have changed or the user asks.
 // Later visits read the records already stored.
-async function openAndLoad(isReloaded: boolean): Promise<void> {
+async function openAndLoad(isReloaded: boolean, shouldTakeOver = false): Promise<void> {
     const openedDataViewConfig = dataViewConfig.value;
     if (openedDataViewConfig == null || investigateState.value.typeId === 'loading') return;
     investigateState.value = { typeId: 'opening' };
+    const sourceStoreConnectorId = findSourceStoreConnectorId(openedDataViewConfig.connectionId);
+    const releaseSourceStore = sourceStoreConnectorId == null ? undefined : holdStore(sourceStoreConnectorId); // The load opens a source that is itself a store, so the panel holds it while the load runs.
     try {
-        const storeStateId = await openDataViewStore(resolveStoreConnectorId(openedDataViewConfig), draftIsCurrent.value ? openedDataViewConfig.id : undefined);
+        if (shouldTakeOver) await takeOverSourceStore(sourceStoreConnectorId);
+        const storeStateId = await openDataViewStore(resolveStoreConnectorId(openedDataViewConfig), draftIsCurrent.value ? openedDataViewConfig.id : undefined, shouldTakeOver);
         if (storeStateId !== 'ready') {
             investigateState.value = { typeId: storeStateId };
             return;
@@ -454,10 +500,42 @@ async function openAndLoad(isReloaded: boolean): Promise<void> {
             investigateState.value = { typeId: 'stopped' };
             return;
         }
+        if (didShowStoreError(error)) return;
         const failure = raiseFailure(
             new AppError("Failed to load the data view's records.", 'dpuse-app.InvestigateDataPanel.openAndLoad', { typeId: 'handled' }, { cause: error })
         );
         investigateState.value = { typeId: 'failed', failure };
+    } finally {
+        void releaseSourceStore?.().catch((error: unknown) => {
+            raiseFailure(new AppError('Failed to close the source store.', 'dpuse-app.InvestigateDataPanel.openAndLoad', { typeId: 'handled' }, { cause: error }));
+        });
+    }
+}
+
+// A source such as SQLite keeps its data in a store of its own. Undefined for any other source.
+function findSourceStoreConnectorId(connectionId: string | undefined): string | undefined {
+    const sourceConnectionConfig = findConnectionLocalisedConfig(connectionId);
+    return isStoreConnection(sourceConnectionConfig) ? sourceConnectionConfig?.connectorConfig.id : undefined;
+}
+
+// Taking over takes the source's store too, because it may be the store another tab has.
+async function takeOverSourceStore(sourceStoreConnectorId: string | undefined): Promise<void> {
+    if (sourceStoreConnectorId != null) await openStore(sourceStoreConnectorId, true);
+}
+
+// A store another tab has taken, or a table the store no longer has, is a state the panel shows rather than a failure.
+// A missing table's load is forgotten, so the data view asks to be loaded again. Returns whether it was one of these.
+function didShowStoreError(error: unknown): boolean {
+    switch (findStoreErrorId(error)) {
+        case 'heldElsewhere':
+            investigateState.value = { typeId: 'heldElsewhere' };
+            return true;
+        case 'notLoaded':
+            if (dataViewConfig.value != null) forgetDataViewLoad(dataViewConfig.value, draftIsCurrent.value);
+            investigateState.value = { typeId: 'notLoaded' };
+            return true;
+        default:
+            return false;
     }
 }
 
@@ -724,6 +802,9 @@ function formatStoreValue(value: StoreValue, columnConfig: ColumnAuditConfig, nu
                 <ActionWrapper v-if="investigateState.typeId !== 'columnsRequired'" class="text-accent hover:underline" @click="handleRetry">{{
                     t(TEXT, messageActionKey)
                 }}</ActionWrapper>
+                <ActionWrapper v-if="investigateState.typeId === 'heldElsewhere'" class="text-accent hover:underline" @click="handleTakeOverStore">{{
+                    t(TEXT, 'store.takeOver.label')
+                }}</ActionWrapper>
             </div>
         </template>
 
@@ -767,5 +848,15 @@ function formatStoreValue(value: StoreValue, columnConfig: ColumnAuditConfig, nu
                 </span>
             </p>
         </div>
+
+        <ConfirmDialog
+            :confirm-label="t(TEXT, 'store.takeOver.label')"
+            confirm-variant="guarded"
+            :is-open="takeOverConfirmIsOpen"
+            :message="t(TEXT, 'store.takeOver.confirm.text')"
+            :title="t(TEXT, 'store.takeOver.confirm.title')"
+            @cancel="cancelTakeOver"
+            @confirm="confirmTakeOver"
+        />
     </div>
 </template>

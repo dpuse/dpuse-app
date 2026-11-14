@@ -151,7 +151,18 @@
         "record.one.text": { "en": "{count} record", "es": "{count} registro" },
         "record.other.text": { "en": "{count} records", "es": "{count} registros" },
         "recordDelimiter.label": { "en": "Record delimiter", "es": "Delimitador de registros" },
+        "store.heldElsewhere.text": {
+            "en": "This database is open in another tab or window. Use it here to close it there.",
+            "es": "Esta base de datos está abierta en otra pestaña o ventana. Úsala aquí para cerrarla allí."
+        },
         "store.label": { "en": "Store", "es": "Almacén" },
+        "store.retry.label": { "en": "Try again", "es": "Reintentar" },
+        "store.takeOver.confirm.text": {
+            "en": "Records loaded in the other tab or window will need loading again there.",
+            "es": "Los registros cargados en la otra pestaña o ventana tendrán que volver a cargarse allí."
+        },
+        "store.takeOver.confirm.title": { "en": "Use This Database Here?", "es": "¿Usar esta base de datos aquí?" },
+        "store.takeOver.label": { "en": "Use it here", "es": "Usarlo aquí" },
         "tab.details.label": { "en": "Details", "es": "Detalles" },
         "tab.structure.label": { "en": "Structure", "es": "Estructura" },
         "tab.table.label": { "en": "Table", "es": "Tabla" },

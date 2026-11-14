@@ -93,11 +93,13 @@
     --color-empty-tint: var(--empty-tint);
     --color-invalid-tint: var(--invalid-tint);
     --color-null-tint: var(--null-tint);
-    /* Chart series, in the order a chart assigns them: the first three slots of the dataviz skill's reference palette,
+    /* Chart series, in the order a chart assigns them: the first five slots of the dataviz skill's reference palette,
        checked as a set against the light and dark surfaces. */
     --color-series-1: var(--series-1);
     --color-series-2: var(--series-2);
     --color-series-3: var(--series-3);
+    --color-series-4: var(--series-4);
+    --color-series-5: var(--series-5);
     --color-series-1-track: var(--series-1-track); /* The unfilled part of a meter filled with series 1 */
 
     --color-danger: var(--danger);
@@ -176,6 +178,8 @@
     --series-1: #2a78d6;
     --series-2: #eb6834;
     --series-3: #1baf7a;
+    --series-4: #eda100;
+    --series-5: #e87ba4;
     --series-1-track: color-mix(in srgb, var(--series-1) 20%, var(--surface));
     --warning-ring: var(--color-amber-500);
     --warning-border: var(--color-amber-200);
@@ -251,6 +255,8 @@
     --series-1: #3987e5;
     --series-2: #d95926;
     --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
     --series-1-track: color-mix(in srgb, var(--series-1) 30%, var(--surface));
     --warning-ring: color-mix(in srgb, var(--color-amber-400) 20%, transparent);
     --warning-border: var(--color-amber-900);

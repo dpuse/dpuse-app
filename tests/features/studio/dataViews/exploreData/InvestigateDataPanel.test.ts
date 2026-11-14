@@ -3,16 +3,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, type VNode } from 'vue';
 import { mount, RouterLinkStub } from '@vue/test-utils';
 
+// ── DPUse Framework
+import { constructStoreError } from '@dpuse/dpuse-shared';
+
 // ── Local Framework
 import ColumnDetailPanel from '@/features/studio/dataViews/ColumnDetailPanel.vue';
 import { constructFittedColumnWidth } from '@/components/ui/table/tableColumnWidth';
 import InvestigateDataPanel from '@/features/studio/dataViews/exploreData/InvestigateDataPanel.vue';
 import { settle } from '~/tests/support/settle';
+import { storeTakeover } from '@/services/storeUse';
 import { TEXT } from '@/features/studio/dataViews/exploreData/InvestigateDataPanel_.json';
 import {
-    closeDataViewStore,
     findDataViewInvalidValueCounts,
     findDataViewStoreLabel,
+    forgetDataViewLoad,
     hasDataViewLoad,
     isDataViewLoaded,
     loadDataViewRecords,
@@ -44,10 +48,10 @@ vi.mock('@/features/studio/dataViews/_dataViews', async (importOriginal) => {
 });
 vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
     abortDataViewRecordLoad: vi.fn(),
-    closeDataViewStore: vi.fn(),
     constructStoredColumnConfigs: (): { label: string }[] => STORED_COLUMN_CONFIGS,
     findDataViewInvalidValueCounts: vi.fn(),
     findDataViewStoreLabel: vi.fn(),
+    forgetDataViewLoad: vi.fn(),
     hasDataViewLoad: vi.fn(),
     isDataViewLoaded: vi.fn(),
     listDataViewStoreConnections: vi.fn(() => []),
@@ -58,6 +62,12 @@ vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
     resolveDataViewTablePath: ({ id }: { id: string }): string => id,
     resolveStoreConnectorId: (): string => 'dpuse-connector-sqlite-wasm'
 }));
+// The panel holds its store while it shows it. The release stands for letting go, which closes the store for other tabs.
+const storeUse = vi.hoisted(() => ({ releaseStore: vi.fn(() => Promise.resolve()) }));
+vi.mock('@/services/storeUse', async () => {
+    const { shallowRef } = await import('vue');
+    return { holdStore: vi.fn(() => storeUse.releaseStore), isStoreConnection: vi.fn(() => false), openStore: vi.fn(), storeTakeover: shallowRef() };
+});
 vi.mock('@/components/ui/table/tableColumnWidth', () => ({ HEADER_MENU_WIDTH_PX: 24, HEADER_TAB_INSET_PX: 10, constructFittedColumnWidth: vi.fn() }));
 
 vi.mock('vue-router', async (importOriginal) => ({
@@ -101,7 +111,6 @@ const STORED_COLUMN_CONFIGS = [{ label: 'Stored' }]; // Stands for the columns t
 
 beforeEach(() => {
     vi.mocked(openDataViewStore).mockResolvedValue('ready');
-    vi.mocked(closeDataViewStore).mockResolvedValue();
     vi.mocked(findDataViewStoreLabel).mockReturnValue('SQLite');
     vi.mocked(isDataViewLoaded).mockReturnValue(true);
     vi.mocked(hasDataViewLoad).mockReturnValue(false);
@@ -111,6 +120,7 @@ beforeEach(() => {
 
 afterEach(() => {
     dataView.config = undefined;
+    storeTakeover.value = undefined;
     history.replaceState(null, '');
     vi.clearAllMocks();
 });
@@ -373,6 +383,62 @@ describe('InvestigateDataPanel', () => {
         expect(wrapper.findComponent(TableStub).exists()).toBe(true);
     });
 
+    it('takes the store over from another tab when asked to use it here', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(openDataViewStore).mockResolvedValueOnce('heldElsewhere');
+        const wrapper = mountPanel();
+        await settle();
+
+        await wrapper
+            .findAll('button')
+            .find((button) => button.text() === t(TEXT, 'store.takeOver.label'))
+            ?.trigger('click');
+        await settle();
+        expect(openDataViewStore).toHaveBeenCalledOnce(); // Asks first, because the other tab loses its loaded records.
+        wrapper.findComponent({ name: 'ConfirmDialog' }).vm.$emit('confirm');
+        await settle();
+
+        expect(openDataViewStore).toHaveBeenLastCalledWith(expect.any(String), undefined, true);
+        expect(wrapper.findComponent(TableStub).exists()).toBe(true);
+    });
+
+    it('says so at once when another tab takes the store over', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        const wrapper = mountPanel();
+        await settle();
+
+        storeTakeover.value = { connectorId: 'dpuse-connector-sqlite-wasm', takenAt: 1 };
+        await settle();
+
+        expect(wrapper.text()).toContain(t(TEXT, 'store.heldElsewhere.text'));
+        expect(wrapper.findComponent(TableStub).exists()).toBe(false);
+    });
+
+    it('says another tab has the store, rather than failing, when reading finds it taken', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(queryDataViewRecords).mockRejectedValue(constructStoreError('heldElsewhere', 'The store is open in another tab or window.', 'test'));
+        const wrapper = mountPanel();
+        await settle();
+
+        await (wrapper.findComponent(TableStub).props() as TableProperties).dataSource.getRows(0, 100);
+        await settle();
+
+        expect(wrapper.text()).toContain(t(TEXT, 'store.heldElsewhere.text'));
+    });
+
+    it('asks to load again, and forgets the load, when the store no longer has the records', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(queryDataViewRecords).mockRejectedValue(constructStoreError('notLoaded', "'dataView1' has not been loaded.", 'test'));
+        const wrapper = mountPanel();
+        await settle();
+
+        await (wrapper.findComponent(TableStub).props() as TableProperties).dataSource.getRows(0, 100);
+        await settle();
+
+        expect(forgetDataViewLoad).toHaveBeenCalledWith(AUDITED_DATA_VIEW, false);
+        expect(wrapper.text()).toContain(t(TEXT, 'load.required.text'));
+    });
+
     it('says so when the browser has no storage for the store', async () => {
         dataView.config = AUDITED_DATA_VIEW;
         vi.mocked(openDataViewStore).mockResolvedValueOnce('unavailable');
@@ -382,13 +448,13 @@ describe('InvestigateDataPanel', () => {
         expect(wrapper.text()).toContain(t(TEXT, 'store.unavailable.text'));
     });
 
-    it('closes the store on leaving, so another tab can use it', async () => {
+    it('lets go of the store on leaving, so another tab can use it', async () => {
         dataView.config = AUDITED_DATA_VIEW;
         const wrapper = mountPanel();
         await settle();
         wrapper.unmount();
 
-        expect(closeDataViewStore).toHaveBeenCalledOnce();
+        expect(storeUse.releaseStore).toHaveBeenCalledOnce();
     });
 });
 

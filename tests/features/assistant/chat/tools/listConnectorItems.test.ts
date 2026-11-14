@@ -15,7 +15,7 @@ import { tanstackClientTools } from '@/features/assistant/chat/tools/tanstackCli
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 vi.mock('@/services/engine', () => ({ establishEngineWorker: vi.fn(() => Promise.resolve({ processRequest: processRequestSpy })) }));
-vi.mock('@/state/configs', () => ({ findConnectionLocalisedConfig: vi.fn((id: string) => (id === CONNECTION_ID ? { id } : undefined)) }));
+vi.mock('@/state/configs', () => ({ findConnectionLocalisedConfig: vi.fn((id: string) => (id === CONNECTION_ID ? { connectorConfig: { actionNames: [] }, id } : undefined)) }));
 vi.mock('@/state/errors', () => ({ raiseFailure: vi.fn((error: Error) => ({ error })) }));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -37,14 +37,14 @@ describe('executeListConnectorItems', () => {
     it('lists the root folders when the folder path is empty', async () => {
         const result = await executeListConnectorItems({ connectionId: CONNECTION_ID, folderPath: '' });
 
-        expect(processRequestSpy).toHaveBeenCalledWith('listNodes', { id: CONNECTION_ID }, { folderPath: '' });
+        expect(processRequestSpy).toHaveBeenCalledWith('listNodes', expect.objectContaining({ id: CONNECTION_ID }), { folderPath: '' });
         expect(result).toEqual({ items: ROOT_FOLDER_NAMES.map((name) => buildExpectedItem(name)) });
     });
 
     it('lists the root folders when the folder path is left out', async () => {
         const result = await executeListConnectorItems({ connectionId: CONNECTION_ID });
 
-        expect(processRequestSpy).toHaveBeenCalledWith('listNodes', { id: CONNECTION_ID }, { folderPath: '' });
+        expect(processRequestSpy).toHaveBeenCalledWith('listNodes', expect.objectContaining({ id: CONNECTION_ID }), { folderPath: '' });
         expect(result).toEqual({ items: ROOT_FOLDER_NAMES.map((name) => buildExpectedItem(name)) });
     });
 

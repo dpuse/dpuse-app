@@ -1,5 +1,5 @@
 // ── External Dependencies & Registrations
-import { useLocalStorage } from '@vueuse/core';
+import { computed, ref } from 'vue';
 
 // ── DPUse Framework
 import type {
@@ -11,7 +11,6 @@ import type {
     EngineLoadObjectRecordsResult,
     LocalisedConfig,
     ObjectColumnConfig,
-    OpenStoreResult,
     QueryRecordsOptions,
     QueryRecordsResult,
     StoreRecord,
@@ -24,6 +23,18 @@ import { constructItemPath } from './dataViewSummary';
 import { establishEngineWorker } from '@/services/engine';
 import { establishFileValueDelimiterId } from './_dataViewColumns';
 import { findConnectionLocalisedConfig } from '@/state/configs';
+import { openStore } from '@/services/storeUse';
+import {
+    addUnwantedTablePaths,
+    constructLoadKey,
+    DRAFT_LOAD_SUFFIX,
+    forgetLoad,
+    loadedColumnsVersions,
+    loadInvalidValueCounts,
+    loadTablePaths,
+    removeUnwantedTablePath,
+    unwantedTablePaths
+} from '@/state/dataViewLoads';
 import { constructAppliedReading, constructColumnsVersion, constructIgnoredColumnIndexes, constructLoadColumnConfigs } from './_dataViewColumns';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -41,35 +52,25 @@ export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-sqlite-wasm';
 //export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-duckdb-wasm';
 const INVESTIGATE_STORE_CONNECTOR_IDS = ['dpuse-connector-sqlite-wasm', 'dpuse-connector-duckdb-wasm', 'dpuse-connector-dexie-js']; // Dexie last, because it answers queries in memory.
 
-const DRAFT_LOAD_SUFFIX = '|draft';
 const LISTED_VALUE_COUNT = 10; // Values in each of the most and least frequent lists, as many as the audit lists.
-const LOAD_FORMAT_VERSION = 3; // Raised when stored values change meaning, so that what is already loaded is loaded again. 2 stores dates in UTC, as true dates and times. 3 keeps no column types in the store, because every query brings them.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The columns each data view was loaded with, by store and data view, kept in this browser because the store is too. A
-// data view whose columns have changed since is loaded again.
-const loadedColumnsVersions = useLocalStorage<Partial<Record<string, number | string>>>('dpuse-investigate-loads', {});
+const runningLoadCount = ref(0);
 
-// How many values in each column did not fit its type and loaded as empty, by load. The store holds them only as empty
-// values, the same as values missing from the source, so a later visit can only tell them apart from these counts.
-const loadInvalidValueCounts = useLocalStorage<Partial<Record<string, number[]>>>('dpuse-investigate-invalid-counts', {});
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The table each load went into. A saved data view with no entry is in the table named by its id. A draft has a table
-// of its own, so loading it leaves the saved data view's records alone. Save makes that table the saved one.
-const loadTablePaths = useLocalStorage<Partial<Record<string, string>>>('dpuse-investigate-tables', {});
-
-// Tables no longer needed, by store. Opening a store only to drop a table would download its engine, so they wait until
-// the store is next opened.
-const unwantedTablePaths = useLocalStorage<Partial<Record<string, string[]>>>('dpuse-investigate-unwanted-tables', {});
+// Save and Discard wait for a load to finish, because the load records its table under the data view as it was when the
+// load started. Saving or discarding in the middle would leave the table recorded under the wrong one.
+export const dataViewRecordsAreLoading = computed(() => runningLoadCount.value > 0);
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Only one tab can open the store, so a tab that cannot have it is told so rather than kept waiting. A draft lives only
-// in the page's memory, so a load for any draft but the open one was left by a reload or crash, and its table goes.
-export async function openDataViewStore(storeConnectorId: string, openDraftDataViewId?: string): Promise<StoreStateId> {
-    const { processRequest } = await establishEngineWorker();
-    const { storeStateId } = (await processRequest('openStore', findStoreConnectionLocalisedConfig(storeConnectorId), {})) as OpenStoreResult;
+// Only one tab can open the store, so a tab that cannot have it is told so rather than kept waiting. Taking it over opens
+// it here anyway, and the tab that had it closes its store. A draft lives only in the page's memory, so a load for any
+// draft but the open one was left by a reload or crash, and its table goes.
+export async function openDataViewStore(storeConnectorId: string, openDraftDataViewId?: string, shouldTakeOver = false): Promise<StoreStateId> {
+    const storeStateId = await openStore(storeConnectorId, shouldTakeOver);
     if (storeStateId === 'ready') {
         forgetAbandonedDraftLoads(openDraftDataViewId);
         await dropUnwantedTables(storeConnectorId);
@@ -77,15 +78,11 @@ export async function openDataViewStore(storeConnectorId: string, openDraftDataV
     return storeStateId;
 }
 
-// Closing releases the store for other tabs, and frees the memory the store's engine holds.
-export async function closeDataViewStore(storeConnectorId: string): Promise<void> {
-    const { processRequest } = await establishEngineWorker();
-    await processRequest('closeStore', findStoreConnectionLocalisedConfig(storeConnectorId), {});
-}
-
+// A load is known only by its record of the table it went into, so a load with no such record is not loaded.
 export function isDataViewLoaded(dataViewConfig: Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig' | 'id' | 'storeConnectorId'>, isDraft: boolean): boolean {
     const columnsVersion = constructColumnsVersion(dataViewConfig);
-    return columnsVersion != null && loadedColumnsVersions.value[constructDataViewLoadKey(dataViewConfig, isDraft)] === columnsVersion;
+    const loadKey = constructDataViewLoadKey(dataViewConfig, isDraft);
+    return columnsVersion != null && loadedColumnsVersions.value[loadKey] === columnsVersion && loadTablePaths.value[loadKey] != null;
 }
 
 // Reads the data view from its source again, the way its preview read it, and stores each value as its column's type.
@@ -125,8 +122,9 @@ export async function loadDataViewRecords(
             valueDelimiterId: sourceIsFile ? establishFileValueDelimiterId(appliedReading) : undefined
         }
     };
-    const { processRequest } = await establishEngineWorker();
+    runningLoadCount.value++;
     try {
+        const { processRequest } = await establishEngineWorker();
         const loadResult = (await processRequest('loadObjectRecords', findStoreConnectionLocalisedConfig(storeConnectorId), options, (callbackData) => {
             if (callbackData.typeId === 'progress') onProgress(Number(callbackData.properties.recordCount));
         })) as EngineLoadObjectRecordsResult;
@@ -140,6 +138,7 @@ export async function loadDataViewRecords(
         }
         return loadResult;
     } finally {
+        runningLoadCount.value--; // The table is recorded by now, so Save and Discard can go ahead.
         await dropUnwantedTables(storeConnectorId); // The earlier table after a success, or the new one after a failure.
     }
 }
@@ -222,8 +221,15 @@ export function constructStoredColumnConfigs(dataViewConfig: Pick<DataViewConfig
         .map(({ dataSubtypeId, dataTypeId, label }) => ({ dataSubtypeId, dataTypeId, label }));
 }
 
-export function resolveDataViewTablePath(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): string {
-    return loadTablePaths.value[constructDataViewLoadKey(dataViewConfig, isDraft)] ?? dataViewConfig.id;
+// Undefined when there is no load, so nothing is read from a table that was never there.
+export function resolveDataViewTablePath(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): string | undefined {
+    return loadTablePaths.value[constructDataViewLoadKey(dataViewConfig, isDraft)];
+}
+
+// For a load whose table the store no longer has, such as after its database was deleted, so the data view asks to be
+// loaded again.
+export function forgetDataViewLoad(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): void {
+    forgetLoad(resolveStoreConnectorId(dataViewConfig), constructDataViewLoadKey(dataViewConfig, isDraft));
 }
 
 // Save: the draft's load, if it has one, becomes the saved data view's load, and the saved table goes. The draft can name
@@ -277,10 +283,6 @@ export function resolveStoreConnectorId(dataViewConfig: Pick<DataViewConfig, 'st
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function constructLoadKey(storeConnectorId: string, dataViewId: string, isDraft: boolean): string {
-    return `${storeConnectorId}|${String(LOAD_FORMAT_VERSION)}|${dataViewId}${isDraft ? DRAFT_LOAD_SUFFIX : ''}`;
-}
-
 function constructDataViewLoadKey(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): string {
     return constructLoadKey(resolveStoreConnectorId(dataViewConfig), dataViewConfig.id, isDraft);
 }
@@ -303,28 +305,6 @@ function forgetAbandonedDraftLoads(openDraftDataViewId: string | undefined): voi
             if (loadKey !== openLoadKey && loadKey.endsWith(DRAFT_LOAD_SUFFIX) && loadKey.startsWith(`${storeConnectorId}|`)) forgetLoad(storeConnectorId, loadKey);
         }
     }
-}
-
-function forgetLoad(storeConnectorId: string, loadKey: string): void {
-    const tablePath = loadTablePaths.value[loadKey];
-    if (tablePath != null) addUnwantedTablePaths(storeConnectorId, [tablePath]);
-    const { [loadKey]: _version, ...otherVersions } = loadedColumnsVersions.value;
-    loadedColumnsVersions.value = otherVersions;
-    const { [loadKey]: _invalidValueCounts, ...otherInvalidValueCounts } = loadInvalidValueCounts.value;
-    loadInvalidValueCounts.value = otherInvalidValueCounts;
-    const { [loadKey]: _tablePath, ...otherTablePaths } = loadTablePaths.value;
-    loadTablePaths.value = otherTablePaths;
-}
-
-function addUnwantedTablePaths(storeConnectorId: string, tablePaths: string[]): void {
-    const storeTablePaths = unwantedTablePaths.value[storeConnectorId] ?? [];
-    unwantedTablePaths.value = { ...unwantedTablePaths.value, [storeConnectorId]: [...new Set([...storeTablePaths, ...tablePaths])] };
-}
-
-// A table that cannot be dropped stays on the list for the next time, because it only takes up space.
-function removeUnwantedTablePath(storeConnectorId: string, tablePath: string): void {
-    const storeTablePaths = unwantedTablePaths.value[storeConnectorId] ?? [];
-    unwantedTablePaths.value = { ...unwantedTablePaths.value, [storeConnectorId]: storeTablePaths.filter((candidate) => candidate !== tablePath) };
 }
 
 async function dropUnwantedTables(storeConnectorId: string): Promise<void> {

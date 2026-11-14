@@ -14,8 +14,11 @@ const ENGINE_STORAGE_URL_PREFIX = 'https://engine-eu.dpuse.app';
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The first engine loaded stays for the life of the page, even after a newer version is deployed, because a second
-// worker would open its own connectors against the same stores. The user picks up the new version by reloading.
-export const establishEngineWorker = shareLoad(loadEngineWorker);
+// worker would open its own connectors against the same stores. The user picks up the new version by reloading. In
+// development, Vite runs this module again when it or a module it imports changes. The new copy takes over the running
+// engine, because one it started itself would find the stores held by the first and report them open in another tab.
+export const establishEngineWorker = (import.meta.hot?.data.establishEngineWorker as (() => Promise<EngineWorker>) | undefined) ?? shareLoad(loadEngineWorker);
+if (import.meta.hot) import.meta.hot.data.establishEngineWorker = establishEngineWorker;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

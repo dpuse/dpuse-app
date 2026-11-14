@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h } from 'vue';
 
 // ── DPUse Framework
+import { constructStoreError } from '@dpuse/dpuse-shared';
 import type { ContentAuditConfig, DataViewConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
@@ -74,6 +75,17 @@ describe('useItemAudit', () => {
         expect(audit.auditIsRunning.value).toBe(false);
     });
 
+    it('hands an item in a store another tab has to the caller, rather than announcing a failure', async () => {
+        vi.mocked(auditDataViewContent).mockRejectedValueOnce(constructStoreError('heldElsewhere', 'The store is open in another tab or window.', 'test'));
+        const handleStoreHeldElsewhere = vi.fn();
+        const { audit } = mountAudit(undefined, DATA_VIEW, true, handleStoreHeldElsewhere);
+
+        await audit.startAudit(undefined);
+
+        expect(handleStoreHeldElsewhere).toHaveBeenCalledOnce();
+        expect(raiseAppFailure).not.toHaveBeenCalled();
+    });
+
     it('keeps what a stopped audit read', async () => {
         vi.mocked(stopDataViewContentAudit).mockResolvedValue();
         vi.mocked(auditDataViewContent).mockResolvedValueOnce(AUDIT);
@@ -125,7 +137,8 @@ function renderNothing(): ReturnType<typeof h> {
 function mountAudit(
     handleAudited = vi.fn().mockResolvedValue(null),
     dataViewConfig: DataViewConfig | null = DATA_VIEW,
-    headersAreChosen = true
+    headersAreChosen = true,
+    handleStoreHeldElsewhere = vi.fn()
 ): {
     audit: ReturnType<typeof useItemAudit>;
     unmount: () => void;
@@ -137,7 +150,8 @@ function mountAudit(
                 audit = useItemAudit(
                     () => dataViewConfig ?? undefined,
                     handleAudited,
-                    () => headersAreChosen
+                    () => headersAreChosen,
+                    handleStoreHeldElsewhere
                 );
                 return renderNothing;
             }

@@ -11,14 +11,16 @@ import { useAsyncState, useConfirmDialog } from '@vueuse/core';
 import { AppError, formatNumberAsStorageSize, formatNumberAsWholeNumber } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { closeStoreForRemoval } from '@/services/storeUse';
 import { resetWorkspaceStoreQueries } from '@/services/workspaceStore';
 import { TEXT } from './SessionDataPanel_.json';
 import { viewportIsWide } from '@/state/device';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
-import { clearBrowserStorage, clearLocalStorage, removeIndexedDatabase, removeLocalStorageItem } from './_browserStorage';
-import type { IndexedDatabaseSummary, LocalStorageItemSummary, OpfsItemSummary } from './_browserStorage';
+import { clearBrowserStorage, clearCookies, clearLocalStorage, clearSessionStorage } from './_browserStorage';
+import { forgetAllLoads, forgetStoreLoads } from '@/state/dataViewLoads';
+import type { IndexedDatabaseSummary, OpfsItemSummary, OpfsItemTypeId } from './_browserStorage';
 import { localeId, t } from '@/state/locale';
-import { removeOpfsItem, retrieveBrowserStorageSnapshot } from './_browserStorage';
+import { removeIndexedDatabase, removeOpfsItem, retrieveBrowserStorageSnapshot } from './_browserStorage';
 
 // ── Static Components
 import BusyBar from '@/components/ui/BusyBar.vue';
@@ -34,15 +36,26 @@ import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 interface StoredItemGroup {
     emptyText: string; // Shown when the group has no items, saying whether the browser has none or cannot have any.
-    id: StoredItem['typeId'];
+    id: 'indexedDatabase' | 'keyValueStorage' | 'opfs';
     items: StoredItem[];
     label: string;
+    sizeText: string | undefined; // The group's total, where the browser gives one.
 }
 
+// Cookies, local storage and session storage are one item each, with their entries listed in the details. Databases
+// and OPFS items are one item each, because each can be deleted on its own.
 type StoredItem =
-    | { id: string; label: string; localStorageItem: LocalStorageItemSummary; size: number; typeId: 'localStorage' }
+    | { id: EntryStoreId; label: string; size: undefined; typeId: EntryStoreId }
     | { database: IndexedDatabaseSummary; id: string; label: string; size: undefined; typeId: 'indexedDatabase' }
     | { id: string; label: string; opfsItem: OpfsItemSummary; size: number | undefined; typeId: 'opfs' };
+
+type EntryStoreId = 'cookies' | 'localStorage' | 'sessionStorage';
+
+// A cookie or an entry of local or session storage, shown in the details.
+interface StoredEntry {
+    name: string;
+    value: string;
+}
 
 interface Fact {
     id: string;
@@ -59,7 +72,7 @@ interface UsageMeter {
 // A share of the space used, by kind of storage.
 interface UsagePart {
     colorClass: string;
-    id: 'indexedDatabase' | 'indexedDatabaseAndOther' | 'opfs' | 'other';
+    id: 'duckdb' | 'indexedDatabase' | 'indexedDatabaseAndOther' | 'opfs' | 'opfsOther' | 'other' | 'sqlite';
     label: string;
     size: number;
     summaryText: string; // Its name, size and share, for hover and screen readers.
@@ -67,6 +80,16 @@ interface UsagePart {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const CLEAR_LABEL_KEYS: Record<EntryStoreId, keyof typeof TEXT> = {
+    cookies: 'clearCookies.label',
+    localStorage: 'clearLocalStorage.label',
+    sessionStorage: 'clearSessionStorage.label'
+};
+// The databases the investigate stores keep their records in, by each store's connector. They match the names the
+// connectors give them.
+const DEXIE_STORE_DATABASE_NAME = 'dpuse-store';
+const DUCKDB_STORE_DATABASE_NAME = 'default';
+const MINIMUM_VISIBLE_USAGE_SHARE = 0.005; // Half of one percent, about 2px of a full-width bar.
 const OVERVIEW_ID = 'overview';
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -80,7 +103,9 @@ const {
     state: snapshot
 } = useAsyncState(retrieveBrowserStorageSnapshot, undefined, {
     onError: (error) => {
-        retrievalFailure.value = raiseFailure(new AppError('Failed to read what is stored in this browser.', 'dpuse-app.SessionDataPanel.refreshSnapshot', undefined, { cause: error }));
+        retrievalFailure.value = raiseFailure(
+            new AppError('Failed to read what is stored in this browser.', 'dpuse-app.SessionDataPanel.refreshSnapshot', undefined, { cause: error })
+        );
     },
     onSuccess: () => {
         retrievalFailure.value = undefined;
@@ -91,25 +116,32 @@ const {
 const storedItemGroups = computed<StoredItemGroup[]>(() => {
     if (!snapshot.value) return [];
 
-    const { indexedDatabases, localStorageItems, opfsItems } = snapshot.value;
+    const { estimate, indexedDatabases, opfsItems } = snapshot.value;
     return [
         {
             emptyText: t(TEXT, 'none.text'),
-            id: 'localStorage',
-            items: localStorageItems.map((item) => ({ id: `localStorage:${item.key}`, label: item.key, localStorageItem: item, size: item.size, typeId: 'localStorage' })),
-            label: t(TEXT, 'localStorage.label')
+            id: 'keyValueStorage',
+            items: [
+                { id: 'cookies', label: t(TEXT, 'cookies.label'), size: undefined, typeId: 'cookies' },
+                { id: 'localStorage', label: t(TEXT, 'localStorage.label'), size: undefined, typeId: 'localStorage' },
+                { id: 'sessionStorage', label: t(TEXT, 'sessionStorage.label'), size: undefined, typeId: 'sessionStorage' }
+            ],
+            label: t(TEXT, 'keyValueStorage.label'),
+            sizeText: undefined
         },
         {
             emptyText: t(TEXT, 'none.text'),
             id: 'indexedDatabase',
             items: indexedDatabases.map((database) => ({ database, id: `indexedDatabase:${database.name}`, label: database.name, size: undefined, typeId: 'indexedDatabase' })),
-            label: t(TEXT, 'indexedDatabase.label')
+            label: t(TEXT, 'indexedDatabase.label'),
+            sizeText: estimate?.indexedDatabaseUsage == null ? undefined : formatSize(estimate.indexedDatabaseUsage)
         },
         {
             emptyText: t(TEXT, opfsItems ? 'none.text' : 'unavailable.text'),
             id: 'opfs',
             items: (opfsItems ?? []).map((opfsItem) => ({ id: `opfs:${opfsItem.id}`, label: constructOpfsItemLabel(opfsItem), opfsItem, size: opfsItem.size, typeId: 'opfs' })),
-            label: t(TEXT, 'fileSystem.label')
+            label: t(TEXT, 'fileSystem.label'),
+            sizeText: opfsUsage.value == null ? undefined : formatSize(opfsUsage.value)
         }
     ];
 });
@@ -125,6 +157,18 @@ const currentItemId = computed(() => {
     return viewportIsWide.value ? OVERVIEW_ID : undefined;
 });
 const currentStoredItem = computed(() => storedItems.value.find((item) => item.id === currentItemId.value));
+const currentEntries = computed<StoredEntry[]>(() => {
+    switch (currentStoredItem.value?.typeId) {
+        case 'cookies':
+            return snapshot.value?.cookies ?? [];
+        case 'localStorage':
+            return (snapshot.value?.localStorageItems ?? []).map(({ key, value }) => ({ name: key, value }));
+        case 'sessionStorage':
+            return (snapshot.value?.sessionStorageItems ?? []).map(({ key, value }) => ({ name: key, value }));
+        default:
+            return [];
+    }
+});
 const currentItemLabel = computed(() => currentStoredItem.value?.label ?? t(TEXT, 'overview.label'));
 
 const currentFacts = computed<Fact[]>(() => {
@@ -132,11 +176,20 @@ const currentFacts = computed<Fact[]>(() => {
     if (!item) return constructOverviewFacts();
 
     switch (item.typeId) {
-        case 'localStorage':
+        case 'cookies': {
+            const cookies = snapshot.value?.cookies;
             return [
-                { id: 'key', label: t(TEXT, 'key.label'), value: item.localStorageItem.key },
-                { id: 'size', label: t(TEXT, 'size.label'), value: formatSize(item.size) }
+                { id: 'itemCount', label: t(TEXT, 'itemCount.label'), value: cookies ? formatNumberAsWholeNumber(cookies.length, localeId.value) : t(TEXT, 'unavailable.text') }
             ];
+        }
+        case 'localStorage':
+        case 'sessionStorage': {
+            const storageItems = (item.typeId === 'localStorage' ? snapshot.value?.localStorageItems : snapshot.value?.sessionStorageItems) ?? [];
+            return [
+                { id: 'itemCount', label: t(TEXT, 'itemCount.label'), value: formatNumberAsWholeNumber(storageItems.length, localeId.value) },
+                { id: 'size', label: t(TEXT, 'size.label'), value: formatSize(sumLocalStorageSizes(storageItems)) }
+            ];
+        }
         case 'indexedDatabase':
             return [
                 { id: 'name', label: t(TEXT, 'name.label'), value: item.database.name },
@@ -152,13 +205,24 @@ const currentFacts = computed<Fact[]>(() => {
     }
 });
 
-// ── Usage ─ The space used is the browser's figure, which leaves out local storage. OPFS is measured here, from its
-// files, so it is known in every browser. Only Chromium splits the rest, so elsewhere IndexedDB and anything else
-// share one part.
+// ── Usage ─ The space used is the browser's figure, which leaves out local storage and cookies. OPFS is measured here,
+// from its files, so it is known in every browser. Only Chromium splits the rest, so elsewhere IndexedDB and anything
+// else share one part.
 const opfsUsage = computed(() => {
     const opfsItems = snapshot.value?.opfsItems;
     if (!opfsItems) return;
     return sumSizes(opfsItems.map((opfsItem) => opfsItem.size)) ?? snapshot.value?.estimate?.fileSystemUsage;
+});
+
+// OPFS split by what keeps it. Undefined when a file in any part cannot be read, because that part's size is unknown.
+const opfsUsageBreakdown = computed(() => {
+    const opfsItems = snapshot.value?.opfsItems ?? [];
+    const sumTypeSizes = (typeIds: OpfsItemTypeId[]): number | undefined =>
+        sumSizes(opfsItems.filter((opfsItem) => typeIds.includes(opfsItem.typeId)).map((opfsItem) => opfsItem.size));
+    const duckdb = sumTypeSizes(['duckdbDatabase', 'duckdbTemporaryFiles']);
+    const other = sumTypeSizes(['other']);
+    const sqlite = sumTypeSizes(['sqlitePool']);
+    return duckdb == null || other == null || sqlite == null ? undefined : { duckdb, other, sqlite };
 });
 
 const usageMeter = computed<UsageMeter | undefined>(() => {
@@ -175,16 +239,21 @@ const usageParts = computed<UsagePart[]>(() => {
 
     const indexedDatabaseUsage = snapshot.value?.estimate?.indexedDatabaseUsage;
     const opfsSize = Math.min(opfsUsage.value, usage);
+    const breakdown = opfsUsageBreakdown.value;
+    const opfsParts: Omit<UsagePart, 'summaryText'>[] = breakdown
+        ? [
+              { colorClass: 'bg-series-2', id: 'sqlite', label: t(TEXT, 'sqlite.label'), size: breakdown.sqlite },
+              { colorClass: 'bg-series-3', id: 'duckdb', label: t(TEXT, 'duckdb.label'), size: breakdown.duckdb },
+              { colorClass: 'bg-series-4', id: 'opfsOther', label: t(TEXT, 'opfsOther.label'), size: breakdown.other }
+          ]
+        : [{ colorClass: 'bg-series-2', id: 'opfs', label: t(TEXT, 'fileSystem.label'), size: opfsSize }];
     const parts: Omit<UsagePart, 'summaryText'>[] =
         indexedDatabaseUsage == null
-            ? [
-                  { colorClass: 'bg-series-1', id: 'indexedDatabaseAndOther', label: t(TEXT, 'indexedDatabaseAndOther.label'), size: usage - opfsSize },
-                  { colorClass: 'bg-series-2', id: 'opfs', label: t(TEXT, 'fileSystem.label'), size: opfsSize }
-              ]
+            ? [{ colorClass: 'bg-series-1', id: 'indexedDatabaseAndOther', label: t(TEXT, 'indexedDatabaseAndOther.label'), size: Math.max(usage - opfsSize, 0) }, ...opfsParts]
             : [
                   { colorClass: 'bg-series-1', id: 'indexedDatabase', label: t(TEXT, 'indexedDatabase.label'), size: indexedDatabaseUsage },
-                  { colorClass: 'bg-series-2', id: 'opfs', label: t(TEXT, 'fileSystem.label'), size: opfsSize },
-                  { colorClass: 'bg-series-3', id: 'other', label: t(TEXT, 'other.label'), size: Math.max(usage - indexedDatabaseUsage - opfsSize, 0) }
+                  ...opfsParts,
+                  { colorClass: 'bg-series-5', id: 'other', label: t(TEXT, 'other.label'), size: Math.max(usage - indexedDatabaseUsage - opfsSize, 0) }
               ];
     const total = parts.reduce((sum, part) => sum + part.size, 0);
     return parts
@@ -192,15 +261,31 @@ const usageParts = computed<UsagePart[]>(() => {
         .map((part) => ({ ...part, summaryText: t(TEXT, 'usagePart.text', { label: part.label, share: formatShare(part.size / total), size: formatSize(part.size) }) }));
 });
 
-const usagePartsSummaryText = computed(() =>
-    new Intl.ListFormat(localeId.value, { type: 'conjunction' }).format(usageParts.value.map((part) => part.summaryText))
-);
+// A part too thin to see is left out of the bar, but stays in the legend. Drawn, it would take the bar's rounded end.
+const visibleUsageParts = computed(() => {
+    const total = usageParts.value.reduce((sum, part) => sum + part.size, 0);
+    return usageParts.value.filter((part) => part.size / total >= MINIMUM_VISIBLE_USAGE_SHARE);
+});
+
+const usagePartsSummaryText = computed(() => new Intl.ListFormat(localeId.value, { type: 'conjunction' }).format(usageParts.value.map((part) => part.summaryText)));
 
 // ── Removal ─ One at a time, so a second click cannot start a removal while the list still shows what the first is
 // removing.
 const removalIsInProgress = ref(false);
 const { cancel: cancelDelete, confirm: confirmDelete, isRevealed: deleteConfirmIsOpen, reveal: revealDeleteConfirm } = useConfirmDialog();
-const { cancel: cancelClearLocalStorage, confirm: confirmClearLocalStorage, isRevealed: clearLocalStorageConfirmIsOpen, reveal: revealClearLocalStorageConfirm } = useConfirmDialog();
+const {
+    cancel: cancelClearLocalStorage,
+    confirm: confirmClearLocalStorage,
+    isRevealed: clearLocalStorageConfirmIsOpen,
+    reveal: revealClearLocalStorageConfirm
+} = useConfirmDialog();
+const { cancel: cancelClearCookies, confirm: confirmClearCookies, isRevealed: clearCookiesConfirmIsOpen, reveal: revealClearCookiesConfirm } = useConfirmDialog();
+const {
+    cancel: cancelClearSessionStorage,
+    confirm: confirmClearSessionStorage,
+    isRevealed: clearSessionStorageConfirmIsOpen,
+    reveal: revealClearSessionStorageConfirm
+} = useConfirmDialog();
 const { cancel: cancelClearAll, confirm: confirmClearAll, isRevealed: clearAllConfirmIsOpen, reveal: revealClearAllConfirm } = useConfirmDialog();
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -224,10 +309,13 @@ async function handleDeleteItem(): Promise<void> {
     if (isCanceled) return;
 
     await runRemoval('dpuse-app.SessionDataPanel.handleDeleteItem', `Failed to delete '${item.label}' from this browser.`, async () => {
+        const storeConnectorId = findInvestigateStoreConnectorId(item);
+        if (storeConnectorId != null) await closeStoreForRemoval(storeConnectorId); // This tab's store holds the database's files open.
         switch (item.typeId) {
+            case 'cookies':
             case 'localStorage':
-                removeLocalStorageItem(item.localStorageItem.key);
-                break;
+            case 'sessionStorage':
+                break; // Cleared with their own buttons, never deleted as an item.
             case 'indexedDatabase':
                 await removeIndexedDatabase(item.database.name);
                 await resetWorkspaceStoreQueries(); // The database may have been a workspace store, whose work would otherwise still show.
@@ -236,7 +324,32 @@ async function handleDeleteItem(): Promise<void> {
                 await removeOpfsItem(item.opfsItem);
                 break;
         }
+        if (storeConnectorId != null) forgetStoreLoads(storeConnectorId); // Its records went with it, so data views ask to be loaded again.
     });
+}
+
+// Cookies, local storage and session storage each clear through their own question.
+async function handleClearEntries(): Promise<void> {
+    switch (currentStoredItem.value?.typeId) {
+        case 'cookies':
+            await handleClearCookies();
+            break;
+        case 'localStorage':
+            await handleClearLocalStorage();
+            break;
+        case 'sessionStorage':
+            await handleClearSessionStorage();
+            break;
+        default:
+            break;
+    }
+}
+
+async function handleClearCookies(): Promise<void> {
+    const { isCanceled } = await revealClearCookiesConfirm();
+    if (isCanceled) return;
+
+    await runRemoval('dpuse-app.SessionDataPanel.handleClearCookies', 'Failed to clear cookies.', clearCookies);
 }
 
 async function handleClearLocalStorage(): Promise<void> {
@@ -245,6 +358,17 @@ async function handleClearLocalStorage(): Promise<void> {
 
     await runRemoval('dpuse-app.SessionDataPanel.handleClearLocalStorage', 'Failed to clear local storage.', () => {
         clearLocalStorage();
+        forgetAllLoads(); // The records of what each store holds went with it, so the loaded tables are dropped when next opened.
+        return Promise.resolve();
+    });
+}
+
+async function handleClearSessionStorage(): Promise<void> {
+    const { isCanceled } = await revealClearSessionStorageConfirm();
+    if (isCanceled) return;
+
+    await runRemoval('dpuse-app.SessionDataPanel.handleClearSessionStorage', 'Failed to clear session storage.', () => {
+        clearSessionStorage();
         return Promise.resolve();
     });
 }
@@ -269,7 +393,7 @@ function constructOverviewFacts(): Fact[] {
         { id: 'spaceUsed', label: t(TEXT, 'spaceUsed.label'), value: formatSize(estimate?.usage) },
         { id: 'spaceFree', label: t(TEXT, 'spaceFree.label'), value: formatSize(freeSpace) },
         { id: 'spaceAllowed', label: t(TEXT, 'spaceAllowed.label'), value: formatSize(estimate?.quota) },
-        { id: 'localStorage', label: t(TEXT, 'localStorage.label'), value: formatSize(sumSizes(localStorageItems.map((item) => item.size))) },
+        { id: 'localStorage', label: t(TEXT, 'localStorage.label'), value: formatSize(sumLocalStorageSizes(localStorageItems)) },
         { id: 'indexedDatabase', label: t(TEXT, 'indexedDatabase.label'), value: formatSize(estimate?.indexedDatabaseUsage) },
         {
             id: 'fileSystem',
@@ -277,6 +401,10 @@ function constructOverviewFacts(): Fact[] {
             value: opfsItems ? formatSize(opfsUsage.value) : t(TEXT, 'unavailable.text')
         }
     ];
+}
+
+function sumLocalStorageSizes(localStorageItems: { size: number }[]): number {
+    return localStorageItems.reduce((total, item) => total + item.size, 0);
 }
 
 // An item that could not be read has no size, so a total including it would be too small.
@@ -314,6 +442,14 @@ function constructOpfsItemLabel(opfsItem: OpfsItemSummary): string {
     }
 }
 
+// The store whose records an item holds, when it is the database of an investigate store. Undefined for anything else.
+function findInvestigateStoreConnectorId(item: StoredItem): string | undefined {
+    if (item.typeId === 'indexedDatabase') return item.database.name === DEXIE_STORE_DATABASE_NAME ? 'dpuse-connector-dexie-js' : undefined;
+    if (item.typeId !== 'opfs') return undefined;
+    if (item.opfsItem.typeId === 'sqlitePool') return 'dpuse-connector-sqlite-wasm';
+    return item.opfsItem.typeId === 'duckdbDatabase' && item.opfsItem.name === DUCKDB_STORE_DATABASE_NAME ? 'dpuse-connector-duckdb-wasm' : undefined;
+}
+
 // Runs a removal, then reads the snapshot again, whether or not it worked, since a failure can still have removed
 // some of the data.
 async function runRemoval(locator: string, message: string, remove: () => Promise<void>): Promise<void> {
@@ -332,7 +468,8 @@ async function runRemoval(locator: string, message: string, remove: () => Promis
 <template>
     <DialogHeader class="flex-none" :title="t(TEXT, 'manageData.title')" />
 
-    <!-- Loading and Failure ─ Only before the first snapshot arrives. Later reads keep the last snapshot on screen. -->
+    <!-- Loading and Failure ─ Only before the first snapshot arrives. Later reads keep the last snapshot on
+         screen. -->
     <BusyBar v-if="!snapshot && snapshotIsLoading" class="mx-4 mt-4" />
     <ErrorNotice v-else-if="!snapshot && retrievalFailure" class="m-4" :failures="[retrievalFailure]" @retry="handleRetrySnapshot" />
 
@@ -350,7 +487,10 @@ async function runRemoval(locator: string, message: string, remove: () => Promis
                     </ItemButton>
 
                     <template v-for="group in storedItemGroups" :key="group.id">
-                        <div class="mt-3 text-xs font-medium text-muted">{{ group.label }}</div>
+                        <div class="mt-3 flex gap-x-3 pr-2 text-xs font-medium text-muted">
+                            <span class="min-w-0 flex-1 truncate">{{ group.label }}</span>
+                            <span v-if="group.sizeText" class="flex-none">{{ group.sizeText }}</span>
+                        </div>
                         <p v-if="group.items.length === 0" class="px-2 text-sm text-muted">{{ group.emptyText }}</p>
                         <ItemButton
                             v-for="item in group.items"
@@ -379,8 +519,9 @@ async function runRemoval(locator: string, message: string, remove: () => Promis
 
             <ScrollArea>
                 <div class="flex flex-col gap-y-5 pt-4 pb-6">
-                    <!-- Usage Bars ─ The first shows how full the space allowed is. The second stretches the space used across
-                         the full width, so its parts can be told apart even when the space used is a small share. -->
+                    <!-- Usage Bars ─ The first shows how full the space allowed is. The second stretches the space used
+                         across the full width, so its parts can be told apart even when the space used is a small
+                         share. -->
                     <div v-if="!currentStoredItem && usageMeter" class="flex flex-col gap-y-4">
                         <div class="flex flex-col gap-y-1.5">
                             <p class="text-sm">{{ usageMeter.text }}</p>
@@ -391,9 +532,17 @@ async function runRemoval(locator: string, message: string, remove: () => Promis
 
                         <div v-if="usageParts.length > 0" class="flex flex-col gap-y-1.5">
                             <p class="text-sm">{{ t(TEXT, 'usageParts.label') }}</p>
-                            <!-- Each part grows in proportion to its size, so the gaps between parts take nothing from the shares. -->
+                            <!-- Each part grows in proportion to its size, so the gaps between parts take nothing from
+                                 the shares. -->
                             <div :aria-label="usagePartsSummaryText" class="flex h-2 gap-0.5 overflow-hidden rounded-full" role="img">
-                                <div v-for="part in usageParts" :key="part.id" class="h-full basis-0" :class="part.colorClass" :style="{ flexGrow: part.size }" :title="part.summaryText" />
+                                <div
+                                    v-for="part in visibleUsageParts"
+                                    :key="part.id"
+                                    class="h-full basis-0"
+                                    :class="part.colorClass"
+                                    :style="{ flexGrow: part.size }"
+                                    :title="part.summaryText"
+                                />
                             </div>
                             <ul aria-hidden="true" class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted">
                                 <li v-for="part in usageParts" :key="part.id" class="flex items-center gap-x-1.5">
@@ -414,23 +563,33 @@ async function runRemoval(locator: string, message: string, remove: () => Promis
                     <!-- Overview -->
                     <template v-if="!currentStoredItem">
                         <p class="text-sm text-muted">{{ t(TEXT, 'estimate.text') }}</p>
-                        <div class="flex flex-wrap gap-2">
-                            <RectangleButton :disabled="removalIsInProgress" variant="guarded" @click="handleClearLocalStorage">{{ t(TEXT, 'clearLocalStorage.label') }}</RectangleButton>
+                        <div>
                             <RectangleButton :disabled="removalIsInProgress" variant="destructive" @click="handleClearAll">{{ t(TEXT, 'clearAll.label') }}</RectangleButton>
                         </div>
                     </template>
 
-                    <template v-else>
-                        <!-- Local Storage Value ─ Kept as written, so the text wraps rather than being reformatted. -->
-                        <section v-if="currentStoredItem.typeId === 'localStorage'" class="flex flex-col gap-y-1">
-                            <h3 class="text-sm font-semibold text-muted">{{ t(TEXT, 'value.label') }}</h3>
-                            <pre class="rounded-md bg-card p-2 font-mono text-xs break-all whitespace-pre-wrap">{{ currentStoredItem.localStorageItem.value }}</pre>
-                        </section>
-
-                        <div>
-                            <RectangleButton :disabled="removalIsInProgress" variant="destructive" @click="handleDeleteItem">{{ t(TEXT, 'delete.label') }}</RectangleButton>
+                    <!-- Cookies, Local Storage and Session Storage ─ Their entries are listed here rather than in the list,
+                         and cleared together. Each value is kept as written, so long text wraps rather than being
+                         reformatted. -->
+                    <template v-else-if="currentStoredItem.typeId !== 'indexedDatabase' && currentStoredItem.typeId !== 'opfs'">
+                        <p v-if="currentStoredItem.typeId === 'cookies'" class="text-sm text-muted">{{ t(TEXT, 'cookies.text') }}</p>
+                        <p v-else-if="currentStoredItem.typeId === 'sessionStorage'" class="text-sm text-muted">{{ t(TEXT, 'sessionStorage.text') }}</p>
+                        <ul v-if="currentEntries.length > 0" class="flex flex-col gap-y-3">
+                            <li v-for="entry in currentEntries" :key="entry.name" class="flex flex-col gap-y-1">
+                                <span class="text-sm font-medium break-all">{{ entry.name }}</span>
+                                <pre class="rounded-md bg-card p-2 font-mono text-xs break-all whitespace-pre-wrap">{{ entry.value }}</pre>
+                            </li>
+                        </ul>
+                        <div v-if="currentEntries.length > 0">
+                            <RectangleButton :disabled="removalIsInProgress" variant="destructive" @click="handleClearEntries">
+                                {{ t(TEXT, CLEAR_LABEL_KEYS[currentStoredItem.typeId]) }}
+                            </RectangleButton>
                         </div>
                     </template>
+
+                    <div v-else>
+                        <RectangleButton :disabled="removalIsInProgress" variant="destructive" @click="handleDeleteItem">{{ t(TEXT, 'delete.label') }}</RectangleButton>
+                    </div>
                 </div>
             </ScrollArea>
         </div>
@@ -451,6 +610,22 @@ async function runRemoval(locator: string, message: string, remove: () => Promis
         :title="t(TEXT, 'clearLocalStorage.confirm.title')"
         @cancel="cancelClearLocalStorage"
         @confirm="confirmClearLocalStorage"
+    />
+    <ConfirmDialog
+        :confirm-label="t(TEXT, 'clearCookies.confirm.label')"
+        :is-open="clearCookiesConfirmIsOpen"
+        :message="t(TEXT, 'clearCookies.confirm.text')"
+        :title="t(TEXT, 'clearCookies.confirm.title')"
+        @cancel="cancelClearCookies"
+        @confirm="confirmClearCookies"
+    />
+    <ConfirmDialog
+        :confirm-label="t(TEXT, 'clearSessionStorage.confirm.label')"
+        :is-open="clearSessionStorageConfirmIsOpen"
+        :message="t(TEXT, 'clearSessionStorage.confirm.text')"
+        :title="t(TEXT, 'clearSessionStorage.confirm.title')"
+        @cancel="cancelClearSessionStorage"
+        @confirm="confirmClearSessionStorage"
     />
     <ConfirmDialog
         :confirm-label="t(TEXT, 'clearAll.confirm.label')"

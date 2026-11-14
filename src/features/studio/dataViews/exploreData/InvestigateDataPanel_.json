@@ -34,9 +34,15 @@
         },
         "retry.label": { "en": "Try again", "es": "Reintentar" },
         "store.heldElsewhere.text": {
-            "en": "Investigate is open in another tab. Close it there to use it here.",
-            "es": "Investigar está abierto en otra pestaña. Ciérralo allí para usarlo aquí."
+            "en": "Investigate is open in another tab or window. Use it here to close it there.",
+            "es": "Investigar está abierto en otra pestaña o ventana. Úsalo aquí para cerrarlo allí."
         },
+        "store.takeOver.confirm.text": {
+            "en": "Records loaded in the other tab or window will need loading again there.",
+            "es": "Los registros cargados en la otra pestaña o ventana tendrán que volver a cargarse allí."
+        },
+        "store.takeOver.confirm.title": { "en": "Use Investigate Here?", "es": "¿Usar Investigar aquí?" },
+        "store.takeOver.label": { "en": "Use it here", "es": "Usarlo aquí" },
         "store.unavailable.text": {
             "en": "This browser has no storage for investigating records, as in some private windows.",
             "es": "Este navegador no tiene almacenamiento para investigar registros, como en algunas ventanas privadas."

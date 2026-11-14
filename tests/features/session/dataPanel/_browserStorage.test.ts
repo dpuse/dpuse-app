@@ -3,11 +3,18 @@ import { IDBFactory } from 'fake-indexeddb';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Local Framework
-import { clearBrowserStorage, clearLocalStorage, removeIndexedDatabase } from '@/features/session/dataPanel/_browserStorage';
-import { type OpfsItemSummary, removeLocalStorageItem } from '@/features/session/dataPanel/_browserStorage';
+import { clearBrowserStorage, clearCookies, clearLocalStorage, clearSessionStorage } from '@/features/session/dataPanel/_browserStorage';
+import { type OpfsItemSummary, removeIndexedDatabase } from '@/features/session/dataPanel/_browserStorage';
 import { removeOpfsItem, retrieveBrowserStorageSnapshot } from '@/features/session/dataPanel/_browserStorage';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A cookie as the fake cookie store keeps it, with the path a real browser keeps but does not show to scripts.
+interface FakeCookie {
+    name: string;
+    path: string;
+    value: string;
+}
 
 // Just enough of an OPFS directory for the module: jsdom has no OPFS.
 interface FakeDirectory {
@@ -56,6 +63,16 @@ describe('browser storage', () => {
             ]);
         });
 
+        it("lists this tab's session storage separately from local storage", async () => {
+            localStorage.setItem('dpuse-a', '1');
+            sessionStorage.setItem('dpuse-b', 'xy');
+
+            const { localStorageItems, sessionStorageItems } = await retrieveBrowserStorageSnapshot();
+
+            expect(localStorageItems).toStrictEqual([{ key: 'dpuse-a', size: 16, value: '1' }]);
+            expect(sessionStorageItems).toStrictEqual([{ key: 'dpuse-b', size: 18, value: 'xy' }]);
+        });
+
         it('lists IndexedDB databases by name, with their versions', async () => {
             const database = await createDatabase({ people: 2 });
             database.close();
@@ -68,8 +85,9 @@ describe('browser storage', () => {
         it('has no estimate or OPFS where the browser has no storage manager', async () => {
             vi.stubGlobal('navigator', {});
 
-            const { estimate, opfsItems } = await retrieveBrowserStorageSnapshot();
+            const { cookies, estimate, opfsItems } = await retrieveBrowserStorageSnapshot();
 
+            expect(cookies).toBeUndefined(); // jsdom has no Cookie Store API either.
             expect(estimate).toBeUndefined();
             expect(opfsItems).toBeUndefined();
         });
@@ -105,16 +123,57 @@ describe('browser storage', () => {
         });
     });
 
+    describe('cookies', () => {
+        it('lists the cookies the app can read, by name', async () => {
+            stubCookieStore([
+                { name: 'theme', path: '/', value: 'dark' },
+                { name: 'hanko', path: '/', value: 'token' }
+            ]);
+
+            const { cookies } = await retrieveBrowserStorageSnapshot();
+
+            expect(cookies).toStrictEqual([
+                { name: 'hanko', value: 'token' },
+                { name: 'theme', value: 'dark' }
+            ]);
+        });
+
+        it('clears cookies set for the whole site or for a folder of the current address', async () => {
+            history.pushState({}, '', '/dataViews/a');
+            const cookies = stubCookieStore([
+                { name: 'site', path: '/', value: '1' },
+                { name: 'folder', path: '/dataViews', value: '2' }
+            ]);
+
+            await clearCookies();
+
+            expect(cookies).toStrictEqual([]);
+            history.pushState({}, '', '/');
+        });
+
+        it('fails with a clear message when a cookie set elsewhere stays', async () => {
+            stubCookieStore([{ name: 'elsewhere', path: '/other', value: '1' }]);
+
+            await expect(clearCookies()).rejects.toThrow('Some cookies could not be removed from this browser.');
+        });
+    });
+
     describe('removal', () => {
-        it('removes one local storage item, or all of them', () => {
+        it('clears local storage', () => {
             localStorage.setItem('dpuse-a', '1');
             localStorage.setItem('dpuse-b', '2');
 
-            removeLocalStorageItem('dpuse-a');
-            expect(Object.keys(localStorage)).toStrictEqual(['dpuse-b']);
-
             clearLocalStorage();
+
             expect(localStorage).toHaveLength(0);
+        });
+
+        it('clears session storage', () => {
+            sessionStorage.setItem('dpuse-a', '1');
+
+            clearSessionStorage();
+
+            expect(sessionStorage).toHaveLength(0);
         });
 
         it('removes an IndexedDB database', async () => {
@@ -142,18 +201,14 @@ describe('browser storage', () => {
             await removeOpfsItem(findOpfsItem(opfsItems, 'sqlitePool'));
 
             const { opfsItems: remainingOpfsItems = [] } = await retrieveBrowserStorageSnapshot();
-            expect(remainingOpfsItems.map((opfsItem) => opfsItem.id)).toStrictEqual([
-                'duckdbDatabase:sales',
-                'duckdbTemporaryFiles',
-                'other:duckdb/fs/notes.txt',
-                'other:exports'
-            ]);
+            expect(remainingOpfsItems.map((opfsItem) => opfsItem.id)).toStrictEqual(['duckdbDatabase:sales', 'duckdbTemporaryFiles', 'other:duckdb/fs/notes.txt', 'other:exports']);
             expect(root.listNames()).toStrictEqual(['duckdb', 'exports']);
         });
 
         it('clears local storage, session storage, every database and every OPFS entry', async () => {
             const root = buildDirectory('', [buildFile('b.duckdb', 10, 5), buildDirectory('folder', [])]);
             stubStorageManager(root);
+            const cookies = stubCookieStore([{ name: 'site', path: '/', value: '1' }]);
             localStorage.setItem('dpuse-a', '1');
             sessionStorage.setItem('dpuse-b', '2');
             const database = await createDatabase({ people: 1 });
@@ -163,6 +218,7 @@ describe('browser storage', () => {
 
             expect(localStorage).toHaveLength(0);
             expect(sessionStorage).toHaveLength(0);
+            expect(cookies).toStrictEqual([]);
             expect(await indexedDB.databases()).toStrictEqual([]);
             expect(root.listNames()).toStrictEqual([]);
         });
@@ -244,6 +300,20 @@ function buildDirectory(name: string, children: (FakeDirectory | FakeFile)[]): F
             yield* entries.values();
         }
     };
+}
+
+// Deletes a cookie only when asked for its own path, as a browser does. Returns the cookies, which deleting changes.
+function stubCookieStore(initialCookies: FakeCookie[]): FakeCookie[] {
+    const cookies = [...initialCookies];
+    vi.stubGlobal('cookieStore', {
+        delete: ({ name, path }: { name: string; path: string }): Promise<void> => {
+            const index = cookies.findIndex((cookie) => cookie.name === name && cookie.path === path);
+            if (index !== -1) cookies.splice(index, 1);
+            return Promise.resolve();
+        },
+        getAll: (): Promise<{ name: string; value: string }[]> => Promise.resolve(cookies.map(({ name, value }) => ({ name, value })))
+    });
+    return cookies;
 }
 
 function stubStorageManager(root: FakeDirectory, estimate: Record<string, unknown> = {}): void {

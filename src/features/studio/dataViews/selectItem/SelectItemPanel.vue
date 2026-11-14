@@ -4,6 +4,7 @@
 // next one never appears. Production builds strip comments, so only development is affected.
 // - List error notice: covers the region, because without the list there is nothing to choose from. An item's error
 //   covers only the detail, so the list stays usable.
+// - Held store message: covers the region too, because nothing in a store another tab has can be listed or read.
 
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
@@ -36,13 +37,14 @@ import {
     XIcon
 } from '@lucide/vue';
 import { type Component, computed, type CSSProperties, markRaw, nextTick, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
-import { until, useElementSize } from '@vueuse/core';
+import { until, useConfirmDialog, useElementSize } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import {
     AppError,
     DATA_FORMAT_CONFIGS,
+    findStoreErrorId,
     formatNumberAsDecimalNumber,
     formatNumberAsStorageSize,
     getEncodingTypeConfigs,
@@ -149,6 +151,7 @@ import { constructFittedColumnWidth, HEADER_TAB_INSET_PX } from '@/components/ui
 import { DATA_FORMAT_ICON_CONFIGS, type DataFormatIconConfig } from '../_dataFormatIcons';
 import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
+import { holdStore, isStoreConnection, openStore, storeTakeover } from '@/services/storeUse';
 import { listDataViewStoreConnections, resolveStoreConnectorId } from '../_dataViewStore';
 import { localeId, t } from '@/state/locale';
 
@@ -160,6 +163,7 @@ import ColumnSearch from '@/features/studio/dataViews/ColumnSearch.vue';
 import type { ColumnSearchOption } from '@/features/studio/dataViews/ColumnSearch.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
+import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import DataViewSource from '../DataViewSource.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
@@ -340,6 +344,11 @@ const listAttempt = ref(0); // Bumped on retry, which rebuilds the data source a
 const itemFailure = shallowRef<AppFailure | undefined>();
 const itemAttempt = ref(0); // Bumped on retry, which previews the same item again.
 
+// ── Held Store ─ A connection that is a store, such as SQLite, can be open in another tab or window, which then has it
+// alone. Using it here closes it there, which loses the records loaded there but not saved, so the user is asked first.
+const storeIsHeldElsewhere = ref(false);
+const { cancel: cancelTakeOver, confirm: confirmTakeOver, isRevealed: takeOverConfirmIsOpen, reveal: revealTakeOverConfirm } = useConfirmDialog();
+
 const currentFolderNodes = shallowRef<ConnectionNodeConfig[]>([]);
 
 const currentFolderPath = ref('');
@@ -412,7 +421,8 @@ const { data: dataViewConfig } = useCurrentDataView(() => route.params.dataViewI
 const { abortAudit, auditedByteCount, auditedRecordCount, auditIsRunning, startAudit, stopAudit } = useItemAudit(
     constructEditedDataViewConfig,
     handleItemAudited,
-    areHeadersChosen
+    areHeadersChosen,
+    handleStoreHeldElsewhere
 );
 
 const text = ref<string | undefined>();
@@ -909,6 +919,7 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
             } catch (error) {
                 // Settled with an empty page as well as raised: the window is waiting on this promise, and a rejection
                 // would leave it loading behind the failure it is being told about.
+                if (didShowHeldStore(error)) return { rows: [], totalCount: 0 };
                 const data = { folderPath, typeId: 'handled' };
                 listFailure.value = raiseFailure(new AppError('Failed to list the items in this connection.', 'dpuse-app.SelectItemPanel.getRows', data, { cause: error }));
                 return { rows: [], totalCount: 0 };
@@ -1002,8 +1013,7 @@ watch(
             hasLastPreviewSucceeded.value = true;
         } catch (error) {
             if (currentRequestId !== previewRequestId.value) return; // A newer selection owns the panel now.
-            const data = { typeId: 'handled' };
-            itemFailure.value = raiseFailure(new AppError('Failed to preview this item.', 'dpuse-app.SelectItemPanel', data, { cause: error }));
+            itemFailure.value = raiseItemFailure('Failed to preview this item.', 'dpuse-app.SelectItemPanel', error);
             hasLastPreviewSucceeded.value = false;
         } finally {
             if (currentRequestId === previewRequestId.value) previewIsPending.value = false; // A newer selection owns the busy state now.
@@ -1063,7 +1073,52 @@ watch(activeItemReading, async (itemReading) => {
     }
 });
 
+// A connection that is a store is held while the panel shows it, and let go on leaving or choosing another connection.
+// The last screen in this tab to let go closes the store, so another tab can use it.
+watch(
+    activeConnectionConfig,
+    (connectionConfig, _previousConnectionConfig, onCleanup) => {
+        if (connectionConfig == null || !isStoreConnection(connectionConfig)) return;
+        const releaseStore = holdStore(connectionConfig.connectorConfig.id);
+        onCleanup(() => {
+            void releaseStore().catch((error: unknown) => {
+                raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.SelectItemPanel', { typeId: 'handled' }, { cause: error }));
+            });
+        });
+    },
+    { immediate: true }
+);
+
+// Another tab has taken this connection's store, so the panel says so at once, rather than when it next reads.
+watch(storeTakeover, (takeover) => {
+    if (takeover != null && takeover.connectorId === activeConnectionConfig.value?.connectorConfig.id) storeIsHeldElsewhere.value = true;
+});
+
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Reads the list and the open item again once the store is free.
+function handleRetryHeldStore(): void {
+    storeIsHeldElsewhere.value = false;
+    handleRetryList();
+    handleRetryItem();
+}
+
+async function handleTakeOverStore(): Promise<void> {
+    const connectorId = activeConnectionConfig.value?.connectorConfig.id;
+    if (connectorId == null) return;
+    const { isCanceled } = await revealTakeOverConfirm();
+    if (isCanceled) return;
+
+    try {
+        if ((await openStore(connectorId, true)) === 'ready') handleRetryHeldStore();
+    } catch (error) {
+        raiseFailure(new AppError('Failed to use the store here.', 'dpuse-app.SelectItemPanel.handleTakeOverStore', { typeId: 'handled' }, { cause: error }));
+    }
+}
+
+function handleStoreHeldElsewhere(): void {
+    storeIsHeldElsewhere.value = true;
+}
 
 // Clearing the failure alone would show the panel again with the same empty window behind it, so the attempt count is
 // bumped too: that rebuilds the data source, which is what makes the window ask for its rows a second time.
@@ -1321,7 +1376,7 @@ async function handleStartAudit(byteLimit: number | undefined): Promise<void> {
         if (byteLimit !== PREVIEW_BYTE_LIMIT) await startAudit(byteLimit);
         else if (auditResult) handleItemAudited(auditResult);
     } catch (error) {
-        itemFailure.value = raiseFailure(new AppError('Failed to preview this item.', 'dpuse-app.SelectItemPanel.handleStartAudit', { typeId: 'handled' }, { cause: error }));
+        itemFailure.value = raiseItemFailure('Failed to preview this item.', 'dpuse-app.SelectItemPanel.handleStartAudit', error);
     }
 }
 
@@ -1861,10 +1916,20 @@ async function recountActivePreview(hasHeaders: boolean): Promise<void> {
         showPreviewColumns(activeItemReading.value);
     } catch (error) {
         if (currentRequestId !== previewRequestId.value) return; // A newer choice owns the panel now.
-        itemFailure.value = raiseFailure(
-            new AppError('Failed to recount the preview columns.', 'dpuse-app.SelectItemPanel.recountActivePreview', { typeId: 'handled' }, { cause: error })
-        );
+        itemFailure.value = raiseItemFailure('Failed to recount the preview columns.', 'dpuse-app.SelectItemPanel.recountActivePreview', error);
     }
+}
+
+// A store another tab has is shown as such, with a way to use it here, rather than as a failure. Returns whether it was.
+function didShowHeldStore(error: unknown): boolean {
+    if (findStoreErrorId(error) !== 'heldElsewhere') return false;
+    storeIsHeldElsewhere.value = true;
+    return true;
+}
+
+// An item's failure, or none when the item is in a store another tab has, which the panel shows instead.
+function raiseItemFailure(message: string, locator: string, error: unknown): AppFailure | undefined {
+    return didShowHeldStore(error) ? undefined : raiseFailure(new AppError(message, locator, { typeId: 'handled' }, { cause: error }));
 }
 
 // A saved audit of this item, read this way, replaces what opening it found, so returning to the step does not lose it.
@@ -2118,14 +2183,29 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
         infoString.value = JSON.stringify(infoWithoutChildren);
         console.log(infoWithoutChildren);
     } catch (error) {
-        const data = { typeId: 'handled' };
-        itemFailure.value = raiseFailure(new AppError('Failed to read this item.', 'dpuse-app.SelectItemPanel.getInfo', data, { cause: error }));
+        itemFailure.value = raiseItemFailure('Failed to read this item.', 'dpuse-app.SelectItemPanel.getInfo', error);
     }
 }
 </script>
 
 <template>
-    <ErrorNotice v-if="listFailure" :failures="[listFailure]" @retry="handleRetryList" />
+    <div v-if="storeIsHeldElsewhere" class="flex flex-1 flex-col items-center justify-center gap-y-2 px-4 text-center text-sm text-muted">
+        <p>{{ t(TEXT, 'store.heldElsewhere.text') }}</p>
+        <ActionWrapper class="text-accent hover:underline" @click="handleRetryHeldStore">{{ t(TEXT, 'store.retry.label') }}</ActionWrapper>
+        <ActionWrapper class="text-accent hover:underline" @click="handleTakeOverStore">{{ t(TEXT, 'store.takeOver.label') }}</ActionWrapper>
+
+        <ConfirmDialog
+            :confirm-label="t(TEXT, 'store.takeOver.label')"
+            confirm-variant="guarded"
+            :is-open="takeOverConfirmIsOpen"
+            :message="t(TEXT, 'store.takeOver.confirm.text')"
+            :title="t(TEXT, 'store.takeOver.confirm.title')"
+            @cancel="cancelTakeOver"
+            @confirm="confirmTakeOver"
+        />
+    </div>
+
+    <ErrorNotice v-else-if="listFailure" :failures="[listFailure]" @retry="handleRetryList" />
 
     <GridDetailPanel
         v-else

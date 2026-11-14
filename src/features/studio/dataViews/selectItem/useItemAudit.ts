@@ -3,7 +3,7 @@ import { useIntervalFn } from '@vueuse/core';
 import { onBeforeUnmount, type Ref, ref } from 'vue';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared';
+import { AppError, findStoreErrorId } from '@dpuse/dpuse-shared';
 import type { AuditObjectContentResult, DataViewConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
@@ -27,11 +27,13 @@ interface ItemAudit {
 // Runs an audit of the item on screen, from its start to 'byteLimit' or its end. The caller gives the data view as the user
 // has it, so an item not yet saved can be audited, and decides where the result goes. Stopping keeps what was read so far.
 // Leaving aborts the audit and drops its result, rather than letting it run on unseen. 'areHeadersChosen' says whether the
-// user chose if there is a header, so the audit only checks again for one that was detected as absent.
+// user chose if there is a header, so the audit only checks again for one that was detected as absent. An item in a store
+// another tab has is not a failure, so the caller shows it with 'handleStoreHeldElsewhere'.
 export function useItemAudit(
     constructDataViewConfig: () => DataViewConfig | undefined,
     handleAudited: (auditResult: AuditObjectContentResult) => void,
-    areHeadersChosen: () => boolean
+    areHeadersChosen: () => boolean,
+    handleStoreHeldElsewhere: () => void
 ): ItemAudit {
     const auditIsRunning = ref(false);
     const auditIsAborted = ref(false);
@@ -69,6 +71,10 @@ export function useItemAudit(
             if (!wasAuditAborted()) handleAudited(auditResult);
         } catch (error) {
             if (wasAuditAborted()) return;
+            if (findStoreErrorId(error) === 'heldElsewhere') {
+                handleStoreHeldElsewhere();
+                return;
+            }
             raiseAppFailure(new AppError('Failed to audit this item.', 'dpuse-app.useItemAudit.startAudit', { typeId: 'handled' }, { cause: error }));
         } finally {
             auditIsRunning.value = false;
