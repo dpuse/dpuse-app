@@ -75,7 +75,7 @@ const viteConfig = defineConfig({
                 " object-src 'none';" +
                 " script-src 'self' https://engine-eu.dpuse.app 'wasm-unsafe-eval' 'sha256-HSvgr//xBF8qoKsX1FPA79evG6rtxroRm2NegRE7MHs=';" +
                 " style-src 'self' blob: 'unsafe-inline';" + // blob: is for SpeedHighlight in MicroMarkTool; 'unsafe-inline' is required in dev mode as Vite injects Tailwind CSS as inline <style> elements for HMR. Hashes required in production are not required here because of 'unsafe-inline' setting.
-                // " style-src 'self' blob: 'unsafe-hashes' 'sha256-3oFxofzq3N//6J8H86e9ul4WT2OkJrtonB66gn/TLJw=';" + // Production version to handle WebKit text-overflow:inherit bug.
+                // " style-src ... 'unsafe-hashes' 'sha256-3oFxofzq3N//6J8H86e9ul4WT2OkJrtonB66gn/TLJw=';" + // TODO: Production version to handle WebKit text-overflow:inherit bug. See: https://bugs.webkit.org/show_bug.cgi?id=331695.
                 " worker-src 'self' blob:;" +
                 ' trusted-types default dompurify dpuse-connector-duckdb-wasm dpuse-engine highcharts vue;' +
                 " require-trusted-types-for 'script';",
