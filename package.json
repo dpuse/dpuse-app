@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "1.0.289",
+    "version": "1.0.290",
     "private": false,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -68,7 +68,7 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject(['unit', 'e2e']))\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.222",
+        "@dpuse/dpuse-shared": "^1.0.223",
         "@fontsource-variable/inter": "^5.3.0",
         "@formkit/drag-and-drop": "^0.7.0",
         "@lucide/vue": "^1.73.0",
@@ -89,8 +89,8 @@
     "devDependencies": {
         "@axe-core/playwright": "^4.14.0",
         "@cloudflare/vite-plugin": "1.69.1",
-        "@cloudflare/workers-types": "^5.20261114.1",
-        "@dpuse/dpuse-development": "^1.0.153",
+        "@cloudflare/workers-types": "^5.20261115.1",
+        "@dpuse/dpuse-development": "^1.0.155",
         "@dpuse/dpuse-tool-d3-visualiser": "^1.0.118",
         "@dpuse/dpuse-tool-marked-markdown-parser": "^1.0.106",
         "@dpuse/eslint-config-dpuse": "^1.0.150",
@@ -111,7 +111,7 @@
         "@vitest/eslint-plugin": "^1.6.28",
         "@vue/eslint-config-prettier": "^10.2.0",
         "@vue/eslint-config-typescript": "^14.9.0",
-        "@vue/test-utils": "^2.5.1",
+        "@vue/test-utils": "^2.6.0",
         "@vue/tsconfig": "^0.9.1",
         "browserslist-useragent-regexp": "^4.1.4",
         "eslint": "^10.15.0",
