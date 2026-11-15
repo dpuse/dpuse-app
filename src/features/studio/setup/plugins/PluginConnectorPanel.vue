@@ -26,6 +26,7 @@ const ACTION_LABEL_KEYS: Record<ConnectorActionName, keyof typeof TEXT> = {
     dropObject: 'action.dropObject.label',
     findObject: 'action.findObject.label',
     getInfo: 'action.getInfo.label',
+    getObject: 'action.getObject.label',
     getReadableStream: 'action.getReadableStream.label',
     getRecord: 'action.getRecord.label',
     indexObjectStructure: 'action.indexObjectStructure.label',
