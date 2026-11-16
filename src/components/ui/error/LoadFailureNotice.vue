@@ -44,7 +44,7 @@ watch(
     (newError) => {
         // 'typeId' keeps its old name so past reports in Axiom stay grouped with new ones.
         const data = { componentName: name ?? 'Unknown', typeId: 'componentLoad' };
-        loadFailure.value = raiseFailure(new AppError(`Failed to load the ${name ?? 'unknown'} component.`, 'dpuse-app.LoadFailureNotice', data, { cause: newError }));
+        loadFailure.value = raiseFailure(new AppError(`Failed to load the ${name ?? 'unknown'} component.`, 'dpuse-app.LoadFailureNotice', { data, cause: newError }));
     },
     { immediate: true }
 );

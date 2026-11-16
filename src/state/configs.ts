@@ -97,7 +97,7 @@ export async function initialiseConfigMonitor(): Promise<void> {
     } catch (error) {
         // Shown by each screen that needs the configuration, as when the config monitor gives up, not at app level.
         const failure = raiseFailure(
-            new AppError('Failed to load the configuration service.', 'dpuse-app.configs.initialiseConfigMonitor', { typeId: 'handled' }, { cause: error }),
+            new AppError('Failed to load the configuration service.', 'dpuse-app.configs.initialiseConfigMonitor', { data: { typeId: 'handled' }, cause: error }),
             {
                 capability: 'configuration'
             }
@@ -116,7 +116,7 @@ export async function initialiseContextConfig(): Promise<void> {
         contextConfigStatus.value = { typeId: 'ready' };
     } catch (error) {
         const failure = raiseFailure(
-            new AppError('Failed to load the context configuration.', 'dpuse-app.configs.initialiseContextConfig', { typeId: 'handled' }, { cause: error }),
+            new AppError('Failed to load the context configuration.', 'dpuse-app.configs.initialiseContextConfig', { data: { typeId: 'handled' }, cause: error }),
             {
                 capability: 'context'
             }

@@ -90,7 +90,7 @@ async function handleReauthenticate(): Promise<void> {
     try {
         await testAuth();
     } catch (error) {
-        raiseAppFailure(new AppError('Failed to authenticate connection.', 'dpuse-app.SelectConnectionPanel.handleReauthenticate', { typeId: 'handled' }, { cause: error }));
+        raiseAppFailure(new AppError('Failed to authenticate connection.', 'dpuse-app.SelectConnectionPanel.handleReauthenticate', { data: { typeId: 'handled' }, cause: error }));
     }
 }
 

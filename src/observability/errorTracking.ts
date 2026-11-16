@@ -37,7 +37,7 @@ export function showFatalError(error: unknown): void {
         [t(TEXT, 'loadFailed.text', { message: error instanceof Error ? error.message : String(error) }), t(TEXT, 'loadFailed.causes.text'), t(TEXT, 'loadFailed.actions.text')],
         true
     );
-    void hasReportedAppError(new AppError('Failed to start the app.', 'dpuse-app.errorTracking.showFatalError', { typeId: 'handled' }, { cause: error }));
+    void hasReportedAppError(new AppError('Failed to start the app.', 'dpuse-app.errorTracking.showFatalError', { data: { typeId: 'handled' }, cause: error }));
 }
 
 // Replaces the page with a message saying the browser is too old and which versions DPUse needs. Nothing is logged to

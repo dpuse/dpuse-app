@@ -111,7 +111,7 @@ export function isDataViewLoaded(dataViewConfig: Pick<DataViewConfig, 'columnCho
 export async function loadDataViewRecords(
     dataViewConfig: DataViewConfig,
     isDraft: boolean,
-    onProgress: (recordCount: number) => void,
+    onProgress: (recordCount: number, byteCount: number | undefined) => void, // Undefined bytes from a source not read as bytes, or an engine that does not count them.
     requestId?: string
 ): Promise<EngineLoadObjectRecordsResult> {
     const columnsVersion = assertDefined(constructColumnsVersion(dataViewConfig), 'No columns for this data view.');
@@ -147,7 +147,9 @@ export async function loadDataViewRecords(
     try {
         const { processRequest } = await establishEngineWorker();
         const loadResult = (await processRequest('loadObjectRecords', findStoreConnectionLocalisedConfig(storeConnectorId), options, (callbackData) => {
-            if (callbackData.typeId === 'progress') onProgress(Number(callbackData.properties.recordCount));
+            if (callbackData.typeId !== 'progress') return;
+            const { byteCount, recordCount } = callbackData.properties;
+            onProgress(Number(recordCount), byteCount == null ? undefined : Number(byteCount));
         })) as EngineLoadObjectRecordsResult;
         if (!loadResult.columnsHaveChanged) {
             const earlierTablePath = isDraft ? loadTablePaths.value[loadKey] : resolveSavedTablePath(storeConnectorId, dataViewConfig.id);

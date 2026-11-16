@@ -100,8 +100,9 @@ describe('_dataViewStore', () => {
 
     it('loads from the source the way the data view reads it, reports progress, and remembers the columns it loaded', async () => {
         processRequest.mockImplementationOnce((_id, _config, _options, callback) => {
-            callback?.({ properties: { recordCount: 10 }, typeId: 'progress' });
-            return Promise.resolve({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 10 });
+            callback?.({ properties: { byteCount: 2048, recordCount: 10 }, typeId: 'progress' });
+            callback?.({ properties: { recordCount: 12 }, typeId: 'progress' }); // From a source not read as bytes.
+            return Promise.resolve({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 12 });
         });
         const onProgress = vi.fn();
 
@@ -118,7 +119,8 @@ describe('_dataViewStore', () => {
             sourceConnectionConfig: { connectorConfig: { itemTypeId: 'file' }, id: 'source1' },
             sourceOptions: { dataFormatId: 'dsv', encodingId: 'utf-8', parserId: 'parser1', valueDelimiterId: ',' }
         });
-        expect(onProgress).toHaveBeenCalledWith(10);
+        expect(onProgress).toHaveBeenNthCalledWith(1, 10, 2048);
+        expect(onProgress).toHaveBeenNthCalledWith(2, 12, undefined);
         expect(isDataViewLoaded(DATA_VIEW, false)).toBe(true);
         expect(isDataViewLoaded({ ...DATA_VIEW, contentAuditConfig: { ...DATA_VIEW.contentAuditConfig, asAt: 6 } } as DataViewConfig, false)).toBe(false);
     });

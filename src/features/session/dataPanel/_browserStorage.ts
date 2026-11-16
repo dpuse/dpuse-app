@@ -125,7 +125,7 @@ export function removeIndexedDatabase(name: string): Promise<void> {
             resolve();
         });
         request.addEventListener('error', () => {
-            reject(new AppError(`Failed to delete IndexedDB database '${name}'.`, 'dpuse-app._browserStorage.removeIndexedDatabase', undefined, { cause: request.error }));
+            reject(new AppError(`Failed to delete IndexedDB database '${name}'.`, 'dpuse-app._browserStorage.removeIndexedDatabase', { cause: request.error }));
         });
         request.addEventListener('blocked', () => {
             reject(new AppError(`IndexedDB database '${name}' is in use. Reload the app and try again.`, 'dpuse-app._browserStorage.removeIndexedDatabase.blocked'));
@@ -279,7 +279,7 @@ async function removeOpfsEntry(directory: FileSystemDirectoryHandle, name: strin
         await directory.removeEntry(name, { recursive: true });
     } catch (error) {
         if (error instanceof DOMException && error.name === 'NoModificationAllowedError') {
-            throw new AppError('This database is open in another tab or window. Close it there first.', locator, undefined, { cause: error });
+            throw new AppError('This database is open in another tab or window. Close it there first.', locator, { cause: error });
         }
         throw error;
     }

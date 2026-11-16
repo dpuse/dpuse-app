@@ -56,7 +56,7 @@ describe('isStaleDeployError', () => {
         const preloadError = new Error('Another wording entirely.');
         markStaleDeployError(preloadError);
 
-        expect(isStaleDeployError(new AppError('Failed to load the Studio component.', 'test', undefined, { cause: preloadError }))).toBe(true);
+        expect(isStaleDeployError(new AppError('Failed to load the Studio component.', 'test', { cause: preloadError }))).toBe(true);
     });
 
     it('does not recognise an ordinary failure', () => {
@@ -96,7 +96,7 @@ describe('raiseFailure', () => {
         // context of its own. Support needs telling once; every region that lost something still shows the user why.
         const serviceError = new AppError('Failed to load the engine.', 'test');
         const first = raiseFailure(serviceError);
-        const second = raiseFailure(new AppError('Failed to retrieve data views.', 'test', undefined, { cause: serviceError }));
+        const second = raiseFailure(new AppError('Failed to retrieve data views.', 'test', { cause: serviceError }));
 
         await vi.waitFor(() => {
             expect(first.wasReported.value).toBe(true);
@@ -108,7 +108,7 @@ describe('raiseFailure', () => {
     it('offers a reload for a chunk this deployment can no longer fetch', () => {
         const cause = new Error('An unfetchable chunk.');
         markStaleDeployError(cause);
-        expect(raiseFailure(new AppError('Failed to load a panel.', 'test', undefined, { cause })).needsReload).toBe(true);
+        expect(raiseFailure(new AppError('Failed to load a panel.', 'test', { cause })).needsReload).toBe(true);
     });
 
     it('offers a retry for an ordinary failure, which is the one case where retrying can work', () => {
@@ -116,13 +116,13 @@ describe('raiseFailure', () => {
     });
 
     it('names the capability from the cause chain, so a wrapping catch site need not repeat it', () => {
-        const cause = new AppError('Failed to load the panel.', 'test', { componentName: 'SetupLayout' });
-        expect(raiseFailure(new AppError('Navigation failed.', 'test', undefined, { cause })).capability).toBe('SetupLayout');
+        const cause = new AppError('Failed to load the panel.', 'test', { data: { componentName: 'SetupLayout' } });
+        expect(raiseFailure(new AppError('Navigation failed.', 'test', { cause })).capability).toBe('SetupLayout');
     });
 
     it('prefers a capability the caller states over one read from the chain', () => {
-        const cause = new AppError('Failed to load.', 'test', { componentName: 'SetupLayout' });
-        const failure = raiseFailure(new AppError('Failed to load the engine.', 'test', undefined, { cause }), { capability: 'engine' });
+        const cause = new AppError('Failed to load.', 'test', { data: { componentName: 'SetupLayout' } });
+        const failure = raiseFailure(new AppError('Failed to load the engine.', 'test', { cause }), { capability: 'engine' });
         expect(failure.capability).toBe('engine');
     });
 });
@@ -161,25 +161,25 @@ describe('raiseAppFailure', () => {
     });
 
     it('matches on the deepest error, so different errors behind the same generic message all show', () => {
-        raiseAppFailure(new AppError('Unhandled error.', 'test', undefined, { cause: new Error('First failure.') }));
-        raiseAppFailure(new AppError('Unhandled error.', 'test', undefined, { cause: new Error('Second failure.') }));
+        raiseAppFailure(new AppError('Unhandled error.', 'test', { cause: new Error('First failure.') }));
+        raiseAppFailure(new AppError('Unhandled error.', 'test', { cause: new Error('Second failure.') }));
 
         expect(appFailures.value).toHaveLength(2);
     });
 
     it('shows different errors in the same component, but not a repeat of one', () => {
         const data = { componentName: 'ChatPanel' };
-        raiseAppFailure(new AppError('Unhandled Vue error.', 'test', data, { cause: new Error('First failure.') }));
-        raiseAppFailure(new AppError('Unhandled Vue error.', 'test', data, { cause: new Error('Second failure.') }));
-        raiseAppFailure(new AppError('Unhandled Vue error.', 'test', data, { cause: new Error('Second failure.') }));
+        raiseAppFailure(new AppError('Unhandled Vue error.', 'test', { data, cause: new Error('First failure.') }));
+        raiseAppFailure(new AppError('Unhandled Vue error.', 'test', { data, cause: new Error('Second failure.') }));
+        raiseAppFailure(new AppError('Unhandled Vue error.', 'test', { data, cause: new Error('Second failure.') }));
 
         expect(appFailures.value).toHaveLength(2);
     });
 
     it('logs a repeat but neither shows nor reports it again', () => {
         vi.mocked(logError).mockClear();
-        raiseAppFailure(new AppError('Unhandled error.', 'test', undefined, { cause: new Error('Same failure.') }));
-        raiseAppFailure(new AppError('Unhandled error.', 'test', undefined, { cause: new Error('Same failure.') }));
+        raiseAppFailure(new AppError('Unhandled error.', 'test', { cause: new Error('Same failure.') }));
+        raiseAppFailure(new AppError('Unhandled error.', 'test', { cause: new Error('Same failure.') }));
 
         expect(appFailures.value).toHaveLength(1);
         expect(hasReportedAppError).toHaveBeenCalledOnce();
@@ -246,7 +246,7 @@ describe('a missing chunk once a newer version is deployed', () => {
     it('still offers a reload, but is not reported and says nothing about reporting', async () => {
         const cause = new Error('An unfetchable chunk.');
         markStaleDeployError(cause);
-        const failure = raiseFailure(new AppError('Failed to load a panel.', 'test', undefined, { cause }));
+        const failure = raiseFailure(new AppError('Failed to load a panel.', 'test', { cause }));
         await Promise.resolve();
 
         expect(failure.needsReload).toBe(true);

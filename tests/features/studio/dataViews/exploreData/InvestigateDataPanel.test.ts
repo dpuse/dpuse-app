@@ -14,6 +14,7 @@ import { settle } from '~/tests/support/settle';
 import { storeTakeover } from '@/services/storeUse';
 import { TEXT } from '@/features/studio/dataViews/exploreData/InvestigateDataPanel_.json';
 import {
+    abortDataViewRecordLoad,
     constructLoadTimingParts,
     findDataViewInvalidValueCounts,
     findDataViewLoadTiming,
@@ -26,6 +27,7 @@ import {
     queryDataViewColumnValueCounts,
     queryDataViewRecords
 } from '@/features/studio/dataViews/_dataViewStore';
+import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_statusBar';
 import { localeId, t } from '@/state/locale';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -109,6 +111,7 @@ const AUDITED_DATA_VIEW = {
     },
     id: 'dataView1'
 };
+const SIZED_DATA_VIEW = { ...AUDITED_DATA_VIEW, connectionNodeConfig: { size: 1000 } }; // An item whose size is known, so a load can show how far it has got.
 const LOAD_TIMING = { conversionDuration: 0, duration: 0, parseDuration: 0, retrieveDuration: 0, sourceWaitDuration: 0, storeDuration: 0, totalDuration: 0 }; // Its parts are given by 'constructLoadTimingParts'.
 const STORED_COLUMN_CONFIGS = [{ label: 'Stored' }]; // Stands for the columns the store module works out, which the panel passes on to every query.
 
@@ -345,7 +348,7 @@ describe('InvestigateDataPanel', () => {
         expect(mismatchText).not.toContain('Day');
     });
 
-    it('shows which store a load went into, and how long it took, in the status bar', async () => {
+    it('says a finished load read all the records, which store they went into and how long it took, with a full green bar', async () => {
         dataView.config = AUDITED_DATA_VIEW;
         vi.mocked(isDataViewLoaded).mockReturnValue(false);
         history.replaceState({ loadIsRequested: true }, '');
@@ -353,14 +356,107 @@ describe('InvestigateDataPanel', () => {
         const clock = vi.spyOn(performance, 'now').mockImplementation(() => clockTime);
         vi.mocked(loadDataViewRecords).mockImplementationOnce(() => {
             clockTime += 12_500;
-            return Promise.resolve({ columnsHaveChanged: false, invalidValueCounts: [], recordCount: 0 });
+            return Promise.resolve({ columnsHaveChanged: false, invalidValueCounts: [], recordCount: 375_000 });
         });
         const wrapper = mountPanel();
         await settle();
         clock.mockRestore();
 
-        const seconds = new Intl.NumberFormat(localeId.value, { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(12.5);
-        expect(wrapper.text()).toContain(t(TEXT, 'load.duration.text', { seconds, store: 'SQLite' }));
+        const records = constructRecordsText(375_000);
+        expect(wrapper.text()).toContain(t(TEXT, 'load.complete.other.text', { duration: formatFinishedDuration(12_500), records, store: 'SQLite' }));
+        expect(wrapper.text()).toContain(t(TEXT, 'shown.other.text', { records }));
+        const meter = wrapper.find('[role="meter"]');
+        expect(meter.attributes('aria-valuenow')).toBe('100');
+        expect(meter.find('div').classes().join(' ')).toContain('success');
+    });
+
+    it('shows how far a running load has got, with its records, share of the item and time, and no busy bar', async () => {
+        dataView.config = SIZED_DATA_VIEW;
+        vi.mocked(isDataViewLoaded).mockReturnValue(false);
+        history.replaceState({ loadIsRequested: true }, '');
+        vi.mocked(loadDataViewRecords).mockImplementationOnce((_config, _isDraft, onProgress) => {
+            onProgress(120, 250);
+            return new Promise<never>(vi.fn()); // Never settles, so the load is still running.
+        });
+        const wrapper = mountPanel();
+        await settle();
+
+        const percentage = formatStatusPercentage(25);
+        expect(wrapper.text()).toContain(t(TEXT, 'load.running.percentage.text', { duration: formatElapsedDuration(0), percentage, records: constructRecordsText(120) }));
+        expect(wrapper.find('[role="progressbar"]').attributes('aria-valuenow')).toBe('25');
+        expect(wrapper.find('[data-region="BusyBar"]').exists()).toBe(false);
+    });
+
+    it('shows a running load’s records and time without a bar when the source does not count its bytes', async () => {
+        dataView.config = SIZED_DATA_VIEW;
+        vi.mocked(isDataViewLoaded).mockReturnValue(false);
+        history.replaceState({ loadIsRequested: true }, '');
+        vi.mocked(loadDataViewRecords).mockImplementationOnce((_config, _isDraft, onProgress) => {
+            onProgress(120, undefined);
+            return new Promise<never>(vi.fn());
+        });
+        const wrapper = mountPanel();
+        await settle();
+
+        expect(wrapper.text()).toContain(t(TEXT, 'load.running.text', { duration: formatElapsedDuration(0), records: constructRecordsText(120) }));
+        expect(wrapper.find('[role="progressbar"]').exists()).toBe(false);
+    });
+
+    it('says how far a stopped load got', async () => {
+        dataView.config = SIZED_DATA_VIEW;
+        vi.mocked(isDataViewLoaded).mockReturnValue(false);
+        history.replaceState({ loadIsRequested: true }, '');
+        let clockTime = 1000;
+        const clock = vi.spyOn(performance, 'now').mockImplementation(() => clockTime);
+        const stopController = new AbortController(); // Stands for the engine, which ends the load when it is stopped.
+        vi.mocked(abortDataViewRecordLoad).mockImplementation(() => {
+            stopController.abort();
+            return Promise.resolve();
+        });
+        vi.mocked(loadDataViewRecords).mockImplementationOnce((_config, _isDraft, onProgress) => {
+            onProgress(120, 500);
+            return new Promise<never>((_resolve, reject) => {
+                stopController.signal.addEventListener('abort', () => {
+                    reject(new Error('Aborted.'));
+                });
+            });
+        });
+        const wrapper = mountPanel();
+        await settle();
+
+        clockTime += 4000; // The load runs for 4 seconds before it is stopped.
+        await wrapper
+            .findAll('button')
+            .find((button) => button.text() === t(TEXT, 'load.stop.label'))
+            ?.trigger('click');
+        await settle();
+        clock.mockRestore();
+
+        expect(wrapper.text()).toContain(t(TEXT, 'load.stopped.text'));
+        expect(wrapper.text()).toContain(t(TEXT, 'load.stop.percentage.text', { duration: formatFinishedDuration(4000), percentage: formatStatusPercentage(50), records: constructRecordsText(120) }));
+        expect(wrapper.find('[role="meter"]').attributes('aria-valuenow')).toBe('50');
+    });
+
+    it('warns, before the load’s figures, when the column types come from a partial audit', async () => {
+        dataView.config = { ...AUDITED_DATA_VIEW, contentAuditConfig: { ...AUDITED_DATA_VIEW.contentAuditConfig, isComplete: false } };
+        vi.mocked(isDataViewLoaded).mockReturnValue(false);
+        history.replaceState({ loadIsRequested: true }, '');
+        vi.mocked(loadDataViewRecords).mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [], recordCount: 2 });
+        const wrapper = mountPanel();
+        await settle();
+
+        const text = wrapper.text();
+        expect(text.indexOf(t(TEXT, 'load.partialAuditTypes.text'))).toBeGreaterThan(-1);
+        expect(text.indexOf(t(TEXT, 'load.partialAuditTypes.text'))).toBeLessThan(text.indexOf(constructRecordsText(2)));
+    });
+
+    it('says no records are loaded when the data view has never been loaded', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(isDataViewLoaded).mockReturnValue(false);
+        const wrapper = mountPanel();
+        await settle();
+
+        expect(wrapper.text()).toContain(t(TEXT, 'shown.notLoaded.text'));
     });
 
     it('shows where the load spent its time beside its total, with the parts of reading in brackets', async () => {
@@ -376,7 +472,7 @@ describe('InvestigateDataPanel', () => {
         const reading = t(TEXT, 'load.timing.readingParts.text', { parts: readingParts, seconds: formatSeconds(4) });
         const otherParts = [formatTimingPart('load.timing.converting.text', 2), formatTimingPart('load.timing.storing.text', 6), formatTimingPart('load.timing.other.text', 1)];
         expect(wrapper.text()).toContain(formatList([reading, ...otherParts]));
-        expect(wrapper.text()).toContain(t(TEXT, 'load.duration.text', { seconds: formatSeconds(13), store: 'SQLite' })); // The total the parts add up to.
+        expect(wrapper.text()).toContain(t(TEXT, 'load.complete.zero.text', { duration: formatFinishedDuration(13_000), store: 'SQLite' })); // The total the parts add up to.
     });
 
     it('shows reading without parts for a source that holds typed values, such as a database', async () => {
@@ -401,12 +497,18 @@ describe('InvestigateDataPanel', () => {
         expect(wrapper.text()).toContain(formatList([formatTimingPart('load.timing.reading.text', 4), ...otherParts]));
     });
 
-    it('shows no load time for records loaded on an earlier visit', async () => {
+    it('shows no load time for records loaded on an earlier visit, only the records and where they went', async () => {
         dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(queryDataViewRecords).mockResolvedValue({ records: [[7, new Date(Date.UTC(2026, 9, 28))]], totalCount: 2 });
         const wrapper = mountPanel();
         await settle();
 
-        expect(wrapper.text()).not.toContain('SQLite');
+        await (wrapper.findComponent(TableStub).props() as TableProperties).dataSource.getRows(0, 100);
+        await settle();
+
+        const records = constructRecordsText(2);
+        expect(wrapper.text()).toContain(t(TEXT, 'load.untimed.other.text', { records, store: 'SQLite' }));
+        expect(wrapper.text()).toContain(t(TEXT, 'shown.other.text', { records }));
     });
 
     it('says so when another tab has the store, and tries again when asked', async () => {
@@ -506,6 +608,10 @@ describe('InvestigateDataPanel', () => {
 
 function mountPanel(): ReturnType<typeof mount> {
     return mount(InvestigateDataPanel, { global: { stubs: { Table: TableStub } } });
+}
+
+function constructRecordsText(recordCount: number): string {
+    return t(TEXT, recordCount === 1 ? 'record.one.text' : 'record.other.text', { count: new Intl.NumberFormat(localeId.value).format(recordCount) });
 }
 
 function formatSeconds(seconds: number): string {

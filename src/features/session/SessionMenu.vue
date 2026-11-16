@@ -166,7 +166,7 @@ async function handleSignOutAndRemove(): Promise<void> {
     try {
         await removeAccountWorkspaceStoreRecords();
     } catch (error) {
-        raiseAppFailure(new AppError('Failed to remove data from this browser.', 'dpuse-app.SessionMenu.handleSignOutAndRemove', { typeId: 'handled' }, { cause: error }));
+        raiseAppFailure(new AppError('Failed to remove data from this browser.', 'dpuse-app.SessionMenu.handleSignOutAndRemove', { data: { typeId: 'handled' }, cause: error }));
         return;
     }
     await handleSignOut();

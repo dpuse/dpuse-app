@@ -79,7 +79,9 @@ async function renderDiagram(): Promise<void> {
         state.view = null;
         if (container.value) state.view = await d3Tool.renderNetworkDiagram(data, container.value);
     } catch (error) {
-        renderFailure.value = raiseFailure(new AppError('Failed to render network diagram.', 'dpuse-app.EventQueriesPanel.renderDiagram', { typeId: 'handled' }, { cause: error }));
+        renderFailure.value = raiseFailure(
+            new AppError('Failed to render network diagram.', 'dpuse-app.EventQueriesPanel.renderDiagram', { data: { typeId: 'handled' }, cause: error })
+        );
     } finally {
         diagramIsPending.value = false;
     }

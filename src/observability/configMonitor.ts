@@ -93,7 +93,7 @@ function handleRetrievalFailed(): void {
     // The failed status releases 'useConfigsReady' and shows the failure on each screen that needs the configuration.
     // It is not raised at app level as well, because the same message on screen twice reads as two problems.
     const data = { host: DPUSE_API_HOST, isOnline, reconnectAttempts: state.reconnectAttempts, typeId: 'handled' };
-    const failure = raiseFailure(new AppError('Unable to connect to DPUse.', 'dpuse-app.configMonitor.handleRetrievalFailed', data), {
+    const failure = raiseFailure(new AppError('Unable to connect to DPUse.', 'dpuse-app.configMonitor.handleRetrievalFailed', { data }), {
         capability: 'configuration'
     });
     configStatus.value = { typeId: 'failed', failure };
@@ -103,7 +103,10 @@ function handleRetrievalFailed(): void {
 // needs the configuration would wait for ever, so the failed status shows the failure on each of them. After it, the
 // lists still work but may be out of date, and no screen would say so, so the failure goes to the app-level dialog.
 function handleMessageFailed(error: unknown): void {
-    const appError = new AppError('Failed to read a configuration update from DPUse.', 'dpuse-app.configMonitor.handleMessageFailed', { typeId: 'handled' }, { cause: error });
+    const appError = new AppError('Failed to read a configuration update from DPUse.', 'dpuse-app.configMonitor.handleMessageFailed', {
+        data: { typeId: 'handled' },
+        cause: error
+    });
     if (configStatus.value.typeId === 'ready') {
         raiseAppFailure(appError, { capability: 'configuration' });
         return;

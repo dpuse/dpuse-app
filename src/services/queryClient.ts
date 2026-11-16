@@ -30,7 +30,8 @@ const queryFailures = shallowReactive(new WeakMap<Error, AppFailure>());
 export const queryClient = new QueryClient({
     queryCache: new QueryCache({
         onError: (error): void => {
-            const appError = error instanceof AppError ? error : new AppError('Failed to load data.', 'dpuse-app.queryClient.onError', { typeId: 'handled' }, { cause: error });
+            const appError =
+                error instanceof AppError ? error : new AppError('Failed to load data.', 'dpuse-app.queryClient.onError', { data: { typeId: 'handled' }, cause: error });
             queryFailures.set(error, raiseFailure(appError));
         }
     }),

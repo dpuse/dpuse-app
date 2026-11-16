@@ -132,6 +132,7 @@ export function constructPreviewContentAuditConfig(
 // The user's choices as a data view saves them, one entry for each column with anything chosen.
 export function constructColumnChoiceConfigs(
     chosenColumnTypes: ChosenColumnTypes,
+    // eslint-disable-next-line unicorn/prefer-options-parameter
     chosenDecimalSeparators: ChosenDecimalSeparators = {},
     chosenNullWords: ChosenNullWords = {},
     chosenDateOrders: ChosenDateOrders = {},

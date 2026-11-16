@@ -237,7 +237,7 @@ async function handleSaveDataView(): Promise<void> {
         completeDataViewDraft();
     } catch (error) {
         // Announced rather than shown in the task: the draft is untouched, so nothing is lost by trying again.
-        raiseAppFailure(new AppError('Failed to save data view.', 'dpuse-app.DataViewsLayout.handleSaveDataView', { typeId: 'handled' }, { cause: error }));
+        raiseAppFailure(new AppError('Failed to save data view.', 'dpuse-app.DataViewsLayout.handleSaveDataView', { data: { typeId: 'handled' }, cause: error }));
     }
 }
 

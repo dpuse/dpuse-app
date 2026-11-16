@@ -259,7 +259,7 @@ async function readPartPage(partKey: string, isNextPage: boolean): Promise<void>
         });
     } catch (error) {
         updatePart(partKey, { hasFailed: true, isPending: false });
-        raiseFailure(new AppError('Failed to read this part of the item.', 'dpuse-app.StructureTree.readPartPage', { typeId: 'handled' }, { cause: error }));
+        raiseFailure(new AppError('Failed to read this part of the item.', 'dpuse-app.StructureTree.readPartPage', { data: { typeId: 'handled' }, cause: error }));
     }
 }
 

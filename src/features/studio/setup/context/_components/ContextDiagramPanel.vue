@@ -49,7 +49,7 @@ async function renderDiagram(): Promise<void> {
     } catch (error) {
         // The title goes in the message because the context below is shared by every diagram.
         d3RenderFailure.value = raiseFailure(
-            new AppError(`Failed to render diagram '${title}'`, 'dpuse-app.ContextDiagramPanel.renderDiagram', { typeId: 'handled' }, { cause: error })
+            new AppError(`Failed to render diagram '${title}'`, 'dpuse-app.ContextDiagramPanel.renderDiagram', { data: { typeId: 'handled' }, cause: error })
         );
     } finally {
         diagramIsPending.value = false;

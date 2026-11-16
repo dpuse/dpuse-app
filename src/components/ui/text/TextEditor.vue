@@ -183,7 +183,9 @@ async function initialiseEditor(): Promise<void> {
         const tool = await initialiseMarkedTool();
         if (tool) editorInstance.setHTML(tool.render(textValue.value));
     } catch (error) {
-        editorFailure.value = raiseFailure(new AppError('Failed to initialise text editor.', 'dpuse-app.TextEditor.initialiseEditor', { typeId: 'handled' }, { cause: error }));
+        editorFailure.value = raiseFailure(
+            new AppError('Failed to initialise text editor.', 'dpuse-app.TextEditor.initialiseEditor', { data: { typeId: 'handled' }, cause: error })
+        );
     } finally {
         contentIsPending.value = false;
     }

@@ -91,7 +91,7 @@ async function renderPresentation(element: HTMLDivElement): Promise<void> {
         await presenter.render(presentationReference, element);
     } catch (error) {
         const data = { presentationReferenceId: presentationReference.id };
-        renderFailure.value = raiseFailure(new AppError('Failed to render presentation.', 'dpuse-app.PresentationsPanel.renderPresentation', data, { cause: error }));
+        renderFailure.value = raiseFailure(new AppError('Failed to render presentation.', 'dpuse-app.PresentationsPanel.renderPresentation', { data, cause: error }));
     } finally {
         if (container.value === element) renderIsPending.value = false; // A newer selection has its own container and owns the busy state.
     }
@@ -116,7 +116,7 @@ async function loadPresenters(): Promise<void> {
         } catch (error) {
             failedPresenterIds.push(presenterConfig.id);
             const data = { presenterConfigId: presenterConfig.id };
-            void hasReportedAppError(new AppError('Failed to load presenter.', 'dpuse-app.PresentationsPanel.loadPresenters', data, { cause: error }));
+            void hasReportedAppError(new AppError('Failed to load presenter.', 'dpuse-app.PresentationsPanel.loadPresenters', { data, cause: error }));
         }
     }
 
@@ -130,11 +130,9 @@ async function loadPresenters(): Promise<void> {
     // Announced rather than shown above the list: the presenters that did load are in it, so this has taken no space
     // here. Covering the list to report two failures would hide the three that work.
     raiseAppFailure(
-        new AppError(
-            `Failed to load ${String(failedPresenterIds.length)} of ${String(presenterConfigs.value.length)} presenters.`,
-            'dpuse-app.PresentationsPanel.loadPresenters',
+        new AppError(`Failed to load ${String(failedPresenterIds.length)} of ${String(presenterConfigs.value.length)} presenters.`, 'dpuse-app.PresentationsPanel.loadPresenters', {
             data
-        ),
+        }),
         { retry: () => void loadPresenters() }
     );
 }

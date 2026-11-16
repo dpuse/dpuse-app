@@ -75,7 +75,7 @@ export function useItemAudit(
                 handleStoreHeldElsewhere();
                 return;
             }
-            raiseAppFailure(new AppError('Failed to audit this item.', 'dpuse-app.useItemAudit.startAudit', { typeId: 'handled' }, { cause: error }));
+            raiseAppFailure(new AppError('Failed to audit this item.', 'dpuse-app.useItemAudit.startAudit', { data: { typeId: 'handled' }, cause: error }));
         } finally {
             auditIsRunning.value = false;
         }
@@ -84,7 +84,7 @@ export function useItemAudit(
     function stopAudit(): void {
         if (!auditIsRunning.value || auditedConnectionId.value == null || auditRequestId.value == null) return;
         void stopDataViewContentAudit(auditedConnectionId.value, auditRequestId.value).catch((error: unknown) => {
-            raiseAppFailure(new AppError('Failed to stop the audit.', 'dpuse-app.useItemAudit.stopAudit', { typeId: 'handled' }, { cause: error }));
+            raiseAppFailure(new AppError('Failed to stop the audit.', 'dpuse-app.useItemAudit.stopAudit', { data: { typeId: 'handled' }, cause: error }));
         });
     }
 
@@ -92,7 +92,7 @@ export function useItemAudit(
         if (!auditIsRunning.value || auditedConnectionId.value == null || auditRequestId.value == null) return;
         auditIsAborted.value = true;
         void abortDataViewContentAudit(auditedConnectionId.value, auditRequestId.value).catch((error: unknown) => {
-            raiseAppFailure(new AppError('Failed to abort the audit.', 'dpuse-app.useItemAudit.abortAudit', { typeId: 'handled' }, { cause: error }));
+            raiseAppFailure(new AppError('Failed to abort the audit.', 'dpuse-app.useItemAudit.abortAudit', { data: { typeId: 'handled' }, cause: error }));
         });
     }
 

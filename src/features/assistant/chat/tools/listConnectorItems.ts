@@ -45,17 +45,15 @@ export async function executeListConnectorItems(
     } catch (error) {
         if (findStoreErrorId(error) === 'heldElsewhere') return { error: STORE_HELD_ELSEWHERE_ERROR };
         const failure = raiseFailure(
-            new AppError(
-                `Failed to list items for connection '${connectionId}'.`,
-                'dpuse-app.listConnectorItems.executeListConnectorItems',
-                { typeId: 'handled' },
-                { cause: error }
-            )
+            new AppError(`Failed to list items for connection '${connectionId}'.`, 'dpuse-app.listConnectorItems.executeListConnectorItems', {
+                data: { typeId: 'handled' },
+                cause: error
+            })
         );
         return { error: serialiseError(failure.error)[0].message };
     } finally {
         void releaseStore?.().catch((error: unknown) => {
-            raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.listConnectorItems.executeListConnectorItems', { typeId: 'handled' }, { cause: error }));
+            raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.listConnectorItems.executeListConnectorItems', { data: { typeId: 'handled' }, cause: error }));
         });
     }
 }

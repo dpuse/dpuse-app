@@ -64,7 +64,7 @@ async function loadMarkedTool(): Promise<MarkedTool> {
         markedTool.value = await establishTool<MarkedTool>('marked-markdown-parser');
         return markedTool.value;
     } catch (error) {
-        failure.value = raiseFailure(new AppError('Failed to load markdown formatter.', 'dpuse-app.useMarkedTool.loadMarkedTool', { typeId: 'handled' }, { cause: error }));
+        failure.value = raiseFailure(new AppError('Failed to load markdown formatter.', 'dpuse-app.useMarkedTool.loadMarkedTool', { data: { typeId: 'handled' }, cause: error }));
         throw error;
     }
 }

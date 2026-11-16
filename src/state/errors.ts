@@ -174,7 +174,7 @@ export function handleRaiseScriptError(event: ErrorEvent): void {
 
     // A thrown value that is not an Error is passed on as it is, so the report shows its contents.
     const cause: unknown = event.error ?? new Error(event.message || 'Unknown error.');
-    raiseAppFailure(new AppError('Unhandled error.', 'dpuse-app.errors.handleRaiseScriptError', data, { cause }));
+    raiseAppFailure(new AppError('Unhandled error.', 'dpuse-app.errors.handleRaiseScriptError', { data, cause }));
 
     // Stops the browser logging the error a second time, as the app has already logged it.
     event.preventDefault();
@@ -186,7 +186,7 @@ export function handleRaiseScriptError(event: ErrorEvent): void {
 export function handleRaisePromiseRejection(event: PromiseRejectionEvent): void {
     const data = { typeId: 'unhandledPromiseRejection' };
     const cause: unknown = event.reason ?? new Error('Unknown promise rejection error.');
-    raiseAppFailure(new AppError('Unhandled promise rejection.', 'dpuse-app.errors.handleRaisePromiseRejection', data, { cause }));
+    raiseAppFailure(new AppError('Unhandled promise rejection.', 'dpuse-app.errors.handleRaisePromiseRejection', { data, cause }));
 
     // Stops the browser logging the failure a second time, as the app has already logged it.
     event.preventDefault();
@@ -204,7 +204,7 @@ export function handleReportPreloadError(event: VitePreloadErrorEvent): void {
     markStaleDeployError(event.payload);
 
     const data = { typeId: 'vitePreloadError' };
-    reportStaleDeployFailure(new AppError('Failed to load part of the app.', 'dpuse-app.errors.handleReportPreloadError', data, { cause: event.payload }));
+    reportStaleDeployFailure(new AppError('Failed to load part of the app.', 'dpuse-app.errors.handleReportPreloadError', { data, cause: event.payload }));
 }
 
 // Reports and shows any Vue error that no 'ErrorBoundary' caught, in the app-level failure dialog. 'main.ts' installs
@@ -215,7 +215,7 @@ export function handleRaiseVueError(error: unknown, instance: ComponentPublicIns
 
     // A thrown value that is not an Error is passed on as it is, so the report shows its contents.
     const data = { componentName: instance?.$.type.name ?? instance?.$.type.__name, info, typeId: 'unhandledVueRuntime' };
-    raiseAppFailure(new AppError('Unhandled Vue error.', 'dpuse-app.errors.handleRaiseVueError', data, { cause: error }));
+    raiseAppFailure(new AppError('Unhandled Vue error.', 'dpuse-app.errors.handleRaiseVueError', { data, cause: error }));
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

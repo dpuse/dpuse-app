@@ -28,7 +28,7 @@ onMounted(async () => {
     } catch (error) {
         // Logged and reported, but not shown: the guest work is still in its own store, so nothing is lost and the user
         // has nothing to act on.
-        void hasReportedAppError(new AppError('Failed to check for guest work.', 'dpuse-app.GuestWorkNotice', { typeId: 'handled' }, { cause: error }));
+        void hasReportedAppError(new AppError('Failed to check for guest work.', 'dpuse-app.GuestWorkNotice', { data: { typeId: 'handled' }, cause: error }));
     }
 });
 
@@ -47,7 +47,9 @@ async function handleMoveGuestWork(): Promise<void> {
         noticeIsVisible.value = false;
     } catch (error) {
         // Left open, so the user can try again. Each record is copied before it is removed, so none is lost.
-        raiseAppFailure(new AppError('Failed to move guest work into the account.', 'dpuse-app.GuestWorkNotice.handleMoveGuestWork', { typeId: 'handled' }, { cause: error }));
+        raiseAppFailure(
+            new AppError('Failed to move guest work into the account.', 'dpuse-app.GuestWorkNotice.handleMoveGuestWork', { data: { typeId: 'handled' }, cause: error })
+        );
     } finally {
         guestWorkIsMoving.value = false;
     }

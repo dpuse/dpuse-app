@@ -37,14 +37,14 @@ describe('hasReportedAppError', () => {
     });
 
     it('sends a small report unchanged', async () => {
-        await expect(hasReportedAppError(new AppError('Small.', 'test', { id: 'abc' }))).resolves.toBe(true);
+        await expect(hasReportedAppError(new AppError('Small.', 'test', { data: { id: 'abc' } }))).resolves.toBe(true);
 
         expect(sentEvent().isTruncated).toBeUndefined();
         expect(sentEvent().errors[0]?.data).toStrictEqual({ id: 'abc' });
     });
 
     it('cuts the stacks first and keeps the data when that is enough', async () => {
-        const error = new AppError('Long stack.', 'test', { id: 'abc' });
+        const error = new AppError('Long stack.', 'test', { data: { id: 'abc' } });
         error.stack = Array.from({ length: 2000 }, (_, index) => `    at frame${String(index)} (https://example.com/a-long-module-name.js:1:1)`).join('\n');
         await hasReportedAppError(error);
 
@@ -55,7 +55,7 @@ describe('hasReportedAppError', () => {
     });
 
     it('replaces the data when cutting the stacks is not enough, and keeps the message', async () => {
-        await hasReportedAppError(new AppError('Big data.', 'test', { blob: 'x'.repeat(60_000) }));
+        await hasReportedAppError(new AppError('Big data.', 'test', { data: { blob: 'x'.repeat(60_000) } }));
 
         expect(sentEvent().isTruncated).toBe(true);
         expect(sentEvent().errors[0]?.data).toStrictEqual({ isTruncated: true });

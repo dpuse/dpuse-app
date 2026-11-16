@@ -1,10 +1,10 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
-import { useConfirmDialog } from '@vueuse/core';
 import { useRoute } from 'vue-router';
-import { ChevronDownIcon, ClockIcon, DatabaseIcon, RefreshCwIcon, SlidersHorizontalIcon, TriangleAlertIcon } from '@lucide/vue';
+import { ChevronDownIcon, RefreshCwIcon, SlidersHorizontalIcon, TriangleAlertIcon } from '@lucide/vue';
 import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { useConfirmDialog, useIntervalFn } from '@vueuse/core';
 
 // ── DPUse Framework
 import { AppError, findStoreErrorId } from '@dpuse/dpuse-shared';
@@ -18,6 +18,7 @@ import type { DataSource } from '@/composables/useDataWindow';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import { TEXT } from './InvestigateDataPanel_.json';
 import { useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
+import { viewportIsWide } from '@/state/device';
 import {
     abortDataViewRecordLoad,
     constructLoadTimingParts,
@@ -51,6 +52,7 @@ import {
     placeLoadedValues
 } from '@/features/studio/dataViews/_dataViewColumns';
 import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
+import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_statusBar';
 import { holdStore, isStoreConnection, openStore, storeTakeover } from '@/services/storeUse';
 import { localeId, t } from '@/state/locale';
 
@@ -66,6 +68,7 @@ import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import { Menu } from '@/components/ui/menu';
 import type { SelectOption } from '@/components/ui/SelectInput.vue';
+import StatusBar from '@/features/studio/dataViews/StatusBar.vue';
 import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 import TransformDataPanel from './TransformDataPanel.vue';
@@ -126,12 +129,16 @@ const ignoredColumnIndexes = computed(
 // ── Store
 const investigateState = shallowRef<InvestigateState>({ typeId: 'opening' });
 const loadDuration = ref<number>(); // How long this panel's last finished load took, in milliseconds. A load from an earlier visit has none.
+const loadedByteCount = ref<number>(); // Undefined from a source not read as bytes.
 const loadedRecordCount = ref(0);
+const loadElapsedDuration = ref(0); // Counts up while loading, and holds the time a stopped load ran.
+const loadStartedAt = ref(0);
 const loadIsAbandoned = ref(false); // Set on leaving the panel, so the stopped load is not shown as a failure.
 const loadIsStopped = ref(false); // Set by 'Stop', so the stopped load is shown as stopped, not as a failure.
 const loadRequestId = ref<string>(); // Names the running load, so stopping it stops nothing else.
 const loadVersion = ref(0); // Counts loads, so the table drops the records it holds after each one.
 const firstPageColumnWidths = shallowRef<{ dataSourceId: string; widths: number[] }>(); // Measured once per load, so scrolling back cannot move the columns.
+const storedRecordCount = ref<number>(); // From the store as the table reads it, so a load from an earlier visit has a count too.
 
 // ── Take Over ─ Using the store here closes it in the tab or window that has it, which loses the records loaded there
 // but not saved, so the user is asked first.
@@ -149,7 +156,6 @@ const storeConnectorId = computed(() => resolveStoreConnectorId(dataViewConfig.v
 const invalidValueCounts = computed(() => (dataViewConfig.value == null ? [] : (findDataViewInvalidValueCounts(dataViewConfig.value, draftIsCurrent.value) ?? []))); // Kept with the load, so they show on every visit. A load made before they were kept has none.
 const storeConnections = computed(() => listDataViewStoreConnections());
 const storeIsChoosable = computed(() => storeConnections.value.length > 1);
-const selectedStoreConnection = computed(() => storeConnections.value.find((connection) => connection.id === storeConnectorId.value)); // For its icon in the status bar.
 
 const messageKey = computed(() => {
     return investigateState.value.typeId === 'notLoaded' && hasEarlierLoad.value ? 'load.changed.text' : MESSAGE_KEYS[investigateState.value.typeId];
@@ -172,14 +178,43 @@ const invalidValueItems = computed(() =>
         .filter((item) => item.count > 0)
 );
 
-const loadPendingText = computed(() => t(TEXT, 'load.pending.text', { count: new Intl.NumberFormat(localeId.value).format(loadedRecordCount.value) }));
-
+// ── Status ─ What the load read, while it runs, after a stop and once it is done, as the audit shows on the item step. A
+// finished load read the whole item, so it says 'all' and its bar is full. While it runs, and after a stop, the bar shows
+// the share of the item read, when the item's size is known and the source reports its bytes. The time counts up in
+// whole seconds, then shows the load's own total, which an earlier visit's load only has while the page stays open.
 const loadTimingParts = computed(() => {
     const loadTiming = dataViewConfig.value == null ? undefined : findDataViewLoadTiming(dataViewConfig.value.id);
     return loadTiming == null ? undefined : constructLoadTimingParts(loadTiming);
 });
-// The load's own measure of its time, when it has one, so the parts shown beside it add up to it.
-const loadSecondsText = computed(() => (loadDuration.value == null ? '' : formatSeconds(loadTimingParts.value?.total ?? loadDuration.value)));
+const loadPercentage = computed(() => {
+    const itemSize = dataViewConfig.value?.connectionNodeConfig?.size ?? 0;
+    return itemSize > 0 && loadedByteCount.value != null ? Math.min((loadedByteCount.value / itemSize) * 100, 100) : undefined;
+});
+const loadStatus = computed(() => {
+    const { typeId } = investigateState.value;
+    if (typeId === 'loading' || typeId === 'stopped') {
+        const records = constructRecordsText(loadedRecordCount.value);
+        const percentageText = loadPercentage.value == null ? undefined : formatStatusPercentage(loadPercentage.value);
+        const text = typeId === 'loading' ? constructRunningLoadText(records, percentageText) : constructStoppedLoadText(records, percentageText);
+        const shortText = percentageText == null ? records : t(TEXT, 'load.short.text', { percentage: percentageText, records });
+        return { isComplete: false, percentage: loadPercentage.value, shortText, text };
+    }
+    if (typeId !== 'ready' || storedRecordCount.value == null) return;
+    const recordCount = storedRecordCount.value;
+    const shortText = recordCount > 1 ? t(TEXT, 'load.short.complete.text', { records: constructRecordsText(recordCount) }) : constructRecordsText(recordCount);
+    return { isComplete: true, percentage: 100, shortText, text: constructLoadedText(recordCount, loadTimingParts.value?.total ?? loadDuration.value) };
+});
+const loadProgress = computed(() => {
+    const status = loadStatus.value;
+    if (status?.percentage == null) return;
+    return {
+        isComplete: status.isComplete,
+        isRunning: investigateState.value.typeId === 'loading',
+        label: t(TEXT, 'load.aria'),
+        percentage: status.percentage,
+        valueText: status.text
+    };
+});
 
 // Where the last load's time went, in the parts the data view's Summary lists. Waiting, starting and parsing are parts of
 // reading, so they follow it in brackets. A source that holds typed values, such as a database, has none of them.
@@ -202,9 +237,16 @@ const loadTimingText = computed(() => {
         t(TEXT, 'load.timing.other.text', { seconds: formatSeconds(parts.other) })
     ]);
 });
-const loadDurationText = computed(() =>
-    loadSecondsText.value === '' ? '' : t(TEXT, 'load.duration.text', { seconds: loadSecondsText.value, store: findDataViewStoreLabel(storeConnectorId.value) })
-); // The status bar's store and time as one sentence, for screen readers.
+
+// What the table shows, beside what the load read, so the two are never taken for each other.
+const shownRecordsText = computed(() => {
+    const { typeId } = investigateState.value;
+    if (typeId === 'notLoaded' && !hasEarlierLoad.value) return t(TEXT, 'shown.notLoaded.text');
+    if (typeId !== 'ready' || storedRecordCount.value == null) return;
+    if (storedRecordCount.value === 0) return t(TEXT, 'shown.empty.text');
+    if (storedRecordCount.value === 1) return t(TEXT, 'shown.one.text');
+    return t(TEXT, 'shown.other.text', { records: constructRecordsText(storedRecordCount.value) });
+});
 
 // ── Table ─ One column for each of the data view's columns, except those the user chose to ignore, which the load left
 // out. Headers and widths stay by the column's position, so they match the column choices and the detail panel.
@@ -237,10 +279,11 @@ const dataSource = computed<DataSource<DisplayRow>>(() => {
                 const { records, totalCount } = await queryDataViewRecords(queriedStoreConnectorId, tablePath, storedColumnConfigs, query);
                 const rows = records.map((storeRecord) => constructDisplayRow(placeLoadedValues(storeRecord, columnConfigs.value.length, ignoredColumnIndexes.value)));
                 if (startRow === 0) fitColumnsToFirstPage(dataSourceId, rows);
+                storedRecordCount.value = totalCount;
                 return { rows, totalCount };
             } catch (error) {
                 if (!didShowStoreError(error)) {
-                    raiseAppFailure(new AppError("Failed to read the data view's records.", 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
+                    raiseAppFailure(new AppError("Failed to read the data view's records.", 'dpuse-app.InvestigateDataPanel', { data: { typeId: 'handled' }, cause: error }));
                 }
                 return { rows: [], totalCount: 0 };
             }
@@ -334,6 +377,10 @@ const selectedBlankValueReading = computed(() => {
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
+useIntervalFn(() => {
+    if (investigateState.value.typeId === 'loading') loadElapsedDuration.value = performance.now() - loadStartedAt.value;
+}, 500);
+
 // Opens the store once the data view has columns, and again when they change, which needs a new load.
 watch(
     () => constructColumnsVersion(dataViewConfig.value),
@@ -354,7 +401,7 @@ watch(
         const releaseStore = holdStore(heldStoreConnectorId);
         onCleanup(() => {
             void releaseStore().catch((error: unknown) => {
-                raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
+                raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.InvestigateDataPanel', { data: { typeId: 'handled' }, cause: error }));
             });
         });
     },
@@ -390,7 +437,7 @@ watch([selectedColumnIndex, (): string | undefined => dataSource.value.id], asyn
         if (selectedColumnIndex.value === columnIndex && dataSource.value.id === dataSourceId) selectedColumnValueCounts.value = { columnIndex, dataSourceId, valueCounts };
     } catch (error) {
         if (didShowStoreError(error)) return;
-        raiseFailure(new AppError('Failed to count the column’s values.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
+        raiseFailure(new AppError('Failed to count the column’s values.', 'dpuse-app.InvestigateDataPanel', { data: { typeId: 'handled' }, cause: error }));
     }
 });
 
@@ -402,7 +449,7 @@ onBeforeUnmount(() => {
 
     loadIsAbandoned.value = true;
     void abortDataViewRecordLoad(leftDataViewConfig, loadRequestId.value).catch((error: unknown) => {
-        raiseFailure(new AppError('Failed to stop loading the records.', 'dpuse-app.InvestigateDataPanel', { typeId: 'handled' }, { cause: error }));
+        raiseFailure(new AppError('Failed to stop loading the records.', 'dpuse-app.InvestigateDataPanel', { data: { typeId: 'handled' }, cause: error }));
     });
 });
 
@@ -473,7 +520,7 @@ function handleStopLoad(): void {
     if (dataViewConfig.value == null || loadRequestId.value == null) return;
     loadIsStopped.value = true;
     void abortDataViewRecordLoad(dataViewConfig.value, loadRequestId.value).catch((error: unknown) => {
-        raiseFailure(new AppError('Failed to stop loading the records.', 'dpuse-app.InvestigateDataPanel.handleStopLoad', { typeId: 'handled' }, { cause: error }));
+        raiseFailure(new AppError('Failed to stop loading the records.', 'dpuse-app.InvestigateDataPanel.handleStopLoad', { data: { typeId: 'handled' }, cause: error }));
     });
 }
 
@@ -497,14 +544,18 @@ async function openAndLoad(isReloaded: boolean, shouldTakeOver = false): Promise
         if (isReloaded || !isDataViewLoaded(openedDataViewConfig, draftIsCurrent.value)) {
             investigateState.value = { typeId: 'loading' };
             loadDuration.value = undefined;
+            loadedByteCount.value = undefined;
             loadedRecordCount.value = 0;
+            loadElapsedDuration.value = 0;
             loadIsStopped.value = false;
             loadRequestId.value = crypto.randomUUID();
-            const loadStartTime = performance.now();
-            const { columnsHaveChanged } = await loadDataViewRecords(
+            storedRecordCount.value = undefined;
+            loadStartedAt.value = performance.now();
+            const { columnsHaveChanged, recordCount } = await loadDataViewRecords(
                 openedDataViewConfig,
                 draftIsCurrent.value,
-                (recordCount) => {
+                (recordCount, byteCount) => {
+                    loadedByteCount.value = byteCount;
                     loadedRecordCount.value = recordCount;
                 },
                 loadRequestId.value
@@ -513,24 +564,26 @@ async function openAndLoad(isReloaded: boolean, shouldTakeOver = false): Promise
                 investigateState.value = { typeId: 'columnsChanged' };
                 return;
             }
-            loadDuration.value = performance.now() - loadStartTime;
+            loadDuration.value = performance.now() - loadStartedAt.value;
+            storedRecordCount.value = recordCount;
             loadVersion.value++;
         }
         investigateState.value = { typeId: 'ready' };
     } catch (error) {
         if (loadIsAbandoned.value) return;
         if (loadIsStopped.value) {
+            loadElapsedDuration.value = performance.now() - loadStartedAt.value;
             investigateState.value = { typeId: 'stopped' };
             return;
         }
         if (didShowStoreError(error)) return;
         const failure = raiseFailure(
-            new AppError("Failed to load the data view's records.", 'dpuse-app.InvestigateDataPanel.openAndLoad', { typeId: 'handled' }, { cause: error })
+            new AppError("Failed to load the data view's records.", 'dpuse-app.InvestigateDataPanel.openAndLoad', { data: { typeId: 'handled' }, cause: error })
         );
         investigateState.value = { typeId: 'failed', failure };
     } finally {
         void releaseSourceStore?.().catch((error: unknown) => {
-            raiseFailure(new AppError('Failed to close the source store.', 'dpuse-app.InvestigateDataPanel.openAndLoad', { typeId: 'handled' }, { cause: error }));
+            raiseFailure(new AppError('Failed to close the source store.', 'dpuse-app.InvestigateDataPanel.openAndLoad', { data: { typeId: 'handled' }, cause: error }));
         });
     }
 }
@@ -643,7 +696,31 @@ function formatStoreValue(value: StoreValue, columnConfig: ColumnAuditConfig, nu
     return String(value);
 }
 
-// One decimal place, with more only for a time too short to show in one, so a quick load does not read as 0.
+function constructRecordsText(recordCount: number): string {
+    return t(TEXT, recordCount === 1 ? 'record.one.text' : 'record.other.text', { count: new Intl.NumberFormat(localeId.value).format(recordCount) });
+}
+
+function constructRunningLoadText(records: string, percentageText: string | undefined): string {
+    const duration = formatElapsedDuration(loadElapsedDuration.value);
+    return percentageText == null ? t(TEXT, 'load.running.text', { duration, records }) : t(TEXT, 'load.running.percentage.text', { duration, percentage: percentageText, records });
+}
+
+function constructStoppedLoadText(records: string, percentageText: string | undefined): string {
+    const duration = formatFinishedDuration(loadElapsedDuration.value);
+    return percentageText == null ? t(TEXT, 'load.stop.text', { duration, records }) : t(TEXT, 'load.stop.percentage.text', { duration, percentage: percentageText, records });
+}
+
+// A load from an earlier visit has no time once the page has been reloaded, so it says only where the records went.
+function constructLoadedText(recordCount: number, duration: number | undefined): string {
+    const store = findDataViewStoreLabel(storeConnectorId.value);
+    const records = constructRecordsText(recordCount);
+    const countId = constructCountId(recordCount);
+    return duration == null
+        ? t(TEXT, `load.untimed.${countId}.text`, { records, store })
+        : t(TEXT, `load.complete.${countId}.text`, { duration: formatFinishedDuration(duration), records, store });
+}
+
+// One decimal place, with more only for a time too short to show in one, so a quick part of a load does not read as 0.
 function formatSeconds(milliseconds: number): string {
     return new Intl.NumberFormat(localeId.value, {
         maximumFractionDigits: 1,
@@ -653,11 +730,19 @@ function formatSeconds(milliseconds: number): string {
         roundingPriority: 'morePrecision'
     }).format(milliseconds / 1000);
 }
+
+// Which form of a message fits the count: none, one, or more than one.
+function constructCountId(count: number): 'one' | 'other' | 'zero' {
+    if (count === 0) return 'zero';
+    return count === 1 ? 'one' : 'other';
+}
 </script>
 
 <template>
     <div class="relative flex min-h-0 flex-1 flex-col" data-region="InvestigateDataPanel">
-        <BusyBar v-if="investigateState.typeId === 'opening' || investigateState.typeId === 'loading'" />
+        <!-- Opening the store takes a moment with nothing to count, so it has a busy bar. A load shows its progress in the
+             status bar. -->
+        <BusyBar v-if="investigateState.typeId === 'opening'" />
 
         <ErrorNotice v-if="investigateState.typeId === 'failed'" :failures="[investigateState.failure]" @retry="handleRetry" />
 
@@ -843,48 +928,23 @@ function formatSeconds(milliseconds: number): string {
             </div>
         </template>
 
-        <!-- Status Bar ─ The same height as the item step's, so the table's sideways scroll bar always sits above the
-             bottom safe area. It only shows what is read, never a button, because a phone's own swipes start at its
-             bottom edge. The state is on the left and the figures on the right. Only a warning takes colour, so it
-             stands out when it shows. -->
-        <div
-            class="mt-auto flex h-(--status-bar-height) w-full flex-none items-center justify-between gap-x-4 overflow-hidden border-t border-separator bg-card px-page text-xs text-muted"
-        >
-            <!-- State ─ Announced as it changes, because the count is the only sign that a long load is still going.
-                 Each text is trimmed to its letters so it is centred on them rather than sitting high in its line box,
-                 and cut off sideways only ('overflow-x: clip'), because hiding overflow on both axes would clip the
-                 tails of letters like 'g' below the trimmed box. -->
-            <p aria-live="polite" class="flex min-w-0 items-center gap-x-1">
-                <span v-if="investigateState.typeId === 'loading'" class="min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap [text-box:trim-both_cap_alphabetic]">{{
-                    loadPendingText
-                }}</span>
-                <template v-else-if="investigateState.typeId === 'ready' && columnsAreFromPartialAudit">
-                    <TriangleAlertIcon aria-hidden="true" class="size-3.5 flex-none text-warning-text" :stroke-width="1.5" />
-                    <span class="min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap text-warning-text [text-box:trim-both_cap_alphabetic]">{{
-                        t(TEXT, 'load.partialAuditTypes.text')
-                    }}</span>
-                </template>
-            </p>
-            <!-- Figures ─ Where the records went and how long they took. -->
-            <p v-if="investigateState.typeId === 'ready' && loadSecondsText" class="flex flex-none items-center gap-x-1">
-                <span class="sr-only">{{ loadDurationText }}</span>
-                <ConfigIcon
-                    v-if="selectedStoreConnection?.icon ?? selectedStoreConnection?.iconDark"
-                    aria-hidden="true"
-                    class="size-3.5 flex-none"
-                    :icon="selectedStoreConnection?.icon"
-                    :icon-dark="selectedStoreConnection?.iconDark"
-                />
-                <DatabaseIcon v-else aria-hidden="true" class="size-3.5 flex-none" :stroke-width="1.5" />
-                <span aria-hidden="true" class="whitespace-nowrap [text-box:trim-both_cap_alphabetic]">{{ findDataViewStoreLabel(storeConnectorId) }}</span>
-                <span aria-hidden="true" class="ml-1.5 flex items-center gap-x-1">
-                    <ClockIcon class="size-3.5 flex-none" :stroke-width="1.5" />
-                    <span class="whitespace-nowrap tabular-nums [text-box:trim-both_cap_alphabetic]">{{ t(TEXT, 'load.seconds.text', { seconds: loadSecondsText }) }}</span>
-                </span>
-                <!-- Load Timing ─ Hidden below 'md', where the status bar has no room. The data view's Summary lists it too. -->
-                <span v-if="loadTimingText" class="ml-1.5 hidden whitespace-nowrap text-muted tabular-nums [text-box:trim-both_cap_alphabetic] md:inline">{{ loadTimingText }}</span>
-            </p>
-        </div>
+        <!-- Status Bar ─ What the load read on the left and what the table shows on the right, as on the item step. A
+             warning comes first, in colour, so it stands out when it shows. The running figures change too often to read
+             out, so only the progress bar announces them. -->
+        <StatusBar :progress="loadProgress">
+            <template v-if="investigateState.typeId === 'ready' && columnsAreFromPartialAudit">
+                <TriangleAlertIcon aria-hidden="true" class="inline size-3.5 align-middle text-warning-text" :stroke-width="1.5" />
+                <span class="ml-1 text-warning-text">{{ t(TEXT, 'load.partialAuditTypes.text') }}</span>
+                <span v-if="loadStatus" aria-hidden="true"> · </span>
+            </template>
+            <template v-if="loadStatus">
+                <span aria-hidden="true">{{ viewportIsWide ? loadStatus.text : loadStatus.shortText }}</span>
+                <span class="sr-only">{{ loadStatus.text }}</span>
+            </template>
+            <!-- Load Timing ─ Hidden below 'md', where the status bar has no room. The data view's Summary lists it too. -->
+            <span v-if="investigateState.typeId === 'ready' && loadTimingText" class="ml-1.5 hidden tabular-nums md:inline">{{ loadTimingText }}</span>
+            <template #end>{{ shownRecordsText }}</template>
+        </StatusBar>
 
         <ConfirmDialog
             :confirm-label="t(TEXT, 'store.takeOver.label')"

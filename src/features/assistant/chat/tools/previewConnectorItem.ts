@@ -57,12 +57,12 @@ export async function executePreviewConnectorItem(arguments_: unknown): Promise<
     } catch (error) {
         if (findStoreErrorId(error) === 'heldElsewhere') return { error: STORE_HELD_ELSEWHERE_ERROR };
         const failure = raiseFailure(
-            new AppError(`Failed to preview '${path}'.`, 'dpuse-app.previewConnectorItem.executePreviewConnectorItem', { typeId: 'handled' }, { cause: error })
+            new AppError(`Failed to preview '${path}'.`, 'dpuse-app.previewConnectorItem.executePreviewConnectorItem', { data: { typeId: 'handled' }, cause: error })
         );
         return { error: serialiseError(failure.error)[0].message };
     } finally {
         void releaseStore?.().catch((error: unknown) => {
-            raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.previewConnectorItem.executePreviewConnectorItem', { typeId: 'handled' }, { cause: error }));
+            raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.previewConnectorItem.executePreviewConnectorItem', { data: { typeId: 'handled' }, cause: error }));
         });
     }
 }

@@ -41,7 +41,7 @@ onErrorCaptured((error, _instance, info) => {
     // that costs only that component.
     if (!isComponentLoaderErrorInfo(info)) {
         const data = { region: name, typeId: 'componentRender' };
-        capturedFailure.value = raiseFailure(new AppError(`Failed to render ${name}.`, 'dpuse-app.ErrorBoundary', data, { cause: error }));
+        capturedFailure.value = raiseFailure(new AppError(`Failed to render ${name}.`, 'dpuse-app.ErrorBoundary', { data, cause: error }));
     }
     return false;
 });

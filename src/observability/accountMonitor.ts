@@ -34,7 +34,7 @@ const socket = useMonitorSocket<AccountMessage>({
     // Raised at app level because no screen shows the account's connections on their own. The failed status stops
     // screens treating a list that may be out of date as current.
     onMessageFailed: (error) => {
-        const appError = new AppError('Failed to read an account update from DPUse.', 'dpuse-app.accountMonitor.onMessageFailed', { typeId: 'handled' }, { cause: error });
+        const appError = new AppError('Failed to read an account update from DPUse.', 'dpuse-app.accountMonitor.onMessageFailed', { data: { typeId: 'handled' }, cause: error });
         accountConfigStatus.value = { typeId: 'failed', failure: raiseAppFailure(appError, { capability: 'account' }) };
     },
     retries: -1,

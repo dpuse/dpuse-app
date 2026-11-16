@@ -181,7 +181,7 @@ async function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<Dat
     } catch (error) {
         // The failure goes to the app-level failure dialog, not the list. The delete did not happen, so the row is
         // still there and still works, and the list has nothing to explain.
-        raiseAppFailure(new AppError('Failed to remove data view.', 'dpuse-app.DataViewList.handleDeleteDataView', { typeId: 'handled' }, { cause: error }));
+        raiseAppFailure(new AppError('Failed to remove data view.', 'dpuse-app.DataViewList.handleDeleteDataView', { data: { typeId: 'handled' }, cause: error }));
     }
 }
 

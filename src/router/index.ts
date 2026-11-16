@@ -142,7 +142,7 @@ export function createAppRouter(): Router {
         // The URL never changed, so a reload would otherwise fetch the page the user was leaving. Passing the
         // abandoned destination lets it finish the journey instead.
         const data = { typeId: 'navigation' };
-        raiseAppFailure(new AppError('Navigation failed.', 'dpuse-app.router.createAppRouter', data, { cause: error }), { reloadPath: to.fullPath });
+        raiseAppFailure(new AppError('Navigation failed.', 'dpuse-app.router.createAppRouter', { data, cause: error }), { reloadPath: to.fullPath });
     });
 
     return router;
@@ -221,7 +221,7 @@ async function loadRouteComponent(label: string, loader: () => Promise<Component
         return await loader();
     } catch (error) {
         const data = { componentName: label, typeId: 'componentLoad' };
-        throw new AppError(`Failed to load the ${label} route component.`, 'dpuse-app.router.loadRouteComponent', data, { cause: error });
+        throw new AppError(`Failed to load the ${label} route component.`, 'dpuse-app.router.loadRouteComponent', { data, cause: error });
     }
 }
 

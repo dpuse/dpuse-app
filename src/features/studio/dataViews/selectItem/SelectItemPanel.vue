@@ -154,6 +154,7 @@ import { constructLoadTimingParts, type DataViewLoadTiming, findDataViewLoadTimi
 import { DATA_FORMAT_ICON_CONFIGS, type DataFormatIconConfig } from '../_dataFormatIcons';
 import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
+import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_statusBar';
 import { holdStore, isStoreConnection, openStore, storeTakeover } from '@/services/storeUse';
 import { localeId, t } from '@/state/locale';
 
@@ -178,6 +179,7 @@ import ScrollEndButtons from '@/components/ui/scroll/ScrollEndButtons.vue';
 import SelectInput from '@/components/ui/SelectInput.vue';
 import type { SelectOption } from '@/components/ui/SelectInput.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
+import StatusBar from '@/features/studio/dataViews/StatusBar.vue';
 import StructureTree from './StructureTree.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
@@ -225,10 +227,11 @@ interface PreviewToolbarStage {
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // ── Preview Tabs ─ Ways to show the item. Only data has a table of records and of columns to show. Only a nested
-// format, such as JSON, has a structure to choose the table from.
+// format, such as JSON, has a structure to choose the table from, so its tab comes first. It always shows, disabled for
+// any other format, so the tabs stay in the same places.
 const PREVIEW_TABS: PreviewTab[] = [
-    { icon: markRaw(SheetIcon), id: 'table', labelKey: 'tab.table.label' },
     { icon: markRaw(ListTreeIcon), id: 'structure', labelKey: 'tab.structure.label' },
+    { icon: markRaw(SheetIcon), id: 'table', labelKey: 'tab.table.label' },
     { icon: markRaw(TextIcon), id: 'text', labelKey: 'tab.text.label' },
     { icon: markRaw(InfoIcon), id: 'details', labelKey: 'tab.details.label' }
 ];
@@ -421,7 +424,7 @@ const router = useRouter();
 const { data: dataViewConfig } = useCurrentDataView(() => route.params.dataViewId);
 
 // ── Audit
-const { abortAudit, auditedByteCount, auditedRecordCount, auditIsRunning, startAudit, stopAudit } = useItemAudit(
+const { abortAudit, auditedByteCount, auditedRecordCount, auditElapsedDuration, auditIsRunning, startAudit, stopAudit } = useItemAudit(
     constructEditedDataViewConfig,
     handleItemAudited,
     areHeadersChosen,
@@ -707,36 +710,31 @@ const previewTabsAreFolded = computed(() => previewToolbarStage.value.previewTab
 const readChoiceSelectClass = computed(() => (readChoicesAreFolded.value || readChoiceValuesAreHidden.value ? 'flex-none' : 'min-w-22')); // Only a value in the row truncates.
 const readChoicesPopoverId = `${elementIdPrefix}-read-choices`;
 
-// How much of the item has been audited, in one form at every stage, with the running figures while an audit runs. A
-// percentage whenever the item's size is known, so the meter shows a whole item as complete as well as how little of a large
-// one was read. An item not read as bytes has no amount. The toolbar leads with the records and leaves the time to the
-// details tab, and shows a percentage only for part of an item.
+// How much of the item has been audited, in one form at every stage, with the running figures and time while an audit
+// runs. The time counts up in whole seconds, then shows the audit's own total. A whole item says 'all' rather than a
+// percentage, so the user need not read the bar's colour, and its bar is full. Part of an item shows a percentage
+// whenever the item's size is known, so the bar shows how little of a large one was read. An item not read as bytes has
+// no percentage until it is audited whole.
 const auditStatus = computed(() => {
     const contentAuditConfig = activeContentAuditConfig.value;
     if (contentAuditConfig == null) return;
     const isRunning = auditIsRunning.value;
     const byteCount = isRunning ? auditedByteCount.value : contentAuditConfig.byteCount;
     const recordCount = isRunning ? auditedRecordCount.value : contentAuditConfig.recordCount;
-    const records = t(TEXT, recordCount === 1 ? 'record.one.text' : 'record.other.text', { count: formatCount(recordCount) });
     const itemSize = activeConnectionObjectConfig.value?.size ?? 0;
+    const isMeasured = itemSize > 0 && contentAuditConfig.byteCount > 0;
     const isComplete = !isRunning && contentAuditConfig.isComplete;
-    const stateId = isRunning ? 'running' : 'done';
-    if (itemSize === 0 || contentAuditConfig.byteCount === 0) {
-        const textKey = `audit.${byteCount === 0 ? 'records' : 'amount'}.${isComplete ? 'complete' : stateId}.text` as const;
-        return { isComplete, percentage: undefined, shortText: records, text: t(TEXT, textKey, { amount: formatNumberAsStorageSize(byteCount), records }) };
-    }
-    const percentage = isComplete ? 100 : Math.min((byteCount / itemSize) * 100, 100);
-    const amount = formatNumberAsStorageSize(isComplete ? itemSize : byteCount);
-    const percentageText = constructAuditPercentageText(percentage);
-    const total = formatNumberAsStorageSize(itemSize);
-    return {
-        isComplete,
-        percentage,
-        shortText: isComplete ? records : t(TEXT, 'audit.short.text', { percentage: percentageText, records }),
-        text: isComplete
-            ? t(TEXT, 'audit.amount.complete.text', { amount, records })
-            : t(TEXT, `audit.part.${stateId}.text`, { amount, percentage: percentageText, records, total })
-    };
+    const partPercentage = isMeasured ? Math.min((byteCount / itemSize) * 100, 100) : undefined;
+    const percentage = isComplete ? 100 : partPercentage;
+    const records = constructRecordsText(recordCount);
+    const percentageText = partPercentage == null ? undefined : formatStatusPercentage(partPercentage);
+    const text = isRunning ? constructRunningAuditText(records, percentageText, auditElapsedDuration.value) : constructDoneAuditText(contentAuditConfig, records, percentageText);
+    return { isComplete, percentage, shortText: constructShortStatusText(recordCount, isComplete ? undefined : percentageText, isComplete), text };
+});
+const auditProgress = computed(() => {
+    const status = auditStatus.value;
+    if (status?.percentage == null) return;
+    return { isComplete: status.isComplete, isRunning: auditIsRunning.value, label: t(TEXT, 'audit.aria'), percentage: status.percentage, valueText: status.text };
 });
 const shownAuditStatusText = computed(() => (auditStatusIsShort.value ? auditStatus.value?.shortText : auditStatus.value?.text));
 
@@ -747,8 +745,8 @@ const auditedAmountText = computed(() => {
     if (contentAuditConfig == null || contentAuditConfig.byteCount === 0) return;
     const itemSize = activeConnectionObjectConfig.value?.size ?? 0;
     if (itemSize === 0) return formatNumberAsStorageSize(contentAuditConfig.byteCount);
-    if (contentAuditConfig.isComplete) return t(TEXT, 'audit.detail.complete.text', { amount: formatNumberAsStorageSize(itemSize), percentage: constructAuditPercentageText(100) });
-    const percentage = constructAuditPercentageText(Math.min((contentAuditConfig.byteCount / itemSize) * 100, 100));
+    if (contentAuditConfig.isComplete) return t(TEXT, 'audit.detail.complete.text', { amount: formatNumberAsStorageSize(itemSize), percentage: formatStatusPercentage(100) });
+    const percentage = formatStatusPercentage(Math.min((contentAuditConfig.byteCount / itemSize) * 100, 100));
     return t(TEXT, 'audit.detail.part.text', { amount: formatNumberAsStorageSize(contentAuditConfig.byteCount), percentage, total: formatNumberAsStorageSize(itemSize) });
 });
 
@@ -761,20 +759,25 @@ const auditChoices = computed<AuditChoice[]>(() => {
     return [...sizeChoices, { byteLimit: undefined, id: 'all', label: t(TEXT, 'audit.all.label') }];
 });
 
-// The records and text only hold the start of the item, however much of it has been audited. Said only when the audit
-// covered more than the preview holds, because until then the audited amount beside it already says the same.
-const previewExtentText = computed(() => {
-    const previewSize = activeItemReading.value?.size;
-    const itemSize = activeConnectionObjectConfig.value?.size;
-    if (previewSize == null || previewSize === 0 || previewSize === itemSize || currentPreviewTabId.value === 'details') return;
-    const auditedSize = auditIsRunning.value ? auditedByteCount.value : activeContentAuditConfig.value?.byteCount;
-    if (auditedSize != null && auditedSize <= previewSize) return;
-    return t(TEXT, 'preview.extent.text', { size: formatNumberAsStorageSize(previewSize) });
+// What the preview shows, beside what was audited, so the two are never taken for each other. The records and text only
+// hold the start of the item, however much of it has been audited. A nested item shows nothing until one of its tables
+// is chosen.
+const previewStatusText = computed(() => {
+    const itemReading = activeItemReading.value;
+    if (itemReading == null || currentPreviewTabId.value === 'details') return;
+    const tableCandidateCount = detectedStructureIndex.value?.tableCandidateCount ?? 0;
+    if (previewIsStructured.value && itemReading.structurePath == null && tableCandidateCount > 0) {
+        return t(TEXT, tableCandidateCount === 1 ? 'preview.tableRequired.one.text' : 'preview.tableRequired.other.text', { count: formatCount(tableCandidateCount) });
+    }
+    if (isPreviewTabDisabled('table')) return t(TEXT, 'preview.empty.text');
+    const recordCount = Math.max(0, itemReading.parsedRecords.length - (itemReading.hasHeaders === true ? 1 : 0));
+    if (recordCount === 0) return t(TEXT, 'preview.empty.text');
+    const isWhole = itemReading.size === activeConnectionObjectConfig.value?.size;
+    if (recordCount === 1) return t(TEXT, isWhole ? 'preview.whole.one.text' : 'preview.part.one.text');
+    return t(TEXT, isWhole ? 'preview.whole.other.text' : 'preview.part.other.text', { records: constructRecordsText(recordCount) });
 });
 
-const previewTabs = computed(() =>
-    PREVIEW_TABS.filter((previewTab) => (previewTab.id !== 'text' || itemIsFile.value) && (previewTab.id !== 'structure' || previewIsStructured.value))
-);
+const previewTabs = computed(() => PREVIEW_TABS.filter((previewTab) => previewTab.id !== 'text' || itemIsFile.value));
 const currentPreviewTab = computed(() =>
     assertDefined(
         previewTabs.value.find((previewTab) => previewTab.id === currentPreviewTabId.value),
@@ -926,7 +929,7 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
                 // would leave it loading behind the failure it is being told about.
                 if (didShowHeldStore(error)) return { rows: [], totalCount: 0 };
                 const data = { folderPath, typeId: 'handled' };
-                listFailure.value = raiseFailure(new AppError('Failed to list the items in this connection.', 'dpuse-app.SelectItemPanel.getRows', data, { cause: error }));
+                listFailure.value = raiseFailure(new AppError('Failed to list the items in this connection.', 'dpuse-app.SelectItemPanel.getRows', { data, cause: error }));
                 return { rows: [], totalCount: 0 };
             }
         }
@@ -1046,7 +1049,7 @@ watch(
         parserIsChoosable,
         storeIsChoosable,
         previewHeadersAreChoosable,
-        (): string | undefined => auditStatus.value?.text,
+        (): string | undefined => auditStatus.value?.shortText, // Not the full text, whose time changes every second.
         auditIsRunning,
         columnSearchIsShown,
         localeId
@@ -1076,7 +1079,7 @@ watch(activeItemReading, async (itemReading) => {
         if (currentRequestId === valueStateRequestId.value) previewValueStates.value = valueStates;
     } catch (error) {
         if (currentRequestId === valueStateRequestId.value)
-            raiseFailure(new AppError('Failed to check the preview values.', 'dpuse-app.SelectItemPanel.classifyPreviewValues', { typeId: 'handled' }, { cause: error }));
+            raiseFailure(new AppError('Failed to check the preview values.', 'dpuse-app.SelectItemPanel.classifyPreviewValues', { data: { typeId: 'handled' }, cause: error }));
     }
 });
 
@@ -1089,7 +1092,7 @@ watch(
         const releaseStore = holdStore(connectionConfig.connectorConfig.id);
         onCleanup(() => {
             void releaseStore().catch((error: unknown) => {
-                raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.SelectItemPanel', { typeId: 'handled' }, { cause: error }));
+                raiseFailure(new AppError('Failed to close the store.', 'dpuse-app.SelectItemPanel', { data: { typeId: 'handled' }, cause: error }));
             });
         });
     },
@@ -1119,7 +1122,7 @@ async function handleTakeOverStore(): Promise<void> {
     try {
         if ((await openStore(connectorId, true)) === 'ready') handleRetryHeldStore();
     } catch (error) {
-        raiseFailure(new AppError('Failed to use the store here.', 'dpuse-app.SelectItemPanel.handleTakeOverStore', { typeId: 'handled' }, { cause: error }));
+        raiseFailure(new AppError('Failed to use the store here.', 'dpuse-app.SelectItemPanel.handleTakeOverStore', { data: { typeId: 'handled' }, cause: error }));
     }
 }
 
@@ -1461,15 +1464,6 @@ function constructEditedDataViewConfig(): DataViewConfig | undefined {
     };
 }
 
-// Up to two decimal places, rounded down so a part of an item never reads as all of it. An amount too small to show
-// reads as under 0.01 rather than 0, because some of the item was read.
-function constructAuditPercentageText(percentage: number): string {
-    const shownPercentage = Math.floor(percentage * 100) / 100;
-    const isTooSmallToShow = percentage > 0 && shownPercentage === 0;
-    const percentageText = formatNumberAsDecimalNumber(isTooSmallToShow ? 0.01 : shownPercentage, 2, 0, localeId.value);
-    return isTooSmallToShow ? `<${percentageText}` : percentageText;
-}
-
 // Read again after waiting rather than taken from 'until', which resolves on the timeout too.
 async function waitForActiveConnectionConfig(): Promise<LocalisedConfig<ConnectionConfig>> {
     await until(activeConnectionConfig).toBeTruthy({ timeout: ACTIVE_CONNECTION_CONFIG_WAIT_TIMEOUT_MS });
@@ -1606,22 +1600,6 @@ function recordDetectedValues(readingConfig: ReadingConfig): void {
     detectedHasHeaders.value = readingConfig.hasHeaders;
     detectedEncodingId.value = readingConfig.encodingId;
     detectedEncodingIsAssumed.value = readingConfig.encodingConfidenceLevel == null;
-}
-
-// One decimal place, with more only for a time too short to show in one, so a quick preview does not read as 0. A time
-// under 0.01 seconds reads as under that limit, as a preview percentage does.
-function constructDurationText(milliseconds: number): string {
-    const secondsFormat = new Intl.NumberFormat(localeId.value, {
-        style: 'unit',
-        unit: 'second',
-        maximumFractionDigits: 1,
-        maximumSignificantDigits: 1,
-        minimumFractionDigits: 1,
-        minimumSignificantDigits: 1,
-        roundingPriority: 'morePrecision'
-    });
-    const seconds = milliseconds / 1000;
-    return seconds < 0.01 ? `<${secondsFormat.format(0.01)}` : secondsFormat.format(seconds);
 }
 
 // Headers and delimiters only apply to delimited text. There they always show, and a parse that found none says so.
@@ -1833,7 +1811,7 @@ function isPreviewTabDisabled(previewTabId: PreviewTabId): boolean {
     if (itemReading == null) return false;
     const structureIsUnmapped = sampleHasErrorIssue.value && (detectedStructureIndex.value?.nodes.length ?? 0) === 0;
     const tableIsEmpty = sampleHasErrorIssue.value || itemReading.parsedRecords.length === 0 || (itemIsFile.value && !READABLE_DATA_FORMAT_IDS.has(itemReading.dataFormatId));
-    return (previewTabId === 'structure' && structureIsUnmapped) || (previewTabId === 'table' && tableIsEmpty);
+    return (previewTabId === 'structure' && (!previewIsStructured.value || structureIsUnmapped)) || (previewTabId === 'table' && tableIsEmpty);
 }
 
 // The next enabled tab in the direction given, wrapping round at either end.
@@ -1952,7 +1930,7 @@ function didShowHeldStore(error: unknown): boolean {
 
 // An item's failure, or none when the item is in a store another tab has, which the panel shows instead.
 function raiseItemFailure(message: string, locator: string, error: unknown): AppFailure | undefined {
-    return didShowHeldStore(error) ? undefined : raiseFailure(new AppError(message, locator, { typeId: 'handled' }, { cause: error }));
+    return didShowHeldStore(error) ? undefined : raiseFailure(new AppError(message, locator, { data: { typeId: 'handled' }, cause: error }));
 }
 
 // A saved audit of this item, read this way, replaces what opening it found, so returning to the step does not lose it.
@@ -2050,7 +2028,7 @@ function constructAuditDetailGroup(contentAuditConfig: ContentAuditConfig): {
             { labelKey: 'detail.emptyLines.label', value: formatOptionalCount(contentAuditConfig.emptyLineCount) },
             { labelKey: 'detail.commentLines.label', value: formatOptionalCount(contentAuditConfig.commentLineCount) },
             { labelKey: 'detail.unevenRecords.label', value: formatOptionalCount(contentAuditConfig.invalidFieldLengthCount) },
-            { labelKey: 'detail.duration.label', value: constructDurationText(contentAuditConfig.duration) },
+            { labelKey: 'detail.duration.label', value: formatFinishedDuration(contentAuditConfig.duration) },
             { labelKey: 'detail.sourceWait.label', value: constructOptionalDurationText(contentAuditConfig.sourceWaitDuration) }, // Part of the duration.
             { labelKey: 'detail.parsing.label', value: constructOptionalDurationText(contentAuditConfig.parseDuration) }, // Part of the duration.
             { labelKey: 'detail.columnAudit.label', value: constructOptionalDurationText(contentAuditConfig.columnAuditDuration) }, // Part of the duration.
@@ -2072,14 +2050,14 @@ function constructLoadDetailGroup(loadTiming: DataViewLoadTiming): {
         id: 'load',
         title: t(TEXT, 'detail.load.title'),
         details: [
-            { labelKey: 'detail.duration.label', value: constructDurationText(parts.total) },
-            { labelKey: 'detail.reading.label', value: constructDurationText(parts.reading) },
+            { labelKey: 'detail.duration.label', value: formatFinishedDuration(parts.total) },
+            { labelKey: 'detail.reading.label', value: formatFinishedDuration(parts.reading) },
             { labelKey: 'detail.sourceWait.label', value: constructOptionalDurationText(parts.waiting) }, // Part of reading.
             { labelKey: 'detail.startingRead.label', value: constructOptionalDurationText(parts.starting) }, // Part of reading.
             { labelKey: 'detail.parsing.label', value: constructOptionalDurationText(parts.parsing) }, // Part of reading.
-            { labelKey: 'detail.converting.label', value: constructDurationText(parts.converting) },
-            { labelKey: 'detail.storing.label', value: constructDurationText(parts.storing) },
-            { labelKey: 'detail.other.label', value: constructDurationText(parts.other) }
+            { labelKey: 'detail.converting.label', value: formatFinishedDuration(parts.converting) },
+            { labelKey: 'detail.storing.label', value: formatFinishedDuration(parts.storing) },
+            { labelKey: 'detail.other.label', value: formatFinishedDuration(parts.other) }
         ]
     };
 }
@@ -2092,7 +2070,7 @@ function constructAuditOtherDuration(contentAuditConfig: ContentAuditConfig): nu
 }
 
 function constructOptionalDurationText(milliseconds: number | undefined): string | undefined {
-    return milliseconds == null ? undefined : constructDurationText(milliseconds);
+    return milliseconds == null ? undefined : formatFinishedDuration(milliseconds);
 }
 
 // The types saved with this item. A different item starts with none.
@@ -2211,6 +2189,34 @@ function constructSampleIssueValueName(value: string | undefined): string | unde
 
 function formatCount(count: number): string {
     return formatNumberAsDecimalNumber(count, 0, 0, localeId.value);
+}
+
+function constructRecordsText(recordCount: number): string {
+    return t(TEXT, recordCount === 1 ? 'record.one.text' : 'record.other.text', { count: formatCount(recordCount) });
+}
+
+function constructRunningAuditText(records: string, percentageText: string | undefined, elapsedDuration: number): string {
+    const duration = formatElapsedDuration(elapsedDuration);
+    return percentageText == null
+        ? t(TEXT, 'audit.running.text', { duration, records })
+        : t(TEXT, 'audit.running.percentage.text', { duration, percentage: percentageText, records });
+}
+
+function constructDoneAuditText(contentAuditConfig: ContentAuditConfig, records: string, percentageText: string | undefined): string {
+    const duration = formatFinishedDuration(contentAuditConfig.duration);
+    if (contentAuditConfig.isComplete) {
+        if (contentAuditConfig.recordCount === 0) return t(TEXT, 'audit.complete.zero.text', { duration });
+        if (contentAuditConfig.recordCount === 1) return t(TEXT, 'audit.complete.one.text', { duration });
+        return t(TEXT, 'audit.complete.other.text', { duration, records });
+    }
+    return percentageText == null ? t(TEXT, 'audit.done.text', { duration, records }) : t(TEXT, 'audit.done.percentage.text', { duration, percentage: percentageText, records });
+}
+
+// For a narrow screen: the records, with the percentage for part of an item, or 'all' for a whole one.
+function constructShortStatusText(recordCount: number, percentageText: string | undefined, isComplete: boolean): string {
+    const records = constructRecordsText(recordCount);
+    if (isComplete && recordCount > 1) return t(TEXT, 'audit.short.complete.text', { records });
+    return percentageText == null ? records : t(TEXT, 'audit.short.text', { percentage: percentageText, records });
 }
 
 function constructChildCountText(childCount: number): string {
@@ -2914,54 +2920,16 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     </Transition>
                 </Teleport>
             </div>
-            <!-- Status Bar ─ In the safe area along the bottom of a device that has one, and 24px high in the page
-                 where there is none, so a sideways scroll bar always sits above the safe area. It only shows what is
-                 read, never a button, because a phone's own swipes start at its bottom edge. The running figures change
-                 too often to read out, so only the audit bar announces them. The audit is on the left and the preview's
-                 extent on the right, as the state and the figures are on the explore step. -->
-            <div
-                v-if="itemFailure == null"
-                class="relative flex h-(--status-bar-height) w-full flex-none items-center justify-between gap-x-4 overflow-hidden border-t border-separator bg-card px-page pt-0.75 text-xs text-muted"
-            >
-                <!-- Audit Bar ─ Along the status bar's top edge, beside the audit status it measures. Only when the
-                     item's size is known. Green when the whole item was audited, the same green as valid values in the
-                     column headers' value bars, and blue in the same strength for part of it. The grey track shows how
-                     much was not. Any amount keeps a minimum width, so a sliver of a large item is still visible rather
-                     than looking like nothing. A progress bar while an audit runs, and otherwise a meter, because it
-                     then shows a settled amount. -->
-                <div
-                    v-if="auditStatus?.percentage != null"
-                    :aria-label="t(TEXT, 'audit.aria')"
-                    aria-valuemax="100"
-                    aria-valuemin="0"
-                    :aria-valuenow="Math.round(auditStatus.percentage)"
-                    :aria-valuetext="auditStatus.text"
-                    class="absolute inset-x-0 top-0 h-0.75 bg-separator/50"
-                    :role="auditIsRunning ? 'progressbar' : 'meter'"
-                >
-                    <div
-                        class="h-full"
-                        :class="[
-                            auditStatus.isComplete
-                                ? 'bg-[color-mix(in_srgb,var(--color-success-text)_40%,var(--color-card))]'
-                                : 'bg-[color-mix(in_srgb,var(--color-accent)_40%,var(--color-card))]',
-                            { 'min-w-0.75': auditStatus.percentage > 0 }
-                        ]"
-                        :style="{ width: `${auditStatus.percentage}%` }"
-                    />
-                </div>
-                <!-- Centred in the space below the audit bar ('pt-0.75' clears its 3px), and trimmed to its letters so
-                     it is centred on them rather than sitting high in its line box. Long text is cut off sideways only
-                     ('overflow-x: clip'), because hiding overflow on both axes would clip the tails of letters like 'g'
-                     below the trimmed box. -->
-                <p class="min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap [text-box:trim-both_cap_alphabetic]">
-                    <template v-if="auditStatus">
-                        <span aria-hidden="true">{{ shownAuditStatusText }}</span>
-                        <span class="sr-only">{{ auditStatus.text }}</span>
-                    </template>
-                </p>
-                <p v-if="previewExtentText" class="flex-none whitespace-nowrap [text-box:trim-both_cap_alphabetic]">{{ previewExtentText }}</p>
-            </div>
+            <!-- Status Bar ─ What was audited on the left and what the preview shows on the right, each labelled, so
+                 neither is taken for the other. The running figures change too often to read out, so only the
+                 progress bar announces them. -->
+            <StatusBar v-if="itemFailure == null" :progress="auditProgress">
+                <template v-if="auditStatus">
+                    <span aria-hidden="true">{{ shownAuditStatusText }}</span>
+                    <span class="sr-only">{{ auditStatus.text }}</span>
+                </template>
+                <template #end>{{ previewStatusText }}</template>
+            </StatusBar>
         </template>
 
         <template #no-selection>

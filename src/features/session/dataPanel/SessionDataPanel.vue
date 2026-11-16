@@ -103,9 +103,7 @@ const {
     state: snapshot
 } = useAsyncState(retrieveBrowserStorageSnapshot, undefined, {
     onError: (error) => {
-        retrievalFailure.value = raiseFailure(
-            new AppError('Failed to read what is stored in this browser.', 'dpuse-app.SessionDataPanel.refreshSnapshot', undefined, { cause: error })
-        );
+        retrievalFailure.value = raiseFailure(new AppError('Failed to read what is stored in this browser.', 'dpuse-app.SessionDataPanel.refreshSnapshot', { cause: error }));
     },
     onSuccess: () => {
         retrievalFailure.value = undefined;
@@ -457,7 +455,7 @@ async function runRemoval(locator: string, message: string, remove: () => Promis
     try {
         await remove();
     } catch (error) {
-        raiseAppFailure(new AppError(message, locator, { typeId: 'handled' }, { cause: error }));
+        raiseAppFailure(new AppError(message, locator, { data: { typeId: 'handled' }, cause: error }));
     } finally {
         removalIsInProgress.value = false;
         await refreshSnapshot();

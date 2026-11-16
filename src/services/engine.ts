@@ -34,7 +34,7 @@ async function loadEngineWorker(): Promise<EngineWorker> {
         const module = await import(/* @vite-ignore */ engineURL);
         const engineRuntime = module.engineRuntime as EngineRuntime;
         engineWorker = engineRuntime.invokeWorker((errorEvent: ErrorEvent) => {
-            const workerError = new AppError('Engine worker failed.', 'dpuse-app.engine.loadEngineWorker', { engineVersion, typeId: 'handled' }, { cause: errorEvent.error ?? errorEvent.message });
+            const workerError = new AppError('Engine worker failed.', 'dpuse-app.engine.loadEngineWorker', { data: { engineVersion, typeId: 'handled' }, cause: errorEvent.error ?? errorEvent.message });
             raiseFailure(workerError, { capability: 'engine' });
         });
         await engineWorker.initialise({
@@ -46,7 +46,7 @@ async function loadEngineWorker(): Promise<EngineWorker> {
         // Raised to report it, not to display it. Each waiting caller shows it as the cause of its own failure, and
         // 'deliverReport' sends it only once.
         const data = { engineURL, engineVersion, typeId: 'handled' };
-        const appError = new AppError(`Failed to load engine v${String(engineVersion)}.`, 'dpuse-app.engine.loadEngineWorker', data, { cause: error });
+        const appError = new AppError(`Failed to load engine v${String(engineVersion)}.`, 'dpuse-app.engine.loadEngineWorker', { data, cause: error });
         raiseFailure(appError, { capability: 'engine' });
         throw appError;
     }

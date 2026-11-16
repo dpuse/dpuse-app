@@ -70,7 +70,7 @@ async function initialiseHanko(): Promise<void> {
         // Raised at app level because no region owns signing in: a signed-out user looking at a working app has no
         // other way to learn why the sign-in button leads nowhere.
         establishSession('validationFailure');
-        raiseAppFailure(new AppError('Failed to load the authentication service.', 'dpuse-app.session.initialiseHanko', { typeId: 'handled' }, { cause: error }), {
+        raiseAppFailure(new AppError('Failed to load the authentication service.', 'dpuse-app.session.initialiseHanko', { data: { typeId: 'handled' }, cause: error }), {
             capability: 'authentication'
         });
         return;
@@ -82,7 +82,7 @@ async function initialiseHanko(): Promise<void> {
     } catch (error) {
         // Logged and reported, but not shown as a failure: the usual cause is a lost connection, which leaves the app
         // working for a signed-out user. A notice explains why they are signed out instead.
-        void hasReportedAppError(new AppError('Session validation failed.', 'dpuse-app.session.initialiseHanko', { typeId: 'handled' }, { cause: error }));
+        void hasReportedAppError(new AppError('Session validation failed.', 'dpuse-app.session.initialiseHanko', { data: { typeId: 'handled' }, cause: error }));
         establishSession('validationFailure');
         sessionStartFailureIsVisible.value = true;
     }
@@ -95,7 +95,9 @@ async function initialisePerformanceTracking(): Promise<void> {
         const performanceTrackingModule = await import('@/observability/performanceTracking');
         performanceTrackingModule.initialise();
     } catch (error) {
-        void hasReportedAppError(new AppError('Failed to load performance tracking.', 'dpuse-app.session.initialisePerformanceTracking', { typeId: 'handled' }, { cause: error }));
+        void hasReportedAppError(
+            new AppError('Failed to load performance tracking.', 'dpuse-app.session.initialisePerformanceTracking', { data: { typeId: 'handled' }, cause: error })
+        );
     }
 }
 
@@ -108,7 +110,7 @@ async function initialiseAccountMonitor(): Promise<void> {
         // Raised at app level because no screen shows the account's connections on their own. The status stops screens
         // waiting for a list that will never arrive.
         const failure = raiseAppFailure(
-            new AppError('Failed to load the account service.', 'dpuse-app.session.initialiseAccountMonitor', { typeId: 'handled' }, { cause: error }),
+            new AppError('Failed to load the account service.', 'dpuse-app.session.initialiseAccountMonitor', { data: { typeId: 'handled' }, cause: error }),
             {
                 capability: 'account'
             }
@@ -126,7 +128,9 @@ async function terminateAccountMonitor(): Promise<void> {
         const accountMonitorModule = await import('@/observability/accountMonitor');
         accountMonitorModule.terminate();
     } catch (error) {
-        void hasReportedAppError(new AppError('Failed to terminate the account service.', 'dpuse-app.session.terminateAccountMonitor', { typeId: 'handled' }, { cause: error }));
+        void hasReportedAppError(
+            new AppError('Failed to terminate the account service.', 'dpuse-app.session.terminateAccountMonitor', { data: { typeId: 'handled' }, cause: error })
+        );
     }
 }
 

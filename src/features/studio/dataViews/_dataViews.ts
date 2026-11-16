@@ -207,7 +207,7 @@ async function retrieveDataViewConfigs(signal: AbortSignal): Promise<DataViewCon
         return dataViewConfigs.map((config) => restoreDataViewConfig(config));
     } catch (error) {
         if (signal.aborted) throw error; // A cancelled read is not a failure, so it keeps its abort reason.
-        throw new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.retrieveDataViewConfigs', { typeId: 'handled' }, { cause: error });
+        throw new AppError('Failed to retrieve data views.', 'dpuse-app.dataViews.retrieveDataViewConfigs', { data: { typeId: 'handled' }, cause: error });
     }
 }
 
@@ -216,7 +216,7 @@ async function getDataViewConfig(id: string): Promise<DataViewConfig> {
         const dataViewConfig = await getWorkspaceStoreRecord<DataViewConfig>('dataViews', id);
         return restoreDataViewConfig(dataViewConfig);
     } catch (error) {
-        throw new AppError('Failed to open this data view.', 'dpuse-app.dataViews.getDataViewConfig', { typeId: 'handled' }, { cause: error });
+        throw new AppError('Failed to open this data view.', 'dpuse-app.dataViews.getDataViewConfig', { data: { typeId: 'handled' }, cause: error });
     }
 }
 
@@ -233,7 +233,7 @@ async function saveDataViewConfig(dataViewConfig: DataViewConfig): Promise<DataV
         if (storeId === workspaceStoreId.value) writeDataViewConfigToCache(savedDataViewConfig); // A save that finishes after signing in or out stays out of the next user's lists.
         return savedDataViewConfig;
     } catch (error) {
-        throw new AppError('Failed to save data view.', 'dpuse-app.dataViews.saveDataViewConfig', { typeId: 'handled' }, { cause: error });
+        throw new AppError('Failed to save data view.', 'dpuse-app.dataViews.saveDataViewConfig', { data: { typeId: 'handled' }, cause: error });
     }
 }
 
@@ -243,7 +243,7 @@ async function removeDataViewConfig(id: string): Promise<void> {
         if (storeId === workspaceStoreId.value) removeDataViewConfigFromCache(id); // As for a save.
         forgetDataViewLoads(id);
     } catch (error) {
-        throw new AppError('Failed to remove data view.', 'dpuse-app.dataViews.removeDataViewConfig', { typeId: 'handled' }, { cause: error });
+        throw new AppError('Failed to remove data view.', 'dpuse-app.dataViews.removeDataViewConfig', { data: { typeId: 'handled' }, cause: error });
     }
 }
 

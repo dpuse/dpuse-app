@@ -182,7 +182,7 @@ async function handleSaveEdits(): Promise<void> {
         });
     } catch (error) {
         // Announced rather than shown in the panel: the panel still shows the saved data view, which is still correct.
-        raiseAppFailure(new AppError('Failed to save data view.', 'dpuse-app.DataViewPanel.handleSaveEdits', { typeId: 'handled' }, { cause: error }));
+        raiseAppFailure(new AppError('Failed to save data view.', 'dpuse-app.DataViewPanel.handleSaveEdits', { data: { typeId: 'handled' }, cause: error }));
     }
 }
 
