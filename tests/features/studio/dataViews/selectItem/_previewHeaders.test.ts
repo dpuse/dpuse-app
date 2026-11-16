@@ -16,14 +16,8 @@ const ITEM_READING = {
     ],
     hasHeaders: false,
     parsedRecords: [
-        [
-            { value: '2023', valueWasQuoted: false },
-            { value: null, valueWasQuoted: false }
-        ],
-        [
-            { value: '7', valueWasQuoted: false },
-            { value: '8', valueWasQuoted: false }
-        ]
+        ['2023', null],
+        ['7', '8']
     ]
 } as unknown as ItemReading;
 

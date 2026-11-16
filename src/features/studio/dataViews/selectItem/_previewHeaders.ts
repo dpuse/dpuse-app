@@ -13,7 +13,7 @@ export function applyPreviewHeaders(itemReading: ItemReading, hasHeaders: boolea
     return {
         ...itemReading,
         columnConfigs: itemReading.columnConfigs.map((columnConfig, index) =>
-            columnConfig.derivedFromColumnIndex == null ? { ...columnConfig, label: { en: headerRecord?.[index]?.value ?? `Column ${String(index + 1)}` } } : columnConfig
+            columnConfig.derivedFromColumnIndex == null ? { ...columnConfig, label: { en: headerRecord?.[index] ?? `Column ${String(index + 1)}` } } : columnConfig
         ),
         hasHeaders
     };

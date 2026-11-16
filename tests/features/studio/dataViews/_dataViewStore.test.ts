@@ -54,7 +54,7 @@ const DATA_VIEW = {
         dataFormatId: 'dsv',
         decodedEncodingId: 'utf-8',
         hasHeaders: true,
-        parsedRecords: [[{ value: 'Name', valueWasQuoted: false }]],
+        parsedRecords: [['Name']],
         parserId: 'parser1',
         valueDelimiterId: ','
     }

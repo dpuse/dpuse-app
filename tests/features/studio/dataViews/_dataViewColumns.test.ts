@@ -52,10 +52,7 @@ describe('the parts of an item saved with a data view', () => {
         dataFormatId: 'dtv',
         issues: [],
         parsedRecords: [
-            [
-                { value: 'a', valueWasQuoted: true },
-                { value: null, valueWasQuoted: false }
-            ]
+            ['a', null]
         ],
         size: 4,
         text: '"a",'
@@ -73,10 +70,7 @@ describe('the parts of an item saved with a data view', () => {
             structurePath: undefined,
             valueDelimiterId: undefined,
             parsedRecords: [
-                [
-                    { value: 'a', valueWasQuoted: true },
-                    { value: null, valueWasQuoted: false }
-                ]
+                ['a', null]
             ],
             size: 4,
             text: '"a",'
@@ -344,10 +338,10 @@ describe('restoreItemReading', () => {
         const itemReading = restoreItemReading({
             ...buildOneAuditedColumn({ dataTypeId: 'numeric' }),
             readingConfig: { dataFormatId: 'dtv' } as never,
-            sampleConfig: { issues: [], parsedRecords: [[{ value: 'a', valueWasQuoted: false }]], size: 1, text: 'a' }
+            sampleConfig: { issues: [], parsedRecords: [['a']], size: 1, text: 'a' }
         });
 
-        expect(itemReading).toMatchObject({ dataFormatId: 'dtv', parsedRecords: [[{ value: 'a', valueWasQuoted: false }]], text: 'a' });
+        expect(itemReading).toMatchObject({ dataFormatId: 'dtv', parsedRecords: [['a']], text: 'a' });
         expect(itemReading?.columnConfigs[0]?.dataTypeId).toBe('numeric');
     });
 

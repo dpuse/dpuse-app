@@ -127,7 +127,7 @@ export async function loadDataViewRecords(
         columnConfigs: constructLoadColumnConfigs(dataViewConfig),
         hasHeaders: appliedReading.hasHeaders === true,
         ignoredColumnIndexes: constructIgnoredColumnIndexes(dataViewConfig),
-        headerValues: appliedReading.hasHeaders === true ? dataViewConfig.sampleConfig?.parsedRecords[0]?.map((parsedValue) => parsedValue.value) : undefined,
+        headerValues: appliedReading.hasHeaders === true ? dataViewConfig.sampleConfig?.parsedRecords[0] : undefined,
         path: tablePath,
         requestId,
         sourceConnectionConfig,

@@ -1261,7 +1261,7 @@ function isNumericColumn(columnId: string): boolean {
 
 function findRecordValue(columnId: string, rowIndex: number): string {
     const dataRecordIndex = rowIndex + (activeItemReading.value?.hasHeaders === true ? 1 : 0);
-    return activeItemReading.value?.parsedRecords[dataRecordIndex]?.[Number(columnId)]?.value ?? '';
+    return activeItemReading.value?.parsedRecords[dataRecordIndex]?.[Number(columnId)] ?? '';
 }
 
 // A number split for display with its decimal padding, so the decimal points line up while the value still reads exactly
@@ -2114,7 +2114,7 @@ function constructPreviewColumnWidth(itemReading: ItemReading, label: string, co
     const columnEnding = isNumeric ? constructColumnEnding(columnConfig.validFormats) : '';
     const dataOffset = itemReading.hasHeaders === true ? 1 : 0;
     const values = itemReading.parsedRecords.slice(dataOffset).map((record) => {
-        const value = record[columnIndex]?.value ?? '';
+        const value = record[columnIndex] ?? '';
         if (!isNumeric || value.trim() === '') return value;
         const { hiddenPadding, shownPadding } = constructDecimalPadding(value, columnConfig, columnEnding);
         return `${value}${shownPadding}${hiddenPadding}`;
@@ -2133,7 +2133,7 @@ function showPreviewTable(itemReading: ItemReading): void {
     const dataOffset = itemReading.hasHeaders === true ? 1 : 0;
     const previewRows = itemReading.parsedRecords
         .slice(dataOffset)
-        .map((record) => Object.fromEntries(record.map((cell, index) => [String(index), cell.value])) as Record<string, string | null>);
+        .map((record) => Object.fromEntries(record.map((value, index) => [String(index), value])) as Record<string, string | null>);
 
     previewTableDataSource.value = {
         rowCount: previewRows.length,

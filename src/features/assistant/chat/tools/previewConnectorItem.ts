@@ -45,7 +45,7 @@ export async function executePreviewConnectorItem(arguments_: unknown): Promise<
         const dataOffset = (readingConfig.hasHeaders ?? false) ? 1 : 0;
         const sampleRows = sampleConfig.parsedRecords
             .slice(dataOffset, dataOffset + 10)
-            .map((record) => Object.fromEntries(record.map((cell, index) => [columnNames[index] ?? String(index), cell.value])));
+            .map((record) => Object.fromEntries(record.map((value, index) => [columnNames[index] ?? String(index), value])));
 
         return {
             dataFormatId: readingConfig.dataFormatId,

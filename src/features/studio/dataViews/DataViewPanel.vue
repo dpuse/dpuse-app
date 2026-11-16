@@ -343,7 +343,7 @@ function formatDateTime(timestamp: number): string {
                                 <tbody>
                                     <tr v-for="(record, recordIndex) in shownPreviewRows" :key="recordIndex">
                                         <td v-for="(_columnLabel, columnIndex) in previewColumnLabels" :key="columnIndex" class="py-1 pr-4">
-                                            {{ record[columnIndex]?.value || NON_BREAKING_SPACE }}
+                                            {{ record[columnIndex] || NON_BREAKING_SPACE }}
                                         </td>
                                     </tr>
                                 </tbody>
