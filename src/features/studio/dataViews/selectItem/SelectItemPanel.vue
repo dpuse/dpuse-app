@@ -148,11 +148,11 @@ import {
 import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from '../_readingLabels';
 import { constructDataViewConnection, constructItemPath } from '../dataViewSummary';
 import { constructFittedColumnWidth, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
+import { constructLoadTimingParts, type DataViewLoadTiming, findDataViewLoadTiming, listDataViewStoreConnections, resolveStoreConnectorId } from '../_dataViewStore';
 import { DATA_FORMAT_ICON_CONFIGS, type DataFormatIconConfig } from '../_dataFormatIcons';
 import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
 import { holdStore, isStoreConnection, openStore, storeTakeover } from '@/services/storeUse';
-import { listDataViewStoreConnections, resolveStoreConnectorId } from '../_dataViewStore';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -860,6 +860,8 @@ const itemDetailGroups = computed(() => {
         }
     ];
     if (activeContentAuditConfig.value) detailGroups.push(constructAuditDetailGroup(activeContentAuditConfig.value));
+    const loadTiming = dataViewConfig.value == null ? undefined : findDataViewLoadTiming(dataViewConfig.value.id);
+    if (loadTiming != null) detailGroups.push(constructLoadDetailGroup(loadTiming));
     return detailGroups
         .filter((detailGroup) => itemIsFile.value || detailGroup.id !== 'parsing')
         .map((detailGroup) => ({ ...detailGroup, details: detailGroup.details.filter((detail) => isDetailShown(detail.labelKey, detail.value)) }))
@@ -2027,13 +2029,48 @@ function constructAuditDetailGroup(contentAuditConfig: ContentAuditConfig): {
             { labelKey: 'detail.commentLines.label', value: formatOptionalCount(contentAuditConfig.commentLineCount) },
             { labelKey: 'detail.unevenRecords.label', value: formatOptionalCount(contentAuditConfig.invalidFieldLengthCount) },
             { labelKey: 'detail.duration.label', value: constructDurationText(contentAuditConfig.duration) },
-            {
-                labelKey: 'detail.sourceWait.label',
-                value: contentAuditConfig.sourceWaitDuration == null ? undefined : constructDurationText(contentAuditConfig.sourceWaitDuration)
-            }, // Part of the duration.
+            { labelKey: 'detail.sourceWait.label', value: constructOptionalDurationText(contentAuditConfig.sourceWaitDuration) }, // Part of the duration.
+            { labelKey: 'detail.parsing.label', value: constructOptionalDurationText(contentAuditConfig.parseDuration) }, // Part of the duration.
+            { labelKey: 'detail.columnAudit.label', value: constructOptionalDurationText(contentAuditConfig.columnAuditDuration) }, // Part of the duration.
+            { labelKey: 'detail.other.label', value: constructOptionalDurationText(constructAuditOtherDuration(contentAuditConfig)) }, // The rest of the duration.
             { labelKey: 'detail.audited.label', value: new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(contentAuditConfig.asAt) }
         ]
     };
+}
+
+// Where the data view's last load spent its time. Waiting, starting and parsing add up to reading, and reading,
+// converting, storing and other add up to the duration.
+function constructLoadDetailGroup(loadTiming: DataViewLoadTiming): {
+    details: { labelKey: keyof typeof TEXT; value: string | undefined }[];
+    id: string;
+    title: string;
+} {
+    const parts = constructLoadTimingParts(loadTiming);
+    return {
+        id: 'load',
+        title: t(TEXT, 'detail.load.title'),
+        details: [
+            { labelKey: 'detail.duration.label', value: constructDurationText(parts.total) },
+            { labelKey: 'detail.reading.label', value: constructDurationText(parts.reading) },
+            { labelKey: 'detail.sourceWait.label', value: constructOptionalDurationText(parts.waiting) }, // Part of reading.
+            { labelKey: 'detail.startingRead.label', value: constructOptionalDurationText(parts.starting) }, // Part of reading.
+            { labelKey: 'detail.parsing.label', value: constructOptionalDurationText(parts.parsing) }, // Part of reading.
+            { labelKey: 'detail.converting.label', value: constructDurationText(parts.converting) },
+            { labelKey: 'detail.storing.label', value: constructDurationText(parts.storing) },
+            { labelKey: 'detail.other.label', value: constructDurationText(parts.other) }
+        ]
+    };
+}
+
+// What is left of an audit's duration once its timed parts are taken off, such as fetching the item before a preview,
+// loading the parser and reporting progress. Undefined for an audit whose parts were not timed.
+function constructAuditOtherDuration(contentAuditConfig: ContentAuditConfig): number | undefined {
+    const { columnAuditDuration, duration, parseDuration, sourceWaitDuration = 0 } = contentAuditConfig;
+    return parseDuration == null || columnAuditDuration == null ? undefined : Math.max(0, duration - sourceWaitDuration - parseDuration - columnAuditDuration);
+}
+
+function constructOptionalDurationText(milliseconds: number | undefined): string | undefined {
+    return milliseconds == null ? undefined : constructDurationText(milliseconds);
 }
 
 // The types saved with this item. A different item starts with none.

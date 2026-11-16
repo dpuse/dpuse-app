@@ -32,6 +32,14 @@
             "en": "Loading stopped. The records loaded before, if any, are kept.",
             "es": "Carga detenida. Se conservan los registros cargados antes, si los hay."
         },
+        "load.timing.converting.text": { "en": "converting {seconds} s", "es": "conversión {seconds} s" },
+        "load.timing.other.text": { "en": "other {seconds} s", "es": "otros {seconds} s" },
+        "load.timing.parsing.text": { "en": "parsing {seconds} s", "es": "análisis {seconds} s" },
+        "load.timing.reading.text": { "en": "Reading {seconds} s", "es": "Lectura {seconds} s" },
+        "load.timing.readingParts.text": { "en": "Reading {seconds} s ({parts})", "es": "Lectura {seconds} s ({parts})" },
+        "load.timing.starting.text": { "en": "starting {seconds} s", "es": "inicio {seconds} s" },
+        "load.timing.storing.text": { "en": "storing {seconds} s", "es": "guardado {seconds} s" },
+        "load.timing.waiting.text": { "en": "waiting {seconds} s", "es": "espera {seconds} s" },
         "retry.label": { "en": "Try again", "es": "Reintentar" },
         "store.heldElsewhere.text": {
             "en": "Investigate is open in another tab or window. Use it here to close it there.",

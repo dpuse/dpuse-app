@@ -9,6 +9,7 @@ import type {
     DropObjectOptions,
     EngineLoadObjectRecordsOptions,
     EngineLoadObjectRecordsResult,
+    LoadTiming,
     LocalisedConfig,
     ObjectColumnConfig,
     QueryRecordsOptions,
@@ -44,6 +45,23 @@ export type DataViewRecordQuery = Pick<QueryRecordsOptions, 'aggregates' | 'filt
 // A column's valid values as the store holds them, counted in full, in the shape the audit gives them.
 export type DataViewColumnValueCounts = Required<Pick<ColumnAuditConfig, 'validDistinctValueCount' | 'validFrequentValues' | 'validLeastFrequentValues' | 'validValueCount'>>;
 
+// The engine's timing of a load, and the whole load as the user waits for it. In milliseconds.
+export interface DataViewLoadTiming extends LoadTiming {
+    totalDuration: number; // Also starting the engine's connectors, and dropping the table the load replaces.
+}
+
+// A load's time in parts that add up to 'total', in milliseconds. A part is undefined when the source does not have it.
+export interface LoadTimingParts {
+    total: number;
+    reading: number; // The source handing over the records. The next three parts add up to it.
+    waiting: number | undefined; // Waiting for the item's bytes.
+    starting: number | undefined; // The source's work before its parser starts, such as opening the item and loading the parser.
+    parsing: number | undefined; // A source that holds typed values, such as a database, has no parser.
+    converting: number;
+    storing: number;
+    other: number; // Starting the engine's connectors, reporting progress and dropping the table the load replaces.
+}
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The stores a data view can load into, in the order the store select lists them. A data view saved before it had a
@@ -57,6 +75,7 @@ const LISTED_VALUE_COUNT = 10; // Values in each of the most and least frequent 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const runningLoadCount = ref(0);
+const lastLoadTimings = ref<Partial<Record<string, DataViewLoadTiming>>>({}); // By data view id. Kept in page memory only, so a data view's details can show where its last load's time went.
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -122,6 +141,8 @@ export async function loadDataViewRecords(
             valueDelimiterId: sourceIsFile ? establishFileValueDelimiterId(appliedReading) : undefined
         }
     };
+    const loadStartedAt = performance.now();
+    let loadTiming: LoadTiming | undefined;
     runningLoadCount.value++;
     try {
         const { processRequest } = await establishEngineWorker();
@@ -135,11 +156,15 @@ export async function loadDataViewRecords(
             if (earlierTablePath != null) addUnwantedTablePaths(storeConnectorId, [earlierTablePath]);
             loadedColumnsVersions.value = { ...loadedColumnsVersions.value, [loadKey]: columnsVersion };
             loadInvalidValueCounts.value = { ...loadInvalidValueCounts.value, [loadKey]: loadResult.invalidValueCounts };
+            loadTiming = loadResult.timing;
         }
         return loadResult;
     } finally {
         runningLoadCount.value--; // The table is recorded by now, so Save and Discard can go ahead.
         await dropUnwantedTables(storeConnectorId); // The earlier table after a success, or the new one after a failure.
+        if (loadTiming != null) {
+            lastLoadTimings.value = { ...lastLoadTimings.value, [dataViewConfig.id]: { ...loadTiming, totalDuration: performance.now() - loadStartedAt } };
+        }
     }
 }
 
@@ -206,6 +231,26 @@ export async function queryDataViewColumnValueCounts(
 // Undefined for a load made before the counts were kept, or when there is no load.
 export function findDataViewInvalidValueCounts(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): number[] | undefined {
     return loadInvalidValueCounts.value[constructDataViewLoadKey(dataViewConfig, isDraft)];
+}
+
+// Undefined until the data view has loaded since the page opened.
+export function findDataViewLoadTiming(dataViewId: string): DataViewLoadTiming | undefined {
+    return lastLoadTimings.value[dataViewId];
+}
+
+// Each part is measured, except starting and other, which are what is left of reading and of the total.
+export function constructLoadTimingParts(loadTiming: DataViewLoadTiming): LoadTimingParts {
+    const { conversionDuration, parseDuration, retrieveDuration, sourceWaitDuration, storeDuration, totalDuration } = loadTiming;
+    return {
+        total: totalDuration,
+        reading: retrieveDuration,
+        waiting: sourceWaitDuration,
+        starting: parseDuration == null ? undefined : Math.max(0, retrieveDuration - (sourceWaitDuration ?? 0) - parseDuration),
+        parsing: parseDuration,
+        converting: conversionDuration,
+        storing: storeDuration,
+        other: Math.max(0, totalDuration - retrieveDuration - conversionDuration - storeDuration)
+    };
 }
 
 export function hasDataViewLoad(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): boolean {

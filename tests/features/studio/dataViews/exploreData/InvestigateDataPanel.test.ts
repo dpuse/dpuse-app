@@ -14,7 +14,9 @@ import { settle } from '~/tests/support/settle';
 import { storeTakeover } from '@/services/storeUse';
 import { TEXT } from '@/features/studio/dataViews/exploreData/InvestigateDataPanel_.json';
 import {
+    constructLoadTimingParts,
     findDataViewInvalidValueCounts,
+    findDataViewLoadTiming,
     findDataViewStoreLabel,
     forgetDataViewLoad,
     hasDataViewLoad,
@@ -48,8 +50,10 @@ vi.mock('@/features/studio/dataViews/_dataViews', async (importOriginal) => {
 });
 vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
     abortDataViewRecordLoad: vi.fn(),
+    constructLoadTimingParts: vi.fn(),
     constructStoredColumnConfigs: (): { label: string }[] => STORED_COLUMN_CONFIGS,
     findDataViewInvalidValueCounts: vi.fn(),
+    findDataViewLoadTiming: vi.fn(),
     findDataViewStoreLabel: vi.fn(),
     forgetDataViewLoad: vi.fn(),
     hasDataViewLoad: vi.fn(),
@@ -105,6 +109,7 @@ const AUDITED_DATA_VIEW = {
     },
     id: 'dataView1'
 };
+const LOAD_TIMING = { conversionDuration: 0, duration: 0, parseDuration: 0, retrieveDuration: 0, sourceWaitDuration: 0, storeDuration: 0, totalDuration: 0 }; // Its parts are given by 'constructLoadTimingParts'.
 const STORED_COLUMN_CONFIGS = [{ label: 'Stored' }]; // Stands for the columns the store module works out, which the panel passes on to every query.
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -116,6 +121,7 @@ beforeEach(() => {
     vi.mocked(hasDataViewLoad).mockReturnValue(false);
     vi.mocked(loadDataViewRecords).mockResolvedValue({ columnsHaveChanged: false, invalidValueCounts: [], recordCount: 0 });
     vi.mocked(findDataViewInvalidValueCounts).mockReturnValue(undefined);
+    vi.mocked(findDataViewLoadTiming).mockReturnValue(undefined);
 });
 
 afterEach(() => {
@@ -357,6 +363,44 @@ describe('InvestigateDataPanel', () => {
         expect(wrapper.text()).toContain(t(TEXT, 'load.duration.text', { seconds, store: 'SQLite' }));
     });
 
+    it('shows where the load spent its time beside its total, with the parts of reading in brackets', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(isDataViewLoaded).mockReturnValue(false);
+        history.replaceState({ loadIsRequested: true }, '');
+        vi.mocked(findDataViewLoadTiming).mockReturnValue(LOAD_TIMING);
+        vi.mocked(constructLoadTimingParts).mockReturnValue({ converting: 2000, other: 1000, parsing: 2500, reading: 4000, starting: 500, storing: 6000, total: 13_000, waiting: 1000 });
+        const wrapper = mountPanel();
+        await settle();
+
+        const readingParts = formatList([formatTimingPart('load.timing.waiting.text', 1), formatTimingPart('load.timing.starting.text', 0.5), formatTimingPart('load.timing.parsing.text', 2.5)]);
+        const reading = t(TEXT, 'load.timing.readingParts.text', { parts: readingParts, seconds: formatSeconds(4) });
+        const otherParts = [formatTimingPart('load.timing.converting.text', 2), formatTimingPart('load.timing.storing.text', 6), formatTimingPart('load.timing.other.text', 1)];
+        expect(wrapper.text()).toContain(formatList([reading, ...otherParts]));
+        expect(wrapper.text()).toContain(t(TEXT, 'load.duration.text', { seconds: formatSeconds(13), store: 'SQLite' })); // The total the parts add up to.
+    });
+
+    it('shows reading without parts for a source that holds typed values, such as a database', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(isDataViewLoaded).mockReturnValue(false);
+        history.replaceState({ loadIsRequested: true }, '');
+        vi.mocked(findDataViewLoadTiming).mockReturnValue(LOAD_TIMING);
+        vi.mocked(constructLoadTimingParts).mockReturnValue({
+            converting: 2000,
+            other: 1000,
+            parsing: undefined,
+            reading: 4000,
+            starting: undefined,
+            storing: 6000,
+            total: 13_000,
+            waiting: undefined
+        });
+        const wrapper = mountPanel();
+        await settle();
+
+        const otherParts = [formatTimingPart('load.timing.converting.text', 2), formatTimingPart('load.timing.storing.text', 6), formatTimingPart('load.timing.other.text', 1)];
+        expect(wrapper.text()).toContain(formatList([formatTimingPart('load.timing.reading.text', 4), ...otherParts]));
+    });
+
     it('shows no load time for records loaded on an earlier visit', async () => {
         dataView.config = AUDITED_DATA_VIEW;
         const wrapper = mountPanel();
@@ -462,4 +506,16 @@ describe('InvestigateDataPanel', () => {
 
 function mountPanel(): ReturnType<typeof mount> {
     return mount(InvestigateDataPanel, { global: { stubs: { Table: TableStub } } });
+}
+
+function formatSeconds(seconds: number): string {
+    return new Intl.NumberFormat(localeId.value, { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(seconds);
+}
+
+function formatTimingPart(labelKey: keyof typeof TEXT, seconds: number): string {
+    return t(TEXT, labelKey, { seconds: formatSeconds(seconds) });
+}
+
+function formatList(parts: string[]): string {
+    return new Intl.ListFormat(localeId.value, { style: 'short', type: 'unit' }).format(parts);
 }

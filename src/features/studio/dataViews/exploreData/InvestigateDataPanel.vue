@@ -20,9 +20,11 @@ import { TEXT } from './InvestigateDataPanel_.json';
 import { useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import {
     abortDataViewRecordLoad,
+    constructLoadTimingParts,
     constructStoredColumnConfigs,
     type DataViewColumnValueCounts,
     findDataViewInvalidValueCounts,
+    findDataViewLoadTiming,
     findDataViewStoreLabel,
     forgetDataViewLoad,
     hasDataViewLoad,
@@ -172,16 +174,33 @@ const invalidValueItems = computed(() =>
 
 const loadPendingText = computed(() => t(TEXT, 'load.pending.text', { count: new Intl.NumberFormat(localeId.value).format(loadedRecordCount.value) }));
 
-// One decimal place, with more only for a time too short to show in one, so a quick load does not read as 0.
-const loadSecondsText = computed(() => {
-    if (loadDuration.value == null) return '';
-    return new Intl.NumberFormat(localeId.value, {
-        maximumFractionDigits: 1,
-        maximumSignificantDigits: 1,
-        minimumFractionDigits: 1,
-        minimumSignificantDigits: 1,
-        roundingPriority: 'morePrecision'
-    }).format(loadDuration.value / 1000);
+const loadTimingParts = computed(() => {
+    const loadTiming = dataViewConfig.value == null ? undefined : findDataViewLoadTiming(dataViewConfig.value.id);
+    return loadTiming == null ? undefined : constructLoadTimingParts(loadTiming);
+});
+// The load's own measure of its time, when it has one, so the parts shown beside it add up to it.
+const loadSecondsText = computed(() => (loadDuration.value == null ? '' : formatSeconds(loadTimingParts.value?.total ?? loadDuration.value)));
+
+// Where the last load's time went, in the parts the data view's Summary lists. Waiting, starting and parsing are parts of
+// reading, so they follow it in brackets. A source that holds typed values, such as a database, has none of them.
+const loadTimingText = computed(() => {
+    const parts = loadTimingParts.value;
+    if (parts == null) return '';
+    const listFormat = new Intl.ListFormat(localeId.value, { style: 'short', type: 'unit' });
+    const readingParts = [
+        parts.waiting == null ? undefined : t(TEXT, 'load.timing.waiting.text', { seconds: formatSeconds(parts.waiting) }),
+        parts.starting == null ? undefined : t(TEXT, 'load.timing.starting.text', { seconds: formatSeconds(parts.starting) }),
+        parts.parsing == null ? undefined : t(TEXT, 'load.timing.parsing.text', { seconds: formatSeconds(parts.parsing) })
+    ].filter((part) => part != null);
+    const readingSeconds = formatSeconds(parts.reading);
+    return listFormat.format([
+        readingParts.length === 0
+            ? t(TEXT, 'load.timing.reading.text', { seconds: readingSeconds })
+            : t(TEXT, 'load.timing.readingParts.text', { parts: listFormat.format(readingParts), seconds: readingSeconds }),
+        t(TEXT, 'load.timing.converting.text', { seconds: formatSeconds(parts.converting) }),
+        t(TEXT, 'load.timing.storing.text', { seconds: formatSeconds(parts.storing) }),
+        t(TEXT, 'load.timing.other.text', { seconds: formatSeconds(parts.other) })
+    ]);
 });
 const loadDurationText = computed(() =>
     loadSecondsText.value === '' ? '' : t(TEXT, 'load.duration.text', { seconds: loadSecondsText.value, store: findDataViewStoreLabel(storeConnectorId.value) })
@@ -619,6 +638,17 @@ function formatStoreValue(value: StoreValue, columnConfig: ColumnAuditConfig, nu
     }
     return String(value);
 }
+
+// One decimal place, with more only for a time too short to show in one, so a quick load does not read as 0.
+function formatSeconds(milliseconds: number): string {
+    return new Intl.NumberFormat(localeId.value, {
+        maximumFractionDigits: 1,
+        maximumSignificantDigits: 1,
+        minimumFractionDigits: 1,
+        minimumSignificantDigits: 1,
+        roundingPriority: 'morePrecision'
+    }).format(milliseconds / 1000);
+}
 </script>
 
 <template>
@@ -846,6 +876,8 @@ function formatStoreValue(value: StoreValue, columnConfig: ColumnAuditConfig, nu
                     <ClockIcon class="size-3.5 flex-none" :stroke-width="1.5" />
                     <span class="whitespace-nowrap tabular-nums [text-box:trim-both_cap_alphabetic]">{{ t(TEXT, 'load.seconds.text', { seconds: loadSecondsText }) }}</span>
                 </span>
+                <!-- Load Timing ─ Hidden below 'md', where the status bar has no room. The data view's Summary lists it too. -->
+                <span v-if="loadTimingText" class="ml-1.5 hidden whitespace-nowrap text-muted tabular-nums [text-box:trim-both_cap_alphabetic] md:inline">{{ loadTimingText }}</span>
             </p>
         </div>
 

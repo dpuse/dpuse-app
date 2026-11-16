@@ -9,9 +9,11 @@ import { establishEngineWorker } from '@/services/engine';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import {
     abortDataViewRecordLoad,
+    constructLoadTimingParts,
     constructStoredColumnConfigs,
     dataViewRecordsAreLoading,
     findDataViewInvalidValueCounts,
+    findDataViewLoadTiming,
     findDataViewStoreLabel,
     forgetDataViewLoad,
     forgetDataViewLoads,
@@ -286,6 +288,31 @@ describe('_dataViewStore', () => {
         processRequest.mockResolvedValue(undefined);
         await openDataViewStore(INVESTIGATE_STORE_CONNECTOR_ID);
         expect(processRequest).toHaveBeenCalledWith('dropObject', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { path: 'dataView6' });
+    });
+
+    it('keeps the timing of a data view’s last load, but not of one whose columns had moved', async () => {
+        const timedDataView = { ...DATA_VIEW, id: 'dataView30' };
+        const timing = { conversionDuration: 2, duration: 10, parseDuration: 3, retrieveDuration: 5, sourceWaitDuration: 1, storeDuration: 3 };
+        processRequest.mockResolvedValueOnce({ columnsHaveChanged: true, invalidValueCounts: [], recordCount: 0 });
+
+        await loadDataViewRecords(timedDataView, true, vi.fn());
+        expect(findDataViewLoadTiming(timedDataView.id)).toBeUndefined();
+
+        processRequest.mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 9, timing });
+        await loadDataViewRecords(timedDataView, true, vi.fn());
+        const keptTiming = findDataViewLoadTiming(timedDataView.id);
+        expect(keptTiming).toMatchObject(timing);
+        expect(keptTiming?.totalDuration).toBeGreaterThanOrEqual(0); // The whole load as the user waits for it, measured here.
+    });
+
+    it('splits a load’s time into parts that add up to its total, and reading into waiting, starting and parsing', () => {
+        const timing = { conversionDuration: 2000, duration: 11_500, parseDuration: 2500, retrieveDuration: 4000, sourceWaitDuration: 1000, storeDuration: 6000, totalDuration: 13_000 };
+
+        const parts = constructLoadTimingParts(timing);
+
+        expect(parts).toEqual({ converting: 2000, other: 1000, parsing: 2500, reading: 4000, starting: 500, storing: 6000, total: 13_000, waiting: 1000 });
+        expect(parts.reading + parts.converting + parts.storing + parts.other).toBe(parts.total);
+        expect(constructLoadTimingParts({ ...timing, parseDuration: undefined, sourceWaitDuration: undefined })).toMatchObject({ parsing: undefined, starting: undefined, waiting: undefined });
     });
 
     it('keeps each load’s counts of values that did not fit, moves them with the draft on Save, and forgets them on Discard', async () => {
