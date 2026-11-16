@@ -49,6 +49,8 @@ export type ChosenIgnoredColumns = Partial<Record<string, boolean>>; // Whether 
 
 export type ChosenNullWords = Partial<Record<string, boolean>>; // Whether a text column reads null words as empty, keyed by its position, as a string.
 
+export type ChosenBlankValues = Partial<Record<string, boolean>>; // Whether a text column reads blank values as empty, keyed by its position, as a string.
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const STRUCTURED_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ isStructured }) => isStructured).map(({ id }) => id));
@@ -133,14 +135,16 @@ export function constructColumnChoiceConfigs(
     chosenDecimalSeparators: ChosenDecimalSeparators = {},
     chosenNullWords: ChosenNullWords = {},
     chosenDateOrders: ChosenDateOrders = {},
-    chosenIgnoredColumns: ChosenIgnoredColumns = {}
+    chosenIgnoredColumns: ChosenIgnoredColumns = {},
+    chosenBlankValues: ChosenBlankValues = {}
 ): ColumnChoiceConfigs {
     const columnIds = new Set([
         ...Object.keys(chosenColumnTypes),
         ...Object.keys(chosenDecimalSeparators),
         ...Object.keys(chosenNullWords),
         ...Object.keys(chosenDateOrders),
-        ...Object.keys(chosenIgnoredColumns)
+        ...Object.keys(chosenIgnoredColumns),
+        ...Object.keys(chosenBlankValues)
     ]);
     const entries = [...columnIds].map((columnId): [string, ColumnChoiceConfig] => {
         const columnChoiceConfig: ColumnChoiceConfig = {
@@ -149,7 +153,8 @@ export function constructColumnChoiceConfigs(
             dateOrderId: chosenDateOrders[columnId],
             decimalSeparatorId: chosenDecimalSeparators[columnId],
             isIgnored: chosenIgnoredColumns[columnId],
-            nullWordsAreEmpty: chosenNullWords[columnId]
+            nullWordsAreEmpty: chosenNullWords[columnId],
+            blankValuesAreEmpty: chosenBlankValues[columnId]
         };
         return [columnId, columnChoiceConfig];
     });
@@ -189,14 +194,19 @@ export function constructChosenNullWords(columnChoiceConfigs: ColumnChoiceConfig
     return Object.fromEntries(entries.filter(([, nullWordsAreEmpty]) => nullWordsAreEmpty != null));
 }
 
+export function constructChosenBlankValues(columnChoiceConfigs: ColumnChoiceConfigs | undefined): ChosenBlankValues {
+    const entries = Object.entries(columnChoiceConfigs ?? {}).map(([columnId, columnChoiceConfig]) => [columnId, columnChoiceConfig?.blankValuesAreEmpty] as const);
+    return Object.fromEntries(entries.filter(([, blankValuesAreEmpty]) => blankValuesAreEmpty != null));
+}
+
 // A unit column that found no unit in the part of the item audited. It is kept, because a unit can appear past that
 // part, but it is hidden at first so a file of plain numbers does not show a column of nothing beside each one.
 export function isEmptyUnitColumn(columnConfig: ColumnAuditConfig): boolean {
     return isDerivedColumn(columnConfig) && (columnConfig.validValueCount ?? 0) === 0;
 }
 
-// A column as the user wants it read: the type, date order, decimal separator and reading of null words they chose,
-// otherwise the detected ones.
+// A column as the user wants it read: the type, date order, decimal separator and reading of null words and blank values
+// they chose, otherwise the detected ones.
 export function resolveColumnConfig(columnConfig: ColumnAuditConfig, columnChoiceConfig: ColumnChoiceConfig | undefined): ColumnAuditConfig {
     const dateOrderId = columnChoiceConfig?.dateOrderId;
     const dateReading = dateOrderId == null ? undefined : columnConfig.dateReadings?.[dateOrderId]; // The figures for the chosen order.
@@ -209,7 +219,8 @@ export function resolveColumnConfig(columnConfig: ColumnAuditConfig, columnChoic
         ...constructChosenColumnType(columnChoiceConfig, columnConfig),
         dateOrderId: dateOrderId ?? columnConfig.dateOrderId,
         decimalSeparatorId: decimalSeparatorId ?? columnConfig.decimalSeparatorId,
-        nullWordsAreEmpty: columnChoiceConfig?.nullWordsAreEmpty ?? columnConfig.nullWordsAreEmpty
+        nullWordsAreEmpty: columnChoiceConfig?.nullWordsAreEmpty ?? columnConfig.nullWordsAreEmpty,
+        blankValuesAreEmpty: columnChoiceConfig?.blankValuesAreEmpty ?? columnConfig.blankValuesAreEmpty
     };
 }
 
@@ -252,13 +263,14 @@ export function constructColumnsVersion(dataViewConfig: Pick<DataViewConfig, 'co
     const contentAuditConfig = dataViewConfig?.contentAuditConfig;
     if (contentAuditConfig == null) return;
     const chosenEntries = Object.entries(dataViewConfig?.columnChoiceConfigs ?? {}).flatMap(([columnId, columnChoiceConfig]) => {
-        const { dataSubtypeId, dataTypeId, dateOrderId, decimalSeparatorId, isIgnored, nullWordsAreEmpty } = columnChoiceConfig ?? {};
+        const { blankValuesAreEmpty, dataSubtypeId, dataTypeId, dateOrderId, decimalSeparatorId, isIgnored, nullWordsAreEmpty } = columnChoiceConfig ?? {};
         return [
             ...(dataTypeId == null ? [] : [[columnId, constructColumnTypeId({ dataSubtypeId, dataTypeId })]]),
             ...(dateOrderId == null ? [] : [[`${columnId}.dateOrder`, dateOrderId]]),
             ...(decimalSeparatorId == null ? [] : [[`${columnId}.decimalSeparator`, decimalSeparatorId]]),
             ...(isIgnored == null ? [] : [[`${columnId}.isIgnored`, String(isIgnored)]]),
-            ...(nullWordsAreEmpty == null ? [] : [[`${columnId}.nullWordsAreEmpty`, String(nullWordsAreEmpty)]])
+            ...(nullWordsAreEmpty == null ? [] : [[`${columnId}.nullWordsAreEmpty`, String(nullWordsAreEmpty)]]),
+            ...(blankValuesAreEmpty == null ? [] : [[`${columnId}.blankValuesAreEmpty`, String(blankValuesAreEmpty)]])
         ];
     });
     return chosenEntries.length === 0 ? contentAuditConfig.asAt : `${String(contentAuditConfig.asAt)}|${JSON.stringify(Object.fromEntries(chosenEntries))}`;

@@ -116,12 +116,14 @@ import {
     type DetectedColumnType
 } from './_previewColumnTypes';
 import {
+    type ChosenBlankValues,
     type ChosenColumnTypes,
     type ChosenDateOrders,
     type ChosenDecimalSeparators,
     type ChosenIgnoredColumns,
     type ChosenNullWords,
     constructAppliedReading,
+    constructChosenBlankValues,
     constructChosenColumnTypes,
     constructChosenDateOrders,
     constructChosenDecimalSeparators,
@@ -385,6 +387,7 @@ const selectedColumnTypes = ref<ChosenColumnTypes>({});
 const selectedDateOrders = ref<ChosenDateOrders>({});
 const selectedDecimalSeparators = ref<ChosenDecimalSeparators>({});
 const selectedNullWords = ref<ChosenNullWords>({});
+const selectedBlankValues = ref<ChosenBlankValues>({});
 const selectedIgnoredColumns = ref<ChosenIgnoredColumns>({});
 const detectedColumnTypes = shallowRef<DetectedColumnType[]>([]);
 
@@ -998,6 +1001,7 @@ watch(
                 ...Object.values(selectedDateOrders.value),
                 ...Object.values(selectedDecimalSeparators.value),
                 ...Object.values(selectedNullWords.value),
+                ...Object.values(selectedBlankValues.value),
                 ...Object.values(selectedIgnoredColumns.value)
             ].some((choice) => choice != null);
             selectedColumnTypes.value = isNewReadChoice ? {} : constructSavedColumnTypes(newActiveItem); // A new reading can change the columns, but reopening the saved item keeps its types.
@@ -1005,6 +1009,7 @@ watch(
             selectedDateOrders.value = constructChosenDateOrders(savedColumnChoiceConfigs);
             selectedDecimalSeparators.value = isNewReadChoice ? {} : constructSavedDecimalSeparators(newActiveItem);
             selectedNullWords.value = constructChosenNullWords(savedColumnChoiceConfigs);
+            selectedBlankValues.value = constructChosenBlankValues(savedColumnChoiceConfigs);
             selectedIgnoredColumns.value = constructChosenIgnoredColumns(savedColumnChoiceConfigs);
             detectedColumnTypes.value = constructDetectedColumnTypes(headedItemReading);
             if (isNewReadChoice) selectedColumnIndex.value = undefined; // A new reading can change the columns.
@@ -1149,6 +1154,14 @@ function handleSelectNullWords(columnId: string, areNullWordsEmpty: boolean): vo
     readingIsChanged.value = true;
     selectedNullWords.value[columnId] = areNullWordsEmpty;
     activeItemReading.value = applyPreviewNullWordChoice(activeItemReading.value, Number(columnId), areNullWordsEmpty);
+}
+
+// Only what a load stores changes, so the preview stays as it is. The draft is updated here, because the watcher that
+// updates it runs only when the preview changes.
+function handleSelectBlankValues(columnId: string, areBlankValuesEmpty: boolean): void {
+    readingIsChanged.value = true;
+    selectedBlankValues.value[columnId] = areBlankValuesEmpty;
+    changeDataView(constructEditedDataViewConfig() ?? constructItemlessDataViewConfig());
 }
 
 // Only what a load stores changes, so the preview stays as it is. The draft is updated here, because the watcher that
@@ -1442,7 +1455,8 @@ function constructEditedDataViewConfig(): DataViewConfig | undefined {
             selectedDecimalSeparators.value,
             selectedNullWords.value,
             selectedDateOrders.value,
-            selectedIgnoredColumns.value
+            selectedIgnoredColumns.value,
+            selectedBlankValues.value
         )
     };
 }
@@ -1689,6 +1703,13 @@ function constructNullWordReading(columnId: string): 'empty' | 'text' | undefine
     const columnConfig = activeItemReading.value?.columnConfigs.at(Number(columnId));
     if (columnConfig?.dataTypeId !== 'string' || isDerivedColumn(columnConfig)) return undefined;
     return selectedNullWords.value[columnId] === true ? 'empty' : 'text';
+}
+
+// Only a text column of the item has the choice. Undefined hides it.
+function constructBlankValueReading(columnId: string): 'empty' | 'text' | undefined {
+    const columnConfig = activeItemReading.value?.columnConfigs.at(Number(columnId));
+    if (columnConfig?.dataTypeId !== 'string' || isDerivedColumn(columnConfig)) return undefined;
+    return selectedBlankValues.value[columnId] === true ? 'empty' : 'text';
 }
 
 // The value of a column's type select.
@@ -1947,6 +1968,7 @@ function applySavedAudit(itemReading: ItemReading, connectionNodeConfig: Connect
     selectedDateOrders.value = constructChosenDateOrders(savedConfig.columnChoiceConfigs);
     selectedDecimalSeparators.value = constructChosenDecimalSeparators(savedConfig.columnChoiceConfigs);
     selectedNullWords.value = constructChosenNullWords(savedConfig.columnChoiceConfigs);
+    selectedBlankValues.value = constructChosenBlankValues(savedConfig.columnChoiceConfigs);
     selectedIgnoredColumns.value = constructChosenIgnoredColumns(savedConfig.columnChoiceConfigs);
     return applyAuditColumns(itemReading, savedContentAuditConfig.columns);
 }
@@ -2789,6 +2811,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             <ColumnDetailPanel
                                 v-if="selectedColumnIndex != null && activeItemReading != null"
                                 class="pointer-events-auto absolute inset-0 bg-surface shadow-md"
+                                :blank-value-reading="constructBlankValueReading(String(selectedColumnIndex))"
                                 :column-index="selectedColumnIndex"
                                 :date-order-options="constructDateOrderOptions(String(selectedColumnIndex))"
                                 :date-order-value="constructDateOrderValue(String(selectedColumnIndex))"
@@ -2807,6 +2830,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 :type-value="constructColumnTypeValue(String(selectedColumnIndex))"
                                 @close="selectedColumnIndex = undefined"
                                 @step="handleStepColumn"
+                                @update:blank-values-are-empty="handleSelectBlankValues(String(selectedColumnIndex), $event)"
                                 @update:date-order-value="handleSelectDateOrder(String(selectedColumnIndex), $event)"
                                 @update:decimal-separator-value="handleSelectDecimalSeparator(String(selectedColumnIndex), $event)"
                                 @update:is-ignored="handleSelectIgnored(String(selectedColumnIndex), $event)"

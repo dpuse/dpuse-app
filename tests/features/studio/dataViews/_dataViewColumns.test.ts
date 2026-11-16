@@ -8,6 +8,7 @@ import type { ColumnAuditConfig, ColumnChoiceConfig, ColumnChoiceConfigs, Conten
 import {
     type AppliedReading,
     constructAppliedReading,
+    constructChosenBlankValues,
     constructChosenColumnTypes,
     constructChosenDateOrders,
     constructChosenDecimalSeparators,
@@ -138,12 +139,13 @@ describe('constructPreviewContentAuditConfig', () => {
 
 describe('constructColumnChoiceConfigs', () => {
     it('keeps only the columns with something chosen, by position', () => {
-        expect(constructColumnChoiceConfigs({ 0: { dataSubtypeId: 'decimal', dataTypeId: 'numeric' } }, { 2: ',' }, { 3: true }, { 4: 'dayFirst' }, { 5: true })).toStrictEqual({
-            0: { dataSubtypeId: 'decimal', dataTypeId: 'numeric', dateOrderId: undefined, decimalSeparatorId: undefined, isIgnored: undefined, nullWordsAreEmpty: undefined },
-            2: { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: undefined, decimalSeparatorId: ',', isIgnored: undefined, nullWordsAreEmpty: undefined },
-            3: { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: undefined, decimalSeparatorId: undefined, isIgnored: undefined, nullWordsAreEmpty: true },
-            4: { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: 'dayFirst', decimalSeparatorId: undefined, isIgnored: undefined, nullWordsAreEmpty: undefined },
-            5: { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: undefined, decimalSeparatorId: undefined, isIgnored: true, nullWordsAreEmpty: undefined }
+        expect(constructColumnChoiceConfigs({ 0: { dataSubtypeId: 'decimal', dataTypeId: 'numeric' } }, { 2: ',' }, { 3: true }, { 4: 'dayFirst' }, { 5: true }, { 6: true })).toStrictEqual({
+            0: { dataSubtypeId: 'decimal', dataTypeId: 'numeric', dateOrderId: undefined, decimalSeparatorId: undefined, isIgnored: undefined, nullWordsAreEmpty: undefined, blankValuesAreEmpty: undefined },
+            2: { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: undefined, decimalSeparatorId: ',', isIgnored: undefined, nullWordsAreEmpty: undefined, blankValuesAreEmpty: undefined },
+            3: { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: undefined, decimalSeparatorId: undefined, isIgnored: undefined, nullWordsAreEmpty: true, blankValuesAreEmpty: undefined },
+            4: { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: 'dayFirst', decimalSeparatorId: undefined, isIgnored: undefined, nullWordsAreEmpty: undefined, blankValuesAreEmpty: undefined },
+            5: { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: undefined, decimalSeparatorId: undefined, isIgnored: true, nullWordsAreEmpty: undefined, blankValuesAreEmpty: undefined },
+            6: { dataSubtypeId: undefined, dataTypeId: undefined, dateOrderId: undefined, decimalSeparatorId: undefined, isIgnored: undefined, nullWordsAreEmpty: undefined, blankValuesAreEmpty: true }
         });
     });
 
@@ -188,12 +190,13 @@ describe('chosen column types', () => {
         expect(constructChosenColumnTypes(undefined)).toStrictEqual({});
     });
 
-    it('give back the decimal separators, readings of null words and date orders chosen', () => {
-        const columnChoiceConfigs = constructColumnChoiceConfigs({}, { 0: ',' }, { 1: true }, { 2: 'dayFirst' });
+    it('give back the decimal separators, readings of null words and blank values, and date orders chosen', () => {
+        const columnChoiceConfigs = constructColumnChoiceConfigs({}, { 0: ',' }, { 1: true }, { 2: 'dayFirst' }, {}, { 3: false });
 
         expect(constructChosenDecimalSeparators(columnChoiceConfigs)).toEqual({ 0: ',' });
         expect(constructChosenNullWords(columnChoiceConfigs)).toEqual({ 1: true });
         expect(constructChosenDateOrders(columnChoiceConfigs)).toEqual({ 2: 'dayFirst' });
+        expect(constructChosenBlankValues(columnChoiceConfigs)).toEqual({ 3: false });
     });
 });
 
@@ -242,6 +245,10 @@ describe('resolveColumnConfig', () => {
 
     it('uses the chosen reading of null words', () => {
         expect(resolveColumnConfig(buildColumn({}), buildColumnChoice({ nullWordsAreEmpty: true })).nullWordsAreEmpty).toBe(true);
+    });
+
+    it('uses the chosen reading of blank values', () => {
+        expect(resolveColumnConfig(buildColumn({}), buildColumnChoice({ blankValuesAreEmpty: true })).blankValuesAreEmpty).toBe(true);
     });
 
     it('keeps the detected type and subtype otherwise', () => {
@@ -294,6 +301,10 @@ describe('constructColumnsVersion', () => {
 
     it('changes with a chosen reading of null words', () => {
         expect(constructColumnsVersion(buildOneAuditedColumn({ nullWordsAreEmpty: true }))).toBe('5|{"0.nullWordsAreEmpty":"true"}');
+    });
+
+    it('changes with a chosen reading of blank values', () => {
+        expect(constructColumnsVersion(buildOneAuditedColumn({ blankValuesAreEmpty: true }))).toBe('5|{"0.blankValuesAreEmpty":"true"}');
     });
 
     it('changes with a chosen date order', () => {

@@ -1,6 +1,7 @@
 {
     "TEXT": {
         "bin.label": { "en": "{lower} to {upper}", "es": "{lower} a {upper}" },
+        "blankValues.label": { "en": "Read blank values as empty ({count} found)", "es": "Leer los valores en blanco como vacíos ({count} encontrados)" },
         "close.aria": { "en": "Close column details", "es": "Cerrar los detalles de la columna" },
         "count.estimate.text": { "en": "about {count}", "es": "unos {count}" },
         "dateOrder.label": { "en": "Date order", "es": "Orden de fecha" },

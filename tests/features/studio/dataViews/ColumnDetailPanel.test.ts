@@ -598,6 +598,16 @@ describe('ColumnDetailPanel', () => {
         expect(wrapper.emitted('update:nullWordsAreEmpty')).toEqual([[true]]);
     });
 
+    it('offers to read blank values as empty only when given the choice', async () => {
+        expect(mountPanel([buildColumn({ blankValueCount: 4, dataTypeId: 'string' })]).findAll('input[type="checkbox"]')).toHaveLength(1); // Only the ignore choice.
+        const wrapper = mountPanel([buildColumn({ blankValueCount: 4, dataTypeId: 'string' })], { blankValueReading: 'text' });
+        const checkbox = wrapper.get('input[type="checkbox"]');
+
+        expect(checkbox.element.parentElement?.textContent).toContain('4');
+        await checkbox.setValue(true);
+        expect(wrapper.emitted('update:blankValuesAreEmpty')).toEqual([[true]]);
+    });
+
     it('offers to ignore the column when loading', async () => {
         const wrapper = mountPanel([buildColumn({})], { isIgnored: true });
         const checkbox = wrapper.get('input[type="checkbox"]');

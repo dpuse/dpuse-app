@@ -327,6 +327,10 @@ const selectedNullWordReading = computed(() => {
     if (selectedColumnConfig.value?.dataTypeId !== 'string') return;
     return selectedColumnConfig.value.nullWordsAreEmpty === true ? 'empty' : 'text';
 });
+const selectedBlankValueReading = computed(() => {
+    if (selectedColumnConfig.value?.dataTypeId !== 'string') return;
+    return selectedColumnConfig.value.blankValuesAreEmpty === true ? 'empty' : 'text';
+});
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -797,6 +801,7 @@ function formatSeconds(milliseconds: number): string {
                         <ColumnDetailPanel
                             v-if="selectedColumnIndex != null && itemReading != null"
                             class="pointer-events-auto absolute inset-0 bg-surface shadow-md"
+                            :blank-value-reading="selectedBlankValueReading"
                             :column-index="selectedColumnIndex"
                             :date-order-options="selectedDateOrderOptions"
                             :date-order-value="selectedDateOrderOptions[0]?.id"

@@ -100,8 +100,9 @@ Design rules:
   them: loading, failure and retry.
 - A client that only one feature uses lives in that feature's folder (`features/assistant/chat/useChatSession.ts`).
 - `src/observability/` keeps its own folder for telemetry, error reporting and the live monitors.
-- The engine runs in a worker and loads only connectors. Tools and presenters need the DOM, so they load on the main
-  thread through the dpuse-shared loaders (`loadTool`, `loadPresenter`).
+- The engine runs in a worker and loads connectors. A connector loads the parser tools it reads items with, inside the
+  same worker, through the dpuse-shared `loadTool`. Tools and presenters that need the DOM load on the main thread
+  through the dpuse-shared loaders (`loadTool`, `loadPresenter`).
 - A module loaded once for the whole app uses `shareLoad`, so callers that arrive together share one load and a failed
   load can be tried again.
 

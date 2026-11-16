@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowDownNarrowWideIcon, ArrowDownWideNarrowIcon, AsteriskIcon, ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
+import { ArrowDownNarrowWideIcon, ArrowUpWideNarrowIcon, AsteriskIcon, ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
 import { FingerprintPatternIcon, KeyRoundIcon, TriangleAlertIcon } from '@lucide/vue';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
 
@@ -68,6 +68,7 @@ const FORMAT_ISSUE_TEXT_KEYS: Record<FormatIssueId, keyof typeof TEXT> = {
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const {
+    blankValueReading,
     columnIndex,
     dateOrderOptions = [],
     dateOrderValue,
@@ -85,6 +86,7 @@ const {
     typeOptions,
     typeValue
 } = defineProps<{
+    blankValueReading?: 'empty' | 'text'; // How blank values, such as '""' or only spaces, load. Only a text column has the choice. Not a boolean, because Vue reads a missing boolean as false.
     columnIndex: number;
     dateOrderOptions?: SelectOption[]; // Only a column of dates or date-times has any.
     dateOrderValue?: string;
@@ -108,6 +110,7 @@ defineSlots<{
 const emit = defineEmits<{
     close: [];
     step: [direction: -1 | 1];
+    'update:blankValuesAreEmpty': [blankValuesAreEmpty: boolean];
     'update:dateOrderValue': [dateOrderValue: string];
     'update:decimalSeparatorValue': [decimalSeparatorValue: string];
     'update:isIgnored': [isIgnored: boolean];
@@ -314,7 +317,7 @@ const edgeChartLists = computed(() => {
         ? [{ icon: ArrowDownNarrowWideIcon, id: 'all', label: t(TEXT, 'inOrder.title'), values: lowestValues }]
         : [
               { icon: ArrowDownNarrowWideIcon, id: 'lowest', label: t(TEXT, 'lowest.title'), values: lowestValues },
-              { icon: ArrowDownWideNarrowIcon, id: 'highest', label: t(TEXT, 'highest.title'), values: highestValues }
+              { icon: ArrowUpWideNarrowIcon, id: 'highest', label: t(TEXT, 'highest.title'), values: highestValues }
           ];
     const largestCount = Math.max(0, ...lists.flatMap((list) => list.values.map(([, count]) => count)));
     const numberFormat = new Intl.NumberFormat(localeId.value);
@@ -707,6 +710,17 @@ function constructValueChartRows(
                             @change="emit('update:nullWordsAreEmpty', ($event.target as HTMLInputElement).checked)"
                         />
                         {{ t(TEXT, 'nullWords.label', { count: new Intl.NumberFormat(localeId).format(columnConfig?.nullWordValueCount ?? 0) }) }}
+                    </label>
+                    <!-- Blank Values ─ Off by default, because a blank value can be data, and databases keep it as written. -->
+                    <label v-if="blankValueReading != null" class="mt-2 flex items-center gap-x-1.5">
+                        <input
+                            class="size-3.5 rounded accent-accent"
+                            :checked="blankValueReading === 'empty'"
+                            :disabled="isTypeDisabled"
+                            type="checkbox"
+                            @change="emit('update:blankValuesAreEmpty', ($event.target as HTMLInputElement).checked)"
+                        />
+                        {{ t(TEXT, 'blankValues.label', { count: new Intl.NumberFormat(localeId).format(columnConfig?.blankValueCount ?? 0) }) }}
                     </label>
                     <!-- Ignore ─ The column stays in the preview, so it can still be checked, but a load leaves it out. -->
                     <label class="mt-2 flex items-center gap-x-1.5">
