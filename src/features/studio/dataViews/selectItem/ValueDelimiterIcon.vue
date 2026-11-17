@@ -10,13 +10,12 @@ import type { ValueDelimiterId } from '@dpuse/dpuse-shared';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // A delimiter that can be seen shows as its own character. Space and tab cannot be seen, so they take an icon, and
-// the two separator control characters show their standard abbreviations. 'Other' has no character of its own.
+// the unit separator, a control character, shows its standard abbreviation. 'Other' has no character of its own.
 const VALUE_DELIMITER_MARKS: Record<ValueDelimiterId, Component | string> = {
     '': SeparatorVerticalIcon,
     ':': ':',
     ',': ',',
     '!': '!',
-    '0x1E': 'RS',
     ';': ';',
     ' ': SpaceIcon,
     '\t': ArrowRightToLineIcon,
@@ -56,7 +55,7 @@ function constructMarkTextClass(textMark: string): string {
         :class="{ 'border border-muted/60': isKeyCap && mark != null }"
         data-region="ValueDelimiterIcon"
     >
-        <!-- Two-letter abbreviations are set smaller, so they fit the same square as a single character. -->
+        <!-- A two-letter abbreviation is set smaller, so it fits the same square as a single character. -->
         <span v-if="typeof mark === 'string'" class="font-mono leading-none font-semibold" :class="constructMarkTextClass(mark)">{{ mark }}</span>
         <component :is="mark" v-else-if="mark" :class="isKeyCap ? 'size-3.5' : 'size-full'" :stroke-width="1.5" />
     </span>

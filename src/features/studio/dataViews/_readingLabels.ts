@@ -34,7 +34,6 @@ const VALUE_DELIMITER_LABEL_KEYS: Record<ValueDelimiterId, keyof typeof TEXT> = 
     ':': 'valueDelimiter.colon.label',
     ',': 'valueDelimiter.comma.label',
     '!': 'valueDelimiter.exclamationMark.label',
-    '0x1E': 'valueDelimiter.recordSeparator.label',
     ';': 'valueDelimiter.semicolon.label',
     ' ': 'valueDelimiter.space.label',
     '\t': 'valueDelimiter.tab.label',
