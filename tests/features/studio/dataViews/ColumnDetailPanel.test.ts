@@ -424,7 +424,7 @@ describe('ColumnDetailPanel', () => {
         const column = buildColumn({
             dataTypeId: 'string',
             validCountsAreEstimated: true,
-            validDistinctValueCount: 1551,
+            validDistinctValueCount: 5551,
             validFrequentValues: { alpha: 265, beta: 265 },
             validLowestValues: [['alpha', 265]],
             validValueCount: 396_970
@@ -432,10 +432,10 @@ describe('ColumnDetailPanel', () => {
         const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
         const panelText = wrapper.find('[role="tabpanel"]').text();
 
-        expect(findHeadings(wrapper)[0]?.[1]).toBe(t(TEXT, 'valueCount.distinct.estimated.text', { count: '396,970', distinctCount: '1,551' }));
-        expect(findHeadings(wrapper)[1]?.[1]).toBe(t(TEXT, 'edgeCount.estimated.text', { distinctCount: '1,551', shown: '1' }));
-        expect(panelText).toContain(t(TEXT, 'otherValues.estimated.text', { count: '1,549' }));
-        expect(panelText).toContain(t(TEXT, 'estimatedCounts.text', { limit: '1,000' }));
+        expect(findHeadings(wrapper)[0]?.[1]).toBe(t(TEXT, 'valueCount.distinct.estimated.text', { count: '396,970', distinctCount: '5,551' }));
+        expect(findHeadings(wrapper)[1]?.[1]).toBe(t(TEXT, 'edgeCount.estimated.text', { distinctCount: '5,551', shown: '1' }));
+        expect(panelText).toContain(t(TEXT, 'otherValues.estimated.text', { count: '5,549' }));
+        expect(panelText).toContain(t(TEXT, 'estimatedCounts.text', { limit: '4,000' }));
         expect(panelText).not.toContain(t(TEXT, 'tooManyValues.text', { limit: '1,000' }));
     });
 

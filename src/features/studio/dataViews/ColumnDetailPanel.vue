@@ -39,6 +39,7 @@ type DetailTabId = 'formats' | 'overview' | 'values';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const ESTIMATED_VALUE_LIMIT = 4000; // The most different values the engine keeps exact counts for, as 'MAX_KEPT_VALUE_COUNT' sets it there. Past it the counts are estimates.
 const COUNTED_VALUE_LIMIT = 1000; // The most different values the engine counts in a column, as 'MAX_COUNTED_VALUE_COUNT' sets it there.
 const MIN_SHOWN_SHARE = 0.001; // The smallest share the legend shows as a number, 0.1%, its one decimal place.
 // A fifth of the colour reads clearly on a white card, but stays close to black on a dark one, so dark mode mixes in
@@ -771,7 +772,7 @@ function constructValueChartRows(
                     <CountBarList v-else :bar-color-class="VALID_BAR_COLOR_CLASS" class="mt-1.5" :rows="frequencyRows" />
                     <p v-if="seenOnceText" class="mt-1.5 mb-0 text-muted">{{ seenOnceText }}</p>
                     <p v-if="countsAreEstimated" class="mt-1.5 mb-0 text-muted">
-                        {{ t(TEXT, 'estimatedCounts.text', { limit: new Intl.NumberFormat(localeId).format(COUNTED_VALUE_LIMIT) }) }}
+                        {{ t(TEXT, 'estimatedCounts.text', { limit: new Intl.NumberFormat(localeId).format(ESTIMATED_VALUE_LIMIT) }) }}
                     </p>
                 </section>
 
