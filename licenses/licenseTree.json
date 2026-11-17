@@ -1,5 +1,5 @@
 {
-  "version": "1.0.297",
+  "version": "1.0.298",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -217,8 +217,8 @@
       "overridden": false
     },
     "@dpuse/dpuse-development": {
-      "version": "1.0.155",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.155.tgz",
+      "version": "1.0.156",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.156.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
@@ -3273,8 +3273,8 @@
           }
         },
         "eslint-plugin-jsdoc": {
-          "version": "65.4.9",
-          "resolved": "https://registry.npmjs.org/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-65.4.9.tgz",
+          "version": "65.4.10",
+          "resolved": "https://registry.npmjs.org/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-65.4.10.tgz",
           "overridden": false,
           "dependencies": {
             "@es-joy/escodegen": {
@@ -6408,8 +6408,8 @@
           "overridden": false
         },
         "picomatch": {
-          "version": "4.0.5",
-          "resolved": "https://registry.npmjs.org/picomatch/-/picomatch-4.0.5.tgz",
+          "version": "4.0.7",
+          "resolved": "https://registry.npmjs.org/picomatch/-/picomatch-4.0.7.tgz",
           "overridden": false
         },
         "pidtree": {
@@ -6729,13 +6729,13 @@
               "overridden": false,
               "dependencies": {
                 "picomatch": {
-                  "version": "4.0.5"
+                  "version": "4.0.7"
                 }
               }
             },
             "picomatch": {
-              "version": "4.0.5",
-              "resolved": "https://registry.npmjs.org/picomatch/-/picomatch-4.0.5.tgz",
+              "version": "4.0.7",
+              "resolved": "https://registry.npmjs.org/picomatch/-/picomatch-4.0.7.tgz",
               "overridden": false
             }
           }
