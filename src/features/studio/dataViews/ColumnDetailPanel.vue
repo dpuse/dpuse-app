@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { ArrowDownNarrowWideIcon, ArrowUpWideNarrowIcon, AsteriskIcon, ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
-import { FingerprintPatternIcon, KeyRoundIcon, TagsIcon, TriangleAlertIcon } from '@lucide/vue';
+import { FingerprintPatternIcon, KeyRoundIcon, RulerIcon, TagsIcon, TriangleAlertIcon } from '@lucide/vue';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
@@ -385,12 +385,24 @@ const invalidCountText = computed(() => constructValueCountText(columnConfig.val
 const overviewFacts = computed(() => {
     if (columnConfig.value == null) return [];
     const facts = constructColumnFacts(itemReading, columnIndex, detectedColumnType, isAuditComplete);
+    const unitFacts = columnConfig.value.dataTypeId === 'numeric' ? [{ icon: RulerIcon, id: 'unit', label: t(TEXT, 'unit.label'), value: unitText.value }] : []; // Only a number has a unit.
     return [
         { icon: KeyRoundIcon, id: 'key', label: t(TEXT, 'key.label'), value: formatYesNo(facts.isKey) },
         { icon: FingerprintPatternIcon, id: 'unique', label: headers.value.uniqueText, value: formatYesNo(facts.isUnique) },
         { icon: AsteriskIcon, id: 'mandatory', label: t(TEXT, 'mandatory.label'), value: formatYesNo(facts.isMandatory) },
-        { icon: TagsIcon, id: 'coded', label: t(TEXT, 'coded.label'), value: formatYesNo(isAuditComplete ? columnConfig.value.isCoded === true : undefined) } // The engine marks a column of codes and leaves any other unmarked.
+        { icon: TagsIcon, id: 'coded', label: t(TEXT, 'coded.label'), value: formatYesNo(isAuditComplete ? columnConfig.value.isCoded === true : undefined) }, // The engine marks a column of codes and leaves any other unmarked.
+        ...unitFacts
     ];
+});
+
+// The unit a column's numbers are written with, which they load without. One unit is kept on the column itself. More
+// than one are listed in the unit column the audit adds for the column, where each number's own unit is. A column with
+// neither has none, once every value is audited, and until then a unit could still appear.
+const unitText = computed(() => {
+    const unitColumnConfig = itemReading.columnConfigs.find((config) => config.derivedFromColumnIndex === columnIndex);
+    const unitIds = columnConfig.value?.unitId == null ? Object.keys(unitColumnConfig?.validFrequentValues ?? {}) : [columnConfig.value.unitId];
+    if (unitIds.length > 0) return new Intl.ListFormat(localeId.value, { style: 'short', type: 'unit' }).format(unitIds);
+    return t(TEXT, isAuditComplete ? 'unit.none.label' : 'unit.unknown.label');
 });
 
 // ── Tabs ─ A tab with nothing to show is left out. The invalid count stays visible on Values, in the danger colour, so a

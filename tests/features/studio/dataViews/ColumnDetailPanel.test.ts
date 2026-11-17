@@ -449,6 +449,21 @@ describe('ColumnDetailPanel', () => {
         expect(partialText).toContain(`${t(TEXT, 'coded.label')}${t(ROW_TEXT, 'answer.unknown.label')}`);
     });
 
+    it('says which unit a column of numbers is written with, on the Overview', () => {
+        const unitColumn = buildColumn({ dataTypeId: 'string', derivedFromColumnIndex: 0, validFrequentValues: { $: 2, '€': 1 }, validValueCount: 3 });
+        const oneUnitText = mountPanel([buildColumn({ dataTypeId: 'numeric', unitId: '$' })], { isAuditComplete: true }).text();
+        const severalUnitsText = mountPanel([buildColumn({ dataTypeId: 'numeric' }), unitColumn], { isAuditComplete: true }).text();
+        const noUnitText = mountPanel([buildColumn({ dataTypeId: 'numeric' })], { isAuditComplete: true }).text();
+        const partialText = mountPanel([buildColumn({ dataTypeId: 'numeric' })], { isAuditComplete: false }).text();
+        const textColumnText = mountPanel([buildColumn({ dataTypeId: 'string' })], { isAuditComplete: true }).text();
+
+        expect(oneUnitText).toContain(`${t(TEXT, 'unit.label')}$`);
+        expect(severalUnitsText).toContain(`${t(TEXT, 'unit.label')}$, €`);
+        expect(noUnitText).toContain(`${t(TEXT, 'unit.label')}${t(TEXT, 'unit.none.label')}`);
+        expect(partialText).toContain(`${t(TEXT, 'unit.label')}${t(TEXT, 'unit.unknown.label')}`);
+        expect(textColumnText).not.toContain(t(TEXT, 'unit.label')); // Only a number has a unit.
+    });
+
     it('lists the formats as bars, most common first, without the type counts', async () => {
         const wrapper = mountPanel([buildColumn({ validFormats: { '9,9': 2, '9.9': 7 }, inferenceCounts: { 'numeric.decimal': 9 } })]);
 
