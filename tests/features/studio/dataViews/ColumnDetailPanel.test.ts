@@ -420,6 +420,35 @@ describe('ColumnDetailPanel', () => {
         ]);
     });
 
+    it('says the distinct count is about so many, and lists the frequent values found, when the counts are estimates', async () => {
+        const column = buildColumn({
+            dataTypeId: 'string',
+            validCountsAreEstimated: true,
+            validDistinctValueCount: 1551,
+            validFrequentValues: { alpha: 265, beta: 265 },
+            validLowestValues: [['alpha', 265]],
+            validValueCount: 396_970
+        });
+        const wrapper = await openTab(mountPanel([column]), t(TEXT, 'tab.values.label'));
+        const panelText = wrapper.find('[role="tabpanel"]').text();
+
+        expect(findHeadings(wrapper)[0]?.[1]).toBe(t(TEXT, 'valueCount.distinct.estimated.text', { count: '396,970', distinctCount: '1,551' }));
+        expect(findHeadings(wrapper)[1]?.[1]).toBe(t(TEXT, 'edgeCount.estimated.text', { distinctCount: '1,551', shown: '1' }));
+        expect(panelText).toContain(t(TEXT, 'otherValues.estimated.text', { count: '1,549' }));
+        expect(panelText).toContain(t(TEXT, 'estimatedCounts.text', { limit: '1,000' }));
+        expect(panelText).not.toContain(t(TEXT, 'tooManyValues.text', { limit: '1,000' }));
+    });
+
+    it('says whether the column appears to hold codes, on the Overview', () => {
+        const codedText = mountPanel([buildColumn({ dataTypeId: 'string', isCoded: true })], { isAuditComplete: true }).text();
+        const plainText = mountPanel([buildColumn({ dataTypeId: 'string' })], { isAuditComplete: true }).text();
+        const partialText = mountPanel([buildColumn({ dataTypeId: 'string', isCoded: true })], { isAuditComplete: false }).text();
+
+        expect(codedText).toContain(`${t(TEXT, 'coded.label')}${t(ROW_TEXT, 'answer.yes.label')}`);
+        expect(plainText).toContain(`${t(TEXT, 'coded.label')}${t(ROW_TEXT, 'answer.no.label')}`);
+        expect(partialText).toContain(`${t(TEXT, 'coded.label')}${t(ROW_TEXT, 'answer.unknown.label')}`);
+    });
+
     it('lists the formats as bars, most common first, without the type counts', async () => {
         const wrapper = mountPanel([buildColumn({ validFormats: { '9,9': 2, '9.9': 7 }, inferenceCounts: { 'numeric.decimal': 9 } })]);
 

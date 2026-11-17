@@ -300,7 +300,7 @@ const itemReading = computed((): ItemReading | undefined => {
     if (readingConfig == null || sampleConfig == null) return undefined;
     const storeCounts = selectedColumnValueCounts.value?.dataSourceId === dataSource.value.id ? selectedColumnValueCounts.value : undefined;
     const readingColumnConfigs = columnConfigs.value.map((columnConfig, index) =>
-        index === storeCounts?.columnIndex ? { ...columnConfig, ...storeCounts.valueCounts } : columnConfig
+        index === storeCounts?.columnIndex ? { ...columnConfig, ...storeCounts.valueCounts, validCountsAreEstimated: undefined } : columnConfig
     );
     return { ...readingConfig, ...sampleConfig, columnConfigs: readingColumnConfigs };
 });
@@ -403,7 +403,8 @@ watch(
 // opens, the store counts them, and again after a new load. A count that arrives after the user has moved on is dropped.
 watch([selectedColumnIndex, (): string | undefined => dataSource.value.id], async ([columnIndex, dataSourceId]) => {
     const columnConfig = columnIndex == null ? undefined : columnConfigs.value[columnIndex];
-    const isCounted = columnConfig?.validFrequentValues == null || Object.keys(columnConfig.validFrequentValues).length > 0 || columnConfig.validDistinctValueCount != null;
+    const hasCounts = columnConfig?.validFrequentValues == null || Object.keys(columnConfig.validFrequentValues).length > 0 || columnConfig.validDistinctValueCount != null;
+    const isCounted = hasCounts && columnConfig?.validCountsAreEstimated !== true; // Estimates are replaced by the store's exact counts too.
     const tablePath = dataViewConfig.value == null ? undefined : resolveDataViewTablePath(dataViewConfig.value, draftIsCurrent.value);
     if (tablePath == null || columnIndex == null || isCounted || dataViewConfig.value == null) return;
     try {

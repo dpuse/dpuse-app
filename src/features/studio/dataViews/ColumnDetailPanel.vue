@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { ArrowDownNarrowWideIcon, ArrowUpWideNarrowIcon, AsteriskIcon, ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
-import { FingerprintPatternIcon, KeyRoundIcon, TriangleAlertIcon } from '@lucide/vue';
+import { FingerprintPatternIcon, KeyRoundIcon, TagsIcon, TriangleAlertIcon } from '@lucide/vue';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
@@ -239,6 +239,7 @@ const largestValueCount = computed(() =>
     Math.max(0, ...Object.values(columnConfig.value?.validFrequentValues ?? {}), ...Object.values(columnConfig.value?.invalidFrequentValues ?? {}))
 );
 const validDistinctValueCount = computed(() => columnConfig.value?.validDistinctValueCount);
+const countsAreEstimated = computed(() => columnConfig.value?.validCountsAreEstimated === true); // A column with more distinct values than the engine counts exactly, whose distinct count and frequent values are estimates.
 const validChartRows = computed((): CountBarRow[] => {
     const config = columnConfig.value;
     return constructValueChartRows(
@@ -247,7 +248,8 @@ const validChartRows = computed((): CountBarRow[] => {
         validDistinctValueCount.value ?? 0,
         config?.validValueCount ?? 0,
         largestValueCount.value,
-        compareValidValues
+        compareValidValues,
+        countsAreEstimated.value
     );
 });
 const invalidChartRows = computed((): CountBarRow[] => {
@@ -348,10 +350,11 @@ const frequencyRows = computed((): CountBarRow[] => {
     const numberFormat = new Intl.NumberFormat(localeId.value);
     const otherCount = (columnConfig.value?.validValueCount ?? 0) - mostFrequentRows.map((row): number => row.count).reduce((total, count) => total + count, 0);
     const otherDistinctCount = (validDistinctValueCount.value ?? 0) - mostFrequentRows.length;
-    const label = t(TEXT, 'otherValues.text', { count: numberFormat.format(otherDistinctCount) });
+    const label = t(TEXT, countsAreEstimated.value ? 'otherValues.estimated.text' : 'otherValues.text', { count: numberFormat.format(otherDistinctCount) });
     return [...mostFrequentRows, { barPercent: undefined, count: otherCount, countText: numberFormat.format(otherCount), key: 'other', label }];
 });
 const uniformCountText = computed(() => {
+    if (countsAreEstimated.value) return; // An estimated count cannot show that every value appears as often.
     const distinctCount = validDistinctValueCount.value;
     const listedRows = validChartRows.value.filter((row) => row.barPercent != null);
     const count = listedRows[0]?.count;
@@ -372,7 +375,7 @@ const seenOnceText = computed(() => {
 // ── Headings ─ Each section's title, with its counts apart on the right, in line with the counts of its rows. The
 // distinct count beside the count shows whether the values are a few categories or mostly one-offs such as names. Past
 // the limit the engine cannot count distinct values, so then only the count is given.
-const validCountText = computed(() => constructValueCountText(columnConfig.value?.validValueCount ?? 0, validDistinctValueCount.value));
+const validCountText = computed(() => constructValueCountText(columnConfig.value?.validValueCount ?? 0, validDistinctValueCount.value, countsAreEstimated.value));
 const invalidCountText = computed(() => constructValueCountText(columnConfig.value?.invalidValueCount ?? 0, columnConfig.value?.invalidDistinctValueCount));
 
 // ── Overview ─ What the values suggest about the column, as a guess the data supports rather than a rule the source
@@ -384,7 +387,8 @@ const overviewFacts = computed(() => {
     return [
         { icon: KeyRoundIcon, id: 'key', label: t(TEXT, 'key.label'), value: formatYesNo(facts.isKey) },
         { icon: FingerprintPatternIcon, id: 'unique', label: headers.value.uniqueText, value: formatYesNo(facts.isUnique) },
-        { icon: AsteriskIcon, id: 'mandatory', label: t(TEXT, 'mandatory.label'), value: formatYesNo(facts.isMandatory) }
+        { icon: AsteriskIcon, id: 'mandatory', label: t(TEXT, 'mandatory.label'), value: formatYesNo(facts.isMandatory) },
+        { icon: TagsIcon, id: 'coded', label: t(TEXT, 'coded.label'), value: formatYesNo(isAuditComplete ? columnConfig.value.isCoded === true : undefined) } // The engine marks a column of codes and leaves any other unmarked.
     ];
 });
 
@@ -484,7 +488,8 @@ function constructEdgeCountText(shownCount: number): string {
     const numberFormat = new Intl.NumberFormat(localeId.value);
     const distinctCount = validDistinctValueCount.value;
     const shown = numberFormat.format(shownCount);
-    return distinctCount == null ? t(TEXT, 'edgeCount.shown.text', { shown }) : t(TEXT, 'edgeCount.text', { distinctCount: numberFormat.format(distinctCount), shown });
+    if (distinctCount == null) return t(TEXT, 'edgeCount.shown.text', { shown });
+    return t(TEXT, countsAreEstimated.value ? 'edgeCount.estimated.text' : 'edgeCount.text', { distinctCount: numberFormat.format(distinctCount), shown });
 }
 
 // '4 whole digits', '1 decimal place' or '0 to 2 decimal places'.
@@ -494,10 +499,11 @@ function constructDigitRangeText(subject: 'decimalPlaces' | 'wholeDigits', minim
     return t(TEXT, maximum === 1 ? `${subject}.one.text` : `${subject}.other.text`, { count: numberFormat.format(maximum) });
 }
 
-function constructValueCountText(count: number, distinctCount: number | undefined): string {
+function constructValueCountText(count: number, distinctCount: number | undefined, isEstimated = false): string {
     const numberFormat = new Intl.NumberFormat(localeId.value);
     const values = { count: numberFormat.format(count), distinctCount: numberFormat.format(distinctCount ?? 0) };
     if (distinctCount == null) return t(TEXT, count === 1 ? 'valueCount.one.text' : 'valueCount.other.text', values);
+    if (isEstimated) return t(TEXT, 'valueCount.distinct.estimated.text', values);
     return t(TEXT, count === 1 ? 'valueCount.distinct.one.text' : 'valueCount.distinct.other.text', values);
 }
 
@@ -553,7 +559,8 @@ function constructValueChartRows(
     distinctCount: number,
     totalCount: number,
     largestCount: number,
-    compareIds?: (left: string, right: string) => number
+    compareIds?: (left: string, right: string) => number,
+    isEstimated = false
 ): CountBarRow[] {
     const constructBarRow = ({ count, countText, id }: { count: number; countText: string; id: string }): CountBarRow => ({
         barPercent: largestCount === 0 ? 0 : (count / largestCount) * 100,
@@ -574,7 +581,7 @@ function constructValueChartRows(
         count: otherCount,
         countText: numberFormat.format(otherCount),
         key: 'other',
-        label: t(TEXT, 'otherValues.text', { count: numberFormat.format(otherDistinctCount) })
+        label: t(TEXT, isEstimated ? 'otherValues.estimated.text' : 'otherValues.text', { count: numberFormat.format(otherDistinctCount) })
     };
     return [...frequentRows.map((row) => constructBarRow(row)), otherRow, ...leastRows.map((row) => constructBarRow(row))];
 }
@@ -763,6 +770,9 @@ function constructValueChartRows(
                     <p v-else-if="uniformCountText" class="mt-1 mb-0 text-muted">{{ uniformCountText }}</p>
                     <CountBarList v-else :bar-color-class="VALID_BAR_COLOR_CLASS" class="mt-1.5" :rows="frequencyRows" />
                     <p v-if="seenOnceText" class="mt-1.5 mb-0 text-muted">{{ seenOnceText }}</p>
+                    <p v-if="countsAreEstimated" class="mt-1.5 mb-0 text-muted">
+                        {{ t(TEXT, 'estimatedCounts.text', { limit: new Intl.NumberFormat(localeId).format(COUNTED_VALUE_LIMIT) }) }}
+                    </p>
                 </section>
 
                 <!-- Edges ─ Side by side when the panel is wide, because each list is short. Stacked, the second list has

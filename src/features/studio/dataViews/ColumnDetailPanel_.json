@@ -3,6 +3,7 @@
         "bin.label": { "en": "{lower} to {upper}", "es": "{lower} a {upper}" },
         "blankValues.label": { "en": "Read blank values as empty ({count} found)", "es": "Leer los valores en blanco como vacíos ({count} encontrados)" },
         "close.aria": { "en": "Close column details", "es": "Cerrar los detalles de la columna" },
+        "coded.label": { "en": "Appears to hold codes", "es": "Parece contener códigos" },
         "count.estimate.text": { "en": "about {count}", "es": "unos {count}" },
         "dateOrder.label": { "en": "Date order", "es": "Orden de fecha" },
         "decimalPlaces.none.text": { "en": "no decimal places", "es": "0 decimales" },
@@ -33,8 +34,13 @@
         "distribution.log.title": { "en": "Distribution, log scale", "es": "Distribución, escala logarítmica" },
         "distribution.title": { "en": "Distribution", "es": "Distribución" },
         "edgeCount.all.text": { "en": "All {count} distinct", "es": "Los {count} distintos" },
+        "edgeCount.estimated.text": { "en": "{shown} of about {distinctCount} distinct", "es": "{shown} de unos {distinctCount} distintos" },
         "edgeCount.shown.text": { "en": "{shown} shown", "es": "{shown} mostrados" },
         "edgeCount.text": { "en": "{shown} of {distinctCount} distinct", "es": "{shown} de {distinctCount} distintos" },
+        "estimatedCounts.text": {
+            "en": "More than {limit} distinct values, so the number of distinct values is an estimate and only the most frequent values found are listed.",
+            "es": "Más de {limit} valores distintos, así que el número de valores distintos es una estimación y solo se muestran los más frecuentes encontrados."
+        },
         "formatIssue.booleanPairMixed.text": {
             "en": "Yes/no values are written in more than one way, such as 'true' and 'no'. The column may join two sources.",
             "es": "Los valores sí/no se escriben de más de una forma, como 'true' y 'no'. La columna puede unir dos orígenes."
@@ -99,6 +105,7 @@
             "en": "The {listed} most common of {total} formats are shown. The other {count} formats cover {values}.",
             "es": "Se muestran los {listed} formatos más comunes de {total}. Los otros {count} formatos abarcan {values}."
         },
+        "otherValues.estimated.text": { "en": "About {count} other values", "es": "Unos {count} valores más" },
         "otherValues.text": { "en": "{count} other values", "es": "{count} valores más" },
         "outliers.above.label": { "en": "{value} and above", "es": "{value} o más" },
         "outliers.below.label": { "en": "Below {value}", "es": "Por debajo de {value}" },
@@ -119,6 +126,7 @@
         "uniformCount.other.text": { "en": "All {distinctCount} values appear {count} times each.", "es": "Los {distinctCount} valores aparecen {count} veces cada uno." },
         "validValues.title": { "en": "Valid Values", "es": "Valores válidos" },
         "valueChart.label": { "en": "Values", "es": "Valores" },
+        "valueCount.distinct.estimated.text": { "en": "{count} values, about {distinctCount} distinct", "es": "{count} valores, unos {distinctCount} distintos" },
         "valueCount.distinct.one.text": { "en": "1 value, 1 distinct", "es": "1 valor, 1 distinto" },
         "valueCount.distinct.other.text": { "en": "{count} values, {distinctCount} distinct", "es": "{count} valores, {distinctCount} distintos" },
         "valueCount.one.text": { "en": "1 value", "es": "1 valor" },

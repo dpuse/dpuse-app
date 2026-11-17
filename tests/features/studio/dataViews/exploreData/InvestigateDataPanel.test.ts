@@ -336,6 +336,31 @@ describe('InvestigateDataPanel', () => {
         expect(columnConfigs[1]).toMatchObject(valueCounts);
     });
 
+    it('counts a column’s values in the store when the audit only estimated them, and shows the counts as exact', async () => {
+        const estimatedCounts = { validCountsAreEstimated: true, validDistinctValueCount: 4400, validFrequentValues: { a: 8 }, validValueCount: 6000 };
+        const estimatedColumn = { ...AUDITED_DATA_VIEW.contentAuditConfig.columns[1], inferenceCounts: {}, validFormats: {}, ...estimatedCounts };
+        dataView.config = {
+            ...AUDITED_DATA_VIEW,
+            contentAuditConfig: { asAt: 1, columns: [{ ...AUDITED_DATA_VIEW.contentAuditConfig.columns[0], inferenceCounts: {}, validFormats: {} }, estimatedColumn] },
+            readingConfig: { dataFormatId: 'dsv' },
+            sampleConfig: { parsedRecords: [], size: 0, text: '' }
+        };
+        const valueCounts = { validDistinctValueCount: 4321, validFrequentValues: { a: 9 }, validLeastFrequentValues: { z: 1 }, validValueCount: 6000 };
+        vi.mocked(queryDataViewColumnValueCounts).mockResolvedValue(valueCounts);
+        const wrapper = mount(InvestigateDataPanel, { global: { stubs: { RouterLink: RouterLinkStub, Table: TableStub } } });
+        await settle();
+
+        await wrapper
+            .findAll('button')
+            .find((button) => button.text() === 'Day')
+            ?.trigger('click');
+        await settle();
+
+        expect(queryDataViewColumnValueCounts).toHaveBeenCalledWith('dpuse-connector-sqlite-wasm', 'dataView1', STORED_COLUMN_CONFIGS, 1);
+        const { columnConfigs } = wrapper.findComponent(ColumnDetailPanel).props('itemReading');
+        expect(columnConfigs[1]).toMatchObject({ ...valueCounts, validCountsAreEstimated: undefined });
+    });
+
     it('counts a column at its position in the store, which leaves ignored columns out', async () => {
         const uncountedColumn = { ...AUDITED_DATA_VIEW.contentAuditConfig.columns[1], inferenceCounts: {}, validFormats: {}, validFrequentValues: {}, validValueCount: 5000 };
         dataView.config = {
