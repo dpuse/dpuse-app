@@ -7,6 +7,7 @@ import { mount, RouterLinkStub } from '@vue/test-utils';
 import { constructStoreError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
 import ColumnDetailPanel from '@/features/studio/dataViews/ColumnDetailPanel.vue';
 import { constructFittedColumnWidth } from '@/components/ui/table/tableColumnWidth';
 import type { DataViewStoreConfig } from '@/features/studio/dataViews/_dataViewStore';
@@ -53,6 +54,12 @@ vi.mock('@/features/studio/dataViews/_dataViews', async (importOriginal) => {
         useCurrentDataView: (): { data: unknown; draftIsCurrent: unknown } => ({ data: computed(() => dataView.config), draftIsCurrent: computed(() => false) })
     };
 });
+// A store choice goes into the data view's draft. The spec checks what was put there.
+vi.mock('@/features/studio/dataViews/_dataViewDraft', async (importOriginal) => ({
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
+    ...(await importOriginal<typeof import('@/features/studio/dataViews/_dataViewDraft')>()),
+    changeDataView: vi.fn()
+}));
 vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
     abortDataViewRecordLoad: vi.fn(),
     constructLoadTimingParts: vi.fn(),
@@ -61,6 +68,7 @@ vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
     findDataViewLoadTiming: vi.fn(),
     forgetDataViewLoad: vi.fn(),
     hasDataViewLoad: vi.fn(),
+    INVESTIGATE_STORE_CONNECTOR_ID: 'dpuse-connector-sqlite-wasm',
     isDataViewLoaded: vi.fn(),
     listDataViewStoreConfigs: vi.fn((): unknown[] => []),
     loadDataViewRecords: vi.fn(),
@@ -68,7 +76,7 @@ vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
     queryDataViewColumnValueCounts: vi.fn(),
     queryDataViewRecords: vi.fn(),
     resolveDataViewTablePath: ({ id }: { id: string }): string => id,
-    resolveStoreConnectorId: (): string => 'dpuse-connector-sqlite-wasm'
+    resolveStoreConnectorId: (config?: { storeConnectorId?: string }): string => config?.storeConnectorId ?? 'dpuse-connector-sqlite-wasm'
 }));
 // The panel holds its store while it shows it. The release stands for letting go, which closes the store for other tabs.
 const storeUse = vi.hoisted(() => ({ releaseStore: vi.fn(() => Promise.resolve()) }));
@@ -537,6 +545,42 @@ describe('InvestigateDataPanel', () => {
         const trigger = wrapper.find(`[aria-label="${t(TEXT, 'store.aria', { label: 'SQLite' })}"]`);
         expect(trigger.text()).toContain('SQLite');
         expect(wrapper.text()).not.toContain(t(TEXT, 'load.again.label'));
+    });
+
+    it('lists Auto first in the store menu, ticked while no store is chosen, naming the default store', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(listDataViewStoreConfigs).mockReturnValue(STORE_CONFIGS);
+        const wrapper = mountPanel();
+        await settle();
+
+        await wrapper.get(`[aria-label="${t(TEXT, 'store.aria', { label: 'SQLite' })}"]`).trigger('click');
+        const storeItems = wrapper.findAll('[role="menuitemradio"]');
+
+        expect(storeItems.map((storeItem) => storeItem.text())).toEqual([t(TEXT, 'store.auto.label', { label: 'SQLite' }), 'DuckDB', 'PGlite', 'SQLite']);
+        expect(storeItems.map((storeItem) => storeItem.attributes('aria-checked'))).toEqual(['true', 'false', 'false', 'false']);
+    });
+
+    it('keeps a store choice in the data view, and loads only when the records move to another store', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(listDataViewStoreConfigs).mockReturnValue(STORE_CONFIGS);
+        const wrapper = mountPanel();
+        await settle();
+        const chooseStore = async (label: string): Promise<void> => {
+            await wrapper.get(`[aria-label="${t(TEXT, 'store.aria', { label: 'SQLite' })}"]`).trigger('click');
+            await wrapper
+                .findAll('[role="menuitemradio"]')
+                .find((storeItem) => storeItem.text() === label)
+                ?.trigger('click');
+            await settle();
+        };
+
+        await chooseStore('SQLite'); // Auto already means SQLite, so the records stay where they are.
+        expect(changeDataView).toHaveBeenLastCalledWith(expect.objectContaining({ storeConnectorId: 'dpuse-connector-sqlite-wasm' }));
+        expect(loadDataViewRecords).not.toHaveBeenCalled();
+
+        await chooseStore('DuckDB');
+        expect(changeDataView).toHaveBeenLastCalledWith(expect.objectContaining({ storeConnectorId: 'dpuse-connector-duckdb-wasm' }));
+        expect(loadDataViewRecords).toHaveBeenCalledOnce();
     });
 
     it('says the data has not been loaded when the data view has never been loaded', async () => {

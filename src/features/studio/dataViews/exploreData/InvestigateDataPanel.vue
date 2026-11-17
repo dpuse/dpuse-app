@@ -30,6 +30,7 @@ import {
     findDataViewLoadTiming,
     forgetDataViewLoad,
     hasDataViewLoad,
+    INVESTIGATE_STORE_CONNECTOR_ID,
     isDataViewLoaded,
     listDataViewStoreConfigs,
     loadDataViewRecords,
@@ -158,11 +159,13 @@ const { ignoreItemChange, itemChangedAt, itemChangeIsShown } = useItemChange(dat
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const storeConnectorId = computed(() => resolveStoreConnectorId(dataViewConfig.value)); // Chosen on the item step, or by 'Load again'.
+const storeConnectorId = computed(() => resolveStoreConnectorId(dataViewConfig.value)); // Chosen on the item step or here, or else the default store.
 const invalidValueCounts = computed(() => (dataViewConfig.value == null ? [] : (findDataViewInvalidValueCounts(dataViewConfig.value, draftIsCurrent.value) ?? []))); // Kept with the load, so they show on every visit. A load made before they were kept has none.
 const storeConfigs = computed(() => listDataViewStoreConfigs()); // With the planned stores, which are listed but cannot be chosen yet.
 const storeIsChoosable = computed(() => storeConfigs.value.filter((storeConfig) => !storeConfig.isPlanned).length > 1);
 const currentStoreConfig = computed(() => storeConfigs.value.find((storeConfig) => storeConfig.id === storeConnectorId.value));
+const defaultStoreConfig = computed(() => storeConfigs.value.find((storeConfig) => storeConfig.id === INVESTIGATE_STORE_CONNECTOR_ID));
+const storeIsAuto = computed(() => dataViewConfig.value?.storeConnectorId == null); // No store chosen, so the data view uses the default one.
 
 const messageKey = computed(() => {
     return investigateState.value.typeId === 'notLoaded' && hasEarlierLoad.value ? 'load.changed.text' : MESSAGE_KEYS[investigateState.value.typeId];
@@ -488,12 +491,15 @@ function handleStepColumn(direction: -1 | 1): void {
     tableComponent.value?.scrollColumnIntoView(constructColumnKey(nextColumnIndex)); // Brings the tab into view, as on the item step.
 }
 
-// A different store becomes the data view's unsaved choice, as on the item step, and takes the records from this load.
-// The panel lets go of the old store, so another tab can use it. Choosing the current store just loads again.
-function handleLoadAgainIntoStore(chosenStoreConnectorId: string): void {
-    const storeIsChanged = dataViewConfig.value != null && chosenStoreConnectorId !== storeConnectorId.value;
-    if (storeIsChanged) changeDataView({ ...assertDefined(dataViewConfig.value), storeConnectorId: chosenStoreConnectorId });
-    void openAndLoad(true);
+// A choice becomes the data view's unsaved choice, as on the item step. No store means Auto. A different store takes the
+// records, so they are loaded into it, and the panel lets go of the old store so another tab can use it. A choice that
+// leaves the records where they are, such as Auto while the default store already holds them, loads nothing.
+function handleChooseStore(chosenStoreConnectorId?: string): void {
+    const config = dataViewConfig.value;
+    if (config == null || chosenStoreConnectorId === config.storeConnectorId) return;
+    const storeIsChanged = resolveStoreConnectorId({ storeConnectorId: chosenStoreConnectorId }) !== storeConnectorId.value;
+    changeDataView({ ...config, storeConnectorId: chosenStoreConnectorId });
+    if (storeIsChanged) void openAndLoad(true);
 }
 
 function handleStopLoad(): void {
@@ -768,9 +774,10 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                             <SlidersHorizontalIcon aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
                             {{ t(TEXT, 'transform.label') }}
                         </ActionWrapper>
-                        <!-- Store ─ Shows where the records are. A menu of the stores when there is more than one, so the
-                             records can move to another store without going back to the item step. Choosing a store loads
-                             the records into it, and choosing the ticked one loads them again. -->
+                        <!-- Store ─ Shows where the records are, in italics while it is the default no one chose. A menu of the
+                             stores when there is more than one, so the records can move to another store without going back
+                             to the item step. Auto comes first, as on the item step, and names the default store. Choosing
+                             a different store loads the records into it. -->
                         <Menu.Root v-if="storeIsChoosable" class="flex">
                             <template #trigger="{ triggerAttributes }">
                                 <ActionWrapper
@@ -781,18 +788,27 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                                     <span class="flex size-4.5 flex-none">
                                         <ConfigIcon class="size-full" :icon="currentStoreConfig?.icon" :icon-dark="currentStoreConfig?.iconDark" />
                                     </span>
-                                    {{ currentStoreConfig?.label }}
+                                    <span :class="{ italic: storeIsAuto }">{{ currentStoreConfig?.label }}</span>
                                     <ChevronDownIcon aria-hidden="true" class="size-3.5 flex-none" :stroke-width="1.5" />
                                 </ActionWrapper>
                             </template>
                             <Menu.Content :label="t(TEXT, 'load.again.store.aria')" placement="bottom-end">
+                                <Menu.Item :is-checked="storeIsAuto" kind="radio" @select="handleChooseStore()">
+                                    <template #icon>
+                                        <span class="flex size-4.5 flex-none">
+                                            <ConfigIcon class="size-full" :icon="defaultStoreConfig?.icon" :icon-dark="defaultStoreConfig?.iconDark" />
+                                        </span>
+                                    </template>
+                                    {{ t(TEXT, 'store.auto.label', { label: defaultStoreConfig?.label ?? '' }) }}
+                                </Menu.Item>
+                                <Menu.Separator />
                                 <Menu.Item
                                     v-for="storeConfig in storeConfigs"
                                     :key="storeConfig.id"
-                                    :is-checked="storeConfig.id === storeConnectorId"
+                                    :is-checked="!storeIsAuto && storeConfig.id === storeConnectorId"
                                     :is-disabled="storeConfig.isPlanned"
                                     kind="radio"
-                                    @select="handleLoadAgainIntoStore(storeConfig.id)"
+                                    @select="handleChooseStore(storeConfig.id)"
                                 >
                                     <template #icon>
                                         <span class="flex size-4.5 flex-none">

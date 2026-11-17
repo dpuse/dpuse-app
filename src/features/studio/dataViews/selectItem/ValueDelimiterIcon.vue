@@ -27,20 +27,37 @@ const VALUE_DELIMITER_MARKS: Record<ValueDelimiterId, Component | string> = {
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { valueDelimiterId } = defineProps<{
+const { isKeyCap, valueDelimiterId } = defineProps<{
+    isKeyCap?: boolean; // Draws the mark inside an outline, for where it stands alone, such as a closed select in a toolbar short of room.
     valueDelimiterId: ValueDelimiterId | undefined; // Undefined draws a blank of the same size, so labels beside it line up.
 }>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const mark = computed(() => (valueDelimiterId == null ? undefined : VALUE_DELIMITER_MARKS[valueDelimiterId]));
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A mark inside a key cap is set smaller than one drawn alone, to leave room for the outline.
+function constructMarkTextClass(textMark: string): string {
+    if (textMark.length > 1) return isKeyCap ? 'text-[0.5625rem]' : 'text-[0.625rem]';
+    return isKeyCap ? 'text-xs' : 'text-[0.9375rem]';
+}
 </script>
 
 <template>
-    <!-- 1.25 times the text beside it, as the closed select's icons are. -->
-    <span aria-hidden="true" class="flex size-[1.25em] flex-none items-center justify-center text-muted" data-region="ValueDelimiterIcon">
+    <!-- Value Delimiter ─ A fixed 18px, as every toolbar icon is, so it does not change with the text beside it. As a key
+         cap, the mark sits inside a small rounded outline, so a lone character such as a comma reads as an icon rather
+         than stray punctuation. Beside its name in a list it needs no outline, so the mark is drawn larger and alone. No
+         delimiter draws nothing but keeps the room, so labels beside it line up. -->
+    <span
+        aria-hidden="true"
+        class="flex size-4.5 flex-none items-center justify-center rounded-[0.1875rem] text-muted"
+        :class="{ 'border border-muted/60': isKeyCap && mark != null }"
+        data-region="ValueDelimiterIcon"
+    >
         <!-- Two-letter abbreviations are set smaller, so they fit the same square as a single character. -->
-        <span v-if="typeof mark === 'string'" class="font-mono leading-none font-semibold" :class="mark.length > 1 ? 'text-[0.7em]' : 'text-[1.09em]'">{{ mark }}</span>
-        <component :is="mark" v-else-if="mark" class="size-full" :stroke-width="1.5" />
+        <span v-if="typeof mark === 'string'" class="font-mono leading-none font-semibold" :class="constructMarkTextClass(mark)">{{ mark }}</span>
+        <component :is="mark" v-else-if="mark" :class="isKeyCap ? 'size-3.5' : 'size-full'" :stroke-width="1.5" />
     </span>
 </template>

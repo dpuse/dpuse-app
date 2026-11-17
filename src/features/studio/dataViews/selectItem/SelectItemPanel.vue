@@ -50,6 +50,7 @@ import {
     getEncodingTypeConfigs,
     listParserToolConfigs,
     localiseConfigs,
+    resolveParserToolConfig,
     VALUE_DELIMITER_CONFIGS
 } from '@dpuse/dpuse-shared';
 import type {
@@ -151,12 +152,13 @@ import {
 import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from '../_readingLabels';
 import { constructDataViewConnection, constructItemPath } from '../dataViewSummary';
 import { constructFittedColumnWidth, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
-import { constructLoadTimingParts, type DataViewLoadTiming, type DataViewStoreConfig, findDataViewLoadTiming, listDataViewStoreConfigs, resolveStoreConnectorId } from '../_dataViewStore';
+import { constructLoadTimingParts, type DataViewLoadTiming, type DataViewStoreConfig, findDataViewLoadTiming, INVESTIGATE_STORE_CONNECTOR_ID } from '../_dataViewStore';
 import { DATA_FORMAT_ICON_CONFIGS, type DataFormatIconConfig } from '../_dataFormatIcons';
 import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
 import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_statusBar';
 import { holdStore, isStoreConnection, openStore, storeTakeover } from '@/services/storeUse';
+import { listDataViewStoreConfigs, resolveStoreConnectorId } from '../_dataViewStore';
 import { localeId, t } from '@/state/locale';
 import { useItemChange, wasItemRefreshRequested } from '@/features/studio/dataViews/_itemChange';
 
@@ -203,6 +205,8 @@ interface PreviewTab {
 type PreviewTabId = 'table' | 'structure' | 'text' | 'details';
 
 // A read setting shown as text, for an item whose source says how it is read.
+type DataFormatGroupId = 'binary' | 'document' | 'spreadsheet' | 'text';
+
 interface FixedReadSetting {
     icon: Component;
     iconProps?: Record<string, unknown>;
@@ -249,6 +253,28 @@ const ENCODING_CANDIDATE_LIMIT = 5; // In hard cases many candidates tie at a lo
 const TABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ isTable }) => isTable).map(({ id }) => id));
 const READABLE_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ supportId }) => supportId === 'supported').map(({ id }) => id)); // Marked as supported in the toolbar, and the formats the user can choose to read an item as data.
 const PLANNED_DATA_FORMAT_IDS = new Set<DataFormatId>(DATA_FORMAT_CONFIGS.filter(({ supportId }) => supportId === 'planned').map(({ id }) => id)); // Data the app means to read once each has a reader.
+// The kind of file each format is, which the format select groups by. Text has an encoding to choose, a spreadsheet has
+// sheets, a binary file says itself how it is read, and a document is not data. Every format but 'unknown' must have one.
+const DATA_FORMAT_GROUP_IDS: Record<Exclude<DataFormatId, 'unknown'>, DataFormatGroupId> = {
+    arrow: 'binary',
+    avro: 'binary',
+    dtv: 'text',
+    json: 'text',
+    jsonl: 'text',
+    markdown: 'document',
+    ods: 'spreadsheet',
+    parquet: 'binary',
+    sav: 'binary',
+    sqlite: 'binary',
+    xlsx: 'spreadsheet',
+    xml: 'text'
+};
+const DATA_FORMAT_GROUPS: { id: DataFormatGroupId; labelKey: keyof typeof TEXT }[] = [
+    { id: 'text', labelKey: 'formatGroup.text.label' },
+    { id: 'spreadsheet', labelKey: 'formatGroup.spreadsheet.label' },
+    { id: 'binary', labelKey: 'formatGroup.binary.label' },
+    { id: 'document', labelKey: 'formatGroup.document.label' }
+]; // In the order the format select lists the groups.
 const STRUCTURED_DATA_FORMAT_IDS = new Set<DataFormatId>(
     DATA_FORMAT_CONFIGS.filter(({ isStructured, supportId }) => isStructured && supportId === 'supported').map(({ id }) => id)
 ); // Nested formats the app can read, which show their structure.
@@ -549,16 +575,16 @@ const previewLineHighlights = computed(() => {
 
 // ── Read Options ─ What the toolbar's format and encoding selects offer. Auto comes first, set apart by a line: it
 // returns to what detection found, and names it, so a detected value missing from a list, such as a PDF's type, still
-// shows. Formats the app has no reader for yet are listed but cannot be chosen.
+// shows. The formats are grouped by the kind of file each is. A format the app has no reader for yet is listed in its
+// group but cannot be chosen. Markdown can be, so a file read another way can be shown rendered again.
 const dataFormatOptions = computed<SelectOption[]>(() => {
-    const supportedGroupLabel = t(TEXT, 'formatGroup.supported.label');
-    const plannedGroupLabel = t(TEXT, 'formatGroup.planned.label');
-    const documentGroupLabel = t(TEXT, 'formatGroup.document.label');
-    const options: SelectOption[] = [
-        ...sortOptionsByLabel(Array.from(READABLE_DATA_FORMAT_IDS, (id) => ({ groupLabel: supportedGroupLabel, id, label: constructDataFormatLabel(id) }))),
-        ...sortOptionsByLabel(Array.from(PLANNED_DATA_FORMAT_IDS, (id) => ({ groupLabel: plannedGroupLabel, id, isDisabled: true, label: constructDataFormatLabel(id) }))),
-        { groupLabel: documentGroupLabel, id: 'markdown', label: constructDataFormatLabel('markdown') } // Shown rendered, so a file read another way can be read as markdown again.
-    ];
+    const options = DATA_FORMAT_GROUPS.flatMap(({ id: groupId, labelKey }) => {
+        const groupLabel = t(TEXT, labelKey);
+        const groupOptions = DATA_FORMAT_CONFIGS.filter(({ id }) => findDataFormatGroupId(id) === groupId).map(
+            ({ id, supportId }): SelectOption => ({ groupLabel, id, isDisabled: supportId === 'planned', label: constructDataFormatLabel(id) })
+        );
+        return sortOptionsByLabel(groupOptions);
+    });
     const detectedText = detectedDataFormatId.value == null ? undefined : constructDataFormatText(detectedDataFormatId.value);
     return [constructAutoOption(detectedText, false, constructDataFormatSourceText(detectedReadingConfig.value?.dataFormatSourceId)), ...options];
 });
@@ -584,14 +610,40 @@ const encodingOptions = computed<SelectOption[]>(() => {
     return [constructAutoOption(detectedEncodingId.value, detectedEncodingIsAssumed.value, sourceText), ...candidateOptions, ...options];
 });
 
-// The tools that read the previewed format. The select shows only when there is a choice, because most formats have a
-// single parser.
+// The tools that read the previewed format, and every tool that parses any format. The select lists them all, so the
+// user sees what the app can parse, grouped by the format each reads. A parser that does not read the previewed format
+// cannot be chosen. Auto comes first and names the format's default parser, which reads the item until the user
+// chooses. The select shows for any format that has a parser, even a single one, so the parser in use is always seen.
 const parserToolConfigs = computed(() => {
     const dataFormatId = activeItemReading.value?.dataFormatId;
     return dataFormatId == null ? [] : localiseConfigs(listParserToolConfigs(toolConfigs.value, dataFormatId), localeId.value);
 });
-const parserOptions = computed<SelectOption[]>(() => parserToolConfigs.value.map(({ id, label }) => ({ id, label })));
-const parserIsChoosable = computed(() => itemIsFile.value && parserOptions.value.length > 1);
+const allParserToolConfigs = computed(() =>
+    localiseConfigs(
+        toolConfigs.value.filter((toolConfig) => toolConfig.parser != null),
+        localeId.value
+    )
+);
+const parserOptions = computed<SelectOption[]>(() => {
+    const dataFormatId = activeItemReading.value?.dataFormatId;
+    if (dataFormatId == null || parserToolConfigs.value.length === 0) return [];
+    const defaultParserId = resolveParserToolConfig(toolConfigs.value, dataFormatId).id;
+    const defaultParserLabel = parserToolConfigs.value.find((parserToolConfig) => parserToolConfig.id === defaultParserId)?.label;
+    const usableParserIds = new Set(parserToolConfigs.value.map(({ id }) => id));
+    // Each parser goes under the first format, in the formats' own order, that it reads, so one that reads several is
+    // listed once.
+    const groupedParserIds = new Set<string>();
+    const options = DATA_FORMAT_CONFIGS.flatMap(({ id: groupDataFormatId }) => {
+        const groupToolConfigs = allParserToolConfigs.value.filter(
+            (toolConfig) => !groupedParserIds.has(toolConfig.id) && toolConfig.parser?.dataFormatIds.some((id) => id === groupDataFormatId) === true
+        );
+        for (const { id } of groupToolConfigs) groupedParserIds.add(id);
+        const groupLabel = constructDataFormatLabel(groupDataFormatId);
+        return sortOptionsByLabel(groupToolConfigs.map(({ id, label }): SelectOption => ({ groupLabel, id, isDisabled: !usableParserIds.has(id), label })));
+    });
+    return [constructAutoOption(defaultParserLabel), ...options];
+});
+const parserIsChoosable = computed(() => itemIsFile.value && parserToolConfigs.value.length > 0);
 
 // A warning when the text did not decode cleanly, or a chosen encoding could not be used. Otherwise a chosen encoding is
 // the user's call, and left on Auto, an encoding the preview only assumed is the one value in doubt.
@@ -702,21 +754,28 @@ const previewEncodingId = computed({
     }
 });
 const previewParserId = computed({
-    get: () => selectedParserId.value ?? activeItemReading.value?.parserId, // No choice yet shows the parser that read the preview.
-    set: (parserId: string | undefined) => {
+    get: () => selectedParserId.value ?? AUTO_OPTION_ID,
+    set: (parserId: string) => {
         readingIsChanged.value = true;
-        selectedParserId.value = parserId;
+        selectedParserId.value = parserId === AUTO_OPTION_ID ? undefined : parserId; // The other options are all parser ids.
     }
 });
+const resolvedParserId = computed(() => selectedParserId.value ?? activeItemReading.value?.parserId); // On Auto, the parser that read the preview, for its icon.
 
-// ── Store ─ Where Explore loads the records. A change goes straight into the draft, because nothing is read again.
+// ── Store ─ Where Explore loads the records. A change goes straight into the draft, because nothing is read again. Auto
+// comes first and names the app's default store, which a data view uses until the user chooses one.
 const storeConfigs = computed(() => listDataViewStoreConfigs()); // With the planned stores, which are listed but cannot be chosen yet.
-const storeOptions = computed<SelectOption[]>(() => storeConfigs.value.map(({ id, isPlanned, label }) => ({ id, isDisabled: isPlanned, label })));
+const storeOptions = computed<SelectOption[]>(() => [
+    constructAutoOption(findStoreConfig(INVESTIGATE_STORE_CONNECTOR_ID)?.label),
+    ...storeConfigs.value.map(({ id, isPlanned, label }) => ({ id, isDisabled: isPlanned, label }))
+]);
 const storeIsChoosable = computed(() => storeConfigs.value.filter((storeConfig) => !storeConfig.isPlanned).length > 1);
-const storeConnectorId = computed({
-    get: () => resolveStoreConnectorId(dataViewConfig.value),
+const storeConnectorId = computed(() => resolveStoreConnectorId(dataViewConfig.value)); // On Auto, the default store, for its icon.
+const previewStoreConnectorId = computed({
+    get: () => dataViewConfig.value?.storeConnectorId ?? AUTO_OPTION_ID,
     set: (chosenStoreConnectorId: string) => {
-        if (dataViewConfig.value != null) changeDataView({ ...dataViewConfig.value, storeConnectorId: chosenStoreConnectorId });
+        if (dataViewConfig.value == null) return;
+        changeDataView({ ...dataViewConfig.value, storeConnectorId: chosenStoreConnectorId === AUTO_OPTION_ID ? undefined : chosenStoreConnectorId }); // The other options are all store ids.
     }
 });
 
@@ -1892,7 +1951,12 @@ function constructDataFormatOptionIcon(optionId: string): { iconConfig: DataForm
 }
 
 function findParserToolConfig(parserId: string | undefined): LocalisedConfig<ToolConfig> | undefined {
-    return parserToolConfigs.value.find((parserToolConfig) => parserToolConfig.id === parserId);
+    return allParserToolConfigs.value.find((parserToolConfig) => parserToolConfig.id === parserId);
+}
+
+// A parser that does not read the previewed format is listed, greyed out, but cannot be chosen.
+function isParserUsable(parserId: string): boolean {
+    return parserToolConfigs.value.some((parserToolConfig) => parserToolConfig.id === parserId);
 }
 
 function findStoreConfig(storeConnectorId: string): DataViewStoreConfig | undefined {
@@ -1915,6 +1979,10 @@ function isDetailShown(labelKey: keyof typeof TEXT, value: string | undefined): 
 }
 
 // Sorted by label in the current language, because translation changes the order.
+function findDataFormatGroupId(dataFormatId: DataFormatId): DataFormatGroupId | undefined {
+    return dataFormatId === 'unknown' ? undefined : DATA_FORMAT_GROUP_IDS[dataFormatId];
+}
+
 function sortOptionsByLabel(options: SelectOption[]): SelectOption[] {
     return options.toSorted((left, right) => left.label.localeCompare(right.label, localeId.value));
 }
@@ -2469,8 +2537,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                              delimiter that splits each line, and whether the first record is headers. Then the audit, which reads the
                              item that way, and last the store the records go into. A setting the item's source decides shows read only,
                              in the same place, so the order never changes. Choosing encoding, format, parser or value delimiter reads the
-                             item again. A binary file has no encoding, the parser is offered only when more than one reads the format,
-                             and only delimited text has a value delimiter and headers. -->
+                             item again. A binary file has no encoding, a format without a parser has no parser select, and only
+                             delimited text has a value delimiter and headers. -->
                         <!-- '-ml-1.75' cancels the first select's own padding and border, so its icon lines up with the page edge. Only in
                              the row, because in the folded popover it would put this icon out of line with the icons below it. -->
                         <SelectInput
@@ -2555,24 +2623,32 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             :disabled="readChoicesAreLocked"
                             is-compact
                             :is-value-hidden="readChoiceValuesAreHidden"
+                            :is-default="selectedParserId == null"
                             :label="t(TEXT, 'parser.label')"
                             label-hidden
                             :options="parserOptions"
+                            :tone="selectedParserId == null ? undefined : 'info'"
                         >
-                            <!-- Each parser shows its tool's own icon, closed and in the open list. A tool without one falls back
-                                 to a generic icon when closed. -->
+                            <!-- Each parser shows its tool's own icon, closed and in the open list. On Auto the closed select shows
+                                 the icon of the parser that read the preview. A tool without one falls back to a generic icon
+                                 when closed. -->
                             <template #icon>
                                 <ConfigIcon
-                                    v-if="findParserToolConfig(previewParserId)?.icon ?? findParserToolConfig(previewParserId)?.iconDark"
+                                    v-if="findParserToolConfig(resolvedParserId)?.icon ?? findParserToolConfig(resolvedParserId)?.iconDark"
                                     class="size-4.5 flex-none"
-                                    :icon="findParserToolConfig(previewParserId)?.icon"
-                                    :icon-dark="findParserToolConfig(previewParserId)?.iconDark"
+                                    :icon="findParserToolConfig(resolvedParserId)?.icon"
+                                    :icon-dark="findParserToolConfig(resolvedParserId)?.iconDark"
                                 />
                                 <ScanTextIcon v-else aria-hidden="true" class="size-4.5 flex-none text-muted" />
                             </template>
                             <template #option-icon="{ option }">
                                 <span class="flex size-4.5 flex-none">
-                                    <ConfigIcon class="size-full" :icon="findParserToolConfig(option.id)?.icon" :icon-dark="findParserToolConfig(option.id)?.iconDark" />
+                                    <ConfigIcon
+                                        class="size-full"
+                                        :class="{ 'opacity-60 grayscale': option.id !== AUTO_OPTION_ID && !isParserUsable(option.id) }"
+                                        :icon="findParserToolConfig(option.id)?.icon"
+                                        :icon-dark="findParserToolConfig(option.id)?.iconDark"
+                                    />
                                 </span>
                             </template>
                         </SelectInput>
@@ -2589,11 +2665,13 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             :options="valueDelimiterOptions"
                             :tone="selectedValueDelimiterId == null ? undefined : 'info'"
                         >
-                            <!-- The chosen delimiter's own mark, or the detected one's on Auto. Before anything is detected
-                                 there is no mark, so a generic icon stands in. -->
+                            <!-- The chosen delimiter's own mark, or the detected one's on Auto, as a key cap, because it can stand
+                                 alone when the toolbar hides the value. The open list shows each mark plain, beside its name.
+                                 Before anything is detected there is no mark, so a generic icon stands in. -->
                             <template #icon>
                                 <ValueDelimiterIcon
                                     v-if="resolveValueDelimiterId(previewValueDelimiterId)"
+                                    is-key-cap
                                     :value-delimiter-id="resolveValueDelimiterId(previewValueDelimiterId)"
                                 />
                                 <SeparatorVerticalIcon v-else aria-hidden="true" class="size-4.5 flex-none text-muted" />
@@ -2695,17 +2773,20 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         <!-- Store ─ Last, because it is where the records go once they are read and audited. -->
                         <SelectInput
                             v-if="storeIsChoosable"
-                            v-model="storeConnectorId"
+                            v-model="previewStoreConnectorId"
                             :class="readChoiceSelectClass"
                             :disabled="readChoicesAreLocked"
                             is-compact
+                            :is-default="dataViewConfig?.storeConnectorId == null"
                             :is-value-hidden="readChoiceValuesAreHidden"
                             :label="t(TEXT, 'store.label')"
                             label-hidden
                             :options="storeOptions"
+                            :tone="dataViewConfig?.storeConnectorId == null ? undefined : 'info'"
                         >
-                            <!-- Each store shows its connector's own icon, closed and in the open list, as the parser does. A
-                                 connector without one falls back to a generic icon when closed. -->
+                            <!-- Each store shows its connector's own icon, closed and in the open list, as the parser does. On Auto
+                                 the closed select shows the default store's icon. A connector without one falls back to a
+                                 generic icon when closed. -->
                             <template #icon>
                                 <ConfigIcon
                                     v-if="findStoreConfig(storeConnectorId)?.icon ?? findStoreConfig(storeConnectorId)?.iconDark"

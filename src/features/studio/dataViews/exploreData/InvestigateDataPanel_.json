@@ -19,7 +19,7 @@
             "es": "{count} valores de {label} no encajaban en su tipo, así que se cargaron en blanco."
         },
         "load.again.label": { "en": "Load again", "es": "Cargar de nuevo" },
-        "load.again.store.aria": { "en": "Load again into", "es": "Cargar de nuevo en" },
+        "load.again.store.aria": { "en": "Store to load into", "es": "Almacén en el que cargar" },
         "load.aria": { "en": "Amount loaded", "es": "Cantidad cargada" },
         "load.changed.text": { "en": "This data view has changed since this data was loaded.", "es": "Esta vista de datos ha cambiado desde que se cargaron estos datos." },
         "load.complete.one.text": { "en": "Loaded the only record in {duration}", "es": "Cargado el único registro en {duration}" },
@@ -47,6 +47,7 @@
         "record.other.text": { "en": "{count} records", "es": "{count} registros" },
         "retry.label": { "en": "Try again", "es": "Reintentar" },
         "store.aria": { "en": "Store: {label}", "es": "Almacén: {label}" },
+        "store.auto.label": { "en": "{label} (auto)", "es": "{label} (automático)" },
         "store.heldElsewhere.text": {
             "en": "Investigate is open in another tab or window. Use it here to close it there.",
             "es": "Investigar está abierto en otra pestaña o ventana. Úsalo aquí para cerrarlo allí."
