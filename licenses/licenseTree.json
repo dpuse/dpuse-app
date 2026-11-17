@@ -1,5 +1,5 @@
 {
-  "version": "1.0.292",
+  "version": "1.0.294",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -172,7 +172,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261116.1"
+              "version": "5.20261117.1"
             },
             "@cspotcode/source-map-support": {
               "version": "0.8.1"
@@ -212,8 +212,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261116.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261116.1.tgz",
+      "version": "5.20261117.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261117.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -222,7 +222,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.233"
+          "version": "1.0.235"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1370,8 +1370,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.233",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.233.tgz",
+      "version": "1.0.235",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.235.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1457,7 +1457,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.233"
+          "version": "1.0.235"
         },
         "@tanstack/charts": {
           "version": "1.1.0",
@@ -4020,8 +4020,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.73.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.73.0.tgz",
+      "version": "1.74.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.74.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -4256,8 +4256,8 @@
       }
     },
     "@tanstack/vue-query": {
-      "version": "5.107.1",
-      "resolved": "https://registry.npmjs.org/@tanstack/vue-query/-/vue-query-5.107.1.tgz",
+      "version": "5.107.2",
+      "resolved": "https://registry.npmjs.org/@tanstack/vue-query/-/vue-query-5.107.2.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/match-sorter-utils": {
@@ -4273,8 +4273,8 @@
           }
         },
         "@tanstack/query-core": {
-          "version": "5.107.1",
-          "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.107.1.tgz",
+          "version": "5.107.2",
+          "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.107.2.tgz",
           "overridden": false
         },
         "@vue/composition-api": {},
@@ -6547,7 +6547,7 @@
         "@automerge/automerge-repo": {},
         "@capacitor-community/sqlite": {},
         "@cloudflare/workers-types": {
-          "version": "5.20261116.1"
+          "version": "5.20261117.1"
         },
         "@electric-sql/pglite": {},
         "@libsql/client": {},
@@ -7436,8 +7436,8 @@
       "overridden": false
     },
     "wrangler": {
-      "version": "4.163.0",
-      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.163.0.tgz",
+      "version": "4.164.0",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.164.0.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/kv-asset-handler": {
@@ -7449,7 +7449,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261116.1"
+          "version": "5.20261117.1"
         },
         "@cspotcode/source-map-support": {
           "version": "0.8.1",
@@ -7483,8 +7483,8 @@
           "version": "2.3.3"
         },
         "miniflare": {
-          "version": "5.20261116.0-beta",
-          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261116.0-beta.tgz",
+          "version": "5.20261117.0-beta",
+          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261117.0-beta.tgz",
           "overridden": false,
           "dependencies": {
             "@cspotcode/source-map-support": {
@@ -7500,7 +7500,7 @@
               "overridden": false
             },
             "workerd": {
-              "version": "1.20261116.1"
+              "version": "1.20261117.1"
             },
             "ws": {
               "version": "8.21.0",
@@ -7525,14 +7525,14 @@
           "version": "2.0.0-rc.24"
         },
         "workerd": {
-          "version": "1.20261116.1",
-          "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261116.1.tgz",
+          "version": "1.20261117.1",
+          "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261117.1.tgz",
           "overridden": false,
           "dependencies": {
             "@cloudflare/workerd-darwin-64": {},
             "@cloudflare/workerd-darwin-arm64": {
-              "version": "1.20261116.1",
-              "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261116.1.tgz",
+              "version": "1.20261117.1",
+              "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261117.1.tgz",
               "overridden": false
             },
             "@cloudflare/workerd-linux-64": {},
