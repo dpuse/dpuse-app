@@ -116,6 +116,10 @@
             "en": "The column types you chose were reset, because the item was read again.",
             "es": "Los tipos de columna elegidos se restablecieron porque el elemento se volvió a leer."
         },
+        "issue.columnsChanged.text": {
+            "en": "This item's columns have changed, so the column types were reset. Check them, then audit the item again.",
+            "es": "Las columnas de este elemento han cambiado, así que los tipos de columna se restablecieron. Revísalos y vuelve a auditar el elemento."
+        },
         "issue.empty.text": { "en": "This file is empty.", "es": "Este archivo está vacío." },
         "issue.field.text": { "en": "Value {field}", "es": "Valor {field}" },
         "issue.invalidClosingQuote.text": {
@@ -147,12 +151,12 @@
         },
         "parser.label": { "en": "Parser", "es": "Analizador" },
         "preview.empty.text": { "en": "No records to show", "es": "No hay registros que mostrar" },
-        "preview.part.one.text": { "en": "Showing the first record", "es": "Se muestra el primer registro" },
-        "preview.part.other.text": { "en": "Showing the first {records}", "es": "Se muestran los primeros {records}" },
+        "preview.part.one.text": { "en": "Previewing the first record", "es": "Previsualizando el primer registro" },
+        "preview.part.other.text": { "en": "Previewing {records}", "es": "Previsualizando {records}" },
         "preview.tableRequired.one.text": { "en": "{count} table found. Choose it to show its records.", "es": "Se encontró {count} tabla. Elígela para mostrar sus registros." },
         "preview.tableRequired.other.text": { "en": "{count} tables found. Choose one to show its records.", "es": "Se encontraron {count} tablas. Elige una para mostrar sus registros." },
-        "preview.whole.one.text": { "en": "Showing the only record", "es": "Se muestra el único registro" },
-        "preview.whole.other.text": { "en": "Showing all {records}", "es": "Se muestran todos los {records}" },
+        "preview.whole.one.text": { "en": "Previewing the only record", "es": "Previsualizando el único registro" },
+        "preview.whole.other.text": { "en": "Previewing all {records}", "es": "Previsualizando todos los {records}" },
         "previewAgain.label": { "en": "Preview again", "es": "Previsualizar de nuevo" },
         "previewTabMenu.aria": { "en": "View {label} as: {view}", "es": "Ver {label} como: {view}" },
         "previewTabs.aria": { "en": "View {label} as", "es": "Ver {label} como" },

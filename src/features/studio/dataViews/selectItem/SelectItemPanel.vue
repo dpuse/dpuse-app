@@ -115,6 +115,7 @@ import {
     constructDecimalPadding,
     type DetectedColumnType
 } from './_previewColumnTypes';
+import { areItemColumnsUnchanged, type ItemColumns } from '@/features/studio/dataViews/_itemChange';
 import {
     type ChosenBlankValues,
     type ChosenColumnTypes,
@@ -150,13 +151,14 @@ import {
 import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from '../_readingLabels';
 import { constructDataViewConnection, constructItemPath } from '../dataViewSummary';
 import { constructFittedColumnWidth, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
-import { constructLoadTimingParts, type DataViewLoadTiming, findDataViewLoadTiming, listDataViewStoreConnections, resolveStoreConnectorId } from '../_dataViewStore';
+import { constructLoadTimingParts, type DataViewLoadTiming, type DataViewStoreConfig, findDataViewLoadTiming, listDataViewStoreConfigs, resolveStoreConnectorId } from '../_dataViewStore';
 import { DATA_FORMAT_ICON_CONFIGS, type DataFormatIconConfig } from '../_dataFormatIcons';
 import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
 import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_statusBar';
 import { holdStore, isStoreConnection, openStore, storeTakeover } from '@/services/storeUse';
 import { localeId, t } from '@/state/locale';
+import { useItemChange, wasItemRefreshRequested } from '@/features/studio/dataViews/_itemChange';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -171,6 +173,7 @@ import DataViewSource from '../DataViewSource.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import HeadersIcon from './HeadersIcon.vue';
+import ItemChangedNotice from '@/features/studio/dataViews/ItemChangedNotice.vue';
 import { Menu } from '@/components/ui/menu';
 import PillSegment from '@/components/ui/action/PillSegment.vue';
 import PreviewColumnTable from '../PreviewColumnTable.vue';
@@ -263,11 +266,13 @@ const FORMAT_SUPPORTS: FormatSupport[] = [
 // ── Preview Issues ─ The app's own wording for the issues it knows, by the parser's code. Any other issue shows the
 // parser's message, which is in English. Each severity has its own icon and colour, as status tags do.
 const COLUMN_TYPES_RESET_ISSUE_ID = 'columnTypesReset'; // The app's own issue, because a new reading can change the columns the user's choices were for.
+const COLUMNS_CHANGED_ISSUE_ID = 'columnsChanged'; // The app's own issue, for a changed item that no longer has the columns the data view read.
 const SAMPLE_ISSUE_TEXT_KEYS: Partial<Record<string, keyof typeof TEXT>> = {
     CSV_INVALID_CLOSING_QUOTE: 'issue.invalidClosingQuote.text',
     CSV_NON_TRIMABLE_CHAR_AFTER_CLOSING_QUOTE: 'issue.charAfterClosingQuote.text',
     CSV_QUOTE_NOT_CLOSED: 'issue.quoteNotClosed.text',
     [COLUMN_TYPES_RESET_ISSUE_ID]: 'issue.columnTypesReset.text',
+    [COLUMNS_CHANGED_ISSUE_ID]: 'issue.columnsChanged.text',
     empty: 'issue.empty.text',
     INVALID_OPENING_QUOTE: 'issue.invalidOpeningQuote.text'
 };
@@ -431,6 +436,10 @@ const { abortAudit, auditedByteCount, auditedRecordCount, auditElapsedDuration, 
     handleStoreHeldElsewhere
 );
 
+// ── Item Change ─ Whether the data view's item has changed in its source since the data view last read it.
+const { currentItemConfig, ignoreItemChange, itemChangedAt, itemChangeId, itemChangeIsShown } = useItemChange(dataViewConfig);
+const itemRefreshIsRequested = ref(wasItemRefreshRequested()); // Chosen on Explore, and run once the item has been checked.
+
 const text = ref<string | undefined>();
 
 // ── Scrolling
@@ -446,6 +455,13 @@ const gridDetailPanelComponent = useTemplateRef<{ detailPaneIsVisible: boolean; 
 const activeConnectionConfig = computed(() => findConnectionLocalisedConfig(dataViewConfig.value?.connectionId));
 const activeDataViewConnection = computed(() => (activeConnectionConfig.value ? constructDataViewConnection(activeConnectionConfig.value, localeId.value) : undefined));
 const itemSubject = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId ?? 'item'); // Wording names the connector's kind of item, e.g. 'File', and falls back to 'item' for a connector released before it said which.
+// Only the data view's own item opens from what was saved, so only it can be out of date. Undefined until its source has
+// been checked, so 'Preview again' does not flash up while the check runs.
+const savedItemChangeId = computed(() => {
+    const connectionNodeConfig = activeConnectionObjectConfig.value;
+    return connectionNodeConfig != null && isDataViewItem(connectionNodeConfig) ? itemChangeId.value : undefined;
+});
+const savedItemChangeIsShown = computed(() => savedItemChangeId.value === 'changed' && itemChangeIsShown.value);
 
 // Only a file has text to show, and settings to choose such as its format or encoding. A table or an API endpoint comes
 // from an application or a database, which says how it is read and gives its values already typed.
@@ -596,15 +612,15 @@ const valueDelimiterOptions = computed<SelectOption[]>(() => {
 const valueDelimiterIsChoosable = computed(() => !readingIsFixed.value && activeItemReading.value?.dataFormatId === 'dtv');
 const previewHeadersAreChoosable = computed(() => !readingIsFixed.value && activeItemReading.value?.dataFormatId === 'dtv' && activeItemReading.value.parsedRecords.length > 0);
 
-// The format, encoding, value delimiter and headers, in the order of their choices, with the same icons. Only delimited
+// The encoding, format, value delimiter and headers, in the order of their choices, with the same icons. Only delimited
 // text has a value delimiter and headers. Only a file shows them, because a table or an API endpoint is not read as a file.
 const fixedReadSettings = computed((): FixedReadSetting[] => {
     const itemReading = activeItemReading.value;
     if (itemReading == null || !readingIsFixed.value || !itemIsFile.value) return [];
     const isDelimitedText = itemReading.dataFormatId === 'dtv';
     const settings: (FixedReadSetting | undefined)[] = [
-        previewFormatText.value == null ? undefined : { icon: FileTextIcon, id: 'format', labelKey: 'format.label', value: previewFormatText.value },
         itemReading.encodingId == null ? undefined : { icon: LanguagesIcon, id: 'encoding', labelKey: 'encoding.label', value: itemReading.encodingId },
+        previewFormatText.value == null ? undefined : { icon: FileTextIcon, id: 'format', labelKey: 'format.label', value: previewFormatText.value },
         !isDelimitedText || itemReading.valueDelimiterId == null
             ? undefined
             : { icon: SeparatorVerticalIcon, id: 'valueDelimiter', labelKey: 'valueDelimiter.label', value: constructValueDelimiterLabel(itemReading.valueDelimiterId) },
@@ -620,6 +636,9 @@ const fixedReadSettings = computed((): FixedReadSetting[] => {
     ];
     return settings.filter((setting) => setting != null);
 });
+// The parser select sits between them, as it does among the choices.
+const fixedReadSettingsBeforeParser = computed(() => fixedReadSettings.value.filter((setting) => setting.id === 'encoding' || setting.id === 'format'));
+const fixedReadSettingsAfterParser = computed(() => fixedReadSettings.value.filter((setting) => setting.id !== 'encoding' && setting.id !== 'format'));
 
 // Whether the first record names the columns. Auto names what detection found. Each option names headers in full,
 // because a closed select shows only its value, and 'Yes' alone would not say what it is about.
@@ -691,9 +710,9 @@ const previewParserId = computed({
 });
 
 // ── Store ─ Where Explore loads the records. A change goes straight into the draft, because nothing is read again.
-const storeConnections = computed(() => listDataViewStoreConnections());
-const storeOptions = computed<SelectOption[]>(() => storeConnections.value.map(({ id, label }) => ({ id, label })));
-const storeIsChoosable = computed(() => storeOptions.value.length > 1);
+const storeConfigs = computed(() => listDataViewStoreConfigs()); // With the planned stores, which are listed but cannot be chosen yet.
+const storeOptions = computed<SelectOption[]>(() => storeConfigs.value.map(({ id, isPlanned, label }) => ({ id, isDisabled: isPlanned, label })));
+const storeIsChoosable = computed(() => storeConfigs.value.filter((storeConfig) => !storeConfig.isPlanned).length > 1);
 const storeConnectorId = computed({
     get: () => resolveStoreConnectorId(dataViewConfig.value),
     set: (chosenStoreConnectorId: string) => {
@@ -761,20 +780,25 @@ const auditChoices = computed<AuditChoice[]>(() => {
 
 // What the preview shows, beside what was audited, so the two are never taken for each other. The records and text only
 // hold the start of the item, however much of it has been audited. A nested item shows nothing until one of its tables
-// is chosen.
-const previewStatusText = computed(() => {
+// is chosen. Where the status bar is narrow, the records alone stand for the preview's amount. A message has no shorter
+// form.
+const previewStatus = computed(() => {
     const itemReading = activeItemReading.value;
     if (itemReading == null || currentPreviewTabId.value === 'details') return;
     const tableCandidateCount = detectedStructureIndex.value?.tableCandidateCount ?? 0;
     if (previewIsStructured.value && itemReading.structurePath == null && tableCandidateCount > 0) {
-        return t(TEXT, tableCandidateCount === 1 ? 'preview.tableRequired.one.text' : 'preview.tableRequired.other.text', { count: formatCount(tableCandidateCount) });
+        const text = t(TEXT, tableCandidateCount === 1 ? 'preview.tableRequired.one.text' : 'preview.tableRequired.other.text', { count: formatCount(tableCandidateCount) });
+        return { shortText: text, text };
     }
-    if (isPreviewTabDisabled('table')) return t(TEXT, 'preview.empty.text');
     const recordCount = Math.max(0, itemReading.parsedRecords.length - (itemReading.hasHeaders === true ? 1 : 0));
-    if (recordCount === 0) return t(TEXT, 'preview.empty.text');
+    if (recordCount === 0 || isPreviewTabDisabled('table')) {
+        const text = t(TEXT, 'preview.empty.text');
+        return { shortText: text, text };
+    }
     const isWhole = itemReading.size === activeConnectionObjectConfig.value?.size;
-    if (recordCount === 1) return t(TEXT, isWhole ? 'preview.whole.one.text' : 'preview.part.one.text');
-    return t(TEXT, isWhole ? 'preview.whole.other.text' : 'preview.part.other.text', { records: constructRecordsText(recordCount) });
+    const records = constructRecordsText(recordCount);
+    if (recordCount === 1) return { shortText: records, text: t(TEXT, isWhole ? 'preview.whole.one.text' : 'preview.part.one.text') };
+    return { shortText: records, text: t(TEXT, isWhole ? 'preview.whole.other.text' : 'preview.part.other.text', { records }) };
 });
 
 const previewTabs = computed(() => PREVIEW_TABS.filter((previewTab) => previewTab.id !== 'text' || itemIsFile.value));
@@ -1032,6 +1056,18 @@ watch(
     { immediate: true }
 );
 
+// A refresh chosen on Explore starts once the item's source has been checked, and opens Explore again to load the
+// records when it is done.
+watch(
+    itemChangeId,
+    (changeId) => {
+        if (changeId == null || !itemRefreshIsRequested.value) return;
+        itemRefreshIsRequested.value = false;
+        if (changeId === 'changed') void refreshChangedItem(true);
+    },
+    { immediate: true }
+);
+
 // Each change of the item, its reading or a column's type goes into the draft once the preview shows it. A reading that
 // cannot be selected leaves the draft with no item, so it cannot be saved. Opening a markdown file as a table can make
 // it selectable without a new preview.
@@ -1201,6 +1237,10 @@ function handleSelectDateOrder(columnId: string, dateOrderValue: string): void {
 
 function handleRetryItem(): void {
     itemAttempt.value++;
+}
+
+function handleRefreshChangedItem(): void {
+    void refreshChangedItem(false);
 }
 
 // Index 0 is the connection's top folder, and each folder below it follows.
@@ -1388,7 +1428,7 @@ function handleMoveToExploreStep(): void {
 
 // The preview grows first, so the records and text shown keep up with the audit until they reach their limit. Reading it
 // audits it too, so a size no larger than the preview needs nothing more.
-async function handleStartAudit(byteLimit: number | undefined): Promise<void> {
+async function handleStartAudit(byteLimit?: number): Promise<void> {
     try {
         const auditResult = await readLargerPreview();
         if (byteLimit !== PREVIEW_BYTE_LIMIT) await startAudit(byteLimit);
@@ -1731,6 +1771,83 @@ function addColumnTypesResetIssue(itemReading: ItemReading): ItemReading {
     return { ...itemReading, issues: [...itemReading.issues, issue] };
 }
 
+function addColumnsChangedIssue(itemReading: ItemReading): ItemReading {
+    const issue: SampleIssue = {
+        endLineNumber: undefined,
+        fieldNumber: undefined,
+        id: COLUMNS_CHANGED_ISSUE_ID,
+        lineNumber: undefined,
+        message: 'The columns of this item have changed, so the column types were reset.',
+        recordNumber: undefined,
+        severityId: 'warning',
+        value: undefined
+    };
+    return { ...itemReading, issues: [...itemReading.issues, issue] };
+}
+
+// Refreshes the data view from its changed item, in the order an item is read. A fresh preview comes first, with the read
+// choices kept, so the data view takes the item's new version. The same columns keep their types and are audited again
+// as far as before. Different columns stop after the preview with their types reset, for the user to check them.
+// 'shouldLoadRecords' is for a refresh chosen on Explore, which then opens to load the records.
+async function refreshChangedItem(shouldLoadRecords: boolean): Promise<void> {
+    const changedItemConfig = currentItemConfig.value;
+    const readSampleConfig = dataViewConfig.value?.sampleConfig; // As the data view read the item, before the fresh preview changes it.
+    if (changedItemConfig == null || readSampleConfig == null) return;
+    const readAuditConfig = dataViewConfig.value?.contentAuditConfig;
+    const readColumns = constructItemColumns(readSampleConfig.parsedRecords, constructAppliedReading(readSampleConfig).hasHeaders === true);
+
+    readingIsChanged.value = true; // A refresh is the user's change, so the fresh preview goes into the data view with the item's new version.
+    activeConnectionObjectConfig.value = changedItemConfig;
+    itemAttempt.value++;
+    await nextTick(); // The preview starts once the watcher sees the new item.
+    await until(previewIsPending).toBe(false);
+    const itemReading = activeItemReading.value;
+    if (itemReading == null || hasItemFailed()) return;
+
+    if (!areItemColumnsUnchanged(readColumns, constructItemColumns(itemReading.parsedRecords, itemReading.hasHeaders === true))) {
+        resetColumnChoices(itemReading);
+        return;
+    }
+    await handleStartAudit(constructRepeatAuditByteLimit(readAuditConfig));
+    if (shouldLoadRecords && !hasItemFailed()) handleMoveToExploreStep();
+}
+
+// Read through a function, because the preview and the audit set the failure while a refresh awaits them.
+function hasItemFailed(): boolean {
+    return itemFailure.value != null;
+}
+
+function constructItemColumns(parsedRecords: ItemReading['parsedRecords'], hasHeaders: boolean): ItemColumns {
+    const firstRecord = parsedRecords.at(0);
+    return { columnCount: firstRecord?.length ?? 0, headerValues: hasHeaders ? firstRecord : undefined };
+}
+
+// The size the audit before the change read, so a refresh audits as much and no more. Undefined audits the whole item. A
+// part of an item is audited to the offered size nearest to what was read, because an audit can stop just short of its
+// size or just past it.
+function constructRepeatAuditByteLimit(contentAuditConfig: ContentAuditConfig | undefined): number | undefined {
+    if (contentAuditConfig == null) return PREVIEW_BYTE_LIMIT;
+    if (contentAuditConfig.isComplete) return;
+    let nearestByteLimit = PREVIEW_BYTE_LIMIT;
+    for (const byteLimit of AUDIT_BYTE_LIMITS) {
+        if (Math.abs(byteLimit - contentAuditConfig.byteCount) < Math.abs(nearestByteLimit - contentAuditConfig.byteCount)) nearestByteLimit = byteLimit;
+    }
+    return nearestByteLimit;
+}
+
+// The user's column choices were made for other columns, so they go, the detected types come back, and the preview says
+// why.
+function resetColumnChoices(itemReading: ItemReading): void {
+    selectedColumnTypes.value = {};
+    selectedDateOrders.value = {};
+    selectedDecimalSeparators.value = {};
+    selectedNullWords.value = {};
+    selectedBlankValues.value = {};
+    selectedIgnoredColumns.value = {};
+    selectedColumnIndex.value = undefined;
+    applyItemReading(addColumnsChangedIssue(applyChosenColumns(itemReading)), true);
+}
+
 // Auto, naming what detection found once it is known. A closed select shows only the value, to save room, and its muted
 // italics say it is a default. The line after it sets it apart from the values it chooses between.
 // Auto names what detection found, and how it was found when that is known.
@@ -1778,8 +1895,8 @@ function findParserToolConfig(parserId: string | undefined): LocalisedConfig<Too
     return parserToolConfigs.value.find((parserToolConfig) => parserToolConfig.id === parserId);
 }
 
-function findStoreConnection(storeConnectorId: string): LocalisedConfig<ConnectionConfig> | undefined {
-    return storeConnections.value.find((storeConnection) => storeConnection.id === storeConnectorId);
+function findStoreConfig(storeConnectorId: string): DataViewStoreConfig | undefined {
+    return storeConfigs.value.find((storeConfig) => storeConfig.id === storeConnectorId);
 }
 
 // Whether an option in the headers select stands for headers. Auto stands for what was detected, if anything was.
@@ -2319,6 +2436,15 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
 
         <template #detail="{ item }">
             <ErrorNotice v-if="itemFailure" :failures="[itemFailure]" @retry="handleRetryItem" />
+            <!-- Item Changed ─ The item opens as it was saved, so a change in its source is shown here rather than read by
+                 itself. The user refreshes the data view from the changed item, or ignores the change. -->
+            <ItemChangedNotice
+                v-else-if="savedItemChangeIsShown && itemChangedAt != null"
+                :changed-at="itemChangedAt"
+                :is-disabled="readChoicesAreLocked"
+                @ignore="ignoreItemChange"
+                @refresh="handleRefreshChangedItem"
+            />
             <!-- Preview Toolbar ─ One row over the preview only, so the breadcrumbs keep the whole header row. -->
             <div v-if="itemFailure == null" ref="previewToolbar" class="relative flex h-10 flex-none items-center gap-x-2 border-b border-separator px-page text-xs text-muted">
                 <!-- Read Choices ─ How the item is read and where it loads. A value truncates as the row narrows, but
@@ -2332,25 +2458,41 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     :popovertarget="readChoicesPopoverId"
                     :title="t(TEXT, 'readChoices.aria', { label: item.label })"
                 >
-                    <SlidersHorizontalIcon aria-hidden="true" class="size-[1.25em] flex-none" />
+                    <SlidersHorizontalIcon aria-hidden="true" class="size-4.5 flex-none" />
                     <ChevronDownIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
                 </ActionWrapper>
                 <Teleport v-if="previewFormatText" defer :disabled="!readChoicesAreFolded" :to="`#${readChoicesPopoverId}`">
                     <!-- In the row the wrapper takes no box of its own ('contents'), so each select is one of the toolbar's
                          own items, and the toolbar overflows, and moves to its next stage, once they can shrink no more. -->
                     <div :class="readChoicesAreFolded ? 'flex flex-col items-start gap-y-1' : 'contents'">
-                        <!-- Format, Encoding, Parser and Value Delimiter ─ Choosing any of them reads the item again
-                             that way. A binary file has no encoding to choose, the parser is offered only when more
-                             than one reads the format, and only delimited text has a value delimiter. A table offers
-                             none of them, because its source says how it is read. -->
-                        <!-- '-ml-1.75' cancels the select's own padding and border, so its icon lines up with the page
-                             edge. Only in the row, because in the folded popover it would put this icon out of line with
-                             the icons below it. -->
+                        <!-- Read Order ─ The order an item is read in: its encoding, its format, the parser for that format, the value
+                             delimiter that splits each line, and whether the first record is headers. Then the audit, which reads the
+                             item that way, and last the store the records go into. A setting the item's source decides shows read only,
+                             in the same place, so the order never changes. Choosing encoding, format, parser or value delimiter reads the
+                             item again. A binary file has no encoding, the parser is offered only when more than one reads the format,
+                             and only delimited text has a value delimiter and headers. -->
+                        <!-- '-ml-1.75' cancels the first select's own padding and border, so its icon lines up with the page edge. Only in
+                             the row, because in the folded popover it would put this icon out of line with the icons below it. -->
+                        <SelectInput
+                            v-if="activeItemReading?.encodingId != null && !readingIsFixed"
+                            v-model="previewEncodingId"
+                            :is-default="selectedEncodingId == null"
+                            :class="[readChoiceSelectClass, { '-ml-1.75': !readChoicesAreFolded }]"
+                            :disabled="readChoicesAreLocked"
+                            is-compact
+                            :is-value-hidden="readChoiceValuesAreHidden"
+                            :label="t(TEXT, 'encoding.label')"
+                            label-hidden
+                            :options="encodingOptions"
+                            :tone="encodingSelectTone"
+                        >
+                            <template #icon><LanguagesIcon aria-hidden="true" class="size-4.5 flex-none text-muted" /></template>
+                        </SelectInput>
                         <SelectInput
                             v-if="previewFormatText && !readingIsFixed"
                             v-model="previewDataFormatId"
                             :is-default="selectedDataFormatId == null"
-                            :class="[readChoiceSelectClass, { '-ml-1.75': !readChoicesAreFolded }]"
+                            :class="[readChoiceSelectClass, { '-ml-1.75': !readChoicesAreFolded && activeItemReading?.encodingId == null }]"
                             :description="previewFormatSupport ? t(TEXT, previewFormatSupport.ariaKey) : undefined"
                             :disabled="readChoicesAreLocked"
                             is-compact
@@ -2365,7 +2507,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             <template #icon>
                                 <ConfigIcon
                                     v-if="(previewFormatSupport?.id === 'supported' || previewFormatSupport?.id === 'planned') && previewFormatIconConfig"
-                                    class="size-[1.25em] flex-none"
+                                    class="size-4.5 flex-none"
                                     :class="{ 'opacity-60 grayscale': previewFormatSupport.id === 'planned' }"
                                     :icon="previewFormatIconConfig.icon"
                                     :icon-dark="previewFormatIconConfig.iconDark"
@@ -2374,15 +2516,15 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                     :is="previewFormatSupport.icon"
                                     v-else-if="previewFormatSupport?.icon && previewFormatSupport.id !== 'supported'"
                                     aria-hidden="true"
-                                    class="size-[1.25em] flex-none"
+                                    class="size-4.5 flex-none"
                                     :class="previewFormatSupport.colorClass"
                                     :stroke-width="2.5"
                                 />
                             </template>
-                            <!-- Each format's icon in the open list, 1.25 times its text as the closed select's is. The box keeps
-                                 its size when there is no icon, so every label lines up. -->
+                            <!-- Each format's icon in the open list, the same size as the closed select's. The box keeps its
+                                 size when there is no icon, so every label lines up. -->
                             <template #option-icon="{ option }">
-                                <span class="flex size-[1.25em] flex-none">
+                                <span class="flex size-4.5 flex-none">
                                     <ConfigIcon
                                         class="size-full"
                                         :class="{ 'opacity-60 grayscale': constructDataFormatOptionIcon(option.id).isPlanned }"
@@ -2392,21 +2534,20 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 </span>
                             </template>
                         </SelectInput>
-                        <SelectInput
-                            v-if="activeItemReading?.encodingId != null && !readingIsFixed"
-                            v-model="previewEncodingId"
-                            :is-default="selectedEncodingId == null"
+                        <!-- Fixed Read Settings ─ In place of the selects, for an item whose source says how it is read, and
+                             in their places: encoding and format before the parser, value delimiter and headers after it.
+                             The title says why they cannot be changed. -->
+                        <span
+                            v-for="setting in fixedReadSettingsBeforeParser"
+                            :key="setting.id"
+                            class="flex h-7 max-w-full min-w-0 items-center gap-x-1 px-1.5 text-sm text-content"
                             :class="readChoiceSelectClass"
-                            :disabled="readChoicesAreLocked"
-                            is-compact
-                            :is-value-hidden="readChoiceValuesAreHidden"
-                            :label="t(TEXT, 'encoding.label')"
-                            label-hidden
-                            :options="encodingOptions"
-                            :tone="encodingSelectTone"
+                            :title="t(TEXT, 'readSetting.declared.text')"
                         >
-                            <template #icon><LanguagesIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" /></template>
-                        </SelectInput>
+                            <component :is="setting.icon" v-bind="setting.iconProps" aria-hidden="true" class="size-4.5 flex-none text-muted" />
+                            <span class="sr-only">{{ t(TEXT, setting.labelKey) }}</span>
+                            <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ setting.value }}</span>
+                        </span>
                         <SelectInput
                             v-if="parserIsChoosable"
                             v-model="previewParserId"
@@ -2423,14 +2564,14 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             <template #icon>
                                 <ConfigIcon
                                     v-if="findParserToolConfig(previewParserId)?.icon ?? findParserToolConfig(previewParserId)?.iconDark"
-                                    class="size-[1.25em] flex-none"
+                                    class="size-4.5 flex-none"
                                     :icon="findParserToolConfig(previewParserId)?.icon"
                                     :icon-dark="findParserToolConfig(previewParserId)?.iconDark"
                                 />
-                                <ScanTextIcon v-else aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
+                                <ScanTextIcon v-else aria-hidden="true" class="size-4.5 flex-none text-muted" />
                             </template>
                             <template #option-icon="{ option }">
-                                <span class="flex size-[1.25em] flex-none">
+                                <span class="flex size-4.5 flex-none">
                                     <ConfigIcon class="size-full" :icon="findParserToolConfig(option.id)?.icon" :icon-dark="findParserToolConfig(option.id)?.iconDark" />
                                 </span>
                             </template>
@@ -2455,7 +2596,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                     v-if="resolveValueDelimiterId(previewValueDelimiterId)"
                                     :value-delimiter-id="resolveValueDelimiterId(previewValueDelimiterId)"
                                 />
-                                <SeparatorVerticalIcon v-else aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
+                                <SeparatorVerticalIcon v-else aria-hidden="true" class="size-4.5 flex-none text-muted" />
                             </template>
                             <template #option-icon="{ option }"><ValueDelimiterIcon :value-delimiter-id="resolveValueDelimiterId(option.id)" /></template>
                         </SelectInput>
@@ -2476,32 +2617,82 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             :tone="selectedHasHeaders == null ? undefined : 'info'"
                         >
                             <template #icon>
-                                <HeadersIcon class="size-[1.25em] flex-none text-muted" :has-headers="previewHasHeaders" />
+                                <HeadersIcon class="size-4.5 flex-none text-muted" :has-headers="previewHasHeaders" />
                             </template>
                             <!-- An empty box of the same size stands in on Auto before detection, so the labels line up. -->
                             <template #option-icon="{ option }">
                                 <HeadersIcon
                                     v-if="resolveHasHeaders(option.id) != null"
-                                    class="size-[1.25em] flex-none text-muted"
+                                    class="size-4.5 flex-none text-muted"
                                     :has-headers="resolveHasHeaders(option.id) === true"
                                 />
-                                <span v-else aria-hidden="true" class="size-[1.25em] flex-none" />
+                                <span v-else aria-hidden="true" class="size-4.5 flex-none" />
                             </template>
                         </SelectInput>
-                        <!-- Fixed Read Settings ─ In place of the choices above, for an item whose source says how it is
-                             read. The title says why they cannot be changed. -->
                         <span
-                            v-for="setting in fixedReadSettings"
+                            v-for="setting in fixedReadSettingsAfterParser"
                             :key="setting.id"
                             class="flex h-7 max-w-full min-w-0 items-center gap-x-1 px-1.5 text-sm text-content"
                             :class="readChoiceSelectClass"
                             :title="t(TEXT, 'readSetting.declared.text')"
                         >
-                            <component :is="setting.icon" v-bind="setting.iconProps" aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
+                            <component :is="setting.icon" v-bind="setting.iconProps" aria-hidden="true" class="size-4.5 flex-none text-muted" />
                             <span class="sr-only">{{ t(TEXT, setting.labelKey) }}</span>
                             <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ setting.value }}</span>
                         </span>
-                        <!-- Store ─ Last, because it is where the records go once they are read. -->
+                        <!-- Preview Again ─ Only for the data view's own item when its source gives no last-modified time, so
+                             a change cannot be told. Otherwise a changed item is offered above the toolbar. Detection runs
+                             again, and the sample is read with the choices above. Hidden with the other read choices when
+                             the item's source says how it is read, such as a table. -->
+                        <ActionWrapper
+                            v-if="!auditIsRunning && !readingIsFixed && savedItemChangeId === 'unknown'"
+                            class="flex h-7 max-w-full min-w-0 items-center gap-x-1 rounded-md px-1.5 text-sm text-content hover:state-hover active:state-press disabled:opacity-50"
+                            :class="readChoiceSelectClass"
+                            :disabled="readChoicesAreLocked || previewIsPending"
+                            :title="readChoiceValuesAreHidden ? t(TEXT, 'previewAgain.label') : undefined"
+                            @click="handleRetryItem"
+                        >
+                            <RefreshCwIcon aria-hidden="true" class="size-4.5 flex-none text-muted" :stroke-width="1.5" />
+                            <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ t(TEXT, 'previewAgain.label') }}</span>
+                        </ActionWrapper>
+                        <!-- Audit ─ After the read choices, as it reads the item the way they set, and before the store. Audits again for a
+                             whole item, or offers a choice of sizes for part of one, and Stop replaces it while an
+                             audit runs. It truncates and folds with the selects. The amount audited shows in the status
+                             bar, because a button there would sit where a phone's own swipes start. -->
+                        <template v-if="auditIsRunning || (auditStatus && auditActionIsShown)">
+                            <ActionWrapper
+                                v-if="auditIsRunning"
+                                class="flex h-7 max-w-full min-w-0 items-center gap-x-1 rounded-md px-1.5 text-sm text-content hover:state-hover active:state-press"
+                                :class="readChoiceSelectClass"
+                                :title="readChoiceValuesAreHidden ? t(TEXT, 'audit.stop.label') : undefined"
+                                @click="stopAudit"
+                            >
+                                <CircleStopIcon aria-hidden="true" class="size-4.5 flex-none text-muted" :stroke-width="1.5" />
+                                <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ t(TEXT, 'audit.stop.label') }}</span>
+                            </ActionWrapper>
+                            <ActionWrapper
+                                v-else-if="auditStatus?.isComplete"
+                                class="flex h-7 max-w-full min-w-0 items-center gap-x-1 rounded-md px-1.5 text-sm text-content hover:state-hover active:state-press disabled:opacity-50"
+                                :class="readChoiceSelectClass"
+                                :disabled="readChoicesAreLocked"
+                                :title="readChoiceValuesAreHidden ? t(TEXT, 'audit.again.label') : undefined"
+                                @click="handleStartAudit(undefined)"
+                            >
+                                <RotateCwIcon aria-hidden="true" class="size-4.5 flex-none text-muted" :stroke-width="1.5" />
+                                <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ t(TEXT, 'audit.again.label') }}</span>
+                            </ActionWrapper>
+                            <AuditMenu
+                                v-else
+                                :audit-choices="auditChoices"
+                                :class="readChoiceSelectClass"
+                                :disabled="readChoicesAreLocked"
+                                :is-label-hidden="readChoiceValuesAreHidden"
+                                @select="handleStartAudit"
+                            >
+                                <RotateCwIcon aria-hidden="true" class="size-4.5 flex-none text-muted" :stroke-width="1.5" />
+                            </AuditMenu>
+                        </template>
+                        <!-- Store ─ Last, because it is where the records go once they are read and audited. -->
                         <SelectInput
                             v-if="storeIsChoosable"
                             v-model="storeConnectorId"
@@ -2517,70 +2708,24 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                  connector without one falls back to a generic icon when closed. -->
                             <template #icon>
                                 <ConfigIcon
-                                    v-if="findStoreConnection(storeConnectorId)?.icon ?? findStoreConnection(storeConnectorId)?.iconDark"
-                                    class="size-[1.25em] flex-none"
-                                    :icon="findStoreConnection(storeConnectorId)?.icon"
-                                    :icon-dark="findStoreConnection(storeConnectorId)?.iconDark"
+                                    v-if="findStoreConfig(storeConnectorId)?.icon ?? findStoreConfig(storeConnectorId)?.iconDark"
+                                    class="size-4.5 flex-none"
+                                    :icon="findStoreConfig(storeConnectorId)?.icon"
+                                    :icon-dark="findStoreConfig(storeConnectorId)?.iconDark"
                                 />
-                                <DatabaseIcon v-else aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
+                                <DatabaseIcon v-else aria-hidden="true" class="size-4.5 flex-none text-muted" />
                             </template>
                             <template #option-icon="{ option }">
-                                <span class="flex size-[1.25em] flex-none">
-                                    <ConfigIcon class="size-full" :icon="findStoreConnection(option.id)?.icon" :icon-dark="findStoreConnection(option.id)?.iconDark" />
+                                <span class="flex size-4.5 flex-none">
+                                    <ConfigIcon
+                                        class="size-full"
+                                        :class="{ 'opacity-60 grayscale': findStoreConfig(option.id)?.isPlanned }"
+                                        :icon="findStoreConfig(option.id)?.icon"
+                                        :icon-dark="findStoreConfig(option.id)?.iconDark"
+                                    />
                                 </span>
                             </template>
                         </SelectInput>
-                        <!-- Audit ─ After the read choices, as it reads the item the way they set. Audits again for a
-                             whole item, or offers a choice of sizes for part of one, and Stop replaces it while an
-                             audit runs. It truncates and folds with the selects. The amount audited shows in the status
-                             bar, because a button there would sit where a phone's own swipes start. -->
-                        <template v-if="auditIsRunning || (auditStatus && auditActionIsShown)">
-                            <ActionWrapper
-                                v-if="auditIsRunning"
-                                class="flex h-7 max-w-full min-w-0 items-center gap-x-1 rounded-md px-1.5 text-sm text-content hover:state-hover active:state-press"
-                                :class="readChoiceSelectClass"
-                                :title="readChoiceValuesAreHidden ? t(TEXT, 'audit.stop.label') : undefined"
-                                @click="stopAudit"
-                            >
-                                <CircleStopIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" :stroke-width="1.5" />
-                                <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ t(TEXT, 'audit.stop.label') }}</span>
-                            </ActionWrapper>
-                            <ActionWrapper
-                                v-else-if="auditStatus?.isComplete"
-                                class="flex h-7 max-w-full min-w-0 items-center gap-x-1 rounded-md px-1.5 text-sm text-content hover:state-hover active:state-press disabled:opacity-50"
-                                :class="readChoiceSelectClass"
-                                :disabled="readChoicesAreLocked"
-                                :title="readChoiceValuesAreHidden ? t(TEXT, 'audit.again.label') : undefined"
-                                @click="handleStartAudit(undefined)"
-                            >
-                                <RotateCwIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" :stroke-width="1.5" />
-                                <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ t(TEXT, 'audit.again.label') }}</span>
-                            </ActionWrapper>
-                            <AuditMenu
-                                v-else
-                                :audit-choices="auditChoices"
-                                :class="readChoiceSelectClass"
-                                :disabled="readChoicesAreLocked"
-                                :is-label-hidden="readChoiceValuesAreHidden"
-                                @select="handleStartAudit"
-                            >
-                                <RotateCwIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" :stroke-width="1.5" />
-                            </AuditMenu>
-                        </template>
-                        <!-- Preview Again ─ A saved item opens as it was saved, so this is how it is read afresh. Detection runs
-                             again, and the sample is read with the choices above. Hidden with the other read choices when
-                             the item's source says how it is read, such as a table. -->
-                        <ActionWrapper
-                            v-if="!auditIsRunning && !readingIsFixed"
-                            class="flex h-7 max-w-full min-w-0 items-center gap-x-1 rounded-md px-1.5 text-sm text-content hover:state-hover active:state-press disabled:opacity-50"
-                            :class="readChoiceSelectClass"
-                            :disabled="readChoicesAreLocked || previewIsPending"
-                            :title="readChoiceValuesAreHidden ? t(TEXT, 'previewAgain.label') : undefined"
-                            @click="handleRetryItem"
-                        >
-                            <RefreshCwIcon aria-hidden="true" class="size-[1.25em] flex-none text-muted" :stroke-width="1.5" />
-                            <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ t(TEXT, 'previewAgain.label') }}</span>
-                        </ActionWrapper>
                     </div>
                 </Teleport>
                 <!-- Folded Read Choices ─ In the top layer, so the preview cannot cover them. The browser closes them on
@@ -2624,7 +2769,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         @click="currentPreviewTabId = previewTab.id"
                         @keydown="handleNavigatePreviewTabs($event, previewTabIndex)"
                     >
-                        <component :is="previewTab.icon" aria-hidden="true" class="size-5" :stroke-width="1.5" />
+                        <component :is="previewTab.icon" aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
                     </ActionWrapper>
                 </div>
 
@@ -2638,7 +2783,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             class="flex h-7 items-center gap-x-0.5 rounded-md px-1 text-accent hover:state-hover active:state-press"
                             :title="t(TEXT, currentPreviewTab.labelKey)"
                         >
-                            <component :is="currentPreviewTab.icon" aria-hidden="true" class="size-5" :stroke-width="1.5" />
+                            <component :is="currentPreviewTab.icon" aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
                             <ChevronDownIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
                         </ActionWrapper>
                     </template>
@@ -2651,7 +2796,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             kind="radio"
                             @select="handleSelectPreviewTab(previewTab.id)"
                         >
-                            <template #icon><component :is="previewTab.icon" aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" /></template>
+                            <template #icon><component :is="previewTab.icon" aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" /></template>
                             {{ t(TEXT, previewTab.labelKey) }}
                         </Menu.Item>
                     </Menu.Content>
@@ -2928,7 +3073,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     <span aria-hidden="true">{{ shownAuditStatusText }}</span>
                     <span class="sr-only">{{ auditStatus.text }}</span>
                 </template>
-                <template #end>{{ previewStatusText }}</template>
+                <template #end="{ isShort }">{{ isShort ? previewStatus?.shortText : previewStatus?.text }}</template>
             </StatusBar>
         </template>
 

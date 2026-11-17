@@ -20,6 +20,7 @@ import {
     forgetDraftLoad,
     INVESTIGATE_STORE_CONNECTOR_ID,
     isDataViewLoaded,
+    listDataViewStoreConfigs,
     loadDataViewRecords,
     openDataViewStore,
     promoteDraftLoad,
@@ -81,6 +82,21 @@ describe('_dataViewStore', () => {
 
         expect(findDataViewStoreLabel(INVESTIGATE_STORE_CONNECTOR_ID)).toBe('SQLite');
         expect(findConnectionLocalisedConfig).toHaveBeenCalledWith(INVESTIGATE_STORE_CONNECTOR_ID);
+    });
+
+    it('lists the stores by name, with PGlite listed as planned, and leaves out a store whose connector is missing', () => {
+        vi.mocked(findConnectionLocalisedConfig).mockImplementation((connectionId) =>
+            connectionId === 'dpuse-connector-dexie-js' ? undefined : ({ icon: 'icon', iconDark: null, id: connectionId, label: connectionId } as unknown as ReturnType<typeof findConnectionLocalisedConfig>)
+        );
+
+        const storeConfigs = listDataViewStoreConfigs();
+
+        expect(storeConfigs.map(({ id, isPlanned }) => ({ id, isPlanned }))).toEqual([
+            { id: 'dpuse-connector-duckdb-wasm', isPlanned: false },
+            { id: 'dpuse-connector-pglite', isPlanned: true },
+            { id: 'dpuse-connector-sqlite-wasm', isPlanned: false }
+        ]);
+        expect(storeConfigs.find(({ isPlanned }) => isPlanned)?.icon).toContain('<svg');
     });
 
     it('opens the investigate store and returns its state', async () => {

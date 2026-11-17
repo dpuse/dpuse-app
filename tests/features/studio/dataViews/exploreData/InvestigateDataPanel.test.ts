@@ -9,6 +9,7 @@ import { constructStoreError } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import ColumnDetailPanel from '@/features/studio/dataViews/ColumnDetailPanel.vue';
 import { constructFittedColumnWidth } from '@/components/ui/table/tableColumnWidth';
+import type { DataViewStoreConfig } from '@/features/studio/dataViews/_dataViewStore';
 import InvestigateDataPanel from '@/features/studio/dataViews/exploreData/InvestigateDataPanel.vue';
 import { settle } from '~/tests/support/settle';
 import { storeTakeover } from '@/services/storeUse';
@@ -18,10 +19,10 @@ import {
     constructLoadTimingParts,
     findDataViewInvalidValueCounts,
     findDataViewLoadTiming,
-    findDataViewStoreLabel,
     forgetDataViewLoad,
     hasDataViewLoad,
     isDataViewLoaded,
+    listDataViewStoreConfigs,
     loadDataViewRecords,
     openDataViewStore,
     queryDataViewColumnValueCounts,
@@ -40,6 +41,8 @@ interface TableProperties {
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const routerPush = vi.hoisted(() => vi.fn(() => Promise.resolve())); // Stands for opening the item step.
+
 // The panel reads the data view the route names. The spec sets that data view directly.
 const dataView = vi.hoisted((): { config: unknown } => ({ config: undefined }));
 vi.mock('@/features/studio/dataViews/_dataViews', async (importOriginal) => {
@@ -56,11 +59,10 @@ vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
     constructStoredColumnConfigs: (): { label: string }[] => STORED_COLUMN_CONFIGS,
     findDataViewInvalidValueCounts: vi.fn(),
     findDataViewLoadTiming: vi.fn(),
-    findDataViewStoreLabel: vi.fn(),
     forgetDataViewLoad: vi.fn(),
     hasDataViewLoad: vi.fn(),
     isDataViewLoaded: vi.fn(),
-    listDataViewStoreConnections: vi.fn(() => []),
+    listDataViewStoreConfigs: vi.fn((): unknown[] => []),
     loadDataViewRecords: vi.fn(),
     openDataViewStore: vi.fn(),
     queryDataViewColumnValueCounts: vi.fn(),
@@ -74,16 +76,30 @@ vi.mock('@/services/storeUse', async () => {
     const { shallowRef } = await import('vue');
     return { holdStore: vi.fn(() => storeUse.releaseStore), isStoreConnection: vi.fn(() => false), openStore: vi.fn(), storeTakeover: shallowRef() };
 });
+// The shared check tells the panel whether the item has changed. The spec says what the check found.
+const itemChange = vi.hoisted(() => ({ changedAt: undefined as number | undefined, ignoreItemChange: vi.fn(), isShown: false }));
+vi.mock('@/features/studio/dataViews/_itemChange', async () => {
+    const { computed } = await import('vue');
+    return {
+        useItemChange: (): unknown => ({
+            ignoreItemChange: itemChange.ignoreItemChange,
+            itemChangedAt: computed(() => itemChange.changedAt),
+            itemChangeIsShown: computed(() => itemChange.isShown)
+        })
+    };
+});
 vi.mock('@/components/ui/table/tableColumnWidth', () => ({ HEADER_MENU_WIDTH_PX: 24, HEADER_TAB_INSET_PX: 10, constructFittedColumnWidth: vi.fn() }));
 
 vi.mock('vue-router', async (importOriginal) => ({
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
     ...(await importOriginal<typeof import('vue-router')>()),
-    useRoute: (): { params: { dataViewId: string } } => ({ params: { dataViewId: 'dataView1' } })
+    useRoute: (): { params: { dataViewId: string } } => ({ params: { dataViewId: 'dataView1' } }),
+    useRouter: (): { push: typeof routerPush } => ({ push: routerPush })
 }));
 
 // The table scrolls and measures, which jsdom cannot, so it is stood in for and what it is given is checked. It renders
-// each column's name through the panel's own 'header-label' slot, so a column's detail can be opened from it.
+// the panel's toolbar actions, and each column's name through the panel's own 'header-label' slot, so a column's detail
+// can be opened from it.
 const TableStub = defineComponent({
     props: {
         columnDefinitions: { type: Array<{ accessorKey: string }>, required: true },
@@ -93,10 +109,10 @@ const TableStub = defineComponent({
     setup:
         (properties, { slots }) =>
         (): VNode =>
-            h(
-                'div',
-                properties.columnDefinitions.map((columnDefinition) => slots['header-label']?.({ columnId: columnDefinition.accessorKey }))
-            )
+            h('div', [
+                slots['toolbar-end']?.(),
+                ...properties.columnDefinitions.map((columnDefinition) => slots['header-label']?.({ columnId: columnDefinition.accessorKey }))
+            ])
 });
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -113,13 +129,17 @@ const AUDITED_DATA_VIEW = {
 };
 const SIZED_DATA_VIEW = { ...AUDITED_DATA_VIEW, connectionNodeConfig: { size: 1000 } }; // An item whose size is known, so a load can show how far it has got.
 const LOAD_TIMING = { conversionDuration: 0, duration: 0, parseDuration: 0, retrieveDuration: 0, sourceWaitDuration: 0, storeDuration: 0, totalDuration: 0 }; // Its parts are given by 'constructLoadTimingParts'.
+const STORE_CONFIGS: DataViewStoreConfig[] = [
+    { icon: null, iconDark: null, id: 'dpuse-connector-duckdb-wasm', isPlanned: false, label: 'DuckDB' },
+    { icon: null, iconDark: null, id: 'dpuse-connector-pglite', isPlanned: true, label: 'PGlite' },
+    { icon: null, iconDark: null, id: 'dpuse-connector-sqlite-wasm', isPlanned: false, label: 'SQLite' }
+];
 const STORED_COLUMN_CONFIGS = [{ label: 'Stored' }]; // Stands for the columns the store module works out, which the panel passes on to every query.
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
     vi.mocked(openDataViewStore).mockResolvedValue('ready');
-    vi.mocked(findDataViewStoreLabel).mockReturnValue('SQLite');
     vi.mocked(isDataViewLoaded).mockReturnValue(true);
     vi.mocked(hasDataViewLoad).mockReturnValue(false);
     vi.mocked(loadDataViewRecords).mockResolvedValue({ columnsHaveChanged: false, invalidValueCounts: [], recordCount: 0 });
@@ -129,6 +149,8 @@ beforeEach(() => {
 
 afterEach(() => {
     dataView.config = undefined;
+    itemChange.changedAt = undefined;
+    itemChange.isShown = false;
     storeTakeover.value = undefined;
     history.replaceState(null, '');
     vi.clearAllMocks();
@@ -363,8 +385,7 @@ describe('InvestigateDataPanel', () => {
         clock.mockRestore();
 
         const records = constructRecordsText(375_000);
-        expect(wrapper.text()).toContain(t(TEXT, 'load.complete.other.text', { duration: formatFinishedDuration(12_500), records, store: 'SQLite' }));
-        expect(wrapper.text()).toContain(t(TEXT, 'shown.other.text', { records }));
+        expect(wrapper.text()).toContain(t(TEXT, 'load.complete.other.text', { duration: formatFinishedDuration(12_500), records }));
         const meter = wrapper.find('[role="meter"]');
         expect(meter.attributes('aria-valuenow')).toBe('100');
         expect(meter.find('div').classes().join(' ')).toContain('success');
@@ -437,7 +458,7 @@ describe('InvestigateDataPanel', () => {
         expect(wrapper.find('[role="meter"]').attributes('aria-valuenow')).toBe('50');
     });
 
-    it('warns, before the load’s figures, when the column types come from a partial audit', async () => {
+    it('warns, after the load’s figures, when the column types come from a partial audit', async () => {
         dataView.config = { ...AUDITED_DATA_VIEW, contentAuditConfig: { ...AUDITED_DATA_VIEW.contentAuditConfig, isComplete: false } };
         vi.mocked(isDataViewLoaded).mockReturnValue(false);
         history.replaceState({ loadIsRequested: true }, '');
@@ -447,19 +468,62 @@ describe('InvestigateDataPanel', () => {
 
         const text = wrapper.text();
         expect(text.indexOf(t(TEXT, 'load.partialAuditTypes.text'))).toBeGreaterThan(-1);
-        expect(text.indexOf(t(TEXT, 'load.partialAuditTypes.text'))).toBeLessThan(text.indexOf(constructRecordsText(2)));
+        expect(text.indexOf(t(TEXT, 'load.partialAuditTypes.text'))).toBeGreaterThan(text.indexOf(constructRecordsText(2)));
     });
 
-    it('says no records are loaded when the data view has never been loaded', async () => {
+    it('warns that the item has changed, and opens the item step to refresh the data view when asked', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        itemChange.changedAt = Date.UTC(2026, 10, 17);
+        itemChange.isShown = true;
+        const wrapper = mountPanel();
+        await settle();
+
+        const notice = wrapper.get('[data-region="ItemChangedNotice"]');
+        expect(loadDataViewRecords).not.toHaveBeenCalled(); // Nothing is read again until the user asks.
+
+        await notice.findAll('button').at(0)?.trigger('click'); // 'Refresh' comes first.
+
+        expect(routerPush).toHaveBeenCalledWith(expect.objectContaining({ name: 'item', state: { itemRefreshIsRequested: true } }));
+        expect(loadDataViewRecords).not.toHaveBeenCalled(); // The item step previews and audits first, then asks for the load.
+    });
+
+    it('ignores the change when asked, and says nothing when the item has not changed', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        const unchanged = mountPanel();
+        await settle();
+        expect(unchanged.find('[data-region="ItemChangedNotice"]').exists()).toBe(false);
+
+        itemChange.changedAt = Date.UTC(2026, 10, 17);
+        itemChange.isShown = true;
+        const changed = mountPanel();
+        await settle();
+        await changed.get('[data-region="ItemChangedNotice"]').findAll('button').at(-1)?.trigger('click'); // 'Ignore' comes last.
+
+        expect(itemChange.ignoreItemChange).toHaveBeenCalledOnce();
+        expect(routerPush).not.toHaveBeenCalled();
+    });
+
+    it('shows the store the records are in, named for screen readers, in place of a load again button', async () => {
+        dataView.config = AUDITED_DATA_VIEW;
+        vi.mocked(listDataViewStoreConfigs).mockReturnValue(STORE_CONFIGS);
+        const wrapper = mountPanel();
+        await settle();
+
+        const trigger = wrapper.find(`[aria-label="${t(TEXT, 'store.aria', { label: 'SQLite' })}"]`);
+        expect(trigger.text()).toContain('SQLite');
+        expect(wrapper.text()).not.toContain(t(TEXT, 'load.again.label'));
+    });
+
+    it('says the data has not been loaded when the data view has never been loaded', async () => {
         dataView.config = AUDITED_DATA_VIEW;
         vi.mocked(isDataViewLoaded).mockReturnValue(false);
         const wrapper = mountPanel();
         await settle();
 
-        expect(wrapper.text()).toContain(t(TEXT, 'shown.notLoaded.text'));
+        expect(wrapper.text()).toContain(t(TEXT, 'load.required.text'));
     });
 
-    it('shows where the load spent its time beside its total, with the parts of reading in brackets', async () => {
+    it('shows the load’s total time, taken from its timed parts', async () => {
         dataView.config = AUDITED_DATA_VIEW;
         vi.mocked(isDataViewLoaded).mockReturnValue(false);
         history.replaceState({ loadIsRequested: true }, '');
@@ -468,33 +532,7 @@ describe('InvestigateDataPanel', () => {
         const wrapper = mountPanel();
         await settle();
 
-        const readingParts = formatList([formatTimingPart('load.timing.waiting.text', 1), formatTimingPart('load.timing.starting.text', 0.5), formatTimingPart('load.timing.parsing.text', 2.5)]);
-        const reading = t(TEXT, 'load.timing.readingParts.text', { parts: readingParts, seconds: formatSeconds(4) });
-        const otherParts = [formatTimingPart('load.timing.converting.text', 2), formatTimingPart('load.timing.storing.text', 6), formatTimingPart('load.timing.other.text', 1)];
-        expect(wrapper.text()).toContain(formatList([reading, ...otherParts]));
-        expect(wrapper.text()).toContain(t(TEXT, 'load.complete.zero.text', { duration: formatFinishedDuration(13_000), store: 'SQLite' })); // The total the parts add up to.
-    });
-
-    it('shows reading without parts for a source that holds typed values, such as a database', async () => {
-        dataView.config = AUDITED_DATA_VIEW;
-        vi.mocked(isDataViewLoaded).mockReturnValue(false);
-        history.replaceState({ loadIsRequested: true }, '');
-        vi.mocked(findDataViewLoadTiming).mockReturnValue(LOAD_TIMING);
-        vi.mocked(constructLoadTimingParts).mockReturnValue({
-            converting: 2000,
-            other: 1000,
-            parsing: undefined,
-            reading: 4000,
-            starting: undefined,
-            storing: 6000,
-            total: 13_000,
-            waiting: undefined
-        });
-        const wrapper = mountPanel();
-        await settle();
-
-        const otherParts = [formatTimingPart('load.timing.converting.text', 2), formatTimingPart('load.timing.storing.text', 6), formatTimingPart('load.timing.other.text', 1)];
-        expect(wrapper.text()).toContain(formatList([formatTimingPart('load.timing.reading.text', 4), ...otherParts]));
+        expect(wrapper.text()).toContain(t(TEXT, 'load.complete.zero.text', { duration: formatFinishedDuration(13_000) }));
     });
 
     it('shows no load time for records loaded on an earlier visit, only the records and where they went', async () => {
@@ -507,8 +545,7 @@ describe('InvestigateDataPanel', () => {
         await settle();
 
         const records = constructRecordsText(2);
-        expect(wrapper.text()).toContain(t(TEXT, 'load.untimed.other.text', { records, store: 'SQLite' }));
-        expect(wrapper.text()).toContain(t(TEXT, 'shown.other.text', { records }));
+        expect(wrapper.text()).toContain(t(TEXT, 'load.untimed.other.text', { records }));
     });
 
     it('says so when another tab has the store, and tries again when asked', async () => {
@@ -612,16 +649,4 @@ function mountPanel(): ReturnType<typeof mount> {
 
 function constructRecordsText(recordCount: number): string {
     return t(TEXT, recordCount === 1 ? 'record.one.text' : 'record.other.text', { count: new Intl.NumberFormat(localeId.value).format(recordCount) });
-}
-
-function formatSeconds(seconds: number): string {
-    return new Intl.NumberFormat(localeId.value, { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(seconds);
-}
-
-function formatTimingPart(labelKey: keyof typeof TEXT, seconds: number): string {
-    return t(TEXT, labelKey, { seconds: formatSeconds(seconds) });
-}
-
-function formatList(parts: string[]): string {
-    return new Intl.ListFormat(localeId.value, { style: 'short', type: 'unit' }).format(parts);
 }

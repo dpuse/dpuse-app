@@ -25,6 +25,8 @@ import { establishEngineWorker } from '@/services/engine';
 import { establishFileValueDelimiterId } from './_dataViewColumns';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import { openStore } from '@/services/storeUse';
+import pgliteIcon from './_data/pgliteIcon.svg?raw';
+import pgliteIconDark from './_data/pgliteIconDark.svg?raw';
 import {
     addUnwantedTablePaths,
     constructLoadKey,
@@ -45,6 +47,9 @@ export type DataViewRecordQuery = Pick<QueryRecordsOptions, 'aggregates' | 'filt
 // A column's valid values as the store holds them, counted in full, in the shape the audit gives them.
 export type DataViewColumnValueCounts = Required<Pick<ColumnAuditConfig, 'validDistinctValueCount' | 'validFrequentValues' | 'validLeastFrequentValues' | 'validValueCount'>>;
 
+// A store as the store select lists it. A planned store has no connector yet, so it is listed but cannot be chosen.
+export type DataViewStoreConfig = Pick<LocalisedConfig<ConnectionConfig>, 'icon' | 'iconDark' | 'id' | 'label'> & { isPlanned: boolean };
+
 // The engine's timing of a load, and the whole load as the user waits for it. In milliseconds.
 export interface DataViewLoadTiming extends LoadTiming {
     totalDuration: number; // Also starting the engine's connectors, and dropping the table the load replaces.
@@ -64,11 +69,14 @@ export interface LoadTimingParts {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The stores a data view can load into, in the order the store select lists them. A data view saved before it had a
-// choice loads into the default, SQLite, because it needs far less memory and a much smaller download than DuckDB.
+// A data view saved before it had a choice of store loads into the default, SQLite, because it needs far less memory and a
+// much smaller download than DuckDB.
 export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-sqlite-wasm';
 //export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-duckdb-wasm';
-const INVESTIGATE_STORE_CONNECTOR_IDS = ['dpuse-connector-sqlite-wasm', 'dpuse-connector-duckdb-wasm', 'dpuse-connector-dexie-js']; // Dexie last, because it answers queries in memory.
+// PGlite is planned and has no connector yet. Its icons are PGlite's own, from its repository (Apache-2.0).
+const PGLITE_STORE_CONFIG: DataViewStoreConfig = { icon: pgliteIcon, iconDark: pgliteIconDark, id: 'dpuse-connector-pglite', isPlanned: true, label: 'PGlite' };
+const STORE_SELECT_IDS = ['dpuse-connector-duckdb-wasm', 'dpuse-connector-dexie-js', PGLITE_STORE_CONFIG.id, 'dpuse-connector-sqlite-wasm']; // In the order the store select lists them, by name.
+const INVESTIGATE_STORE_CONNECTOR_IDS = STORE_SELECT_IDS.filter((storeId) => storeId !== PGLITE_STORE_CONFIG.id); // The stores a data view can load into.
 
 const LISTED_VALUE_COUNT = 10; // Values in each of the most and least frequent lists, as many as the audit lists.
 
@@ -319,9 +327,14 @@ export function findDataViewStoreLabel(storeConnectorId: string): string {
     return findStoreConnectionLocalisedConfig(storeConnectorId).label;
 }
 
-// The stores this app can reach, for the store select. A store whose connector is not available is left out.
-export function listDataViewStoreConnections(): LocalisedConfig<ConnectionConfig>[] {
-    return INVESTIGATE_STORE_CONNECTOR_IDS.map((storeConnectorId) => findConnectionLocalisedConfig(storeConnectorId)).filter((connectionConfig) => connectionConfig != null);
+// The stores for the store select, with the planned ones that cannot be chosen yet. A store whose connector is not
+// available is left out.
+export function listDataViewStoreConfigs(): DataViewStoreConfig[] {
+    return STORE_SELECT_IDS.map((storeId): DataViewStoreConfig | undefined => {
+        if (storeId === PGLITE_STORE_CONFIG.id) return PGLITE_STORE_CONFIG;
+        const connectionConfig = findConnectionLocalisedConfig(storeId);
+        return connectionConfig == null ? undefined : { icon: connectionConfig.icon, iconDark: connectionConfig.iconDark, id: connectionConfig.id, isPlanned: false, label: connectionConfig.label };
+    }).filter((storeConfig) => storeConfig != null);
 }
 
 export function resolveStoreConnectorId(dataViewConfig: Pick<DataViewConfig, 'storeConnectorId'> | undefined): string {

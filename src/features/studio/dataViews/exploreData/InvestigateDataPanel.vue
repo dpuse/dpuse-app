@@ -1,10 +1,10 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
-import { useRoute } from 'vue-router';
-import { ChevronDownIcon, RefreshCwIcon, SlidersHorizontalIcon, TriangleAlertIcon } from '@lucide/vue';
+import { ChevronDownIcon, SlidersHorizontalIcon, TriangleAlertIcon } from '@lucide/vue';
 import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import { useConfirmDialog, useIntervalFn } from '@vueuse/core';
+import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError, findStoreErrorId } from '@dpuse/dpuse-shared';
@@ -16,8 +16,10 @@ import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
 import { constructColumnTypeLabel } from '@/features/studio/dataViews/_previewColumnRows';
 import type { DataSource } from '@/composables/useDataWindow';
 import { findConnectionLocalisedConfig } from '@/state/configs';
+import { ignoreReportedNavigationFailure } from '@/router';
 import { TEXT } from './InvestigateDataPanel_.json';
 import { useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
+import { useItemChange } from '@/features/studio/dataViews/_itemChange';
 import { viewportIsWide } from '@/state/device';
 import {
     abortDataViewRecordLoad,
@@ -26,11 +28,10 @@ import {
     type DataViewColumnValueCounts,
     findDataViewInvalidValueCounts,
     findDataViewLoadTiming,
-    findDataViewStoreLabel,
     forgetDataViewLoad,
     hasDataViewLoad,
     isDataViewLoaded,
-    listDataViewStoreConnections,
+    listDataViewStoreConfigs,
     loadDataViewRecords,
     openDataViewStore,
     queryDataViewColumnValueCounts,
@@ -66,6 +67,7 @@ import type { ColumnSearchOption } from '@/features/studio/dataViews/ColumnSearc
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
+import ItemChangedNotice from '@/features/studio/dataViews/ItemChangedNotice.vue';
 import { Menu } from '@/components/ui/menu';
 import type { SelectOption } from '@/components/ui/SelectInput.vue';
 import StatusBar from '@/features/studio/dataViews/StatusBar.vue';
@@ -115,6 +117,7 @@ const MESSAGE_KEYS: Partial<Record<InvestigateState['typeId'], keyof typeof TEXT
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const route = useRoute();
+const router = useRouter();
 
 // ── Data View
 const { data: dataViewConfig, draftIsCurrent } = useCurrentDataView(() => route.params.dataViewId);
@@ -150,12 +153,16 @@ const tableComponent = useTemplateRef<{ scrollColumnIntoView: (columnId: string)
 const transformIsOpen = ref(false);
 const selectedColumnValueCounts = shallowRef<{ columnIndex: number; dataSourceId: string | undefined; valueCounts: DataViewColumnValueCounts }>(); // From the store, for a column the audit stopped counting.
 
+// ── Item Change ─ Whether the data view's item has changed in its source since the data view last read it.
+const { ignoreItemChange, itemChangedAt, itemChangeIsShown } = useItemChange(dataViewConfig);
+
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const storeConnectorId = computed(() => resolveStoreConnectorId(dataViewConfig.value)); // Chosen on the item step, or by 'Load again'.
 const invalidValueCounts = computed(() => (dataViewConfig.value == null ? [] : (findDataViewInvalidValueCounts(dataViewConfig.value, draftIsCurrent.value) ?? []))); // Kept with the load, so they show on every visit. A load made before they were kept has none.
-const storeConnections = computed(() => listDataViewStoreConnections());
-const storeIsChoosable = computed(() => storeConnections.value.length > 1);
+const storeConfigs = computed(() => listDataViewStoreConfigs()); // With the planned stores, which are listed but cannot be chosen yet.
+const storeIsChoosable = computed(() => storeConfigs.value.filter((storeConfig) => !storeConfig.isPlanned).length > 1);
+const currentStoreConfig = computed(() => storeConfigs.value.find((storeConfig) => storeConfig.id === storeConnectorId.value));
 
 const messageKey = computed(() => {
     return investigateState.value.typeId === 'notLoaded' && hasEarlierLoad.value ? 'load.changed.text' : MESSAGE_KEYS[investigateState.value.typeId];
@@ -214,38 +221,6 @@ const loadProgress = computed(() => {
         percentage: status.percentage,
         valueText: status.text
     };
-});
-
-// Where the last load's time went, in the parts the data view's Summary lists. Waiting, starting and parsing are parts of
-// reading, so they follow it in brackets. A source that holds typed values, such as a database, has none of them.
-const loadTimingText = computed(() => {
-    const parts = loadTimingParts.value;
-    if (parts == null) return '';
-    const listFormat = new Intl.ListFormat(localeId.value, { style: 'short', type: 'unit' });
-    const readingParts = [
-        parts.waiting == null ? undefined : t(TEXT, 'load.timing.waiting.text', { seconds: formatSeconds(parts.waiting) }),
-        parts.starting == null ? undefined : t(TEXT, 'load.timing.starting.text', { seconds: formatSeconds(parts.starting) }),
-        parts.parsing == null ? undefined : t(TEXT, 'load.timing.parsing.text', { seconds: formatSeconds(parts.parsing) })
-    ].filter((part) => part != null);
-    const readingSeconds = formatSeconds(parts.reading);
-    return listFormat.format([
-        readingParts.length === 0
-            ? t(TEXT, 'load.timing.reading.text', { seconds: readingSeconds })
-            : t(TEXT, 'load.timing.readingParts.text', { parts: listFormat.format(readingParts), seconds: readingSeconds }),
-        t(TEXT, 'load.timing.converting.text', { seconds: formatSeconds(parts.converting) }),
-        t(TEXT, 'load.timing.storing.text', { seconds: formatSeconds(parts.storing) }),
-        t(TEXT, 'load.timing.other.text', { seconds: formatSeconds(parts.other) })
-    ]);
-});
-
-// What the table shows, beside what the load read, so the two are never taken for each other.
-const shownRecordsText = computed(() => {
-    const { typeId } = investigateState.value;
-    if (typeId === 'notLoaded' && !hasEarlierLoad.value) return t(TEXT, 'shown.notLoaded.text');
-    if (typeId !== 'ready' || storedRecordCount.value == null) return;
-    if (storedRecordCount.value === 0) return t(TEXT, 'shown.empty.text');
-    if (storedRecordCount.value === 1) return t(TEXT, 'shown.one.text');
-    return t(TEXT, 'shown.other.text', { records: constructRecordsText(storedRecordCount.value) });
 });
 
 // ── Table ─ One column for each of the data view's columns, except those the user chose to ignore, which the load left
@@ -476,8 +451,12 @@ async function handleTakeOverStore(): Promise<void> {
     void openAndLoad(false, true);
 }
 
-function handleLoadAgain(): void {
-    void openAndLoad(true);
+// A refresh starts with a fresh preview and audit, which the item step reads. So it opens the item step and asks it to
+// refresh, and the item step opens Explore again to load the records once the columns are known to be the same.
+function handleRefreshChangedItem(): void {
+    void ignoreReportedNavigationFailure(
+        router.push({ name: 'item', params: { dataViewId: route.params.dataViewId }, query: route.query, state: { itemRefreshIsRequested: true } })
+    );
 }
 
 function handleToggleTransform(): void {
@@ -710,25 +689,12 @@ function constructStoppedLoadText(records: string, percentageText: string | unde
     return percentageText == null ? t(TEXT, 'load.stop.text', { duration, records }) : t(TEXT, 'load.stop.percentage.text', { duration, percentage: percentageText, records });
 }
 
-// A load from an earlier visit has no time once the page has been reloaded, so it says only where the records went.
+// A load from an earlier visit has no time once the page has been reloaded, so it says only how many records it loaded.
+// The store is not named, because the table's toolbar shows it.
 function constructLoadedText(recordCount: number, duration: number | undefined): string {
-    const store = findDataViewStoreLabel(storeConnectorId.value);
     const records = constructRecordsText(recordCount);
     const countId = constructCountId(recordCount);
-    return duration == null
-        ? t(TEXT, `load.untimed.${countId}.text`, { records, store })
-        : t(TEXT, `load.complete.${countId}.text`, { duration: formatFinishedDuration(duration), records, store });
-}
-
-// One decimal place, with more only for a time too short to show in one, so a quick part of a load does not read as 0.
-function formatSeconds(milliseconds: number): string {
-    return new Intl.NumberFormat(localeId.value, {
-        maximumFractionDigits: 1,
-        maximumSignificantDigits: 1,
-        minimumFractionDigits: 1,
-        minimumSignificantDigits: 1,
-        roundingPriority: 'morePrecision'
-    }).format(milliseconds / 1000);
+    return duration == null ? t(TEXT, `load.untimed.${countId}.text`, { records }) : t(TEXT, `load.complete.${countId}.text`, { duration: formatFinishedDuration(duration), records });
 }
 
 // Which form of a message fits the count: none, one, or more than one.
@@ -747,6 +713,16 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
         <ErrorNotice v-if="investigateState.typeId === 'failed'" :failures="[investigateState.failure]" @retry="handleRetry" />
 
         <template v-else>
+            <!-- Item Changed ─ The data view, and so its records, are from an earlier version of the item. The user refreshes
+                 the data view from the changed item, or ignores the change. Not while loading, so a load is never cut off. -->
+            <ItemChangedNotice
+                v-if="itemChangeIsShown && itemChangedAt != null"
+                :changed-at="itemChangedAt"
+                :is-disabled="investigateState.typeId === 'loading'"
+                @ignore="ignoreItemChange"
+                @refresh="handleRefreshChangedItem"
+            />
+
             <!-- Mismatches ─ Above the records, so they show before anyone reads a blank as missing data. A long list
                  scrolls rather than pushing the records out of view. -->
             <div
@@ -778,8 +754,7 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                     scroll-area-padding-bottom="calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))"
                     :selected-column-id="selectedColumnIndex == null ? undefined : constructColumnKey(selectedColumnIndex)"
                 >
-                    <!-- Actions ─ In the table's toolbar, beside its column picker. 'Load again' is for a data view whose
-                         source may have changed since it was loaded. -->
+                    <!-- Actions ─ In the table's toolbar, beside its column picker. -->
                     <template #toolbar-end>
                         <!-- Column Search ─ Opens over the whole toolbar, as on the item step. -->
                         <ColumnSearch v-if="columnSearchOptions.length > 1" :options="columnSearchOptions" @select="handleSelectColumn" />
@@ -789,40 +764,56 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                             class="inline-flex items-center gap-x-1 text-accent hover:underline"
                             @click="handleToggleTransform"
                         >
-                            <SlidersHorizontalIcon aria-hidden="true" class="size-4" :stroke-width="1.5" />
+                            <SlidersHorizontalIcon aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
                             {{ t(TEXT, 'transform.label') }}
                         </ActionWrapper>
-                        <!-- Load Again ─ A menu of the stores when there is more than one, so the records can move to
-                             another store without going back to the item step. The current store is ticked. -->
+                        <!-- Store ─ Shows where the records are. A menu of the stores when there is more than one, so the
+                             records can move to another store without going back to the item step. Choosing a store loads
+                             the records into it, and choosing the ticked one loads them again. -->
                         <Menu.Root v-if="storeIsChoosable" class="flex">
                             <template #trigger="{ triggerAttributes }">
-                                <ActionWrapper v-bind="triggerAttributes" class="inline-flex items-center gap-x-1 text-accent hover:underline">
-                                    <RefreshCwIcon aria-hidden="true" class="size-4" :stroke-width="1.5" />
-                                    {{ t(TEXT, 'load.again.label') }}
-                                    <ChevronDownIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                                <ActionWrapper
+                                    v-bind="triggerAttributes"
+                                    :aria-label="t(TEXT, 'store.aria', { label: currentStoreConfig?.label ?? '' })"
+                                    class="inline-flex items-center gap-x-1 text-accent hover:underline"
+                                >
+                                    <span class="flex size-4.5 flex-none">
+                                        <ConfigIcon class="size-full" :icon="currentStoreConfig?.icon" :icon-dark="currentStoreConfig?.iconDark" />
+                                    </span>
+                                    {{ currentStoreConfig?.label }}
+                                    <ChevronDownIcon aria-hidden="true" class="size-3.5 flex-none" :stroke-width="1.5" />
                                 </ActionWrapper>
                             </template>
                             <Menu.Content :label="t(TEXT, 'load.again.store.aria')" placement="bottom-end">
                                 <Menu.Item
-                                    v-for="storeConnection in storeConnections"
-                                    :key="storeConnection.id"
-                                    :is-checked="storeConnection.id === storeConnectorId"
+                                    v-for="storeConfig in storeConfigs"
+                                    :key="storeConfig.id"
+                                    :is-checked="storeConfig.id === storeConnectorId"
+                                    :is-disabled="storeConfig.isPlanned"
                                     kind="radio"
-                                    @select="handleLoadAgainIntoStore(storeConnection.id)"
+                                    @select="handleLoadAgainIntoStore(storeConfig.id)"
                                 >
                                     <template #icon>
-                                        <span class="flex size-[1.25em] flex-none">
-                                            <ConfigIcon class="size-full" :icon="storeConnection.icon" :icon-dark="storeConnection.iconDark" />
+                                        <span class="flex size-4.5 flex-none">
+                                            <ConfigIcon
+                                                class="size-full"
+                                                :class="{ 'opacity-60 grayscale': storeConfig.isPlanned }"
+                                                :icon="storeConfig.icon"
+                                                :icon-dark="storeConfig.iconDark"
+                                            />
                                         </span>
                                     </template>
-                                    {{ storeConnection.label }}
+                                    {{ storeConfig.label }}
                                 </Menu.Item>
                             </Menu.Content>
                         </Menu.Root>
-                        <ActionWrapper v-else class="inline-flex items-center gap-x-1 text-accent hover:underline" @click="handleLoadAgain">
-                            <RefreshCwIcon aria-hidden="true" class="size-4" :stroke-width="1.5" />
-                            {{ t(TEXT, 'load.again.label') }}
-                        </ActionWrapper>
+                        <!-- With one store there is no choice, so it only shows where the records are. -->
+                        <span v-else-if="currentStoreConfig" class="inline-flex items-center gap-x-1 text-muted">
+                            <span class="flex size-4.5 flex-none">
+                                <ConfigIcon class="size-full" :icon="currentStoreConfig.icon" :icon-dark="currentStoreConfig.iconDark" />
+                            </span>
+                            {{ currentStoreConfig.label }}
+                        </span>
                     </template>
                     <!-- Column Name ─ Opens the column's detail over the records, or closes it on the selected tab, as on the
                          item step. The button's overlay covers the whole tab, so a click anywhere on it does the same, while
@@ -928,22 +919,19 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
             </div>
         </template>
 
-        <!-- Status Bar ─ What the load read on the left and what the table shows on the right, as on the item step. A
-             warning comes first, in colour, so it stands out when it shows. The running figures change too often to read
-             out, so only the progress bar announces them. -->
+        <!-- Status Bar ─ What the load read on the left, and a warning on the right, in colour, when the column types
+             came from a partial audit. Screen readers always hear the warning in full. The running figures change too
+             often to read out, so only the progress bar announces them. -->
         <StatusBar :progress="loadProgress">
-            <template v-if="investigateState.typeId === 'ready' && columnsAreFromPartialAudit">
-                <TriangleAlertIcon aria-hidden="true" class="inline size-3.5 align-middle text-warning-text" :stroke-width="1.5" />
-                <span class="ml-1 text-warning-text">{{ t(TEXT, 'load.partialAuditTypes.text') }}</span>
-                <span v-if="loadStatus" aria-hidden="true"> · </span>
-            </template>
             <template v-if="loadStatus">
                 <span aria-hidden="true">{{ viewportIsWide ? loadStatus.text : loadStatus.shortText }}</span>
                 <span class="sr-only">{{ loadStatus.text }}</span>
             </template>
-            <!-- Load Timing ─ Hidden below 'md', where the status bar has no room. The data view's Summary lists it too. -->
-            <span v-if="investigateState.typeId === 'ready' && loadTimingText" class="ml-1.5 hidden tabular-nums md:inline">{{ loadTimingText }}</span>
-            <template #end>{{ shownRecordsText }}</template>
+            <template v-if="investigateState.typeId === 'ready' && columnsAreFromPartialAudit" #end="{ isShort }">
+                <TriangleAlertIcon aria-hidden="true" class="inline size-3.5 align-middle text-warning-text" :stroke-width="1.5" />
+                <span aria-hidden="true" class="ml-1 text-warning-text">{{ t(TEXT, isShort ? 'load.partialAuditTypes.short.text' : 'load.partialAuditTypes.text') }}</span>
+                <span class="sr-only">{{ t(TEXT, 'load.partialAuditTypes.text') }}</span>
+            </template>
         </StatusBar>
 
         <ConfirmDialog
