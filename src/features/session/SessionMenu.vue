@@ -1,5 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
+import esFlagURL from 'flag-icons/flags/4x3/es.svg';
+import gbFlagURL from 'flag-icons/flags/4x3/gb.svg';
 import { computed, nextTick, onMounted, onUnmounted, useTemplateRef } from 'vue';
 import { ExpandIcon, MonitorIcon, MoonIcon, ShrinkIcon, SunIcon } from '@lucide/vue';
 import { useConfirmDialog, useEventListener, useFullscreen } from '@vueuse/core';
@@ -55,6 +57,9 @@ const TEXT = {
     'signOutAndRemove.label': { en: 'Sign out and remove my data', es: 'Desconectar y eliminar mis datos' },
     'system.label': { en: 'System', es: 'Sistema' }
 };
+
+// Each flag is imported by name, so the build ships only these from 'flag-icons' and not all of its flags.
+const FLAG_URLS: Record<(typeof SUPPORTED_LANGUAGES)[number]['flag'], string> = { es: esFlagURL, gb: gbFlagURL };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -282,7 +287,7 @@ async function handleToggleWindowExpansion(): Promise<void> {
                     @click="handleSetLanguage(lang.id)"
                 >
                     <!-- See https://github.com/lipis/flag-icons. -->
-                    <img :src="`/flags/${lang.flag}.svg`" class="h-4 w-5.5 object-fill ring-1 ring-black/10 dark:ring-white/10" :alt="lang.label" />
+                    <img :src="FLAG_URLS[lang.flag]" class="h-4 w-5.5 object-fill ring-1 ring-black/10 dark:ring-white/10" :alt="lang.label" />
                     <div>{{ lang.label }}</div>
                 </ItemButton>
 

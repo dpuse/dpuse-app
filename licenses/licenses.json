@@ -3,17 +3,15 @@
         "licenses": "MIT",
         "repository": "https://github.com/ag-ui-protocol/ag-ui",
         "publisher": "Markus Ecker",
-        "email": "markus.ecker@gmail.com",
         "path": "node_modules/@ag-ui/core",
         "licenseFile": "downloads/@ag-ui/core@1.0.0-LICENSE.txt"
     },
-    "@dpuse/dpuse-shared@1.0.244": {
+    "@dpuse/dpuse-shared@1.0.245": {
         "licenses": "MIT",
         "repository": "https://github.com/dpuse/dpuse-shared",
         "publisher": "Jonathan Terrell",
-        "email": "terrell.jm@gmail.com",
         "path": "node_modules/@dpuse/dpuse-shared",
-        "licenseFile": "downloads/@dpuse/dpuse-shared@1.0.244-LICENSE.txt"
+        "licenseFile": "downloads/@dpuse/dpuse-shared@1.0.245-LICENSE.txt"
     },
     "@fontsource-variable/inter@5.3.0": {
         "licenses": "OFL-1.1",
@@ -26,7 +24,6 @@
         "licenses": "MIT",
         "repository": "https://github.com/formkit/drag-and-drop",
         "publisher": "Sasha Milenkovic",
-        "email": "sasha@formkit.com",
         "path": "node_modules/@formkit/drag-and-drop",
         "licenseFile": "downloads/@formkit/drag-and-drop@0.7.0-LICENSE.txt"
     },
@@ -104,7 +101,6 @@
         "licenses": "MIT",
         "repository": "https://github.com/teamhanko/hanko",
         "publisher": "Hanko GmbH",
-        "email": "developers@hanko.io",
         "path": "node_modules/@teamhanko/hanko-frontend-sdk",
         "licenseFile": "downloads/@teamhanko/hanko-frontend-sdk@3.1.0-LICENSE.txt"
     },
@@ -140,7 +136,6 @@
         "licenses": "MIT",
         "repository": "https://github.com/vueuse/vueuse",
         "publisher": "Anthony Fu",
-        "email": "https://github.com/antfu",
         "path": "node_modules/@vueuse/core",
         "licenseFile": "downloads/@vueuse/core@15.0.0-LICENSE.txt"
     },
@@ -148,7 +143,6 @@
         "licenses": "MIT",
         "repository": "https://github.com/vueuse/vueuse",
         "publisher": "Anthony Fu",
-        "email": "https://github.com/antfu",
         "path": "node_modules/@vueuse/shared",
         "licenseFile": "downloads/@vueuse/shared@15.0.0-LICENSE.txt"
     },
@@ -156,7 +150,6 @@
         "licenses": "(MPL-2.0 OR Apache-2.0)",
         "repository": "https://github.com/cure53/DOMPurify",
         "publisher": "Dr.-Ing. Mario Heiderich, Cure53",
-        "email": "mario@cure53.de",
         "path": "node_modules/dompurify",
         "licenseFile": "downloads/dompurify@3.4.18-LICENSE.txt"
     },
@@ -164,15 +157,20 @@
         "licenses": "MIT",
         "repository": "https://github.com/Starcounter-Jack/JSON-Patch",
         "publisher": "Joachim Wester",
-        "email": "joachimwester@me.com",
         "path": "node_modules/fast-json-patch",
         "licenseFile": "downloads/fast-json-patch@3.1.1-LICENSE.txt"
+    },
+    "flag-icons@7.6.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/lipis/flag-icons",
+        "publisher": "Panayiotis Lipiridis",
+        "path": "node_modules/flag-icons",
+        "licenseFile": "downloads/flag-icons@7.6.0-LICENSE.txt"
     },
     "partial-json@0.1.7": {
         "licenses": "MIT",
         "repository": "https://github.com/promplate/partial-json-parser-js",
         "publisher": "Muspi Merol",
-        "email": "me@promplate.dev",
         "path": "node_modules/partial-json",
         "licenseFile": "downloads/partial-json@0.1.7-LICENSE.txt"
     },
@@ -201,7 +199,6 @@
         "licenses": "MIT",
         "repository": "https://github.com/vuejs/router",
         "publisher": "Eduardo San Martin Morote",
-        "email": "posva13@gmail.com",
         "path": "node_modules/vue-router",
         "licenseFile": "downloads/vue-router@5.5.1-LICENSE.txt"
     },
@@ -209,7 +206,6 @@
         "licenses": "Apache-2.0",
         "repository": "https://github.com/GoogleChrome/web-vitals",
         "publisher": "Philip Walton",
-        "email": "philip@philipwalton.com",
         "path": "node_modules/web-vitals",
         "licenseFile": "downloads/web-vitals@6.2.3-LICENSE.txt"
     }
