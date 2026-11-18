@@ -46,6 +46,10 @@
 //      cancellation is blocked at the engine-worker layer regardless of caching library.
 //    - TanStack Query: far more mature/battle-tested; doesn't require adding a new dependency paradigm (this app
 //      doesn't use Pinia today).
+//    - Bundle size favours TanStack Query: `@tanstack/vue-query` is already a dependency, shared through
+//      `src/services/queryClient.ts`, so using it here adds almost nothing to the bundle. Pinia Colada would add
+//      itself and Pinia. A new library is not free: Reka UI 2.11.0, measured for the UI widgets, costs about 20 KB
+//      gzipped for its first floating widget.
 //    - Pinia Colada: built by the Vue Router/Pinia author, designed around Vue's reactivity from the start; its
 //      "Paginated Queries" pattern (a reactive key with the page/offset baked in) maps naturally onto block-indexed
 //      fetching, with confirmed random-access support — but it requires adding Pinia as a new dependency, and is

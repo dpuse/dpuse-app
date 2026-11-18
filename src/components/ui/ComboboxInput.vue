@@ -1,4 +1,10 @@
 <script setup lang="ts" generic="TOption extends { id: string; label: string }">
+// TODO: Reka UI is the library to use for the next complex widget (date picker, select with typeahead), or when a
+// hand-written one (combobox, tree, menu, tooltip, pane splitter, scrollbar) needs significant rework. Working widgets
+// are not migrated just to have fewer lines. Size does not rule Reka UI out: version 2.11.0 costs about 20 KB gzipped
+// for its first floating widget and 33 KB for a combobox, against 121 KB of initial JavaScript and 465 KB in total
+// (measured 2026-11-17), and these widgets all sit in lazily loaded chunks.
+
 // ── External Dependencies & Registrations
 import { SearchIcon } from '@lucide/vue';
 import { computed, nextTick, ref, useId, useTemplateRef } from 'vue';

@@ -43,6 +43,7 @@ Verified directly against each library's actual docs/API (not assumed by analogy
 - **The actual differentiator is non-functional:**
     - **TanStack Query** — far more mature, much larger ecosystem, years of production hardening. Requires no new dependency paradigm: `dpuse-app` doesn't use Pinia today, and TanStack Query's Vue package doesn't need it.
     - **Pinia Colada** — built by the Vue Router/Pinia author (posva), designed around Vue's reactivity from the start, smaller. **Requires adding Pinia as a dependency** — the app has no Pinia stores today, so adopting Colada means introducing a new state-management paradigm alongside the existing plain-reactive-module pattern (`@/state/*`), just to get a caching layer. Also newer/less battle-tested — worth checking whether it's reached a stable 1.0 by the time this is revisited.
+    - **Bundle size favours TanStack Query** (added 2026-11-17) — `@tanstack/vue-query` is now already a dependency, shared through `src/services/queryClient.ts`, so using it here adds almost nothing to the bundle. Pinia Colada would add itself and Pinia. A new library is not free: Reka UI 2.11.0, measured for the UI widgets, costs about 20 KB gzipped for its first floating widget.
 
 **No recommendation between the two is made here** — it's a genuine toss-up dependent on how much the Pinia dependency cost matters versus TanStack Query's maturity, and that trade-off is worth re-evaluating at decision time rather than pre-deciding now.
 

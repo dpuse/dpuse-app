@@ -854,7 +854,7 @@ const previewStatus = computed(() => {
         const text = t(TEXT, 'preview.empty.text');
         return { shortText: text, text };
     }
-    const isWhole = itemReading.size === activeConnectionObjectConfig.value?.size;
+    const isWhole = itemReading.size != null && itemReading.size === activeConnectionObjectConfig.value?.size;
     const records = constructRecordsText(recordCount);
     if (recordCount === 1) return { shortText: records, text: t(TEXT, isWhole ? 'preview.whole.one.text' : 'preview.part.one.text') };
     return { shortText: records, text: t(TEXT, isWhole ? 'preview.whole.other.text' : 'preview.part.other.text', { records }) };
