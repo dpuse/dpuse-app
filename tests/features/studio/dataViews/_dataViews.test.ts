@@ -281,7 +281,27 @@ describe('data views', () => {
                 },
                 expect.any(Function)
             );
-            expect(onProgress).toHaveBeenCalledWith(2, 90);
+            expect(onProgress).toHaveBeenCalledWith(2, 90, undefined);
+        });
+
+        it("passes on the item's total record count when a store gives one", async () => {
+            const processRequest = vi.fn((_id: string, _config: unknown, _options: unknown, callback: (callbackData: unknown) => void) => {
+                callback({ typeId: 'progress', properties: { byteCount: 0, recordCount: 2, totalRecordCount: 8 } });
+                return Promise.resolve({ contentAuditConfig: { recordCount: 2 } });
+            });
+            vi.mocked(findConnectionLocalisedConfig).mockReturnValue({ connectorConfig: { itemTypeId: 'table' }, id: 'connection-a' } as never);
+            vi.mocked(establishEngineWorker).mockResolvedValue({ processRequest } as never);
+            const dataViewConfig = {
+                ...buildDataView('a', 'Sales'),
+                connectionId: 'connection-a',
+                connectionNodeConfig: { folderPath: '/default', name: 'sales' },
+                sampleConfig: { dataFormatId: 'unknown', hasHeaders: false }
+            } as DataViewConfig;
+            const onProgress = vi.fn();
+
+            await auditDataViewContent(dataViewConfig, undefined, onProgress);
+
+            expect(onProgress).toHaveBeenCalledWith(2, 0, 8);
         });
 
         it('asks the audit to check again for a header only when none was found and none was chosen', async () => {

@@ -33,7 +33,7 @@ afterEach(() => {
 describe('useItemAudit', () => {
     it('audits the data view as the user has it, reports progress, and hands over the result', async () => {
         vi.mocked(auditDataViewContent).mockImplementationOnce((_config, _byteLimit, onProgress) => {
-            onProgress(5, 1000);
+            onProgress(5, 1000, undefined); // A file gives no total.
             return Promise.resolve(AUDIT);
         });
         const handleAudited = vi.fn().mockResolvedValue(null);
@@ -44,8 +44,24 @@ describe('useItemAudit', () => {
         expect(auditDataViewContent).toHaveBeenCalledWith(DATA_VIEW, 2048, expect.any(Function), true, expect.any(String));
         expect(audit.auditedByteCount.value).toBe(1000);
         expect(audit.auditedRecordCount.value).toBe(5);
+        expect(audit.auditTotalRecordCount.value).toBeUndefined();
         expect(audit.auditIsRunning.value).toBe(false);
         expect(handleAudited).toHaveBeenCalledWith(AUDIT);
+    });
+
+    it("keeps the item's total record count from a store, and forgets it when the next audit starts", async () => {
+        vi.mocked(auditDataViewContent).mockImplementationOnce((_config, _byteLimit, onProgress) => {
+            onProgress(5, 0, 20);
+            return Promise.resolve(AUDIT);
+        });
+        const { audit } = mountAudit(vi.fn().mockResolvedValue(null));
+
+        await audit.startAudit(undefined);
+        expect(audit.auditTotalRecordCount.value).toBe(20);
+
+        vi.mocked(auditDataViewContent).mockResolvedValueOnce(AUDIT);
+        await audit.startAudit(undefined);
+        expect(audit.auditTotalRecordCount.value).toBeUndefined();
     });
 
     it('lets the audit check again for a header when the user has not chosen whether there is one', async () => {

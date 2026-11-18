@@ -455,7 +455,7 @@ const router = useRouter();
 const { data: dataViewConfig } = useCurrentDataView(() => route.params.dataViewId);
 
 // ── Audit
-const { abortAudit, auditedByteCount, auditedRecordCount, auditElapsedDuration, auditIsRunning, startAudit, stopAudit } = useItemAudit(
+const { abortAudit, auditedByteCount, auditedRecordCount, auditElapsedDuration, auditIsRunning, auditTotalRecordCount, startAudit, stopAudit } = useItemAudit(
     constructEditedDataViewConfig,
     handleItemAudited,
     areHeadersChosen,
@@ -791,8 +791,9 @@ const readChoicesPopoverId = `${elementIdPrefix}-read-choices`;
 // How much of the item has been audited, in one form at every stage, with the running figures and time while an audit
 // runs. The time counts up in whole seconds, then shows the audit's own total. A whole item says 'all' rather than a
 // percentage, so the user need not read the bar's colour, and its bar is full. Part of an item shows a percentage
-// whenever the item's size is known, so the bar shows how little of a large one was read. An item not read as bytes has
-// no percentage until it is audited whole.
+// whenever the item's size is known, so the bar shows how little of a large one was read. An item not read as bytes,
+// such as a table in a store, has no size. While its audit runs, its percentage is the records audited out of the total
+// the store counted as the audit started. Afterwards it has no percentage unless it was audited whole.
 const auditStatus = computed(() => {
     const contentAuditConfig = activeContentAuditConfig.value;
     if (contentAuditConfig == null) return;
@@ -802,7 +803,9 @@ const auditStatus = computed(() => {
     const itemSize = activeConnectionObjectConfig.value?.size ?? 0;
     const isMeasured = itemSize > 0 && contentAuditConfig.byteCount > 0;
     const isComplete = !isRunning && contentAuditConfig.isComplete;
-    const partPercentage = isMeasured ? Math.min((byteCount / itemSize) * 100, 100) : undefined;
+    const totalRecordCount = isRunning ? (auditTotalRecordCount.value ?? 0) : 0;
+    const recordPercentage = totalRecordCount > 0 ? Math.min((recordCount / totalRecordCount) * 100, 100) : undefined; // Capped, because records can be added while the audit runs.
+    const partPercentage = isMeasured ? Math.min((byteCount / itemSize) * 100, 100) : recordPercentage;
     const percentage = isComplete ? 100 : partPercentage;
     const records = constructRecordsText(recordCount);
     const percentageText = partPercentage == null ? undefined : formatStatusPercentage(partPercentage);

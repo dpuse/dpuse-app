@@ -18,6 +18,7 @@ interface ItemAudit {
     auditedRecordCount: Ref<number>;
     auditElapsedDuration: Ref<number>;
     auditIsRunning: Ref<boolean>;
+    auditTotalRecordCount: Ref<number | undefined>; // The records in the item, from a store, which counts them as the audit starts.
     startAudit: (byteLimit: number | undefined) => Promise<void>;
     stopAudit: () => void;
 }
@@ -39,6 +40,7 @@ export function useItemAudit(
     const auditIsAborted = ref(false);
     const auditedByteCount = ref(0);
     const auditedRecordCount = ref(0);
+    const auditTotalRecordCount = ref<number>();
     const auditElapsedDuration = ref(0);
     const auditStartedAt = ref(0);
     const auditedConnectionId = ref<string>();
@@ -53,6 +55,7 @@ export function useItemAudit(
         auditIsAborted.value = false;
         auditedByteCount.value = 0;
         auditedRecordCount.value = 0;
+        auditTotalRecordCount.value = undefined;
         auditElapsedDuration.value = 0;
         auditStartedAt.value = Date.now();
         auditedConnectionId.value = dataViewConfig.connectionId;
@@ -61,9 +64,10 @@ export function useItemAudit(
             const auditResult = await auditDataViewContent(
                 dataViewConfig,
                 byteLimit,
-                (recordCount, byteCount) => {
+                (recordCount, byteCount, totalRecordCount) => {
                     auditedByteCount.value = byteCount;
                     auditedRecordCount.value = recordCount;
+                    auditTotalRecordCount.value = totalRecordCount;
                 },
                 areHeadersChosen(),
                 auditRequestId.value
@@ -102,5 +106,5 @@ export function useItemAudit(
 
     onBeforeUnmount(abortAudit);
 
-    return { abortAudit, auditedByteCount, auditedRecordCount, auditElapsedDuration, auditIsRunning, startAudit, stopAudit };
+    return { abortAudit, auditedByteCount, auditedRecordCount, auditElapsedDuration, auditIsRunning, auditTotalRecordCount, startAudit, stopAudit };
 }

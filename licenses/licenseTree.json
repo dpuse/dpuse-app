@@ -1,5 +1,5 @@
 {
-  "version": "1.0.298",
+  "version": "1.0.300",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -172,7 +172,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261117.1"
+              "version": "5.20261118.1"
             },
             "@cspotcode/source-map-support": {
               "version": "0.8.1"
@@ -212,17 +212,17 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261117.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261117.1.tgz",
+      "version": "5.20261118.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261118.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
-      "version": "1.0.156",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.156.tgz",
+      "version": "1.0.158",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.158.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.236"
+          "version": "1.0.244"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1370,8 +1370,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.236",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.236.tgz",
+      "version": "1.0.244",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.244.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1457,7 +1457,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.236"
+          "version": "1.0.244"
         },
         "@tanstack/charts": {
           "version": "1.1.0",
@@ -3273,8 +3273,8 @@
           }
         },
         "eslint-plugin-jsdoc": {
-          "version": "65.4.10",
-          "resolved": "https://registry.npmjs.org/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-65.4.10.tgz",
+          "version": "65.4.12",
+          "resolved": "https://registry.npmjs.org/eslint-plugin-jsdoc/-/eslint-plugin-jsdoc-65.4.12.tgz",
           "overridden": false,
           "dependencies": {
             "@es-joy/escodegen": {
@@ -4020,8 +4020,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.74.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.74.0.tgz",
+      "version": "1.75.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.75.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -4619,8 +4619,8 @@
       }
     },
     "@vitest/coverage-v8": {
-      "version": "5.1.0",
-      "resolved": "https://registry.npmjs.org/@vitest/coverage-v8/-/coverage-v8-5.1.0.tgz",
+      "version": "5.1.1",
+      "resolved": "https://registry.npmjs.org/@vitest/coverage-v8/-/coverage-v8-5.1.1.tgz",
       "overridden": false,
       "dependencies": {
         "@bcoe/v8-coverage": {
@@ -4734,7 +4734,7 @@
           "overridden": false
         },
         "vitest": {
-          "version": "5.1.0"
+          "version": "5.1.1"
         }
       }
     },
@@ -4865,7 +4865,7 @@
           "version": "6.0.3"
         },
         "vitest": {
-          "version": "5.1.0"
+          "version": "5.1.1"
         }
       }
     },
@@ -6547,7 +6547,7 @@
         "@automerge/automerge-repo": {},
         "@capacitor-community/sqlite": {},
         "@cloudflare/workers-types": {
-          "version": "5.20261117.1"
+          "version": "5.20261118.1"
         },
         "@electric-sql/pglite": {},
         "@libsql/client": {},
@@ -6749,8 +6749,8 @@
       }
     },
     "vitest": {
-      "version": "5.1.0",
-      "resolved": "https://registry.npmjs.org/vitest/-/vitest-5.1.0.tgz",
+      "version": "5.1.1",
+      "resolved": "https://registry.npmjs.org/vitest/-/vitest-5.1.1.tgz",
       "overridden": false,
       "dependencies": {
         "@edge-runtime/vm": {},
@@ -6780,19 +6780,19 @@
         "@vitest/browser-webdriverio": {},
         "@vitest/coverage-istanbul": {},
         "@vitest/coverage-v8": {
-          "version": "5.1.0"
+          "version": "5.1.1"
         },
         "@vitest/mocker": {
-          "version": "5.1.0",
-          "resolved": "https://registry.npmjs.org/@vitest/mocker/-/mocker-5.1.0.tgz",
+          "version": "5.1.1",
+          "resolved": "https://registry.npmjs.org/@vitest/mocker/-/mocker-5.1.1.tgz",
           "overridden": false,
           "dependencies": {
             "@jridgewell/trace-mapping": {
               "version": "0.3.31"
             },
             "@vitest/spy": {
-              "version": "5.1.0",
-              "resolved": "https://registry.npmjs.org/@vitest/spy/-/spy-5.1.0.tgz",
+              "version": "5.1.1",
+              "resolved": "https://registry.npmjs.org/@vitest/spy/-/spy-5.1.1.tgz",
               "overridden": false
             },
             "estree-walker": {
@@ -6842,8 +6842,8 @@
           "version": "31.0.1"
         },
         "magic-string": {
-          "version": "1.4.3",
-          "resolved": "https://registry.npmjs.org/magic-string/-/magic-string-1.4.3.tgz",
+          "version": "1.4.5",
+          "resolved": "https://registry.npmjs.org/magic-string/-/magic-string-1.4.5.tgz",
           "overridden": false,
           "dependencies": {
             "@jridgewell/sourcemap-codec": {
@@ -6865,8 +6865,8 @@
           "version": "4.3.0"
         },
         "tinybench": {
-          "version": "6.2.2",
-          "resolved": "https://registry.npmjs.org/tinybench/-/tinybench-6.2.2.tgz",
+          "version": "6.2.3",
+          "resolved": "https://registry.npmjs.org/tinybench/-/tinybench-6.2.3.tgz",
           "overridden": false
         },
         "tinyexec": {
@@ -7449,7 +7449,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261117.1"
+          "version": "5.20261118.1"
         },
         "@cspotcode/source-map-support": {
           "version": "0.8.1",

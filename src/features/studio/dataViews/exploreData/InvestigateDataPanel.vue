@@ -135,6 +135,7 @@ const investigateState = shallowRef<InvestigateState>({ typeId: 'opening' });
 const loadDuration = ref<number>(); // How long this panel's last finished load took, in milliseconds. A load from an earlier visit has none.
 const loadedByteCount = ref<number>(); // Undefined from a source not read as bytes.
 const loadedRecordCount = ref(0);
+const loadTotalRecordCount = ref<number>(); // The records in the source, from one that is a store, which counts them as the load starts.
 const loadElapsedDuration = ref(0); // Counts up while loading, and holds the time a stopped load ran.
 const loadStartedAt = ref(0);
 const loadIsAbandoned = ref(false); // Set on leaving the panel, so the stopped load is not shown as a failure.
@@ -196,9 +197,13 @@ const loadTimingParts = computed(() => {
     const loadTiming = dataViewConfig.value == null ? undefined : findDataViewLoadTiming(dataViewConfig.value.id);
     return loadTiming == null ? undefined : constructLoadTimingParts(loadTiming);
 });
+// A source read as bytes is measured against its size. A source that is a store has no size, so it is measured in
+// records against the total the store counted. Both are capped, because a source can grow while it is read.
 const loadPercentage = computed(() => {
     const itemSize = dataViewConfig.value?.connectionNodeConfig?.size ?? 0;
-    return itemSize > 0 && loadedByteCount.value != null ? Math.min((loadedByteCount.value / itemSize) * 100, 100) : undefined;
+    if (itemSize > 0 && loadedByteCount.value != null) return Math.min((loadedByteCount.value / itemSize) * 100, 100);
+    const totalRecordCount = loadTotalRecordCount.value ?? 0;
+    return totalRecordCount > 0 ? Math.min((loadedRecordCount.value / totalRecordCount) * 100, 100) : undefined;
 });
 const loadStatus = computed(() => {
     const { typeId } = investigateState.value;
@@ -532,6 +537,7 @@ async function openAndLoad(isReloaded: boolean, shouldTakeOver = false): Promise
             loadDuration.value = undefined;
             loadedByteCount.value = undefined;
             loadedRecordCount.value = 0;
+            loadTotalRecordCount.value = undefined;
             loadElapsedDuration.value = 0;
             loadIsStopped.value = false;
             loadRequestId.value = crypto.randomUUID();
@@ -540,9 +546,10 @@ async function openAndLoad(isReloaded: boolean, shouldTakeOver = false): Promise
             const { columnsHaveChanged, recordCount } = await loadDataViewRecords(
                 openedDataViewConfig,
                 draftIsCurrent.value,
-                (recordCount, byteCount) => {
+                (recordCount, byteCount, totalRecordCount) => {
                     loadedByteCount.value = byteCount;
                     loadedRecordCount.value = recordCount;
+                    loadTotalRecordCount.value = totalRecordCount;
                 },
                 loadRequestId.value
             );

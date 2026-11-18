@@ -142,14 +142,15 @@ export function resolveDataViewIdParameter(dataViewIdParameter: unknown): string
 }
 
 // Reads the item the way the data view reads it, from its start, so a whole item can take minutes. 'onProgress' receives
-// the records and bytes audited so far. Nothing is stored: the result describes each column, ready for loading the records
-// later. Undefined 'byteLimit' reads the whole item.
+// the records and bytes audited so far, and the item's total record count from a store, which counts it as the audit
+// starts. Nothing is stored: the result describes each column, ready for loading the records later. Undefined 'byteLimit'
+// reads the whole item.
 // A header that was detected as absent, rather than chosen, is checked again by the audit, which reads more records than
 // the preview and can find one it missed.
 export async function auditDataViewContent(
     dataViewConfig: DataViewConfig,
     byteLimit: number | undefined,
-    onProgress: (recordCount: number, byteCount: number) => void,
+    onProgress: (recordCount: number, byteCount: number, totalRecordCount: number | undefined) => void,
     headersAreChosen = true,
     requestId?: string // Names the audit, so 'abortDataViewContentAudit' can stop it. Undefined when it is never stopped.
 ): Promise<AuditObjectContentResult> {
@@ -171,7 +172,9 @@ export async function auditDataViewContent(
     }; // The engine adds 'stopSignal' and 'supportsTransferableStreams', because they only exist in the worker.
     const { processRequest } = await establishEngineWorker();
     return (await processRequest('auditObjectContent', connectionLocalisedConfig, options, (callbackData) => {
-        if (callbackData.typeId === 'progress') onProgress(Number(callbackData.properties.recordCount), Number(callbackData.properties.byteCount));
+        if (callbackData.typeId !== 'progress') return;
+        const { byteCount, recordCount, totalRecordCount } = callbackData.properties;
+        onProgress(Number(recordCount), Number(byteCount), totalRecordCount == null ? undefined : Number(totalRecordCount)); // Only a store gives a total.
     })) as AuditObjectContentResult;
 }
 

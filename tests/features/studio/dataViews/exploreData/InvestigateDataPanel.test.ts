@@ -429,7 +429,7 @@ describe('InvestigateDataPanel', () => {
         vi.mocked(isDataViewLoaded).mockReturnValue(false);
         history.replaceState({ loadIsRequested: true }, '');
         vi.mocked(loadDataViewRecords).mockImplementationOnce((_config, _isDraft, onProgress) => {
-            onProgress(120, 250);
+            onProgress(120, 250, undefined);
             return new Promise<never>(vi.fn()); // Never settles, so the load is still running.
         });
         const wrapper = mountPanel();
@@ -441,12 +441,42 @@ describe('InvestigateDataPanel', () => {
         expect(wrapper.find('[data-region="BusyBar"]').exists()).toBe(false);
     });
 
-    it('shows a running load’s records and time without a bar when the source does not count its bytes', async () => {
+    it('shows how far a running load from a store has got, in records out of the total the store counted', async () => {
         dataView.config = SIZED_DATA_VIEW;
         vi.mocked(isDataViewLoaded).mockReturnValue(false);
         history.replaceState({ loadIsRequested: true }, '');
         vi.mocked(loadDataViewRecords).mockImplementationOnce((_config, _isDraft, onProgress) => {
-            onProgress(120, undefined);
+            onProgress(120, undefined, 480);
+            return new Promise<never>(vi.fn());
+        });
+        const wrapper = mountPanel();
+        await settle();
+
+        const percentage = formatStatusPercentage(25);
+        expect(wrapper.text()).toContain(t(TEXT, 'load.running.percentage.text', { duration: formatElapsedDuration(0), percentage, records: constructRecordsText(120) }));
+        expect(wrapper.find('[role="progressbar"]').attributes('aria-valuenow')).toBe('25');
+    });
+
+    it('never shows a load from a store as more than complete when records were added after the count', async () => {
+        dataView.config = SIZED_DATA_VIEW;
+        vi.mocked(isDataViewLoaded).mockReturnValue(false);
+        history.replaceState({ loadIsRequested: true }, '');
+        vi.mocked(loadDataViewRecords).mockImplementationOnce((_config, _isDraft, onProgress) => {
+            onProgress(500, undefined, 480);
+            return new Promise<never>(vi.fn());
+        });
+        const wrapper = mountPanel();
+        await settle();
+
+        expect(wrapper.find('[role="progressbar"]').attributes('aria-valuenow')).toBe('100');
+    });
+
+    it('shows a running load’s records and time without a bar when the source counts neither its bytes nor its records', async () => {
+        dataView.config = SIZED_DATA_VIEW;
+        vi.mocked(isDataViewLoaded).mockReturnValue(false);
+        history.replaceState({ loadIsRequested: true }, '');
+        vi.mocked(loadDataViewRecords).mockImplementationOnce((_config, _isDraft, onProgress) => {
+            onProgress(120, undefined, undefined);
             return new Promise<never>(vi.fn());
         });
         const wrapper = mountPanel();
@@ -468,7 +498,7 @@ describe('InvestigateDataPanel', () => {
             return Promise.resolve();
         });
         vi.mocked(loadDataViewRecords).mockImplementationOnce((_config, _isDraft, onProgress) => {
-            onProgress(120, 500);
+            onProgress(120, 500, undefined);
             return new Promise<never>((_resolve, reject) => {
                 stopController.signal.addEventListener('abort', () => {
                     reject(new Error('Aborted.'));
