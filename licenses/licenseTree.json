@@ -1,5 +1,5 @@
 {
-  "version": "1.0.301",
+  "version": "1.0.302",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -217,8 +217,8 @@
       "overridden": false
     },
     "@dpuse/dpuse-development": {
-      "version": "1.0.159",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.159.tgz",
+      "version": "1.0.160",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.160.tgz",
       "overridden": false,
       "dependencies": {
         "@cyclonedx/cyclonedx-npm": {
