@@ -37,7 +37,7 @@ test.describe('Data views', () => {
     });
 
     test('stores nothing until Save, and asks before leaving unsaved changes', async ({ browserName, page }) => {
-        // eslint-disable-next-line playwright/no-skipped-test, sonarjs/no-skipped-tests -- Firefox and WebKit fail to load the page at random, as the test above says.
+        // eslint-disable-next-line playwright/no-skipped-test -- Firefox and WebKit fail to load the page at random, as the test above says.
         test.skip(browserName !== 'chromium', 'Firefox and WebKit fail to load the page at random.');
 
         await page.goto('/dataViews');

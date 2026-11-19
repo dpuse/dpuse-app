@@ -55,8 +55,7 @@ const config = defineConfigWithVueTs(
     { ...pluginCompat.configs['flat/recommended'], files: ['src/**/*.{vue,ts,mts,tsx}'] },
     skipFormatting,
 
-    // Shared DPUse base configuration: ignores, import-x/jsdoc/regexp/security/sonarjs/unicorn, Markdown, and common rule
-    // overrides.
+    // Shared DPUse base configuration: ignores, import-x/regexp/unicorn, Markdown, and common rule overrides.
     ...dpuseBaseESLintConfig({
         files: ['**/*.{vue,ts,mts,tsx}'],
         ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**', 'playwright-report/**', 'pwa.assets.config.ts', 'test-results/**'],
@@ -77,13 +76,6 @@ const config = defineConfigWithVueTs(
             '@typescript-eslint/no-import-type-side-effects': 'warn',
             // '@typescript-eslint/restrict-template-expressions': ['warn', { allowNumber: true }],
             '@typescript-eslint/strict-boolean-expressions': 'warn',
-
-            'sonarjs/cognitive-complexity': 'warn',
-            'sonarjs/deprecation': 'warn',
-            'sonarjs/no-selector-parameter': 'warn',
-            'sonarjs/todo-tag': 'off',
-            'sonarjs/unused-import': 'warn',
-            'sonarjs/void-use': 'off', // `void ref.value` is the Vue idiom for explicit dependency tracking in computed().
 
             'tailwindcss/no-custom-classname': [
                 'warn',

@@ -10,7 +10,6 @@ async function main() {
     // 1. Load the markdown knowledge file
     const knowledgePath = path.resolve(process.cwd(), 'knowledge', 'module-states.md');
 
-    // eslint-disable-next-line security/detect-non-literal-fs-filename --  Need to review approach.
     const fileContent = await readFile(knowledgePath, 'utf-8');
 
     // For this POC, treat the entire file as a single chunk.
