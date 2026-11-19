@@ -58,6 +58,7 @@
 @theme inline {
     --color-backdrop: var(--backdrop); /* Sidebar (secondary) background */
     --color-surface: var(--surface); /* Content (primary) background */
+    --color-tab-bar: var(--tab-bar); /* Row behind a table's column tabs */
     --color-card: var(--card); /* ConfigCard background */
     --color-card-hover: var(--card-hover); /* ConfigCard background (hover) */
     --color-boundary: var(--boundary); /* Border/outline */
@@ -141,6 +142,7 @@
     --boundary: var(--color-zinc-100);
     --boundary-hover: var(--color-zinc-300);
     --separator: var(--color-zinc-200);
+    --tab-bar: var(--color-zinc-100); /* A step darker than the backdrop, so the white selected tab stands out. */
     --overlay: color-mix(in srgb, var(--color-zinc-200) 75%, transparent);
     /* Primary text dark grey (about 10:1 on white), two steps below emphasis so headings stand out; muted is the
        secondary step down. */
@@ -224,6 +226,7 @@
     --boundary: var(--color-zinc-800);
     --boundary-hover: var(--color-zinc-600);
     --separator: var(--color-zinc-700);
+    --tab-bar: var(--color-zinc-800); /* A step lighter than the backdrop, so the near-black selected tab stands out. */
     --overlay: color-mix(in srgb, black 60%, transparent); /* Dims the near-black page; a grey scrim lightened it. */
     --content: var(--color-zinc-300); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-400);

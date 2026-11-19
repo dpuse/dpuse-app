@@ -34,26 +34,26 @@
         "path": "node_modules/@lucide/vue",
         "licenseFile": "downloads/@lucide/vue@1.76.0-LICENSE.txt"
     },
-    "@tanstack/ai-client@1.1.1": {
+    "@tanstack/ai-client@1.2.0": {
         "licenses": "MIT",
         "repository": "https://github.com/TanStack/ai",
         "publisher": "Tanner Linsley",
         "path": "node_modules/@tanstack/ai-client",
-        "licenseFile": "downloads/@tanstack/ai-client@1.1.1-LICENSE.txt"
+        "licenseFile": "downloads/@tanstack/ai-client@1.2.0-LICENSE.txt"
     },
-    "@tanstack/ai@1.5.0": {
+    "@tanstack/ai@1.7.0": {
         "licenses": "MIT",
         "repository": "https://github.com/TanStack/ai",
         "publisher": "Tanner Linsley",
         "path": "node_modules/@tanstack/ai",
-        "licenseFile": "downloads/@tanstack/ai@1.5.0-LICENSE.txt"
+        "licenseFile": "downloads/@tanstack/ai@1.7.0-LICENSE.txt"
     },
-    "@tanstack/query-core@5.108.0": {
+    "@tanstack/query-core@5.108.1": {
         "licenses": "MIT",
         "repository": "https://github.com/TanStack/query",
         "publisher": "tannerlinsley",
         "path": "node_modules/@tanstack/query-core",
-        "licenseFile": "downloads/@tanstack/query-core@5.108.0-LICENSE.txt"
+        "licenseFile": "downloads/@tanstack/query-core@5.108.1-LICENSE.txt"
     },
     "@tanstack/store@0.11.2": {
         "licenses": "MIT",
@@ -76,12 +76,12 @@
         "path": "node_modules/@tanstack/virtual-core",
         "licenseFile": "downloads/@tanstack/virtual-core@3.19.11-LICENSE.txt"
     },
-    "@tanstack/vue-query@5.108.0": {
+    "@tanstack/vue-query@5.108.1": {
         "licenses": "MIT",
         "repository": "https://github.com/TanStack/query",
         "publisher": "Damian Osipiuk",
         "path": "node_modules/@tanstack/vue-query",
-        "licenseFile": "downloads/@tanstack/vue-query@5.108.0-LICENSE.txt"
+        "licenseFile": "downloads/@tanstack/vue-query@5.108.1-LICENSE.txt"
     },
     "@tanstack/vue-table@9.3.1": {
         "licenses": "MIT",
@@ -97,12 +97,12 @@
         "path": "node_modules/@tanstack/vue-virtual",
         "licenseFile": "downloads/@tanstack/vue-virtual@3.13.52-LICENSE.txt"
     },
-    "@teamhanko/hanko-frontend-sdk@3.1.0": {
+    "@teamhanko/hanko-frontend-sdk@3.2.0": {
         "licenses": "MIT",
         "repository": "https://github.com/teamhanko/hanko",
         "publisher": "Hanko GmbH",
         "path": "node_modules/@teamhanko/hanko-frontend-sdk",
-        "licenseFile": "downloads/@teamhanko/hanko-frontend-sdk@3.1.0-LICENSE.txt"
+        "licenseFile": "downloads/@teamhanko/hanko-frontend-sdk@3.2.0-LICENSE.txt"
     },
     "@vue/reactivity@3.5.45": {
         "licenses": "MIT",

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.303",
+  "version": "1.0.304",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -20,8 +20,8 @@
       }
     },
     "@cloudflare/vite-plugin": {
-      "version": "1.70.0",
-      "resolved": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.70.0.tgz",
+      "version": "1.70.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/vite-plugin/-/vite-plugin-1.70.1.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/unenv-preset": {
@@ -33,14 +33,14 @@
               "version": "2.0.0-rc.24"
             },
             "workerd": {
-              "version": "1.20261116.1",
-              "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261116.1.tgz",
+              "version": "1.20261117.1",
+              "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261117.1.tgz",
               "overridden": false,
               "dependencies": {
                 "@cloudflare/workerd-darwin-64": {},
                 "@cloudflare/workerd-darwin-arm64": {
-                  "version": "1.20261116.1",
-                  "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261116.1.tgz",
+                  "version": "1.20261117.1",
+                  "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261117.1.tgz",
                   "overridden": false
                 },
                 "@cloudflare/workerd-linux-64": {},
@@ -51,8 +51,8 @@
           }
         },
         "miniflare": {
-          "version": "5.20261116.0-beta",
-          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261116.0-beta.tgz",
+          "version": "5.20261117.0-beta",
+          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261117.0-beta.tgz",
           "overridden": false,
           "dependencies": {
             "@cspotcode/source-map-support": {
@@ -68,7 +68,7 @@
               "overridden": false
             },
             "workerd": {
-              "version": "1.20261116.1"
+              "version": "1.20261117.1"
             },
             "ws": {
               "version": "8.21.0",
@@ -161,8 +161,8 @@
           "version": "8.3.8"
         },
         "wrangler": {
-          "version": "4.163.0",
-          "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.163.0.tgz",
+          "version": "4.164.0",
+          "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.164.0.tgz",
           "overridden": false,
           "dependencies": {
             "@cloudflare/kv-asset-handler": {
@@ -191,7 +191,7 @@
               "version": "2.3.3"
             },
             "miniflare": {
-              "version": "5.20261116.0-beta"
+              "version": "5.20261117.0-beta"
             },
             "path-to-regexp": {
               "version": "6.3.0"
@@ -200,7 +200,7 @@
               "version": "2.0.0-rc.24"
             },
             "workerd": {
-              "version": "1.20261116.1"
+              "version": "1.20261117.1"
             }
           }
         },
@@ -221,8 +221,8 @@
       "overridden": false
     },
     "@dpuse/dpuse-development": {
-      "version": "1.0.160",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.160.tgz",
+      "version": "1.0.169",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.169.tgz",
       "overridden": false,
       "dependencies": {
         "@cyclonedx/cyclonedx-npm": {
@@ -2110,8 +2110,8 @@
       }
     },
     "@dpuse/eslint-config-dpuse": {
-      "version": "1.0.155",
-      "resolved": "https://registry.npmjs.org/@dpuse/eslint-config-dpuse/-/eslint-config-dpuse-1.0.155.tgz",
+      "version": "1.1.105",
+      "resolved": "https://registry.npmjs.org/@dpuse/eslint-config-dpuse/-/eslint-config-dpuse-1.1.105.tgz",
       "overridden": false,
       "dependencies": {
         "@eslint-community/eslint-plugin-eslint-comments": {
@@ -2971,13 +2971,13 @@
       }
     },
     "@tanstack/ai-client": {
-      "version": "1.1.1",
-      "resolved": "https://registry.npmjs.org/@tanstack/ai-client/-/ai-client-1.1.1.tgz",
+      "version": "1.2.0",
+      "resolved": "https://registry.npmjs.org/@tanstack/ai-client/-/ai-client-1.2.0.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/ai-event-client": {
-          "version": "1.0.1",
-          "resolved": "https://registry.npmjs.org/@tanstack/ai-event-client/-/ai-event-client-1.0.1.tgz",
+          "version": "1.1.0",
+          "resolved": "https://registry.npmjs.org/@tanstack/ai-event-client/-/ai-event-client-1.1.0.tgz",
           "overridden": false,
           "dependencies": {
             "@tanstack/devtools-event-client": {
@@ -2993,7 +2993,7 @@
           "overridden": false
         },
         "@tanstack/ai": {
-          "version": "1.5.0"
+          "version": "1.7.0"
         },
         "@tanstack/store": {
           "version": "0.11.2",
@@ -3003,8 +3003,8 @@
       }
     },
     "@tanstack/ai": {
-      "version": "1.5.0",
-      "resolved": "https://registry.npmjs.org/@tanstack/ai/-/ai-1.5.0.tgz",
+      "version": "1.7.0",
+      "resolved": "https://registry.npmjs.org/@tanstack/ai/-/ai-1.7.0.tgz",
       "overridden": false,
       "dependencies": {
         "@ag-ui/core": {
@@ -3027,7 +3027,7 @@
           "overridden": false
         },
         "@tanstack/ai-event-client": {
-          "version": "1.0.1"
+          "version": "1.1.0"
         },
         "@tanstack/ai-utils": {
           "version": "1.1.0"
@@ -3045,8 +3045,8 @@
       }
     },
     "@tanstack/vue-query": {
-      "version": "5.108.0",
-      "resolved": "https://registry.npmjs.org/@tanstack/vue-query/-/vue-query-5.108.0.tgz",
+      "version": "5.108.1",
+      "resolved": "https://registry.npmjs.org/@tanstack/vue-query/-/vue-query-5.108.1.tgz",
       "overridden": false,
       "dependencies": {
         "@tanstack/match-sorter-utils": {
@@ -3062,8 +3062,8 @@
           }
         },
         "@tanstack/query-core": {
-          "version": "5.108.0",
-          "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.108.0.tgz",
+          "version": "5.108.1",
+          "resolved": "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.108.1.tgz",
           "overridden": false
         },
         "@vue/composition-api": {},
@@ -3127,8 +3127,8 @@
       }
     },
     "@teamhanko/hanko-frontend-sdk": {
-      "version": "3.1.0",
-      "resolved": "https://registry.npmjs.org/@teamhanko/hanko-frontend-sdk/-/hanko-frontend-sdk-3.1.0.tgz",
+      "version": "3.2.0",
+      "resolved": "https://registry.npmjs.org/@teamhanko/hanko-frontend-sdk/-/hanko-frontend-sdk-3.2.0.tgz",
       "overridden": false,
       "dependencies": {
         "@types/js-cookie": {

@@ -181,6 +181,9 @@ const totalWidth = computed(() => leftPinnedWidth.value + totalCenterWidth.value
 // scrolls sideways.
 const contentMinWidth = computed(() => (isCollapsedToPinned ? '100%' : `${String(totalWidth.value)}px`));
 const virtualColumns = computed(() => (columnVirtualisationIsRequired.value ? columnVirtualizer.value.getVirtualItems() : []));
+// A tabbed header is a step darker, so its white selected tab stands out. Pinned headers set it too, to hide the
+// columns that scroll under them.
+const headerBackgroundClass = computed(() => (isHeaderTabbed ? 'bg-tab-bar' : 'bg-backdrop'));
 // A column's detail covers the rows while a tab is selected, so a resize there would change nothing the user can see.
 const columnResizeIsHidden = computed(() => isCollapsedToPinned || (isHeaderTabbed && selectedColumnId != null));
 
@@ -284,8 +287,8 @@ function constructHeaderClass(columnId: string): string | undefined {
                      and keeps it at the top as the rows scroll. Above the rows, whose pinned cells are sticky too. -->
                     <div ref="header" class="sticky top-0 z-3" role="rowgroup">
                         <div
-                            class="flex border-b bg-backdrop"
-                            :class="[$slots['header-detail'] ? 'h-17' : 'h-10', isHeaderTabbed ? 'border-separator' : 'border-boundary']"
+                            class="flex border-b"
+                            :class="[$slots['header-detail'] ? 'h-17' : 'h-10', headerBackgroundClass, isHeaderTabbed ? 'border-separator' : 'border-boundary']"
                             :style="{ minWidth: contentMinWidth }"
                             role="row"
                         >
@@ -295,8 +298,8 @@ function constructHeaderClass(columnId: string): string | undefined {
                             <div
                                 v-for="leftLeafHeader in leftLeafHeaders"
                                 :key="leftLeafHeader.id"
-                                class="sticky bg-backdrop"
-                                :class="[isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary', constructHeaderClass(leftLeafHeader.column.id)]"
+                                class="sticky"
+                                :class="[headerBackgroundClass, isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary', constructHeaderClass(leftLeafHeader.column.id)]"
                                 role="columnheader"
                                 :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: isCollapsedToPinned ? undefined : leftLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                             >
@@ -367,8 +370,8 @@ function constructHeaderClass(columnId: string): string | undefined {
                             <div
                                 v-for="rightLeafHeader in rightLeafHeaders"
                                 :key="rightLeafHeader.id"
-                                class="sticky shrink-0 border-l border-boundary bg-backdrop"
-                                :class="constructHeaderClass(rightLeafHeader.column.id)"
+                                class="sticky shrink-0 border-l border-boundary"
+                                :class="[headerBackgroundClass, constructHeaderClass(rightLeafHeader.column.id)]"
                                 role="columnheader"
                                 :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                             >
