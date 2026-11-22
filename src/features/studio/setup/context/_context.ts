@@ -1,5 +1,4 @@
 // ── DPUse Framework
-import { DEFAULT_LOCALE_ID } from '@dpuse/dpuse-shared';
 import type {
     ContextModelConfig,
     ContextModelDimensionConfig,
@@ -14,6 +13,9 @@ import type {
     LocaleId,
     LocalisedConfig
 } from '@dpuse/dpuse-shared';
+
+// ── Local Framework
+import { localiseText } from '@/state/contextModels';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -94,14 +96,6 @@ export function localiseModel(model: ContextModelConfig, localeId: LocaleId): Lo
             description: localiseText(measure.description, localeId)
         }))
     };
-}
-
-// 'label'/'description' are locale maps, but not always: some primary measures (e.g. 'personLanguage') give a plain
-// string instead. 'description' can also be absent entirely on data items, events, and primary measures whose type
-// declares it optional — this still has to cope with that being 'undefined' at runtime. A missing translation falls
-// back to the default locale, as 'localiseConfig' does.
-export function localiseText(value: string | Partial<Record<string, string>> | undefined, localeId: LocaleId): string {
-    return typeof value === 'string' ? value : (value?.[localeId] ?? value?.[DEFAULT_LOCALE_ID] ?? '');
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

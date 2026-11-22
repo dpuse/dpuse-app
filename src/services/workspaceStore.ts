@@ -1,6 +1,6 @@
-// The workspace store holds the user's own work, one table for each kind of config (data views so far). TanStack
-// Query's cache holds the app's only copy: these functions read and write the store, and the keys place each result in
-// the cache.
+// The workspace store holds the user's own work, one table for each kind of config (data views and event queries so
+// far). TanStack Query's cache holds the app's only copy: these functions read and write the store, and the keys place
+// each result in the cache.
 //
 // Each account has its own store in the browser, and use without an account has one more, shared by everyone who uses
 // this browser signed out. Separate stores keep one account's work out of another's lists. They do not secure it: the
@@ -24,7 +24,7 @@ import { assertDefined, shareLoad } from '@/utilities/index.ts';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export type WorkspaceStoreTableId = 'dataViews';
+export type WorkspaceStoreTableId = 'dataViews' | 'eventQueries';
 
 type WorkspaceStoreListKey = readonly ['workspaceStore', WorkspaceStoreTableId, 'list'];
 type WorkspaceStoreRecordKey = readonly ['workspaceStore', WorkspaceStoreTableId, 'record', string | undefined];
@@ -40,7 +40,7 @@ interface WorkspaceStore {
 const CONFIG_CELL_ID = 'config'; // Each config is one cell holding the whole object, so the later save of a config wins.
 const GUEST_WORKSPACE_STORE_ID = 'dpuseWorkspaceStore';
 const WORKSPACE_STORE_QUERY_KEY = ['workspaceStore'] as const;
-const WORKSPACE_STORE_TABLE_IDS: WorkspaceStoreTableId[] = ['dataViews'];
+const WORKSPACE_STORE_TABLE_IDS: WorkspaceStoreTableId[] = ['dataViews', 'eventQueries'];
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

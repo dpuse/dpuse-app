@@ -24,7 +24,9 @@ const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/feature
 const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/features/studio/dataViews/selectConnection/SelectConnectionList.vue'));
 const SelectItemPanel = defineLazyLoader('SelectItemPanel', 1, () => import('@/features/studio/dataViews/selectItem/SelectItemPanel.vue'));
 const ExploreDataPanel = defineLazyLoader('ExploreDataPanel', 1, () => import('@/features/studio/dataViews/exploreData/ExploreDataPanel.vue'));
-const EventQueriesPanel = defineLazyLoader('EventQueriesPanel', 0, () => import('@/features/studio/eventQueries/EventQueriesPanel.vue'));
+const EventQueriesLayout = defineLazyLoader('EventQueriesLayout', 0, () => import('@/features/studio/eventQueries/EventQueriesLayout.vue'));
+const ContextNetworkPanel = defineLazyLoader('ContextNetworkPanel', 1, () => import('@/features/studio/eventQueries/ContextNetworkPanel.vue'));
+const EventQueryList = defineLazyLoader('EventQueryList', 1, () => import('@/features/studio/eventQueries/EventQueryList.vue'));
 const PresentationsPanel = defineLazyLoader('PresentationsPanel', 0, () => import('@/features/studio/presentations/PresentationsPanel.vue'));
 const DataAppsPanel = defineLazyLoader('DataAppsPanel', 0, () => import('@/features/studio/dataApps/DataAppsPanel.vue'));
 const SetupLayout = defineLazyLoader('SetupLayout', 0, () => import('@/features/studio/setup/SetupLayout.vue'));
@@ -73,7 +75,14 @@ export const APP_ROUTES: RouteRecordRaw[] = [
                     }
                 ]
             },
-            { name: 'eventQueries', path: 'eventQueries', component: EventQueriesPanel },
+            {
+                path: 'eventQueries',
+                component: EventQueriesLayout,
+                children: [
+                    { name: 'eventQueries', path: '', component: ContextNetworkPanel },
+                    { name: 'eventQueryList', path: 'list/:eventQueryId?', component: EventQueryList }
+                ]
+            },
             { name: 'presentations', path: 'presentations', component: PresentationsPanel },
             { name: 'dataApps', path: 'dataApps', component: DataAppsPanel },
             {

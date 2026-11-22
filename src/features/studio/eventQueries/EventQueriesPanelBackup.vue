@@ -10,7 +10,7 @@ import type { D3NetworkView, Tool as D3Tool, NetworkDiagramData } from '@dpuse/d
 // ── Local Framework
 import { establishTool } from '@/services/tools';
 import { t } from '@/state/locale';
-import { TEXT } from './EventQueriesPanel_.json';
+import { TEXT } from './EventQueriesPanelBackup_.json';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
@@ -80,7 +80,7 @@ async function renderDiagram(): Promise<void> {
         if (container.value) state.view = await d3Tool.renderNetworkDiagram(data, container.value);
     } catch (error) {
         renderFailure.value = raiseFailure(
-            new AppError('Failed to render network diagram.', 'dpuse-app.EventQueriesPanel.renderDiagram', { data: { typeId: 'handled' }, cause: error })
+            new AppError('Failed to render network diagram.', 'dpuse-app.EventQueriesPanelBackup.renderDiagram', { data: { typeId: 'handled' }, cause: error })
         );
     } finally {
         diagramIsPending.value = false;

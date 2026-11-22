@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { promiseTimeout } from '@vueuse/core';
 import { SquarePenIcon } from '@lucide/vue';
 import { computed, ref, shallowRef, watch } from 'vue';
 
@@ -15,14 +14,12 @@ import type {
 } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { localiseModel } from './_context';
 import { TEXT } from './ContextModelPanel_.json';
 import { assertDefined, defineLazyComponent } from '@/utilities';
+import { loadContextModelConfig, localiseText } from '@/state/contextModels';
 import { localeId, t } from '@/state/locale';
-import { localiseModel, localiseText } from './_context';
 import { renderMarkdown, useMarkedTool } from '@/services/useMarkedTool';
-
-// ── Data
-import modelConfigsData from './_data/modelConfigs.json'; // TODO: remove once loadModel fetches remotely
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -103,7 +100,7 @@ watch(
 watch(
     () => modelReference.id,
     async (newModelId) => {
-        activeModelConfig.value = await loadModel(newModelId);
+        activeModelConfig.value = await loadContextModelConfig(newModelId);
         if (!markedTool.value) await initialiseMarkedTool();
     },
     { immediate: true }
@@ -137,15 +134,6 @@ function handleOpenDialog(dialogId: DialogId): void {
 
 function handleRetryMarkedTool(): void {
     void initialiseMarkedTool();
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-async function loadModel(modelId: string): Promise<ContextModelConfig | undefined> {
-    // Future: return (await fetch(`/api/model-configs/${modelId}`)).json() as Promise<ContextModelConfig | undefined>;
-    await promiseTimeout(400); // Simulates the network latency the real fetch above will have.
-    const modelConfig = (modelConfigsData as unknown as Record<string, ContextModelConfig | undefined>)[modelId];
-    return modelConfig ? structuredClone(modelConfig) : undefined; // A copy, as a fetch would return, so edits don't write into the imported JSON.
 }
 </script>
 

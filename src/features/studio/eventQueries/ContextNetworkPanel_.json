@@ -1,0 +1,14 @@
+{
+    "TEXT": {
+        "autoLayout.label": { "en": "Auto-layout", "es": "Diseño automático" },
+        "diagram.aria": { "en": "The context's areas, models, entities and events", "es": "Las áreas, los modelos, las entidades y los eventos del contexto" },
+        "hint.text": {
+            "en": "Select a model to show its entities and events, then an event to add an event query.",
+            "es": "Selecciona un modelo para ver sus entidades y eventos, y después un evento para añadir una consulta de eventos."
+        },
+        "model.empty.text": { "en": "{model} has no entities yet.", "es": "{model} todavía no tiene entidades." },
+        "newEventQuery.name.text": { "en": "{entity}: {event}", "es": "{entity}: {event}" },
+        "newEventQuery.save.label": { "en": "Save", "es": "Guardar" },
+        "newEventQuery.title": { "en": "New Event Query", "es": "Nueva consulta de eventos" }
+    }
+}
