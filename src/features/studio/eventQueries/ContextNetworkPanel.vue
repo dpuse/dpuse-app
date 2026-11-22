@@ -1,29 +1,31 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { useResizeObserver } from '@vueuse/core';
-import { onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError } from '@dpuse/dpuse-shared';
-import type { ContextModelConfig } from '@dpuse/dpuse-shared';
-import type { D3NetworkView, Tool as D3Tool, NetworkDiagramNode } from '@dpuse/dpuse-tool-d3-visualiser';
+import { AppError, localiseConfig, localiseReference } from '@dpuse/dpuse-shared';
+import type { ContextConfig, ContextEventReference } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import { defineLazyComponent } from '@/utilities/index.ts';
-import { establishContextModelConfig } from '@/state/contextModels';
-import { establishTool } from '@/services/tools';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { TEXT } from './ContextNetworkPanel_.json';
 import { useUnsavedWork } from '@/state/unsavedWork';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
-import { constructContextDiagramData, type ContextDiagramData, type ContextDiagramNode } from './_contextDiagram';
+import { constructContextDiagramData, type ContextDiagramData, type ContextDiagramFocus, type ContextDiagramView } from './_contextDiagram';
 import { constructNewEventQueryConfig, useUpdateEventQuery } from './_eventQueries';
 import { contextConfig, contextConfigStatus } from '@/state/configs';
+import type { ContextSearchEntry, RenderContextDiagram } from './_contextDiagram';
 import { localeId, t } from '@/state/locale';
+import { localiseText, useContextModel } from '@/state/contextModels';
 
 // ── Static Components
+import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
+import ContextSearch from './ContextSearch.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
@@ -34,6 +36,22 @@ import StudioListLayout from '@/features/studio/_components/StudioListLayout.vue
 // ── Dynamic Components
 const StudioDescriptorsPanel = defineLazyComponent(() => import('@/features/studio/_components/StudioDescriptorsPanel.vue'), 'StudioDescriptorsPanel');
 
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The event a new event query is for, with the names it is first called after.
+interface NewEventQueryEvent {
+    contextEventReference: ContextEventReference;
+    entityLabel: string;
+    eventLabel: string;
+}
+
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
+
+const { hint, renderContextDiagram } = defineProps<{
+    hint: string; // What a click does in this kind of diagram, because nothing in the diagram itself shows it.
+    renderContextDiagram: RenderContextDiagram; // Draws the diagram with one tool, so the same panel could serve another kind of diagram.
+}>();
+
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // ── Route
@@ -43,31 +61,70 @@ const router = useRouter();
 // ── Diagram
 const containerElement = useTemplateRef<HTMLDivElement>('container');
 const diagramData = shallowRef<ContextDiagramData>(); // What is drawn now, which a click on a node is looked up in.
-const diagramIsPending = ref(true); // The diagram area is blank while the d3 tool downloads and draws, so the wait is shown.
-const diagramView = shallowRef<D3NetworkView>();
+const diagramIsPending = ref(true); // The diagram area is blank while the tool downloads and draws, so the wait is shown.
+const diagramView = shallowRef<ContextDiagramView>();
 const renderFailure = shallowRef<AppFailure | undefined>();
-const renderCount = ref(0); // Tells a render that a newer one has started while it waited for the tool, so it draws nothing.
-
-// ── Open Models ─ The models whose entities and events are shown, by node id. Replaced whole on each change, so the
-// diagram is drawn again.
-const openModelConfigsByNodeId = shallowRef<ReadonlyMap<string, ContextModelConfig>>(new Map());
-const modelIsLoading = ref(false);
-const emptyModelLabel = ref<string>(); // The last model opened that had nothing to show, named in a message so the click is not met with silence.
+const renderCount = ref(0); // Tells a render that a newer one has started while it waited for the tool, so it keeps nothing it drew.
 
 // ── New Event Query ─ Only stored by the dialog's Save, so its ✕ leaves nothing behind.
 const { isPending: eventQueryIsAdding, mutateAsync: addEventQuery } = useUpdateEventQuery();
-const newEventQueryNode = shallowRef<ContextDiagramNode>(); // The event node the dialog is open for.
+const newEventQueryEvent = shallowRef<NewEventQueryEvent>(); // The event the dialog is open for.
 const newEventQueryDialogIsOpen = ref(false);
 const draftDescription = ref('');
 const draftLabel = ref('');
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// ── Focus ─ How far the diagram has been drilled down. The URL is its one source, so reload, deep links and
+// back/forward all land on the same level. An id the context does not have counts as no focus at that level.
+const focusedAreaConfig = computed(() => contextConfig.value?.areas.find((config) => config.id === route.params.areaId));
+const focusedModelReferenceConfig = computed(() => focusedAreaConfig.value?.models.find((config) => config.id === route.params.modelId));
+const { data: focusedModelConfig, isFetching: focusedModelIsFetching } = useContextModel(() => focusedModelReferenceConfig.value?.id);
+const focusedModelIsLoading = computed(() => focusedModelReferenceConfig.value != null && focusedModelIsFetching.value);
+const focusedEntityConfig = computed(() => focusedModelConfig.value?.entities.find((config) => config.id === route.params.entityId));
+const focus = computed((): ContextDiagramFocus => ({
+    areaId: focusedAreaConfig.value?.id,
+    modelId: focusedModelReferenceConfig.value?.id,
+    entityId: focusedEntityConfig.value?.id
+}));
+
+// A model with no entities or no data at all, or an entity with no events, has nothing to show below it, so a message
+// says so in the hint's place.
+const focusedModelIsEmpty = computed(() => focusedModelReferenceConfig.value != null && !focusedModelIsLoading.value && (focusedModelConfig.value?.entities.length ?? 0) === 0);
+const statusText = computed(() => {
+    const modelReferenceConfig = focusedModelReferenceConfig.value;
+    if (modelReferenceConfig && focusedModelIsEmpty.value) return t(TEXT, 'model.empty.text', { model: localiseReference(modelReferenceConfig, localeId.value).label });
+    const entityConfig = focusedEntityConfig.value;
+    return entityConfig?.events.length === 0 ? t(TEXT, 'entity.empty.text', { entity: localiseText(entityConfig.label, localeId.value) }) : hint;
+});
+
+// ── Breadcrumbs ─ The way back up: the context, then the area, model and entity drilled down to. The last one is
+// where the user is, so it is not a link.
+const breadcrumbs = computed((): BreadcrumbConfig[] => {
+    if (contextConfig.value == null) return [];
+    const { areaId, modelId, entityId } = focus.value;
+    const items: BreadcrumbConfig[] = [{ id: 'context', label: localiseConfig(contextConfig.value, localeId.value).label, to: constructFocusRoute({}) }];
+    if (focusedAreaConfig.value) items.push({ id: 'area', label: localiseConfig(focusedAreaConfig.value, localeId.value).label, to: constructFocusRoute({ areaId }) });
+    if (focusedModelReferenceConfig.value) {
+        items.push({ id: 'model', label: localiseReference(focusedModelReferenceConfig.value, localeId.value).label, to: constructFocusRoute({ areaId, modelId }) });
+    }
+    if (focusedEntityConfig.value) {
+        items.push({ id: 'entity', label: localiseText(focusedEntityConfig.value.label, localeId.value), to: constructFocusRoute({ areaId, modelId, entityId }) });
+    }
+    return items;
+});
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 useUnsavedWork(newEventQueryDialogIsOpen); // A reload while the dialog is open loses what was typed.
 
-// Drawn once the context has loaded and its container is on the page. Drawn again when a model is opened or closed,
-// and when the language changes, because the node labels are in the user's language.
-watch([contextConfig, localeId, containerElement, openModelConfigsByNodeId], () => void renderDiagram(), { immediate: true });
+// Drawn once the context has loaded and its container is on the page. Drawn again from nothing when the language
+// changes, because every node label is in the user's language.
+watch([contextConfig, localeId, containerElement], () => void renderDiagram(), { immediate: true });
+
+// A move up or down a level, or a model's data arriving, changes the drawn diagram in place, so the nodes that stay
+// keep their places while the others fade in and out.
+watch([focusedAreaConfig, focusedModelReferenceConfig, focusedModelConfig, focusedModelIsLoading, focusedEntityConfig], changeLevel);
 
 // The pane can be resized by its splitter, which the window's own resize event does not report.
 useResizeObserver(containerElement, () => {
@@ -83,14 +140,35 @@ function handleRetry(): void {
 }
 
 function handleAutoLayout(): void {
-    diagramView.value?.triggerAutoLayout();
+    diagramView.value?.triggerAutoLayout?.();
 }
 
-// A model opens or closes, and an event starts an event query. The other nodes have nothing to open.
-function handleClickNode(clickedNode: NetworkDiagramNode): void {
+// An event starts an event query. An area, a model or an entity opens, hiding its siblings and showing what is below
+// it. The node of the level already open closes it again, going back up one level, and so does any node above it: the
+// context goes back to the top.
+function handleClickNode(clickedNode: { id: string }): void {
     const node = diagramData.value?.nodes.find((candidate) => candidate.id === clickedNode.id);
-    if (node?.typeId === 'model') void toggleModel(node);
-    else if (node?.typeId === 'event') openNewEventQueryDialog(node);
+    if (node == null) return;
+    if (node.typeId === 'event') {
+        if (node.contextEventReference) openNewEventQueryDialog({ contextEventReference: node.contextEventReference, entityLabel: node.entityLabel ?? '', eventLabel: node.label });
+        return;
+    }
+
+    const { areaId, modelId, entityId } = node;
+    const nodeIsOpenLevel = areaId === focus.value.areaId && modelId === focus.value.modelId && entityId === focus.value.entityId;
+    if (!nodeIsOpenLevel) focusOn({ areaId, modelId, entityId });
+    else if (entityId != null) focusOn({ areaId, modelId });
+    else if (modelId != null) focusOn({ areaId });
+    else if (areaId != null) focusOn({});
+}
+
+// A result opens: an area shows its models, a model its entities and an entity its events. An event opens its entity
+// and also starts its event query, as a click on its node would.
+function handleSelectSearchEntry(entry: ContextSearchEntry): void {
+    focusOn({ areaId: entry.areaId, modelId: entry.modelId, entityId: entry.entityId });
+    if (entry.typeId === 'event' && entry.contextEventReference) {
+        openNewEventQueryDialog({ contextEventReference: entry.contextEventReference, entityLabel: entry.entityLabel ?? '', eventLabel: entry.eventLabel ?? '' });
+    }
 }
 
 function handleCloseNewEventQueryDialog(): void {
@@ -99,7 +177,7 @@ function handleCloseNewEventQueryDialog(): void {
 
 // The new event query opens in the list once it is saved, selected, so the user sees where it went.
 async function handleSaveNewEventQuery(): Promise<void> {
-    const contextEventReference = newEventQueryNode.value?.contextEventReference;
+    const contextEventReference = newEventQueryEvent.value?.contextEventReference;
     if (contextEventReference == null || eventQueryIsAdding.value) return;
 
     newEventQueryDialogIsOpen.value = false;
@@ -114,27 +192,20 @@ async function handleSaveNewEventQuery(): Promise<void> {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// The level stays as it is while a model's data loads, so the model is not shown bare and then again with its
+// entities.
 async function renderDiagram(): Promise<void> {
-    if (contextConfig.value == null || containerElement.value == null) return;
+    if (contextConfig.value == null || containerElement.value == null || focusedModelIsLoading.value) return;
 
     const thisRenderCount = ++renderCount.value;
     renderFailure.value = undefined;
     diagramIsPending.value = true;
     try {
-        const d3Tool = await establishTool<D3Tool>('d3-visualiser');
-        if (thisRenderCount !== renderCount.value) return;
-
-        destroyDiagram(); // A retry, an opened model or a change of language replaces the diagram rather than drawing a second one.
-        diagramData.value = constructContextDiagramData(contextConfig.value, localeId.value, openModelConfigsByNodeId.value);
-        // Wider spacing than the tool's defaults, so the labels below neighbouring nodes do not overlap. The wider graph
-        // is then zoomed out to fit the pane.
-        diagramView.value = await d3Tool.renderNetworkDiagram(diagramData.value, containerElement.value, {
-            chargeStrength: -500,
-            fitsView: true,
-            linkDistance: 90,
-            onNodeClick: handleClickNode
-        });
-        diagramView.value.triggerAutoLayout(); // The tool first places every node on one circle, which hides which model belongs to which area.
+        destroyDiagram(); // A retry or a change of language replaces the diagram rather than drawing a second one.
+        diagramData.value = constructDiagramData(contextConfig.value);
+        const view = await renderContextDiagram(diagramData.value, containerElement.value, handleClickNode);
+        if (thisRenderCount === renderCount.value) diagramView.value = view;
+        else view.destroy();
     } catch (error) {
         renderFailure.value = raiseFailure(
             new AppError('Failed to render the context diagram.', 'dpuse-app.ContextNetworkPanel.renderDiagram', { data: { typeId: 'handled' }, cause: error })
@@ -144,44 +215,39 @@ async function renderDiagram(): Promise<void> {
     }
 }
 
+// A diagram that cannot change in place, or one not drawn yet, is drawn from nothing.
+function changeLevel(): void {
+    if (contextConfig.value == null || focusedModelIsLoading.value) return;
+    if (diagramView.value?.update == null) {
+        void renderDiagram();
+        return;
+    }
+    diagramData.value = constructDiagramData(contextConfig.value);
+    diagramView.value.update(diagramData.value);
+}
+
+function constructDiagramData(currentContextConfig: ContextConfig): ContextDiagramData {
+    return constructContextDiagramData(currentContextConfig, localeId.value, focus.value, focusedModelConfig.value);
+}
+
 function destroyDiagram(): void {
     diagramView.value?.destroy();
     diagramView.value = undefined;
 }
 
-// A model with no entities, or with no data at all, opens to nothing, so a message says so.
-async function toggleModel(modelNode: ContextDiagramNode): Promise<void> {
-    if (modelNode.modelId == null || modelIsLoading.value) return;
-
-    emptyModelLabel.value = undefined;
-    const openModelConfigs = new Map(openModelConfigsByNodeId.value);
-    if (openModelConfigs.delete(modelNode.id)) {
-        openModelConfigsByNodeId.value = openModelConfigs;
-        return;
-    }
-
-    modelIsLoading.value = true;
-    try {
-        const modelConfig = await establishContextModelConfig(modelNode.modelId);
-        if (modelConfig == null || modelConfig.entities.length === 0) {
-            emptyModelLabel.value = modelNode.label;
-            return;
-        }
-        openModelConfigsByNodeId.value = openModelConfigs.set(modelNode.id, modelConfig);
-    } catch (error) {
-        // Announced rather than shown in place of the diagram, which is still correct without the model's entities.
-        raiseAppFailure(
-            new AppError(`Failed to load context model '${modelNode.modelId}'.`, 'dpuse-app.ContextNetworkPanel.toggleModel', { data: { typeId: 'handled' }, cause: error })
-        );
-    } finally {
-        modelIsLoading.value = false;
-    }
+// A push, so the browser's back button goes back up a level.
+function focusOn(newFocus: ContextDiagramFocus): void {
+    void ignoreReportedNavigationFailure(router.push(constructFocusRoute(newFocus)));
 }
 
-function openNewEventQueryDialog(eventNode: ContextDiagramNode): void {
-    newEventQueryNode.value = eventNode;
+function constructFocusRoute({ areaId, modelId, entityId }: ContextDiagramFocus): RouteLocationRaw {
+    return { name: 'eventQueries', params: { areaId, modelId, entityId }, query: route.query };
+}
+
+function openNewEventQueryDialog(event: NewEventQueryEvent): void {
+    newEventQueryEvent.value = event;
     draftDescription.value = '';
-    draftLabel.value = t(TEXT, 'newEventQuery.name.text', { entity: eventNode.entityLabel ?? '', event: eventNode.label });
+    draftLabel.value = t(TEXT, 'newEventQuery.name.text', { entity: event.entityLabel, event: event.eventLabel });
     newEventQueryDialogIsOpen.value = true;
 }
 </script>
@@ -192,16 +258,25 @@ function openNewEventQueryDialog(eventNode: ContextDiagramNode): void {
 
         <!-- Waits for the context, because the diagram is drawn from it. -->
         <RetrievalGate :status="contextConfigStatus">
-            <ErrorNotice v-if="renderFailure" :failures="[renderFailure]" @retry="handleRetry" />
-
-            <!-- Toolbar ─ The hint says what a click does, because nothing in the diagram itself shows that models open
-                 and events start an event query. A model that opens to nothing says so in its place. -->
-            <div v-show="!renderFailure" class="flex flex-none flex-wrap items-center gap-x-3 gap-y-2 px-page py-2">
-                <RectangleButton :disabled="diagramIsPending" variant="outline" @click="handleAutoLayout">{{ t(TEXT, 'autoLayout.label') }}</RectangleButton>
-                <p class="text-sm text-muted" role="status">{{ emptyModelLabel == null ? t(TEXT, 'hint.text') : t(TEXT, 'model.empty.text', { model: emptyModelLabel }) }}</p>
+            <!-- Level and Search ─ Shown even when the diagram fails, because both still work without it. The trail
+                 says which level is drawn and leads back up. Search jumps to anything by name. -->
+            <div class="flex flex-none flex-wrap items-center gap-x-3 gap-y-2 px-page pt-2">
+                <nav :aria-label="t(TEXT, 'breadcrumbs.aria')" class="min-w-0 flex-1 text-sm">
+                    <Breadcrumbs disable-last :items="breadcrumbs" />
+                </nav>
+                <ContextSearch class="w-full sm:w-80" @select="handleSelectSearchEntry" />
             </div>
 
-            <BusyBar v-if="diagramIsPending || modelIsLoading" class="mx-page" />
+            <ErrorNotice v-if="renderFailure" :failures="[renderFailure]" @retry="handleRetry" />
+
+            <!-- Toolbar ─ Auto-layout shows only for a diagram that can lay itself out again. The hint says what a click
+                 does, and a model with nothing below it says so in its place. -->
+            <div v-show="!renderFailure" class="flex flex-none flex-wrap items-center gap-x-3 gap-y-2 px-page py-2">
+                <RectangleButton v-if="diagramView?.triggerAutoLayout" variant="outline" @click="handleAutoLayout">{{ t(TEXT, 'autoLayout.label') }}</RectangleButton>
+                <p class="text-sm text-muted" role="status">{{ statusText }}</p>
+            </div>
+
+            <BusyBar v-if="diagramIsPending || focusedModelIsLoading" class="mx-page" />
 
             <!-- 'v-show' rather than 'v-if' ─ The container stays on the page, so a retry after a failure has an element
                  to draw into. -->

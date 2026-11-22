@@ -25,7 +25,7 @@ const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => i
 const SelectItemPanel = defineLazyLoader('SelectItemPanel', 1, () => import('@/features/studio/dataViews/selectItem/SelectItemPanel.vue'));
 const ExploreDataPanel = defineLazyLoader('ExploreDataPanel', 1, () => import('@/features/studio/dataViews/exploreData/ExploreDataPanel.vue'));
 const EventQueriesLayout = defineLazyLoader('EventQueriesLayout', 0, () => import('@/features/studio/eventQueries/EventQueriesLayout.vue'));
-const ContextNetworkPanel = defineLazyLoader('ContextNetworkPanel', 1, () => import('@/features/studio/eventQueries/ContextNetworkPanel.vue'));
+const ContextNetwork2dPanel = defineLazyLoader('ContextNetwork2dPanel', 1, () => import('@/features/studio/eventQueries/ContextNetwork2dPanel.vue'));
 const EventQueryList = defineLazyLoader('EventQueryList', 1, () => import('@/features/studio/eventQueries/EventQueryList.vue'));
 const PresentationsPanel = defineLazyLoader('PresentationsPanel', 0, () => import('@/features/studio/presentations/PresentationsPanel.vue'));
 const DataAppsPanel = defineLazyLoader('DataAppsPanel', 0, () => import('@/features/studio/dataApps/DataAppsPanel.vue'));
@@ -79,7 +79,7 @@ export const APP_ROUTES: RouteRecordRaw[] = [
                 path: 'eventQueries',
                 component: EventQueriesLayout,
                 children: [
-                    { name: 'eventQueries', path: '', component: ContextNetworkPanel },
+                    { name: 'eventQueries', path: ':areaId?/:modelId?/:entityId?', component: ContextNetwork2dPanel }, // The area, model and entity the diagram has been drilled down to.
                     { name: 'eventQueryList', path: 'list/:eventQueryId?', component: EventQueryList }
                 ]
             },

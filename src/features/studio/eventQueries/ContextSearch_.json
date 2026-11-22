@@ -1,0 +1,11 @@
+{
+    "TEXT": {
+        "option.area.text": { "en": "{area} (area)", "es": "{area} (área)" },
+        "option.entity.text": { "en": "{entity} (entity in {model})", "es": "{entity} (entidad de {model})" },
+        "option.event.text": { "en": "{event} (event of {entity})", "es": "{event} (evento de {entity})" },
+        "option.model.text": { "en": "{model} (model in {area})", "es": "{model} (modelo de {area})" },
+        "search.aria": { "en": "Search the context", "es": "Buscar en el contexto" },
+        "search.empty.text": { "en": "Nothing in the context matches.", "es": "Nada en el contexto coincide." },
+        "search.placeholder": { "en": "Search areas, models, entities and events", "es": "Buscar áreas, modelos, entidades y eventos" }
+    }
+}
