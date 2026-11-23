@@ -12,15 +12,15 @@ import { localiseConfig } from '@dpuse/dpuse-shared';
 import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { appearanceIsDark } from '@/state/appearance';
 import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import { connectionLocalisedConfigs } from '@/state/configs';
 import { DATA_FORMAT_ICON_CONFIGS } from './_dataFormatIcons';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { isDataViewUntitled } from './_dataViews';
+import { resolveAppearanceIcon } from '@/state/appearance';
 import { TEXT } from './DataViewMap_.json';
-import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
 import { constructDataViewMapData, type DataViewMapFocus, type DataViewMapNode, readDataViewMapFocus, resolveDataViewMapFocus } from './_dataViewMap';
+import { constructRingColor, readIconColor, useStudioOptions } from '@/features/studio/options/useStudioOptions';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -29,11 +29,9 @@ import NetworkDiagram from '@/components/ui/NetworkDiagram.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const DATA_VIEWS_OPTION_ID = 'dataViews'; // The studio option this screen belongs to, whose icon the top node shows and whose colour data views take.
+const DATA_VIEWS_OPTION_ID = 'dataViews'; // The studio option this screen belongs to, whose icon and colour the top node takes.
 const ROOT_ICON_COLOR = '#ffffff'; // The top node's icon, on the solid data views colour.
-const RING_COLOR_PERCENT = 45; // How much of an option's colour a ring keeps.
-const RING_COLOR_PERCENT_DARK = 65; // More in the dark appearance, where a ring mixed that far into the near-black background is too faint to see.
-const SETUP_OPTION_ID = 'setup'; // The studio option connectors and connections are set up in, whose colour they and the top node take.
+const SETUP_OPTION_ID = 'setup'; // The studio option whose colour every node below the top one, and every line, takes, so only the top node stands out.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -62,10 +60,10 @@ const mapConnections = computed(() =>
         return {
             id: config.id,
             label: config.label,
-            icon: resolveIcon(config.icon, config.iconDark),
+            icon: resolveAppearanceIcon(config.icon, config.iconDark),
             connectorId: config.connectorConfig.id,
             connectorLabel: connectorLocalisedConfig.label,
-            connectorIcon: resolveIcon(connectorLocalisedConfig.icon, connectorLocalisedConfig.iconDark)
+            connectorIcon: resolveAppearanceIcon(connectorLocalisedConfig.icon, connectorLocalisedConfig.iconDark)
         };
     })
 );
@@ -74,11 +72,12 @@ const mapDataViews = computed(() =>
 );
 const dataViewsIcon = computed(() => {
     const dataViewsOption = studioOptionLocalisedConfigs.value.find((config) => config.id === DATA_VIEWS_OPTION_ID);
-    return resolveIcon(dataViewsOption?.icon, dataViewsOption?.iconDark);
+    return resolveAppearanceIcon(dataViewsOption?.icon, dataViewsOption?.iconDark);
 });
 const mapLabels = computed(() => {
     const setupOption = studioOptionLocalisedConfigs.value.find((config) => config.id === SETUP_OPTION_ID);
     const dataViewsColor = readIconColor(dataViewsIcon.value);
+    const ringColor = constructRingColor(readIconColor(resolveAppearanceIcon(setupOption?.icon, setupOption?.iconDark)));
 
     // The top node is the data views icon in white on the data views colour itself, which is as light as a background
     // can be with a white icon still clear on it (3.6:1). Its icon is the option's own, redrawn in white.
@@ -87,8 +86,8 @@ const mapLabels = computed(() => {
         root: t(TEXT, 'root.label'),
         rootIcon: dataViewsColor == null ? dataViewsIcon.value : dataViewsIcon.value?.replaceAll(dataViewsColor, () => ROOT_ICON_COLOR),
         rootDiscColor: dataViewsColor,
-        connectionColor: constructRingColor(readIconColor(resolveIcon(setupOption?.icon, setupOption?.iconDark))),
-        dataViewColor: constructRingColor(dataViewsColor)
+        connectionColor: ringColor,
+        dataViewColor: ringColor
     };
 });
 
@@ -168,32 +167,14 @@ function resolveDataViewLabel(dataViewLocalisedConfig: LocalisedConfig<DataViewC
 // every node has an icon and is the same size.
 function resolveDataViewIcon(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): string | undefined {
     const { connectionId, connectionNodeConfig, readingConfig } = dataViewLocalisedConfig;
-    const itemIcon = resolveIcon(connectionNodeConfig?.icon, connectionNodeConfig?.iconDark);
+    const itemIcon = resolveAppearanceIcon(connectionNodeConfig?.icon, connectionNodeConfig?.iconDark);
     if (itemIcon != null && itemIcon !== '') return itemIcon;
 
     const itemTypeId = connectionLocalisedConfigs.value.find((config) => config.id === connectionId)?.connectorConfig.itemTypeId;
     const dataFormatId = readingConfig?.dataFormatId;
     if (itemTypeId !== 'file' || dataFormatId == null || dataFormatId === 'unknown') return dataViewsIcon.value;
     const formatIconConfig = DATA_FORMAT_ICON_CONFIGS[dataFormatId];
-    return resolveIcon(formatIconConfig.icon, formatIconConfig.iconDark);
-}
-
-// A ring is its option's colour softened towards the pane's background, as the pill's border is a soft shade of the
-// pill's text colour. It keeps the option's hue without being as strong as the icon inside it.
-function constructRingColor(color: string | undefined): string | undefined {
-    const percent = appearanceIsDark.value ? RING_COLOR_PERCENT_DARK : RING_COLOR_PERCENT;
-    return color == null ? undefined : `color-mix(in oklab, ${color} ${String(percent)}%, var(--color-surface))`;
-}
-
-// An option's colour is the one its icon is drawn in, because the option bar's configs hold no colour of their own.
-// A node then matches the option's button in the bar without the colour being written down twice.
-function readIconColor(icon: string | undefined): string | undefined {
-    return icon == null ? undefined : /stroke="(#[\da-f]{3,8})"/i.exec(icon)?.[1];
-}
-
-// The diagram draws one icon, so it is given the one for the current appearance. The dark one falls back to the light.
-function resolveIcon(icon: null | string | undefined, iconDark: null | string | undefined): string | undefined {
-    return (appearanceIsDark.value ? (iconDark ?? icon) : icon) ?? undefined;
+    return resolveAppearanceIcon(formatIconConfig.icon, formatIconConfig.iconDark);
 }
 </script>
 
@@ -207,7 +188,7 @@ function resolveIcon(icon: null | string | undefined, iconDark: null | string | 
             </nav>
         </div>
 
-        <!-- The lines take the data views' ring colour, so the diagram reads as one drawing in the data views' colour. -->
+        <!-- The lines take the nodes' ring colour, so the diagram reads as one drawing. -->
         <NetworkDiagram :data="mapData" :label="t(TEXT, 'diagram.aria')" :link-color="mapLabels.dataViewColor" @node-click="handleClickNode" />
     </div>
 </template>

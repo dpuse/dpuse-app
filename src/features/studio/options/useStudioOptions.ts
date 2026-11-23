@@ -5,6 +5,7 @@ import { computed, type ComputedRef } from 'vue';
 import { type LocaleDescription, type LocaleLabel, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { appearanceIsDark } from '@/state/appearance';
 import { localeId } from '@/state/locale';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -26,6 +27,9 @@ interface StudioOptionTaskConfig {
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const RING_COLOR_PERCENT = 45; // How much of an option's colour a ring keeps.
+const RING_COLOR_PERCENT_DARK = 65; // More in the dark appearance, where a ring mixed that far into the near-black background is too faint to see.
 
 const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
     {
@@ -95,4 +99,19 @@ const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
 
 export function useStudioOptions(): ComputedRef<LocalisedConfig<StudioOptionConfig>[]> {
     return computed(() => localiseConfigs<StudioOptionConfig>(STUDIO_OPTION_CONFIGS, localeId.value));
+}
+
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A ring round a diagram node is an option's colour softened towards the pane's background, as the pill's border is a
+// soft shade of the pill's text colour. It keeps the option's hue without being as strong as the icon inside it.
+export function constructRingColor(color: string | undefined): string | undefined {
+    const percent = appearanceIsDark.value ? RING_COLOR_PERCENT_DARK : RING_COLOR_PERCENT;
+    return color == null ? undefined : `color-mix(in oklab, ${color} ${String(percent)}%, var(--color-surface))`;
+}
+
+// An option's colour is the one its icon is drawn in, because the option configs hold no colour of their own. A
+// diagram node then matches the option's button in the bar without the colour being written down twice.
+export function readIconColor(icon: string | undefined): string | undefined {
+    return icon == null ? undefined : /stroke="(#[\da-f]{3,8})"/i.exec(icon)?.[1];
 }

@@ -14,9 +14,11 @@ import { defineLazyComponent } from '@/utilities/index.ts';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { TEXT } from './ContextNetworkPanel_.json';
 import { useUnsavedWork } from '@/state/unsavedWork';
+import { appearanceIsDark, resolveAppearanceIcon } from '@/state/appearance';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 import { constructContextDiagramData, type ContextDiagramData, type ContextDiagramFocus, type ContextDiagramView } from './_contextDiagram';
 import { constructNewEventQueryConfig, useUpdateEventQuery } from './_eventQueries';
+import { constructRingColor, readIconColor, useStudioOptions } from '@/features/studio/options/useStudioOptions';
 import { contextConfig, contextConfigStatus } from '@/state/configs';
 import type { ContextSearchEntry, RenderContextDiagram } from './_contextDiagram';
 import { localeId, t } from '@/state/locale';
@@ -45,6 +47,12 @@ interface NewEventQueryEvent {
     eventLabel: string;
 }
 
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const EVENT_QUERIES_OPTION_ID = 'eventQueries'; // The studio option this screen belongs to, whose icon and colour the context node takes.
+const ROOT_ICON_COLOR = '#ffffff'; // The context node's icon, on the solid colour of the option.
+const SETUP_OPTION_ID = 'setup'; // The studio option whose colour every node below the context node takes, so only the context node stands out.
+
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { hint, renderContextDiagram } = defineProps<{
@@ -57,6 +65,7 @@ const { hint, renderContextDiagram } = defineProps<{
 // ── Route
 const route = useRoute();
 const router = useRouter();
+const studioOptionLocalisedConfigs = useStudioOptions();
 
 // ── Diagram
 const containerElement = useTemplateRef<HTMLDivElement>('container');
@@ -98,6 +107,17 @@ const statusText = computed(() => {
     return entityConfig?.events.length === 0 ? t(TEXT, 'entity.empty.text', { entity: localiseText(entityConfig.label, localeId.value) }) : hint;
 });
 
+// ── Look ─ The context node is the option's own icon in white on the option's colour, as the data views diagram draws
+// its top node. Every other node, and an area's icon, takes the colour of the setup option.
+const optionIcon = computed(() => {
+    const option = studioOptionLocalisedConfigs.value.find((config) => config.id === EVENT_QUERIES_OPTION_ID);
+    return resolveAppearanceIcon(option?.icon, option?.iconDark);
+});
+const setupColor = computed(() => {
+    const setupOption = studioOptionLocalisedConfigs.value.find((config) => config.id === SETUP_OPTION_ID);
+    return readIconColor(resolveAppearanceIcon(setupOption?.icon, setupOption?.iconDark));
+});
+
 // ── Breadcrumbs ─ The way back up: the context, then the area, model and entity drilled down to. The last one is
 // where the user is, so it is not a link.
 const breadcrumbs = computed((): BreadcrumbConfig[] => {
@@ -122,9 +142,10 @@ useUnsavedWork(newEventQueryDialogIsOpen); // A reload while the dialog is open 
 // changes, because every node label is in the user's language.
 watch([contextConfig, localeId, containerElement], () => void renderDiagram(), { immediate: true });
 
-// A move up or down a level, or a model's data arriving, changes the drawn diagram in place, so the nodes that stay
-// keep their places while the others fade in and out.
-watch([focusedAreaConfig, focusedModelReferenceConfig, focusedModelConfig, focusedModelIsLoading, focusedEntityConfig], changeLevel);
+// A move up or down a level, a model's data arriving, or a switch between the light and dark appearance, which can
+// change the icons, changes the drawn diagram in place, so the nodes that stay keep their places while the others fade
+// in and out.
+watch([focusedAreaConfig, focusedModelReferenceConfig, focusedModelConfig, focusedModelIsLoading, focusedEntityConfig, optionIcon, appearanceIsDark], changeLevel);
 
 // The pane can be resized by its splitter, which the window's own resize event does not report.
 useResizeObserver(containerElement, () => {
@@ -150,7 +171,7 @@ function handleClickNode(clickedNode: { id: string }): void {
     const node = diagramData.value?.nodes.find((candidate) => candidate.id === clickedNode.id);
     if (node == null) return;
     if (node.typeId === 'event') {
-        if (node.contextEventReference) openNewEventQueryDialog({ contextEventReference: node.contextEventReference, entityLabel: node.entityLabel ?? '', eventLabel: node.label });
+        if (node.contextEventReference) openNewEventQueryDialog({ contextEventReference: node.contextEventReference, entityLabel: node.entityLabel ?? '', eventLabel: node.label ?? '' });
         return;
     }
 
@@ -227,7 +248,15 @@ function changeLevel(): void {
 }
 
 function constructDiagramData(currentContextConfig: ContextConfig): ContextDiagramData {
-    return constructContextDiagramData(currentContextConfig, localeId.value, focus.value, focusedModelConfig.value);
+    const color = readIconColor(optionIcon.value);
+    const look = {
+        areaIconColor: setupColor.value,
+        isDark: appearanceIsDark.value,
+        nodeColor: constructRingColor(setupColor.value),
+        rootDiscColor: color,
+        rootIcon: color == null ? optionIcon.value : optionIcon.value?.replaceAll(color, () => ROOT_ICON_COLOR)
+    };
+    return constructContextDiagramData(currentContextConfig, localeId.value, focus.value, { focusedModelConfig: focusedModelConfig.value, look });
 }
 
 function destroyDiagram(): void {

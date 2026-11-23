@@ -38,7 +38,7 @@ vi.mock('@/features/studio/eventQueries/_eventQueries', async (importOriginal) =
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface DrawnData {
-    nodes: { id: string; label: string }[];
+    nodes: { color?: string; discColor?: string; icon?: string; id: string; label?: string; title?: string }[];
 }
 
 interface ModelStateForTest {
@@ -130,6 +130,22 @@ describe('context network panel', () => {
             await mountPanel();
 
             expect(shownLabels()).toStrictEqual(['Context', 'Human Resource']);
+        });
+
+        it('draws the context node as the option’s icon in white on the option’s colour, with no label', async () => {
+            await mountPanel();
+
+            const [contextNode] = shownData().nodes;
+            expect(contextNode).not.toHaveProperty('label');
+            expect(contextNode.icon).toContain('stroke="#ffffff"');
+            expect(contextNode.icon).not.toContain('#bc904d');
+            expect(contextNode.discColor).toBe('#bc904d');
+        });
+
+        it('draws every other node in a soft shade of the colour of Setup’s option bar button', async () => {
+            await mountPanel();
+
+            expect(shownData().nodes.map((node) => node.color)).toStrictEqual(['#bc904d', 'color-mix(in oklab, #52525b 45%, var(--color-surface))']);
         });
 
         it('draws nothing until the context has loaded', async () => {
@@ -446,8 +462,9 @@ function shownData(): DrawnData {
     return (lastUpdateOrder > lastDrawOrder ? diagramView.update.mock.lastCall?.[0] : renderContextDiagram.mock.lastCall?.[0]) as DrawnData;
 }
 
+// The context node has a name in place of a label.
 function shownLabels(): string[] {
-    return shownData().nodes.map((node) => node.label);
+    return shownData().nodes.map((node) => node.label ?? node.title ?? '');
 }
 
 // Clicks a node the way the tool does, by calling the panel's 'onNodeClick' with the node as the panel gave it.

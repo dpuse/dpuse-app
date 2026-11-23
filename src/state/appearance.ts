@@ -12,3 +12,11 @@ export const appearance = useColorMode({ disableTransition: false, modes: { ligh
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const appearanceIsDark: ComputedRef<boolean> = computed(() => appearance.value === 'dark');
+
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// An icon drawn as an image is one icon, so it is the one for the current appearance. The dark one falls back to the
+// light.
+export function resolveAppearanceIcon(icon: null | string | undefined, iconDark: null | string | undefined): string | undefined {
+    return (appearanceIsDark.value ? (iconDark ?? icon) : icon) ?? undefined;
+}

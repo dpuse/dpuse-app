@@ -79,7 +79,7 @@ describe('constructContextDiagramData', () => {
     });
 
     it('keeps the path to the focused model, hides the other models and shows the model’s entities without their events', () => {
-        const data = constructContextDiagramData(CONTEXT_CONFIG, 'es', { areaId: 'hr', modelId: 'workforce' }, WORKFORCE_MODEL_CONFIG);
+        const data = constructContextDiagramData(CONTEXT_CONFIG, 'es', { areaId: 'hr', modelId: 'workforce' }, { focusedModelConfig: WORKFORCE_MODEL_CONFIG });
 
         expect(data.nodes).toStrictEqual([
             { id: 'context', label: 'Contexto', level: 0, typeId: 'context' },
@@ -92,7 +92,7 @@ describe('constructContextDiagramData', () => {
     });
 
     it('keeps the path to the focused entity, hides the other entities and shows the entity’s events', () => {
-        const data = constructContextDiagramData(CONTEXT_CONFIG, 'es', { areaId: 'hr', modelId: 'workforce', entityId: 'person' }, WORKFORCE_MODEL_CONFIG);
+        const data = constructContextDiagramData(CONTEXT_CONFIG, 'es', { areaId: 'hr', modelId: 'workforce', entityId: 'person' }, { focusedModelConfig: WORKFORCE_MODEL_CONFIG });
 
         expect(data.nodes.slice(3)).toStrictEqual([
             { id: 'context.hr.workforce.person', label: 'Persona', level: 3, typeId: 'entity', areaId: 'hr', modelId: 'workforce', entityId: 'person' },
@@ -110,14 +110,14 @@ describe('constructContextDiagramData', () => {
     });
 
     it('shows a focused entity with nothing below it when it has no events', () => {
-        const data = constructContextDiagramData(CONTEXT_CONFIG, 'en', { areaId: 'hr', modelId: 'workforce', entityId: 'job' }, WORKFORCE_MODEL_CONFIG);
+        const data = constructContextDiagramData(CONTEXT_CONFIG, 'en', { areaId: 'hr', modelId: 'workforce', entityId: 'job' }, { focusedModelConfig: WORKFORCE_MODEL_CONFIG });
 
         expect(data.nodes.map((node) => node.typeId)).toStrictEqual(['context', 'area', 'model', 'entity']);
     });
 
     it('gives a node the same id at every level, so a diagram can keep it in place while the level changes', () => {
         const levels = [{}, { areaId: 'hr' }, { areaId: 'hr', modelId: 'workforce' }, { areaId: 'hr', modelId: 'workforce', entityId: 'person' }].map((focus) =>
-            constructContextDiagramData(CONTEXT_CONFIG, 'en', focus, WORKFORCE_MODEL_CONFIG)
+            constructContextDiagramData(CONTEXT_CONFIG, 'en', focus, { focusedModelConfig: WORKFORCE_MODEL_CONFIG })
         );
 
         expect(levels.every((data) => data.nodes.some((node) => node.id === 'context.hr'))).toBe(true);
@@ -129,7 +129,7 @@ describe('constructContextDiagramData', () => {
             'area',
             'model'
         ]);
-        expect(constructContextDiagramData(CONTEXT_CONFIG, 'en', { areaId: 'hr', modelId: 'workforce' }, null).nodes).toHaveLength(3);
+        expect(constructContextDiagramData(CONTEXT_CONFIG, 'en', { areaId: 'hr', modelId: 'workforce' }, { focusedModelConfig: null }).nodes).toHaveLength(3);
     });
 
     it('falls back to the level above for an area, model or entity the context does not have', () => {
@@ -137,8 +137,8 @@ describe('constructContextDiagramData', () => {
         expect(constructContextDiagramData(CONTEXT_CONFIG, 'en', { areaId: 'hr', modelId: 'gone' })).toStrictEqual(
             constructContextDiagramData(CONTEXT_CONFIG, 'en', { areaId: 'hr' })
         );
-        expect(constructContextDiagramData(CONTEXT_CONFIG, 'en', { areaId: 'hr', modelId: 'workforce', entityId: 'gone' }, WORKFORCE_MODEL_CONFIG)).toStrictEqual(
-            constructContextDiagramData(CONTEXT_CONFIG, 'en', { areaId: 'hr', modelId: 'workforce' }, WORKFORCE_MODEL_CONFIG)
+        expect(constructContextDiagramData(CONTEXT_CONFIG, 'en', { areaId: 'hr', modelId: 'workforce', entityId: 'gone' }, { focusedModelConfig: WORKFORCE_MODEL_CONFIG })).toStrictEqual(
+            constructContextDiagramData(CONTEXT_CONFIG, 'en', { areaId: 'hr', modelId: 'workforce' }, { focusedModelConfig: WORKFORCE_MODEL_CONFIG })
         );
     });
 
@@ -152,6 +152,39 @@ describe('constructContextDiagramData', () => {
             expect(nodeIds.size).toBe(data.nodes.length);
             expect(data.links.every((link) => nodeIds.has(link.source) && nodeIds.has(link.target))).toBe(true);
         }
+    });
+
+    it('draws a context node given an icon as the icon alone on a solid disc, named for its tooltip', () => {
+        const look = { rootDiscColor: '#333333', rootIcon: '<svg xmlns="http://www.w3.org/2000/svg"/>' };
+        const [contextNode] = constructContextDiagramData(CONTEXT_CONFIG, 'es', {}, { look }).nodes;
+
+        expect(contextNode).toStrictEqual({ id: 'context', title: 'Contexto', icon: look.rootIcon, level: 0, typeId: 'context', color: '#333333', discColor: '#333333' });
+    });
+
+    it('gives an area its icon ready to draw as an image, in the colour given, and leaves an area without one plain', () => {
+        const [fdnConfig, hrConfig] = CONTEXT_CONFIG.areas;
+        const contextConfig = { ...CONTEXT_CONFIG, areas: [fdnConfig, { ...hrConfig, icon: '<svg viewBox="0 0 24 24"><g stroke="currentColor"/></svg>' }] } as ContextConfig;
+        const [, fdnNode, hrNode] = constructContextDiagramData(contextConfig, 'en', {}, { look: { areaIconColor: '#111111' } }).nodes;
+
+        expect(fdnNode).not.toHaveProperty('icon');
+        expect(hrNode.icon).toBe('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g stroke="#111111"/></svg>');
+    });
+
+    it('gives every node below the context node the colour given, and none without one', () => {
+        const focus = { areaId: 'hr', modelId: 'workforce', entityId: 'person' };
+        const readColors = (look: object): unknown[] => constructContextDiagramData(CONTEXT_CONFIG, 'en', focus, { focusedModelConfig: WORKFORCE_MODEL_CONFIG, look }).nodes.map((node) => node.color);
+
+        expect(readColors({ nodeColor: '#222222' })).toStrictEqual([undefined, '#222222', '#222222', '#222222', '#222222', '#222222']);
+        expect(readColors({})).toStrictEqual([undefined, undefined, undefined, undefined, undefined, undefined]);
+    });
+
+    it('gives an area its dark icon in the dark appearance, or else its light one', () => {
+        const areas = CONTEXT_CONFIG.areas.map((areaConfig) => ({ ...areaConfig, icon: '<svg xmlns="light"/>', iconDark: areaConfig.id === 'hr' ? '<svg xmlns="dark"/>' : null }));
+        const contextConfig = { ...CONTEXT_CONFIG, areas } as ContextConfig;
+        const readIcons = (isDark: boolean): unknown[] => constructContextDiagramData(contextConfig, 'en', {}, { look: { isDark } }).nodes.map((node) => node.icon);
+
+        expect(readIcons(false)).toStrictEqual([undefined, '<svg xmlns="light"/>', '<svg xmlns="light"/>']);
+        expect(readIcons(true)).toStrictEqual([undefined, '<svg xmlns="light"/>', '<svg xmlns="dark"/>']);
     });
 });
 

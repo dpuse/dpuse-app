@@ -207,18 +207,18 @@ describe('data view map', () => {
     });
 
     describe('colours', () => {
-        it('draws data views in the colour of their option bar button, and connectors and connections in the colour of Setup’s', async () => {
+        it('draws data views, connectors and connections in the colour of Setup’s option bar button', async () => {
             const { wrapper } = await mountMap(`?${WORK_QUERY}`);
             const colors = Object.fromEntries(shownData(wrapper).nodes.map((node) => [node.label ?? node.title, node.color]));
 
-            // A soft shade of each colour, as the pill's border is of the pill's text colour.
-            expect(colors.Employees).toBe('color-mix(in oklab, #5686d6 45%, var(--color-surface))');
+            // A soft shade of the colour, as the pill's border is of the pill's text colour.
+            expect(colors.Employees).toBe('color-mix(in oklab, #52525b 45%, var(--color-surface))');
             expect(colors.Dropbox).toBe('color-mix(in oklab, #52525b 45%, var(--color-surface))');
             expect(colors.Work).toBe(colors.Dropbox);
             expect(colors['Add data view']).toBeUndefined();
         });
 
-        it('draws the lines between nodes in the data views’ ring colour', async () => {
+        it('draws the lines between nodes in the nodes’ ring colour', async () => {
             const { wrapper } = await mountMap(`?${WORK_QUERY}`);
             const employees = shownData(wrapper).nodes.find((node) => node.label === 'Employees');
 

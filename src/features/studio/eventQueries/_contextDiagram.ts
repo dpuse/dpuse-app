@@ -20,14 +20,27 @@ interface ContextDiagramLink {
 
 export interface ContextDiagramNode {
     id: string;
-    label: string;
+    label?: string; // Every node but a context node drawn as an icon alone, which has a 'title' in its place.
     level: ContextDiagramLevel;
     typeId: ContextPartTypeId;
     areaId?: string; // On an area, model or entity node: the area it is, or belongs to.
+    color?: string; // The node's colour, when the caller gives one: the ring round an icon, or else the whole node.
     contextEventReference?: ContextEventReference; // On an event node: the event an event query started from the node is for.
+    discColor?: string; // On a context node with an icon: the solid disc behind the icon.
     entityLabel?: string; // On an event node: its entity's name, which a new event query is named after.
     entityId?: string; // On an entity node: the entity it is.
+    icon?: string; // On a context or area node that has one: SVG markup drawn inside the node.
     modelId?: string; // On a model or entity node: the model it is, or belongs to.
+    title?: string; // On a context node with an icon: its name, shown as a tooltip and read by screen readers.
+}
+
+// How the context node and the area nodes are drawn, which the caller works out from the app's options and appearance.
+export interface ContextDiagramLook {
+    areaIconColor?: string | undefined; // Replaces 'currentColor' in an area's icon, because an icon drawn as an image cannot read the page's text colour.
+    isDark?: boolean; // Chooses an area's dark icon, where it has one.
+    nodeColor?: string | undefined; // Every node below the context node, in place of its level's colour.
+    rootDiscColor?: string | undefined; // The solid disc behind the context node's icon.
+    rootIcon?: string | undefined; // Drawn in the context node in place of its label.
 }
 
 // How far the diagram has been drilled down: the whole context, one area, one model of an area, or one entity of a
@@ -75,6 +88,8 @@ type ContextPartTypeId = 'area' | 'context' | 'entity' | 'event' | 'model';
 // colour at every level of drill-down, so an area always looks like an area.
 const CONTEXT_DIAGRAM_LEVELS = { context: 0, area: 1, model: 2, entity: 3, event: 4 } as const;
 
+const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The context drilled down to one level, as a small network, so the nodes stay large enough to read. The path from
@@ -82,22 +97,42 @@ const CONTEXT_DIAGRAM_LEVELS = { context: 0, area: 1, model: 2, entity: 3, event
 // context's areas, or the focused area's models, or the focused model's entities, or the focused entity's events. The
 // siblings of the nodes on the path are left out. A focus that names an area, model or entity the context does not
 // have falls back to the level above. The model's entities are left out until its data has loaded. Every node's id is prefixed with its parent's id, so a
-// node keeps its id at every level, and ids are unique even where two entities share an event id.
+// node keeps its id at every level, and ids are unique even where two entities share an event id. A context node given
+// an icon shows the icon alone on a solid disc, with its name as a tooltip, and an area shows its own icon.
 export function constructContextDiagramData(
     contextConfig: ContextConfig,
     localeId: LocaleId,
     focus: ContextDiagramFocus,
-    focusedModelConfig?: ContextModelConfig | null
+    { focusedModelConfig, look = {} }: { focusedModelConfig?: ContextModelConfig | null | undefined; look?: ContextDiagramLook } = {}
 ): ContextDiagramData {
+    const contextLabel = localiseConfig(contextConfig, localeId).label;
     const data: ContextDiagramData = {
         links: [],
-        nodes: [{ id: contextConfig.id, label: localiseConfig(contextConfig, localeId).label, level: CONTEXT_DIAGRAM_LEVELS.context, typeId: 'context' }]
+        nodes: [
+            {
+                id: contextConfig.id,
+                ...(look.rootIcon == null ? { label: contextLabel } : { title: contextLabel, icon: look.rootIcon }),
+                level: CONTEXT_DIAGRAM_LEVELS.context,
+                typeId: 'context',
+                ...(look.rootIcon != null && look.rootDiscColor != null && { color: look.rootDiscColor, discColor: look.rootDiscColor })
+            }
+        ]
     };
+    const nodeColor = look.nodeColor == null ? {} : { color: look.nodeColor };
     const focusedAreaConfig = contextConfig.areas.find((config) => config.id === focus.areaId);
     const areaConfigs = focusedAreaConfig ? [focusedAreaConfig] : contextConfig.areas;
     for (const areaConfig of areaConfigs) {
         const areaNodeId = `${contextConfig.id}.${areaConfig.id}`;
-        data.nodes.push({ id: areaNodeId, label: localiseConfig(areaConfig, localeId).label, level: CONTEXT_DIAGRAM_LEVELS.area, typeId: 'area', areaId: areaConfig.id });
+        const areaIcon = constructImageIcon(look.isDark === true ? (areaConfig.iconDark ?? areaConfig.icon) : areaConfig.icon, look.areaIconColor);
+        data.nodes.push({
+            id: areaNodeId,
+            label: localiseConfig(areaConfig, localeId).label,
+            level: CONTEXT_DIAGRAM_LEVELS.area,
+            typeId: 'area',
+            areaId: areaConfig.id,
+            ...nodeColor,
+            ...(areaIcon != null && { icon: areaIcon })
+        });
         data.links.push({ source: contextConfig.id, target: areaNodeId });
     }
     if (!focusedAreaConfig) return data;
@@ -113,6 +148,7 @@ export function constructContextDiagramData(
             level: CONTEXT_DIAGRAM_LEVELS.model,
             typeId: 'model',
             areaId: focusedAreaConfig.id,
+            ...nodeColor,
             modelId: modelReferenceConfig.id
         });
         data.links.push({ source: areaNodeId, target: modelNodeId });
@@ -131,6 +167,7 @@ export function constructContextDiagramData(
             level: CONTEXT_DIAGRAM_LEVELS.entity,
             typeId: 'entity',
             ...modelFocus,
+            ...nodeColor,
             entityId: entityConfig.id
         });
         data.links.push({ source: modelNodeId, target: entityNodeId });
@@ -146,6 +183,7 @@ export function constructContextDiagramData(
             label: localiseText(eventConfig.labelAction, localeId),
             level: CONTEXT_DIAGRAM_LEVELS.event,
             typeId: 'event',
+            ...nodeColor,
             contextEventReference: { ...modelFocus, entityId: focusedEntityConfig.id, eventId: eventConfig.id },
             entityLabel
         });
@@ -186,4 +224,14 @@ export function constructContextSearchEntries(contextConfig: ContextConfig, loca
         }
     }
     return entries;
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// An icon written to sit in the page is made ready to be drawn as an image, which is a document of its own: it cannot
+// read the page's text colour, so 'currentColor' becomes the colour given, and it must name the SVG namespace.
+function constructImageIcon(icon: null | string | undefined, color: string | undefined): string | undefined {
+    if (icon == null || icon === '') return undefined;
+    const coloredIcon = color == null ? icon : icon.replaceAll('currentColor', () => color);
+    return coloredIcon.includes('xmlns=') ? coloredIcon : coloredIcon.replace('<svg', () => `<svg xmlns="${SVG_NAMESPACE}"`);
 }
