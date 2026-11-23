@@ -36,7 +36,7 @@ const WORK_QUERY = 'dvConnector=dropbox&dvConnection=work';
 
 // The diagram has its own tests, so it stands in as nothing, and a test clicks a node by emitting what it would.
 const NetworkDiagramStub = defineComponent({
-    props: { data: { type: Object as PropType<DataViewMapData>, default: undefined } },
+    props: { data: { type: Object as PropType<DataViewMapData>, default: undefined }, linkColor: { type: String, default: undefined } },
     emits: ['nodeClick'],
     render: (): null => null
 });
@@ -184,28 +184,68 @@ describe('data view map', () => {
         });
     });
 
+    describe('names', () => {
+        it('names a data view the user has not named after its item, and keeps a name the user gave it', async () => {
+            const { wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const connectionNodeConfig = { label: 'employees.csv' };
+            const readDataViewLabels = (): (string | undefined)[] =>
+                shownData(wrapper)
+                    .nodes.filter((node) => node.typeId === 'dataView')
+                    .map((node) => node.label);
+
+            await wrapper.setProps({
+                dataViewLocalisedConfigs: [
+                    { ...EMPLOYEES, connectionNodeConfig },
+                    { ...EMPLOYEES, id: 'b', label: 'Untitled Data View', connectionNodeConfig },
+                    { ...EMPLOYEES, id: 'c', label: 'Untitled Data View' }
+                ]
+            });
+
+            // The last has no item yet, so it has nothing better to be called.
+            expect(readDataViewLabels()).toStrictEqual(['Employees', 'employees.csv', 'Untitled Data View']);
+        });
+    });
+
     describe('colours', () => {
-        it('draws data views in the colour of their option bar button, and the top node, connectors and connections in the colour of Setup’s', async () => {
+        it('draws data views in the colour of their option bar button, and connectors and connections in the colour of Setup’s', async () => {
             const { wrapper } = await mountMap(`?${WORK_QUERY}`);
             const colors = Object.fromEntries(shownData(wrapper).nodes.map((node) => [node.label ?? node.title, node.color]));
 
-            expect(colors.Employees).toBe('#5686d6');
-            expect(colors['Data Views']).toBe('#52525b');
-            expect(colors.Dropbox).toBe('#52525b');
-            expect(colors.Work).toBe('#52525b');
+            // A soft shade of each colour, as the pill's border is of the pill's text colour.
+            expect(colors.Employees).toBe('color-mix(in oklab, #5686d6 45%, var(--color-surface))');
+            expect(colors.Dropbox).toBe('color-mix(in oklab, #52525b 45%, var(--color-surface))');
+            expect(colors.Work).toBe(colors.Dropbox);
             expect(colors['Add data view']).toBeUndefined();
+        });
+
+        it('draws the lines between nodes in the data views’ ring colour', async () => {
+            const { wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const employees = shownData(wrapper).nodes.find((node) => node.label === 'Employees');
+
+            expect(wrapper.getComponent(NetworkDiagramStub).props('linkColor')).toBe(employees?.color);
+        });
+
+        it('sets the top node apart as the data views icon in white on the data views colour, and no other node', async () => {
+            const { wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const [rootNode, ...otherNodes] = shownData(wrapper).nodes;
+
+            expect(rootNode.discColor).toBe('#5686d6');
+            expect(rootNode.color).toBe('#5686d6');
+            expect(rootNode.icon).toContain('stroke="#ffffff"');
+            expect(rootNode.icon).not.toContain('#5686d6');
+            expect(otherNodes.every((node) => node.discColor === undefined)).toBe(true);
         });
     });
 
     describe('icons', () => {
-        it('gives the top node, a connector and a connection its own icon, and a data view with no item the data views icon', async () => {
+        it('gives the top node, a connector and a connection its own icon, and a data view with no item the data views icon in its own colour', async () => {
             const { wrapper } = await mountMap(`?${WORK_QUERY}`);
             const icons = Object.fromEntries(shownData(wrapper).nodes.map((node) => [node.label ?? node.title, node.icon]));
 
             expect(icons['Data Views']).toContain('<svg');
             expect(icons.Dropbox).toBe('<svg data-id="dropbox"/>');
             expect(icons.Work).toBe('<svg data-id="work"/>');
-            expect(icons.Employees).toBe(icons['Data Views']);
+            expect(icons.Employees).toContain('stroke="#5686d6"');
         });
 
         it('gives a data view its item’s own icon, or else its file’s format icon, as its card does', async () => {

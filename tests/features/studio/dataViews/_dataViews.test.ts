@@ -18,6 +18,7 @@ import {
     auditDataViewContent,
     cancelDataViewRetrieval,
     constructNewDataViewConfig,
+    isDataViewUntitled,
     listItemStructureEntries,
     NEW_DATA_VIEW_ID,
     resolveDataViewIdParameter,
@@ -81,6 +82,16 @@ describe('data views', () => {
         queryClient.clear();
         sessionIsAuthenticated.value = undefined;
         vi.clearAllMocks();
+    });
+
+    describe('isDataViewUntitled', () => {
+        it('tells a data view that still has the name it was added with, in any language, from one the user has named', () => {
+            const { label } = constructNewDataViewConfig('connection');
+
+            expect(isDataViewUntitled(label.en ?? '')).toBe(true);
+            expect(isDataViewUntitled(label.es ?? '')).toBe(true);
+            expect(isDataViewUntitled('Sales')).toBe(false);
+        });
     });
 
     describe('useDataViews', () => {

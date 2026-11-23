@@ -7,15 +7,16 @@ export interface DataViewMapData {
 
 export interface DataViewMapNode {
     id: string;
-    label?: string; // Shown beside the node. The add node has none, because its symbol says what it does.
+    label?: string; // Shown beside the node. The top node and the add node have none, because the icon or symbol inside each says what it is.
     level: DataViewMapLevel;
     typeId: DataViewMapNodeTypeId;
     color?: string; // The node's colour, which is that of the part of the app it belongs to. The add node keeps the look of an action.
+    discColor?: string; // On the top node: a solid disc behind its icon, so it reads as where the diagram starts.
     icon?: string; // The node's own icon, drawn inside it. A data view has its item's icon, or that of its item's format.
     isAction?: boolean; // On the add node: drawn as something to do, so it stands apart from the things round it.
     isSelected?: boolean; // On the node whose details show beside the diagram.
     symbol?: string; // On the add node: the '+' drawn inside it.
-    title?: string; // On the add node: its name, shown as its tooltip.
+    title?: string; // On the top node and the add node: its name, shown as its tooltip.
     connectionId?: string; // On the add node: the connection a new data view is started on.
     dataViewId?: string; // On a data view node: the data view to select.
     focus?: DataViewMapFocus; // On a node that opens: the level a click on it shows.
@@ -45,12 +46,13 @@ export interface DataViewMapDataView {
     connectionId: string;
 }
 
-// The top node and the add node, named in the user's language by the caller, and the colours the nodes take: the
-// top node, connectors and connections one colour, and data views another.
+// The top node and the add node, named in the user's language by the caller, and how the nodes look: the top node's
+// icon and the solid colour behind it, and the ring colours of the connectors and connections and of the data views.
 export interface DataViewMapLabels {
     add: string;
     root: string;
     rootIcon?: string | undefined;
+    rootDiscColor?: string | undefined;
     connectionColor?: string | undefined;
     dataViewColor?: string | undefined;
 }
@@ -83,10 +85,16 @@ export function constructDataViewMapData(
     focus: DataViewMapFocus,
     selectedDataViewId?: string
 ): DataViewMapData {
-    const data: DataViewMapData = {
-        links: [],
-        nodes: [{ id: ROOT_NODE_ID, label: labels.root, level: DATA_VIEW_MAP_LEVELS.root, typeId: 'root', ...constructLook(labels.rootIcon, labels.connectionColor), focus: {} }]
+    const rootNode: DataViewMapNode = {
+        id: ROOT_NODE_ID,
+        level: DATA_VIEW_MAP_LEVELS.root,
+        typeId: 'root',
+        ...constructLook(labels.rootIcon, labels.rootDiscColor),
+        ...(labels.rootDiscColor != null && { discColor: labels.rootDiscColor }),
+        title: labels.root,
+        focus: {}
     };
+    const data: DataViewMapData = { links: [], nodes: [rootNode] };
     const addNode = (parentId: string, node: DataViewMapNode): void => {
         data.nodes.push(node);
         data.links.push({ source: parentId, target: node.id });

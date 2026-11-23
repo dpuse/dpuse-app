@@ -136,6 +136,12 @@ export function constructNewDataViewConfig(connectionId: string): DataViewConfig
     };
 }
 
+// Whether a data view still has the name it was given when it was added, in any language. Told from the name itself,
+// because a saved data view keeps no other record of whether the user has named it.
+export function isDataViewUntitled(label: string): boolean {
+    return Object.values(UNTITLED_DATA_VIEW_LABEL).includes(label);
+}
+
 // The data view id in the URL, or undefined while a data view is added and has no id yet.
 export function resolveDataViewIdParameter(dataViewIdParameter: unknown): string | undefined {
     return typeof dataViewIdParameter === 'string' && dataViewIdParameter !== NEW_DATA_VIEW_ID ? dataViewIdParameter : undefined;

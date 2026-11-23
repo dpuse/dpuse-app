@@ -19,48 +19,40 @@ import { type AppFailure, raiseFailure } from '@/state/errors';
 import BusyBar from '@/components/ui/BusyBar.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 
-// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// TODO: Use 'NetworkDiagramOptions' alone once the app takes the d3 tool release whose types include these options.
-type DiagramOptions = NetworkDiagramOptions & {
-    actionNodeColors?: { border: string; fill: string; fillHovered?: string; symbol: string };
-    growsActiveNodes?: boolean;
-    hoveredIconNodeColor?: string;
-    linkWidth?: number;
-};
-
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Labels go in the widest gap beside each node, wrap onto two lines, and have room kept for them, so the labels round
 // a node with many links do not run into one another. The links are short, because the tool lengthens those round a
 // busy node by itself. A level too wide for the pane is zoomed out to fit it. The caller keeps the selection, marking
 // the selected node with 'isSelected', so the diagram shows the same selection as the rest of the screen. A node is
-// drawn as the app's floating pill is: a 1px ring, and the pill's fill behind the icon of the selected node. An action
+// drawn as the app's floating pill is, with a 1px ring, and the selected node has a second ring round it. An action
 // node, such as one that adds something, takes all of the pill's colours, because it is the same kind of action. The
 // colours are variables, so they follow the theme.
 const DIAGRAM_OPTIONS = {
     actionNodeColors: { border: 'var(--color-pill-border)', fill: 'var(--color-pill)', fillHovered: 'var(--color-pill-hover)', symbol: 'var(--color-selected-text)' },
     chargeStrength: -400,
     fitsView: true,
+    focusRingColor: 'var(--color-focus-ring)',
     growsActiveNodes: false, // Every node keeps one size. The selected node and the one under the pointer show in their fill, as the pill does.
     hoveredIconNodeColor: 'var(--color-pill-hover)',
     iconNodeColor: 'var(--color-surface)', // The pane's own background behind a node's icon, so the icon reads as it does elsewhere. A variable, so it follows the theme.
     labelHaloColor: 'var(--color-surface)', // The pane's own background, so a label over a link hides the link behind it. A variable, so it follows the theme.
     labelPlacementId: 'outside',
     linkDistance: 80,
-    linkWidth: 1.5, // Narrower than the tool's own lines, to sit with the 1px rings.
+    linkWidth: 1, // As wide as the rings round the nodes.
     nodeBorderWidth: 1,
     reservesLabelRoom: true,
-    selectedIconNodeColor: 'var(--color-pill)',
+    selectedRingColor: 'var(--color-focus-ring)', // A ring a little apart from the selected node, as the app's focus ring sits round a control. The ring for keyboard focus is drawn outside it.
     selectsOnClick: false,
     wrapsLabels: true
-} satisfies DiagramOptions;
+} satisfies NetworkDiagramOptions;
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { data, label } = defineProps<{
+const { data, label, linkColor } = defineProps<{
     data: { links: NetworkDiagramLink[]; nodes: TNode[] } | undefined; // Undefined until the caller has something to draw.
     label: string; // Names the diagram for screen readers.
+    linkColor?: string; // The colour of the lines between nodes, for a caller whose nodes have their own colours. Any CSS colour. Read once, when the diagram is first drawn.
 }>();
 const emit = defineEmits<{ nodeClick: [node: TNode] }>();
 
@@ -114,7 +106,7 @@ async function renderDiagram(): Promise<void> {
     try {
         destroyDiagram(); // A retry replaces the diagram rather than drawing a second one.
         const d3Tool = await establishTool<D3Tool>('d3-visualiser');
-        const view = await d3Tool.renderNetworkDiagram(data, containerElement.value, { ...DIAGRAM_OPTIONS, onNodeClick: handleClickNode });
+        const view = await d3Tool.renderNetworkDiagram(data, containerElement.value, { ...DIAGRAM_OPTIONS, ...(linkColor != null && { linkColor }), onNodeClick: handleClickNode });
         if (thisRenderCount !== renderCount.value) {
             view.destroy();
             return;

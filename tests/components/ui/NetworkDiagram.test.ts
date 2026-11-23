@@ -51,6 +51,14 @@ describe('network diagram', () => {
         expect(diagramView.triggerAutoLayout).toHaveBeenCalledOnce();
     });
 
+    it('draws the lines in the caller’s colour, or leaves the tool its own when given none', async () => {
+        await mountDiagram(TOP_DATA);
+        expect(renderNetworkDiagram.mock.lastCall?.[2]).not.toHaveProperty('linkColor');
+
+        await mountDiagram(TOP_DATA, 'var(--line)');
+        expect(renderNetworkDiagram.mock.lastCall?.[2]).toMatchObject({ linkColor: 'var(--line)' });
+    });
+
     it('draws nothing until it has data', async () => {
         const wrapper = await mountDiagram(undefined);
 
@@ -105,8 +113,8 @@ describe('network diagram', () => {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function mountDiagram(data: typeof TOP_DATA | undefined): Promise<VueWrapper> {
-    const wrapper = mount(NetworkDiagram, { attachTo: document.body, props: { data, label: 'Diagram' } });
+async function mountDiagram(data: typeof TOP_DATA | undefined, linkColor?: string): Promise<VueWrapper> {
+    const wrapper = mount(NetworkDiagram, { attachTo: document.body, props: { data, label: 'Diagram', linkColor } });
     wrappers.push(wrapper);
     await settle();
     return wrapper;

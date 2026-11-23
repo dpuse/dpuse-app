@@ -1,5 +1,5 @@
 {
-  "version": "1.0.307",
+  "version": "1.0.308",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -487,8 +487,8 @@
       }
     },
     "@dpuse/dpuse-tool-d3-visualiser": {
-      "version": "1.0.131",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-d3-visualiser/-/dpuse-tool-d3-visualiser-1.0.131.tgz",
+      "version": "1.0.137",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-d3-visualiser/-/dpuse-tool-d3-visualiser-1.0.137.tgz",
       "overridden": false,
       "dependencies": {
         "@dagrejs/dagre": {

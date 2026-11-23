@@ -17,6 +17,7 @@ import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import { connectionLocalisedConfigs } from '@/state/configs';
 import { DATA_FORMAT_ICON_CONFIGS } from './_dataFormatIcons';
 import { ignoreReportedNavigationFailure } from '@/router';
+import { isDataViewUntitled } from './_dataViews';
 import { TEXT } from './DataViewMap_.json';
 import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
 import { constructDataViewMapData, type DataViewMapFocus, type DataViewMapNode, readDataViewMapFocus, resolveDataViewMapFocus } from './_dataViewMap';
@@ -29,6 +30,9 @@ import NetworkDiagram from '@/components/ui/NetworkDiagram.vue';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DATA_VIEWS_OPTION_ID = 'dataViews'; // The studio option this screen belongs to, whose icon the top node shows and whose colour data views take.
+const ROOT_ICON_COLOR = '#ffffff'; // The top node's icon, on the solid data views colour.
+const RING_COLOR_PERCENT = 45; // How much of an option's colour a ring keeps.
+const RING_COLOR_PERCENT_DARK = 65; // More in the dark appearance, where a ring mixed that far into the near-black background is too faint to see.
 const SETUP_OPTION_ID = 'setup'; // The studio option connectors and connections are set up in, whose colour they and the top node take.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
@@ -66,17 +70,25 @@ const mapConnections = computed(() =>
     })
 );
 const mapDataViews = computed(() =>
-    dataViewLocalisedConfigs.map((config) => ({ id: config.id, label: config.label, icon: resolveDataViewIcon(config), connectionId: config.connectionId }))
+    dataViewLocalisedConfigs.map((config) => ({ id: config.id, label: resolveDataViewLabel(config), icon: resolveDataViewIcon(config), connectionId: config.connectionId }))
 );
-const mapLabels = computed(() => {
+const dataViewsIcon = computed(() => {
     const dataViewsOption = studioOptionLocalisedConfigs.value.find((config) => config.id === DATA_VIEWS_OPTION_ID);
+    return resolveIcon(dataViewsOption?.icon, dataViewsOption?.iconDark);
+});
+const mapLabels = computed(() => {
     const setupOption = studioOptionLocalisedConfigs.value.find((config) => config.id === SETUP_OPTION_ID);
+    const dataViewsColor = readIconColor(dataViewsIcon.value);
+
+    // The top node is the data views icon in white on the data views colour itself, which is as light as a background
+    // can be with a white icon still clear on it (3.6:1). Its icon is the option's own, redrawn in white.
     return {
         add: t(TEXT, 'add.label'),
         root: t(TEXT, 'root.label'),
-        rootIcon: resolveIcon(dataViewsOption?.icon, dataViewsOption?.iconDark),
-        connectionColor: readIconColor(resolveIcon(setupOption?.icon, setupOption?.iconDark)),
-        dataViewColor: readIconColor(resolveIcon(dataViewsOption?.icon, dataViewsOption?.iconDark))
+        rootIcon: dataViewsColor == null ? dataViewsIcon.value : dataViewsIcon.value?.replaceAll(dataViewsColor, () => ROOT_ICON_COLOR),
+        rootDiscColor: dataViewsColor,
+        connectionColor: constructRingColor(readIconColor(resolveIcon(setupOption?.icon, setupOption?.iconDark))),
+        dataViewColor: constructRingColor(dataViewsColor)
     };
 });
 
@@ -103,7 +115,7 @@ const mapData = computed(() =>
 // is, so it is not a link. None at the top, where the one crumb would only repeat the top node.
 const breadcrumbs = computed((): BreadcrumbConfig[] => {
     const levelNodes = mapData.value.nodes.filter((node) => node.focus != null && isOnFocusPath(node.focus));
-    const levelCrumbs = levelNodes.map((node) => ({ id: node.id, label: node.label ?? '', to: constructFocusRoute(node.focus ?? {}) }));
+    const levelCrumbs = levelNodes.map((node) => ({ id: node.id, label: node.label ?? node.title ?? '', to: constructFocusRoute(node.focus ?? {}) })); // The top node has a name in place of a label.
     const selectedDataViewNode = mapData.value.nodes.find((node) => node.typeId === 'dataView' && node.isSelected === true);
     const crumbs = selectedDataViewNode ? [...levelCrumbs, { id: selectedDataViewNode.id, label: selectedDataViewNode.label ?? '' }] : levelCrumbs;
     return crumbs.length > 1 ? crumbs : [];
@@ -144,6 +156,13 @@ function isOnFocusPath(nodeFocus: DataViewMapFocus): boolean {
     return (nodeFocus.connectorId == null || nodeFocus.connectorId === connectorId) && (nodeFocus.connectionId == null || nodeFocus.connectionId === connectionId);
 }
 
+// A data view the user has not named yet is named after its item, so two of them on one connection can be told
+// apart without opening each. One with no item yet keeps the name it was given.
+function resolveDataViewLabel(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): string {
+    const { connectionNodeConfig, label } = dataViewLocalisedConfig;
+    return connectionNodeConfig != null && isDataViewUntitled(label) ? connectionNodeConfig.label : label;
+}
+
 // A data view shows what kind of item it reads, as its card does: the item's own icon, or else, for a file, the icon of
 // its format. One with neither, such as a table or a data view with no item chosen yet, shows the data views icon, so
 // every node has an icon and is the same size.
@@ -154,9 +173,16 @@ function resolveDataViewIcon(dataViewLocalisedConfig: LocalisedConfig<DataViewCo
 
     const itemTypeId = connectionLocalisedConfigs.value.find((config) => config.id === connectionId)?.connectorConfig.itemTypeId;
     const dataFormatId = readingConfig?.dataFormatId;
-    if (itemTypeId !== 'file' || dataFormatId == null || dataFormatId === 'unknown') return mapLabels.value.rootIcon;
+    if (itemTypeId !== 'file' || dataFormatId == null || dataFormatId === 'unknown') return dataViewsIcon.value;
     const formatIconConfig = DATA_FORMAT_ICON_CONFIGS[dataFormatId];
     return resolveIcon(formatIconConfig.icon, formatIconConfig.iconDark);
+}
+
+// A ring is its option's colour softened towards the pane's background, as the pill's border is a soft shade of the
+// pill's text colour. It keeps the option's hue without being as strong as the icon inside it.
+function constructRingColor(color: string | undefined): string | undefined {
+    const percent = appearanceIsDark.value ? RING_COLOR_PERCENT_DARK : RING_COLOR_PERCENT;
+    return color == null ? undefined : `color-mix(in oklab, ${color} ${String(percent)}%, var(--color-surface))`;
 }
 
 // An option's colour is the one its icon is drawn in, because the option bar's configs hold no colour of their own.
@@ -181,6 +207,7 @@ function resolveIcon(icon: null | string | undefined, iconDark: null | string | 
             </nav>
         </div>
 
-        <NetworkDiagram :data="mapData" :label="t(TEXT, 'diagram.aria')" @node-click="handleClickNode" />
+        <!-- The lines take the data views' ring colour, so the diagram reads as one drawing in the data views' colour. -->
+        <NetworkDiagram :data="mapData" :label="t(TEXT, 'diagram.aria')" :link-color="mapLabels.dataViewColor" @node-click="handleClickNode" />
     </div>
 </template>

@@ -125,16 +125,28 @@ describe('selection and icons', () => {
 });
 
 describe('colours', () => {
-    it('gives the top node, connectors and connections one colour, data views another, and the add node none', () => {
-        const data = constructDataViewMapData({ ...LABELS, connectionColor: '#111111', dataViewColor: '#222222' }, CONNECTIONS, DATA_VIEWS, WORK_FOCUS);
+    it('gives connectors and connections one colour, data views another, the top node its solid colour, and the add node none', () => {
+        const labels = { ...LABELS, connectionColor: '#111111', dataViewColor: '#222222', rootDiscColor: '#333333' };
+        const data = constructDataViewMapData(labels, CONNECTIONS, DATA_VIEWS, WORK_FOCUS);
+
+        expect(data.nodes.map((node) => node.discColor)).toStrictEqual(['#333333', undefined, undefined, undefined, undefined]);
 
         expect(data.nodes.map((node) => `${node.typeId}:${node.color ?? ''}`)).toStrictEqual([
-            'root:#111111',
+            'root:#333333',
             'connector:#111111',
             'connection:#111111',
             'dataView:#222222',
             'add:'
         ]);
+    });
+});
+
+describe('top node', () => {
+    it('has no label, because its icon says what it is, and is named for its tooltip', () => {
+        const [rootNode] = constructDataViewMapData(LABELS, CONNECTIONS, DATA_VIEWS, {}).nodes;
+
+        expect(rootNode).not.toHaveProperty('label');
+        expect(rootNode.title).toBe('Data Views');
     });
 });
 
