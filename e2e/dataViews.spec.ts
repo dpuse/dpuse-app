@@ -13,7 +13,7 @@ test.describe('Data views', () => {
         // eslint-disable-next-line playwright/no-skipped-test -- Skipped on purpose until the page loads reliably.
         test.skip(true, 'Suspended: the page fails to load at random (Vite module downloads cut short in Firefox, configuration WebSocket silent in WebKit).');
 
-        await page.goto('/dataViews');
+        await page.goto('/dataViews?dvView=list'); // The list, because the diagram opens first.
         await page.locator('[data-region="PillButton"]').getByText('Data View', { exact: true }).click(); // The empty list's own 'Data View' button shares the name.
 
         // Nothing is saved until a connection is committed.
@@ -40,7 +40,7 @@ test.describe('Data views', () => {
         // eslint-disable-next-line playwright/no-skipped-test -- Firefox and WebKit fail to load the page at random, as the test above says.
         test.skip(browserName !== 'chromium', 'Firefox and WebKit fail to load the page at random.');
 
-        await page.goto('/dataViews');
+        await page.goto('/dataViews?dvView=list'); // The list, because the diagram opens first.
         await page.locator('[data-region="PillButton"]').getByText('Data View', { exact: true }).click();
         await expect(page).toHaveURL(/\/dataViews\/new\/connections/);
         const pill = page.locator('[data-region="DataViewPill"]');

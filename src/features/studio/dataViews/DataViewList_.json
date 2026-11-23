@@ -3,14 +3,7 @@
         "dataView.label": { "en": "Data View", "es": "Vista de datos" },
         "dataView.new.text": { "en": "a new data view", "es": "una nueva vista de datos" },
         "dataView.other.text": { "en": "data views", "es": "vistas de datos" },
-        "delete.confirm.label": { "en": "Delete", "es": "Eliminar" },
-        "delete.confirm.text": { "en": "Delete “{name}”? This cannot be undone.", "es": "¿Eliminar «{name}»? No se puede deshacer." },
-        "delete.confirm.title": { "en": "Delete Data View", "es": "Eliminar vista de datos" },
-        "delete.done.text": { "en": "“{name}” deleted.", "es": "Se eliminó «{name}»." },
-        "detail.open.label": { "en": "Open", "es": "Abrir" },
-        "noSelection.text": { "en": "Select a data view from the list.", "es": "Selecciona una vista de datos de la lista." },
         "retrieval.cancel.label": { "en": "Cancel", "es": "Cancelar" },
-        "retrieval.cancelled.text": { "en": "Loading data views was cancelled.", "es": "Se canceló la carga de las vistas de datos." },
         "retrieval.retry.label": { "en": "Retry", "es": "Reintentar" },
         "retrieval.slow.text": { "en": "Still loading data views…", "es": "Todavía se están cargando las vistas de datos…" }
     }

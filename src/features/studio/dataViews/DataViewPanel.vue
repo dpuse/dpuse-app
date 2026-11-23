@@ -383,7 +383,7 @@ function formatDateTime(timestamp: number): string {
         </ScrollArea>
 
         <!-- Scroll Buttons ─ In the bottom row, because floating notices sit just above it. 'right-30' clears the 'Open'
-             pill in 'DataViewList', which is 24px from the edge and about 90px wide in both languages. -->
+             pill in 'DataViewsHomePanel', which is 24px from the edge and about 90px wide in both languages. -->
         <ScrollEndButtons class="absolute right-30 bottom-(--safe-bottom-offset)" :scroll-element="documentScrollElement" />
 
         <Dialog

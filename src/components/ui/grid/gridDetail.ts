@@ -1,4 +1,4 @@
-// The split state 'GridDetailPanel' publishes, held beside it rather than inside it because '<script setup>' cannot
+// The split state 'MasterDetailPanel' publishes, held apart from it rather than inside it because '<script setup>' cannot
 // export a value and the descendants that read it are not its own children.
 
 // ── External Dependencies & Registrations
@@ -11,7 +11,7 @@ import type { InjectionKey, Ref } from 'vue';
 // resizes, which changes its width without the viewport moving and so is invisible to a media query.
 export const GRID_DETAIL_SPLIT_THRESHOLD_PX = 768;
 
-// Whether the list and the detail are showing side by side. Provided by 'GridDetailPanel' for the descendants whose own
+// Whether the list and the detail are showing side by side. Provided by 'MasterDetailPanel' for the descendants whose own
 // layout turns on the same fact — a detail header offers no way back while the list it would return to is still on
 // screen — and those sit several components below the slot, too far down to reach with a prop. Absent where no panel is
 // above, which is the standalone case, and the fallback there is 'not split': that keeps the way back rather than

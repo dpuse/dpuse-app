@@ -20,7 +20,7 @@ import StudioHomePanel from '@/features/studio/StudioHomePanel.vue'; // Static, 
 // one inside a layout such as 'DataViewsLayout' is 1. 'assertViewDepths' checks these against the route table at
 // startup in Dev environment.
 const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/features/studio/dataViews/DataViewsLayout.vue'));
-const DataViewList = defineLazyLoader('DataViewList', 1, () => import('@/features/studio/dataViews/DataViewList.vue'));
+const DataViewsHomePanel = defineLazyLoader('DataViewsHomePanel', 1, () => import('@/features/studio/dataViews/DataViewsHomePanel.vue'));
 const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/features/studio/dataViews/selectConnection/SelectConnectionList.vue'));
 const SelectItemPanel = defineLazyLoader('SelectItemPanel', 1, () => import('@/features/studio/dataViews/selectItem/SelectItemPanel.vue'));
 const ExploreDataPanel = defineLazyLoader('ExploreDataPanel', 1, () => import('@/features/studio/dataViews/exploreData/ExploreDataPanel.vue'));
@@ -63,7 +63,7 @@ export const APP_ROUTES: RouteRecordRaw[] = [
                 path: 'dataViews',
                 component: DataViewsLayout,
                 children: [
-                    { name: 'dataViews', path: ':dataViewId?', component: DataViewList },
+                    { name: 'dataViews', path: ':dataViewId?', component: DataViewsHomePanel },
                     {
                         path: ':dataViewId',
                         children: [

@@ -1,0 +1,17 @@
+{
+    "TEXT": {
+        "delete.confirm.label": { "en": "Delete", "es": "Eliminar" },
+        "delete.confirm.text": { "en": "Delete “{name}”? This cannot be undone.", "es": "¿Eliminar «{name}»? No se puede deshacer." },
+        "delete.confirm.title": { "en": "Delete Data View", "es": "Eliminar vista de datos" },
+        "delete.done.text": { "en": "“{name}” deleted.", "es": "Se eliminó «{name}»." },
+        "detail.add.label": { "en": "Add data view", "es": "Añadir vista de datos" },
+        "detail.open.label": { "en": "Open", "es": "Abrir" },
+        "noSelection.diagram.text": { "en": "Select a node in the diagram.", "es": "Selecciona un nodo en el diagrama." },
+        "noSelection.text": { "en": "Select a data view from the list.", "es": "Selecciona una vista de datos de la lista." },
+        "retrieval.cancelled.text": { "en": "Loading data views was cancelled.", "es": "Se canceló la carga de las vistas de datos." },
+        "retrieval.retry.label": { "en": "Retry", "es": "Reintentar" },
+        "view.diagram.label": { "en": "Diagram", "es": "Diagrama" },
+        "view.list.label": { "en": "List", "es": "Lista" },
+        "views.aria": { "en": "Ways to view data views", "es": "Formas de ver las vistas de datos" }
+    }
+}

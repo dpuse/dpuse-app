@@ -5,6 +5,9 @@
 import type { ConnectionConfig, ConnectionNodeConfig, ConnectorItemTypeId, DataViewConfig, LocaleId, LocalisedConfig } from '@dpuse/dpuse-shared';
 import { constructConnectorCategoryConfig, constructConnectorItemTypeConfig, getComponentStatus, localiseConfig } from '@dpuse/dpuse-shared';
 
+// ── Local Framework
+import { findConnectionLocalisedConfig } from '@/state/configs';
+
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 type DataViewProgress = Pick<DataViewConfig, 'connectionNodeConfig'>;
@@ -54,6 +57,13 @@ export function constructDataViewConnection(connectionLocalisedConfig: Localised
         status: connectorConfig.statusId ? getComponentStatus(connectorConfig.statusId, localeId) : undefined,
         version: connectorConfig.version
     };
+}
+
+// The connection behind a data view, as its card and its detail panel both show it. Undefined until a connection is
+// chosen, or when the chosen one has gone.
+export function findDataViewConnection(dataViewConfig: Pick<DataViewConfig, 'connectionId'>, localeId: LocaleId): DataViewConnection | undefined {
+    const connectionLocalisedConfig = findConnectionLocalisedConfig(dataViewConfig.connectionId);
+    return connectionLocalisedConfig ? constructDataViewConnection(connectionLocalisedConfig, localeId) : undefined;
 }
 
 // Exploring is left out: it never has to be finished, so it is never outstanding. The audit is optional. The connection is always done, because

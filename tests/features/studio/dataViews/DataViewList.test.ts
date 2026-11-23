@@ -1,244 +1,157 @@
 // ── External Dependencies & Registrations
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMemoryHistory, createRouter, type Router } from 'vue-router';
-import { defineComponent, h, type PropType, type SetupContext } from 'vue';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { h, type PropType, type SetupContext, shallowRef, watchEffect } from 'vue';
 import { mount, type VueWrapper } from '@vue/test-utils';
 
 // ── DPUse Framework
 import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { TEXT as CONFIRM_DIALOG_TEXT } from '@/components/ui/dialog/ConfirmDialog_.json';
-import { TEXT as DATA_VIEW_LIST_TEXT } from '@/features/studio/dataViews/DataViewList_.json';
-import { isDataViewLoaded } from '@/features/studio/dataViews/_dataViewStore';
-import { raiseAppFailure } from '@/state/errors';
+import type { DataSource } from '@/composables/useDataWindow';
+import DataViewList from '@/features/studio/dataViews/DataViewList.vue';
 import { settle } from '~/tests/support/settle';
 import { t } from '@/state/locale';
+import { TEXT } from '@/features/studio/dataViews/DataViewList_.json';
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
 
-vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({ isDataViewLoaded: vi.fn() }));
-
-vi.mock('@/state/errors', async (importOriginal) => ({ ...(await importOriginal<object>()), raiseAppFailure: vi.fn() }));
-
-// The list reads its data views and deletes them through these hooks, so the spec drives them directly: the refs below
-// are the query and the mutation, and each test moves them the way a real delete would.
-vi.mock('@/features/studio/dataViews/_dataViews', async () => {
-    const { ref } = await import('vue');
-    const state = {
-        dataViewConfigs: ref<DataViewConfig[]>([]),
-        deleteIsPending: ref(false),
-        deleteDataView: vi.fn<(id: string) => Promise<void>>()
-    };
-    return {
-        NEW_DATA_VIEW_ID: 'new',
-        cancelDataViewRetrieval: vi.fn(),
-        useDataViews: (): object => ({
-            data: state.dataViewConfigs,
-            error: ref(null),
-            isError: ref(false),
-            isFetching: ref(false),
-            isSuccess: ref(true),
-            refetch: vi.fn()
-        }),
-        useDeleteDataView: (): object => ({ isPending: state.deleteIsPending, mutateAsync: state.deleteDataView }),
-        stateForTest: state
-    };
-});
-
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-interface StateForTest {
-    dataViewConfigs: { value: DataViewConfig[] };
-    deleteIsPending: { value: boolean };
-    deleteDataView: ReturnType<typeof vi.fn<(id: string) => Promise<void>>>;
-}
+type DataViewDataSource = DataSource<LocalisedConfig<DataViewConfig>>;
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The grid needs a measured layout that jsdom cannot give, so this stand-in only shows the selected data view's detail
-// and its Open button.
-const GridDetailPanelStub = {
-    props: { selectedItem: { type: Object as PropType<LocalisedConfig<DataViewConfig>>, default: undefined } },
-    setup(properties: { selectedItem?: LocalisedConfig<DataViewConfig> }, { slots }: SetupContext) {
+const DATA_VIEW_LOCALISED_CONFIGS = [
+    { id: 'a', label: 'Sales' },
+    { id: 'b', label: 'Stock' }
+] as LocalisedConfig<DataViewConfig>[];
+
+// The grid needs a measured layout that jsdom cannot give, so this stand-in shows every row the list hands it, and the
+// list's slow-retrieval notice while the row count is unknown, as the grid does.
+const GridStub = {
+    props: { dataSource: { type: Object as PropType<DataViewDataSource>, default: undefined } },
+    setup(properties: { dataSource?: DataViewDataSource }, { slots }: SetupContext) {
+        const rows = shallowRef<LocalisedConfig<DataViewConfig>[]>([]);
+        watchEffect(() => {
+            const { dataSource } = properties;
+            if (dataSource == null) return;
+            if ('rows' in dataSource) rows.value = dataSource.rows;
+            else void dataSource.getRows(0, dataSource.rowCount ?? 0).then((result) => (rows.value = result.rows));
+        });
         return (): ReturnType<typeof h> =>
-            h(
-                'div',
-                properties.selectedItem
-                    ? [slots.detail?.({ item: properties.selectedItem, close: vi.fn() }), slots['detail-action']?.({ item: properties.selectedItem })]
-                    : []
-            );
+            h('div', { 'data-row-count': String(properties.dataSource?.rowCount) }, [
+                properties.dataSource?.rowCount === undefined ? slots.busy?.() : undefined,
+                ...rows.value.map((item) => slots.default?.({ item }))
+            ]);
     }
 };
 
-// The detail panel stands in as its Delete button, which is all the list reads from it.
-const DataViewPanelStub = defineComponent({
-    props: { isDeleting: { type: Boolean, default: false } },
-    emits: ['delete'],
-    setup(properties: { isDeleting: boolean }, { emit }: SetupContext<['delete']>) {
+// The card has its own look, so it stands in as a button to select it and a button to open it.
+const DataViewCardStub = {
+    props: {
+        dataViewLocalisedConfig: { type: Object as PropType<LocalisedConfig<DataViewConfig>>, default: undefined },
+        isInert: Boolean,
+        selected: Boolean
+    },
+    emits: ['click', 'open'],
+    setup(properties: { dataViewLocalisedConfig?: LocalisedConfig<DataViewConfig>; isInert?: boolean; selected?: boolean }, { emit }: SetupContext<['click', 'open']>) {
         return (): ReturnType<typeof h> =>
-            h(
-                'button',
-                {
-                    'data-test': 'delete',
-                    disabled: properties.isDeleting,
+            h('div', { 'data-card': properties.dataViewLocalisedConfig?.id, 'data-inert': String(properties.isInert), 'data-selected': String(properties.selected) }, [
+                h('button', {
+                    'data-test': 'select',
                     onClick: () => {
-                        emit('delete');
+                        emit('click');
                     }
-                },
-                'Delete Data View'
-            );
+                }),
+                h('button', {
+                    'data-test': 'open',
+                    onClick: () => {
+                        emit('open');
+                    }
+                })
+            ]);
     }
-});
+};
+
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const wrappers: VueWrapper[] = [];
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-describe('data view list deletion', () => {
-    beforeEach(async () => {
-        const state = await getState();
-        state.dataViewConfigs.value = [buildDataView('a', 'Sales'), buildDataView('b', 'Stock')];
-        state.deleteIsPending.value = false;
-        state.deleteDataView.mockReset();
-        vi.mocked(raiseAppFailure).mockClear();
-        document.body.replaceChildren();
+describe('data view list', () => {
+    afterEach(() => {
+        for (const wrapper of wrappers.splice(0)) wrapper.unmount();
     });
 
-    it('deletes nothing when the user cancels', async () => {
-        const state = await getState();
-        const router = await buildRouter();
-        const wrapper = await mountList(router);
+    it('shows a card for every data view once retrieval has settled', async () => {
+        const wrapper = await mountList({});
 
-        await wrapper.get('[data-test="delete"]').trigger('click');
-        await settle();
-        findDialogButton(t(CONFIRM_DIALOG_TEXT, 'cancel.label')).click();
-        await settle();
-
-        expect(state.deleteDataView).not.toHaveBeenCalled();
-        expect(router.currentRoute.value.params.dataViewId).toBe('a');
-        wrapper.unmount();
+        expect(wrapper.findAll('[data-card]').map((card) => card.attributes('data-card'))).toStrictEqual(['a', 'b']);
     });
 
-    it('deletes the selected data view, clears it from the URL and moves focus to the message', async () => {
-        const state = await getState();
-        // The list drops the data view as soon as the delete resolves, as the cache update does.
-        state.deleteDataView.mockImplementation((id) => {
-            state.dataViewConfigs.value = state.dataViewConfigs.value.filter((config) => config.id !== id);
-            return Promise.resolve();
-        });
-        const router = await buildRouter();
-        const wrapper = await mountList(router);
+    it('keeps the list busy, with no row count, until retrieval settles', async () => {
+        const wrapper = await mountList({ retrievalIsSettled: false });
 
-        await wrapper.get('[data-test="delete"]').trigger('click');
-        await settle();
-        findDialogButton(t(DATA_VIEW_LIST_TEXT, 'delete.confirm.label')).click();
-        await settle();
-
-        expect(state.deleteDataView).toHaveBeenCalledWith('a');
-        expect(router.currentRoute.value.params.dataViewId).toBeUndefined();
-        expect(document.activeElement?.textContent).toBe(t(DATA_VIEW_LIST_TEXT, 'delete.done.text', { name: 'Sales' }));
-        wrapper.unmount();
+        expect(wrapper.attributes('data-row-count')).toBe('undefined');
+        expect(wrapper.find('[role="status"]').exists()).toBe(false);
     });
 
-    it('reports a failed delete and keeps the data view selected', async () => {
-        const state = await getState();
-        state.deleteDataView.mockRejectedValue(new Error('Store unavailable.'));
-        const router = await buildRouter();
-        const wrapper = await mountList(router);
+    it('says a slow retrieval is slow, and offers to cancel it or try again', async () => {
+        const wrapper = await mountList({ retrievalIsSettled: false, retrievalIsSlow: true });
 
-        await wrapper.get('[data-test="delete"]').trigger('click');
-        await settle();
-        findDialogButton(t(DATA_VIEW_LIST_TEXT, 'delete.confirm.label')).click();
-        await settle();
+        expect(wrapper.get('[role="status"]').text()).toBe(t(TEXT, 'retrieval.slow.text'));
+        const buttons = wrapper.findAll('button');
+        expect(buttons.map((button) => button.text())).toStrictEqual([t(TEXT, 'retrieval.cancel.label'), t(TEXT, 'retrieval.retry.label')]);
 
-        expect(raiseAppFailure).toHaveBeenCalledOnce();
-        expect(router.currentRoute.value.params.dataViewId).toBe('a');
-        wrapper.unmount();
+        await buttons[0]?.trigger('click');
+        await buttons[1]?.trigger('click');
+
+        expect(wrapper.emitted('cancelRetrieval')).toHaveLength(1);
+        expect(wrapper.emitted('retryRetrieval')).toHaveLength(1);
     });
 
-    it('shows the Delete button as busy while a delete is under way', async () => {
-        const state = await getState();
-        const router = await buildRouter();
-        const wrapper = await mountList(router);
+    it('marks the selected card, and makes it inert only when its detail shows beside the list', async () => {
+        const wrapper = await mountList({ selectedDataViewId: 'b' });
+        const card = wrapper.get('[data-card="b"]');
 
-        state.deleteIsPending.value = true;
-        await settle();
+        expect(card.attributes('data-selected')).toBe('true');
+        expect(card.attributes('data-inert')).toBe('false');
+        expect(wrapper.get('[data-card="a"]').attributes('data-selected')).toBe('false');
 
-        expect(wrapper.get('[data-test="delete"]').attributes('disabled')).toBeDefined();
-        wrapper.unmount();
-    });
-});
+        await wrapper.setProps({ isSplit: true });
 
-describe('opening a data view', () => {
-    async function openSelectedDataView(connectionNodeConfig: DataViewConfig['connectionNodeConfig'], isLoaded: boolean): Promise<unknown> {
-        const state = await getState();
-        state.dataViewConfigs.value = [{ ...buildDataView('a', 'Sales'), connectionNodeConfig }];
-        vi.mocked(isDataViewLoaded).mockReturnValue(isLoaded);
-        const router = await buildRouter();
-        const wrapper = await mountList(router);
-
-        const openButton = wrapper.findAll('button').find((candidate) => candidate.text() === t(DATA_VIEW_LIST_TEXT, 'detail.open.label'));
-        await openButton?.trigger('click');
-        await settle();
-
-        const routeName = router.currentRoute.value.name; // Taken before the unmount, which resets the router.
-        wrapper.unmount();
-        return routeName;
-    }
-
-    const itemConfig = { name: 'sales' } as DataViewConfig['connectionNodeConfig'];
-
-    it('opens at Explore Data once the records are loaded', async () => {
-        expect(await openSelectedDataView(itemConfig, true)).toBe('data');
+        expect(card.attributes('data-inert')).toBe('true');
+        expect(wrapper.get('[data-card="a"]').attributes('data-inert')).toBe('false');
     });
 
-    it('opens at the item while its records are not loaded', async () => {
-        expect(await openSelectedDataView(itemConfig, false)).toBe('item');
-    });
+    it('hands the data view of a clicked or opened card to its parent', async () => {
+        const wrapper = await mountList({});
+        const card = wrapper.get('[data-card="b"]');
 
-    it('opens at the connection of a data view with no item chosen', async () => {
-        expect(await openSelectedDataView(undefined, false)).toBe('connection');
+        await card.get('[data-test="select"]').trigger('click');
+        await card.get('[data-test="open"]').trigger('click');
+
+        expect(wrapper.emitted('select')).toStrictEqual([[DATA_VIEW_LOCALISED_CONFIGS[1]]]);
+        expect(wrapper.emitted('open')).toStrictEqual([[DATA_VIEW_LOCALISED_CONFIGS[1]]]);
     });
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function buildDataView(id: string, label: string): DataViewConfig {
-    return { id, label: { en: label }, description: {}, icon: null, iconDark: null, typeId: 'dataView' } as DataViewConfig;
-}
-
-async function getState(): Promise<StateForTest> {
-    const module_ = (await import('@/features/studio/dataViews/_dataViews')) as unknown as { stateForTest: StateForTest };
-    return module_.stateForTest;
-}
-
-async function buildRouter(): Promise<Router> {
-    const component = { render: (): null => null };
-    const router = createRouter({
-        history: createMemoryHistory(),
-        routes: [
-            { name: 'dataViews', path: '/dataViews/:dataViewId?', component },
-            { name: 'connection', path: '/dataViews/:dataViewId/connections', component },
-            { name: 'item', path: '/dataViews/:dataViewId/items', component },
-            { name: 'data', path: '/dataViews/:dataViewId/data', component }
-        ]
+async function mountList(overrides: { isSplit?: boolean; retrievalIsSettled?: boolean; retrievalIsSlow?: boolean; selectedDataViewId?: string }): Promise<VueWrapper> {
+    const wrapper = mount(DataViewList, {
+        props: {
+            dataViewLocalisedConfigs: DATA_VIEW_LOCALISED_CONFIGS,
+            isSplit: false,
+            retrievalIsSettled: true,
+            retrievalIsSlow: false,
+            selectedDataViewId: undefined,
+            ...overrides
+        },
+        global: { stubs: { DataViewCard: DataViewCardStub, Grid: GridStub } }
     });
-    await router.push('/dataViews/a');
-    await router.isReady();
-    return router;
-}
-
-async function mountList(router: Router): Promise<VueWrapper> {
-    const listModule = await import('@/features/studio/dataViews/DataViewList.vue');
-    const wrapper = mount(listModule.default, {
-        attachTo: document.body, // Focus only moves between elements in the document.
-        global: { plugins: [router], stubs: { DataViewPanel: DataViewPanelStub, GridDetailPanel: GridDetailPanelStub } }
-    });
+    wrappers.push(wrapper);
     await settle();
     return wrapper;
-}
-
-function findDialogButton(label: string): HTMLButtonElement {
-    const button = [...document.querySelectorAll<HTMLButtonElement>('[data-region="ConfirmDialog"] button')].find((candidate) => candidate.textContent.trim() === label);
-    if (!button) throw new Error(`The confirm dialog has no '${label}' button.`);
-    return button;
 }

@@ -264,10 +264,12 @@ function handleTaskCompleted(taskLocalisedConfig: LocalisedConfig<TaskConfig>): 
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Saving a new data view moves from 'new' to its real id, which is still the same data view.
+// Saving a new data view moves from 'new' to its real id, which is still the same data view. The diagram starts a new
+// data view on the list, with its connection already chosen, and then opens it: that draft is being entered, not left.
 async function canLeaveDataView(to: RouteLocationNormalized): Promise<boolean> {
     const isSameDataView = String(to.params.dataViewId) === String(route.params.dataViewId) || String(to.params.dataViewId) === dataViewConfig.value?.id;
-    if (!dataViewHasChanges.value || (isSameDataView && TASK_CONFIGS.some((config) => config.id === to.name))) return true;
+    const isEnteringNewDataView = to.params.dataViewId === NEW_DATA_VIEW_ID && !routeIsTask.value;
+    if (isEnteringNewDataView || !dataViewHasChanges.value || (isSameDataView && TASK_CONFIGS.some((config) => config.id === to.name))) return true;
 
     discardIsForLeaving.value = true;
     const { isCanceled } = await revealDiscardConfirm();
@@ -367,13 +369,7 @@ function constructItemTaskLabels(taskId: string): Partial<Pick<LocalisedConfig<T
             data-region="DataViewActions"
         >
             <!-- '-ml-px' moves the first segment's dividing line under the pill's border, whichever segment is first. -->
-            <div
-                :aria-label="t(TEXT, 'actions.aria')"
-                class="pointer-events-auto h-10 overflow-hidden shadow-md"
-                :class="PILL_CLASSES"
-                data-region="DataViewPill"
-                role="group"
-            >
+            <div :aria-label="t(TEXT, 'actions.aria')" class="pointer-events-auto h-10 overflow-hidden shadow-md" :class="PILL_CLASSES" data-region="DataViewPill" role="group">
                 <div class="-ml-px flex h-full">
                     <div :id="DATA_VIEW_SCROLL_ACTIONS_ID" class="contents" />
                     <div :id="DATA_VIEW_ADD_ACTION_ID" class="contents" />

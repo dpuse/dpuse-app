@@ -33,8 +33,9 @@ const COLLAPSED_DATA_VIEW_COUNT = 10; // Data views the Used By list shows until
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { connectionLocalisedConfig, scrollEndButtonsAreShown } = defineProps<{
+const { connectionLocalisedConfig, hidesRemoval, scrollEndButtonsAreShown } = defineProps<{
     connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>;
+    hidesRemoval?: boolean; // Leaves out Delete and Hide, where the screen showing the panel has no way to confirm them.
     scrollEndButtonsAreShown: boolean; // False while the list covers this panel on a narrow screen, because the buttons sit outside it.
 }>();
 
@@ -174,7 +175,8 @@ async function testAuth(): Promise<void> {
                 <!-- Last, so a destructive action is never one slip away from an everyday one, as in the data view document. A
                      connection that needs no sign-in is hidden rather than deleted, in the warning colour, because it can be
                      shown again. -->
-                <StudioDocumentSection v-if="connectionIsHideable" :title="t(TEXT, 'hide.title')">
+                <template v-if="hidesRemoval" />
+                <StudioDocumentSection v-else-if="connectionIsHideable" :title="t(TEXT, 'hide.title')">
                     <p>{{ t(TEXT, 'hide.text') }}</p>
                     <RectangleButton variant="guarded" @click="$emit('hide')">{{ t(TEXT, 'hide.label') }}</RectangleButton>
                 </StudioDocumentSection>
