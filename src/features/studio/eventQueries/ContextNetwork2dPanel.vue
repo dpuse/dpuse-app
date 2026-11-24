@@ -16,7 +16,7 @@ import ContextNetworkPanel from './ContextNetworkPanel.vue';
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // TODO: Use 'NetworkDiagramOptions' alone once the app takes the d3 tool release whose types include these options.
-type DiagramOptions = NetworkDiagramOptions & { compactWidth?: number; maximumFitScale?: number; maximumLabelLength?: number };
+type DiagramOptions = NetworkDiagramOptions & { compactWidth?: number; disablesNodeDrag?: boolean; disablesPointerZoom?: boolean; maximumFitScale?: number; maximumLabelLength?: number };
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -27,6 +27,8 @@ type DiagramOptions = NetworkDiagramOptions & { compactWidth?: number; maximumFi
 const DIAGRAM_OPTIONS = {
     chargeStrength: -400,
     compactWidth: 480, // On a pane as narrow as a phone, labels go below their nodes, which leaves more of the width to the nodes.
+    disablesNodeDrag: true,
+    disablesPointerZoom: true, // The wheel scrolls the page past the diagram.
     fitsView: true,
     focusRingColor: 'var(--color-focus-ring)',
     growsActiveNodes: false,

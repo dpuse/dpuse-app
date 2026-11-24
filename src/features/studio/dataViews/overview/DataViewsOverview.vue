@@ -20,12 +20,14 @@ import { TEXT } from './DataViewsOverview_.json';
 import { useQueryFailure } from '@/services/queryClient';
 import { useSetupOptions } from '@/features/studio/setup/useSetupOptions';
 import { assertDefined, defineLazyComponent } from '@/utilities/index.ts';
-import { cancelDataViewRetrieval, constructDataViewsViewRoute, constructNewDataViewConfig, NEW_DATA_VIEW_ID, useDataViews, useDeleteDataView } from '@/features/studio/dataViews/_state/dataViews';
+import { cancelDataViewRetrieval, constructDataViewsViewRoute, constructNewDataViewConfig, type DataViewsViewId, NEW_DATA_VIEW_ID, useDataViews, useDeleteDataView } from '@/features/studio/dataViews/_state/dataViews';
 import { findDataViewConnection, resolveCurrentDataViewStepId } from '@/features/studio/dataViews/_state/dataViewSummary';
 import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
 import { localeId, t } from '@/state/locale';
+import { PRESS_CLASSES, SEGMENT_SELECTED_CLASSES, UNSELECTED_CLASSES } from '@/components/ui/action/action';
 
 // ── Static Components
+import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import DataViewDetail from './DataViewDetail.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
@@ -52,6 +54,10 @@ type DetailItem =
 
 const CONNECTORS_SETUP_OPTION_ID = 'connectors'; // The Setup page a connector's panel belongs to, which the panel names above its title.
 const SLOW_RETRIEVAL_MS = 2000; // Long enough that a normal load never shows the slow-load message.
+const VIEW_CONFIGS = [
+    { id: 'list', labelKey: 'view.list.label' },
+    { id: 'diagram', labelKey: 'view.diagram.label' }
+] as const satisfies { id: DataViewsViewId; labelKey: string }[];
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -94,7 +100,7 @@ const deleteStatusElement = useTemplateRef<HTMLParagraphElement>('deleteStatus')
 // ── Views ─ Two ways round the same data views: a diagram of the connections they come from, or the list. Each is a
 // route of its own, shown in this panel's 'RouterView', and they share the one detail panel. The selected data view
 // stays selected across a switch, because both routes carry its id.
-const currentViewId = computed(() => (route.name === 'dataViewList' ? 'list' : 'diagram'));
+const currentViewId = computed((): DataViewsViewId => (route.name === 'dataViewList' ? 'list' : 'diagram'));
 const viewIsLoading = computed(() => navigationPendingDepth.value === 2); // The overview's own 'RouterView' is two levels in, so the overview shows the spinner while a view loads.
 
 // ── Data Views
@@ -114,6 +120,15 @@ const dataViewRetrievalShowsCancelled = computed(() => dataViewRetrievalIsCancel
 // has gone.
 const selectedDataViewLocalisedConfig = computed(() => dataViewLocalisedConfigs.value.find((config) => config.id === route.params.dataViewId));
 const isSelectedDataViewDetailClosed = (history.state as { detailIsClosed?: boolean } | null)?.detailIsClosed === true; // Set by the header's link back from a task, which returns to the list rather than the data view's detail.
+
+// ── View Switch ─ Each view opens with the selected data view still selected.
+const viewItems = computed(() =>
+    VIEW_CONFIGS.map((config) => ({
+        id: config.id,
+        label: t(TEXT, config.labelKey),
+        to: constructDataViewsViewRoute(config.id, route.query, { dataView: selectedDataViewLocalisedConfig.value })
+    }))
+);
 
 // ── Detail ─ What the one detail panel shows: the selected data view, or else, in the diagram, the connector or
 // connection it has been drilled down to. The list selects only data views. The connector behind the selected data
@@ -250,6 +265,23 @@ function updateDataViewIdParameter(dataViewId?: string): void {
              beside them serves both, so it stays as it is when the view changes. -->
         <MasterDetailPanel v-else class="min-h-0 flex-1" :is-detail-initially-closed="isSelectedDataViewDetailClosed" max-detail-width="65ch" :selected-item="selectedDetailItem">
             <template #master="{ isSplit, openDetail }">
+                <!-- View Switch ─ Above both views, so it stays put while they swap. It sits at the right, where the
+                     diagram's zoom buttons fall just below it. -->
+                <nav :aria-label="t(TEXT, 'views.aria')" class="flex flex-none justify-end px-2 pt-2" data-region="DataViewsViewSwitch">
+                    <div class="flex items-center gap-x-1 rounded-full bg-black/4 p-1 dark:bg-white/6">
+                        <ActionWrapper
+                            v-for="item in viewItems"
+                            :key="item.id"
+                            :aria-current="item.id === currentViewId ? 'page' : undefined"
+                            class="rounded-full px-3 py-1 text-sm"
+                            :class="[PRESS_CLASSES, item.id === currentViewId ? SEGMENT_SELECTED_CLASSES : UNSELECTED_CLASSES]"
+                            :to="item.to"
+                        >
+                            {{ item.label }}
+                        </ActionWrapper>
+                    </div>
+                </nav>
+
                 <!-- The list and the diagram take different props and events, so each is rendered by itself. -->
                 <RouterViewTransition v-slot="{ component }" class="min-h-0 flex-1" :is-loading="viewIsLoading">
                     <component

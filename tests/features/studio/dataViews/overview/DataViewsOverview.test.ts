@@ -245,6 +245,18 @@ describe('data views overview views', () => {
         wrapper.unmount();
     });
 
+    it('marks the view on screen in the switch, and links to the other view with the same data view selected', async () => {
+        const router = await buildRouter('/dataViews/list/a');
+        const wrapper = await mountPanel(router);
+        const links = wrapper.findAll('[data-region="DataViewsViewSwitch"] a');
+
+        expect(links.map((link) => [link.text(), link.attributes('aria-current'), link.attributes('href')])).toEqual([
+            [t(OVERVIEW_TEXT, 'view.list.label'), 'page', '/dataViews/list/a'],
+            [t(OVERVIEW_TEXT, 'view.diagram.label'), undefined, SALES_DIAGRAM_PATH]
+        ]);
+        wrapper.unmount();
+    });
+
     it('keeps the one detail panel as it is when the view changes', async () => {
         const router = await buildRouter(SALES_DIAGRAM_PATH);
         const wrapper = await mountPanel(router);

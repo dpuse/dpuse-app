@@ -24,7 +24,7 @@ import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 
 // TODO: Use 'NetworkDiagramOptions' and 'D3NetworkView' alone once the app takes the d3 tool release whose types include
 // these options and methods.
-type DiagramOptions = NetworkDiagramOptions & { compactWidth?: number; fitAlignmentId?: 'middle' | 'top'; maximumFitScale?: number; maximumLabelLength?: number };
+type DiagramOptions = NetworkDiagramOptions & { compactWidth?: number; disablesNodeDrag?: boolean; disablesPointerZoom?: boolean; fitAlignmentId?: 'middle' | 'top'; maximumFitScale?: number; maximumLabelLength?: number };
 type DiagramView = D3NetworkView & { fitView?: () => void; zoomBy?: (factor: number) => void };
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -40,6 +40,8 @@ const DIAGRAM_OPTIONS = {
     compactWidth: 480, // On a pane as narrow as a phone, labels go below their nodes, which leaves more of the width to the nodes.
     actionNodeColors: { border: 'var(--color-pill-border)', fill: 'var(--color-pill)', fillHovered: 'var(--color-pill-hover)', symbol: 'var(--color-selected-text)' },
     chargeStrength: -400,
+    disablesNodeDrag: true,
+    disablesPointerZoom: true, // The wheel scrolls the page past the diagram. The zoom buttons still zoom.
     fitAlignmentId: 'top', // A small diagram stays near the headings and the detail text, rather than floating in the middle of a tall pane.
     fitsView: true,
     focusRingColor: 'var(--color-focus-ring)',

@@ -96,15 +96,14 @@ const trail = computed((): TaskTrailContent => {
     return constructDataViewTrail(trailConnectionLocalisedConfig.value, savedItemConfig, routeIsTask.value ? itemStepTrail.value : undefined, labels);
 });
 
-// ── Views ─ The diagram and the list of data views. Each opens with the open or selected data view selected.
+// ── Views ─ The diagram and the list of data views share the one Overview tab, which switches between them. The tab
+// opens the one last shown, with the open or selected data view selected.
 const currentViewId = computed((): DataViewsViewId | undefined => {
     if (route.name === 'dataViewDiagram') return 'diagram';
     return route.name === 'dataViewList' ? 'list' : undefined;
 });
-const viewItems = computed((): TaskLayoutView[] => [
-    { id: 'diagram', label: t(TEXT, 'view.diagram.label'), to: constructOpenDataViewRoute('diagram') },
-    { id: 'list', label: t(TEXT, 'view.list.label'), to: constructOpenDataViewRoute('list') }
-]);
+const currentTabId = computed(() => (currentViewId.value == null ? undefined : 'overview'));
+const viewItems = computed((): TaskLayoutView[] => [{ id: 'overview', label: t(TEXT, 'view.overview.label'), to: constructOpenDataViewRoute(lastDataViewsViewId.value) }]);
 
 // ── Views and Task Panel ─ The layout's own 'RouterView' sits one level in, so the layout shows the spinner while the
 // diagram and list or a task panel loads. 'App.vue' shows the spinner for the layout itself, which keeps the header and
@@ -157,7 +156,7 @@ function constructOpenDataViewRoute(viewId: DataViewsViewId): RouteLocationNamed
 <template>
     <TaskLayout
         :current-task-id="currentTaskLocalisedConfig?.id"
-        :current-view-id="currentViewId"
+        :current-view-id="currentTabId"
         :overline="headerOverline"
         :task-items="taskBarLocalisedItems"
         :tasks-are-pending="tasksArePending"
