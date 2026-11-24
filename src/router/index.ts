@@ -13,7 +13,7 @@ import { addDevelopmentFaults, type AsyncPanelSimulation, VISIBLE_DELAY_MS } fro
 import { canReloadForNewAppVersion, reloadForNewAppVersion } from '@/state/appVersion';
 
 // ── Static Components
-import StudioHomePanel from '@/features/studio/StudioHomePanel.vue'; // Static, so it downloads with the entry chunk. vue-router fetches the first screen on every start, even when only the assistant shows.
+import StudioHome from '@/features/studio/StudioHome.vue'; // Static, so it downloads with the entry chunk. vue-router fetches the first screen on every start, even when only the assistant shows.
 
 // ── Dynamic Components
 // Every loader is wrapped so that a failed chunk can be reported by name, and so that loading one raises the spinner.
@@ -33,7 +33,7 @@ const EventQueryList = defineLazyLoader('EventQueryList', 1, () => import('@/fea
 const PresentationsPanel = defineLazyLoader('PresentationsPanel', 0, () => import('@/features/studio/presentations/PresentationsPanel.vue'));
 const DataAppsPanel = defineLazyLoader('DataAppsPanel', 0, () => import('@/features/studio/dataApps/DataAppsPanel.vue'));
 const SetupLayout = defineLazyLoader('SetupLayout', 0, () => import('@/features/studio/setup/SetupLayout.vue'));
-const SetupHomePanel = defineLazyLoader('SetupHomePanel', 1, () => import('@/features/studio/setup/SetupHomePanel.vue'));
+const SetupHome = defineLazyLoader('SetupHome', 1, () => import('@/features/studio/setup/SetupHome.vue'));
 const ContextModelList = defineLazyLoader('ContextModelList', 1, () => import('@/features/studio/setup/context/ContextModelList.vue'));
 const PluginList = defineLazyLoader('PluginList', 1, () => import('@/features/studio/setup/plugins/PluginList.vue'));
 const ThemePanel = import.meta.env.DEV ? defineLazyLoader('ThemePanel', 0, () => import('@/features/studio/theme/ThemePanel.vue')) : undefined; // Development only. Production builds drop the branch, so the page is never built.
@@ -61,7 +61,7 @@ export const APP_ROUTES: RouteRecordRaw[] = [
     {
         path: '/',
         children: [
-            { name: 'studio', path: '', component: StudioHomePanel },
+            { name: 'studio', path: '', component: StudioHome },
             {
                 path: 'dataViews',
                 component: DataViewsLayout,
@@ -103,7 +103,7 @@ export const APP_ROUTES: RouteRecordRaw[] = [
                 path: 'setup',
                 component: SetupLayout,
                 children: [
-                    { name: 'setup', path: '', component: SetupHomePanel },
+                    { name: 'setup', path: '', component: SetupHome },
                     { name: 'connectors', path: 'connectors/:id?', component: PluginList },
                     { name: 'context', path: 'context/:id?', component: ContextModelList },
                     { name: 'presenters', path: 'presenters/:id?', component: PluginList },

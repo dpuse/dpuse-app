@@ -131,7 +131,7 @@ Name a component for what it **is**, not for an architectural role. Plain nouns 
 - **Layout** — arranges or frames other components, through a `<slot>` or a nested `<RouterView>`, and has no
   content of its own beyond a header. `StudioLayout`, `DataViewsLayout`, `SetupLayout`, `AssistantLayout`.
 - **Panel** — content with no more specific noun: a whole page the router shows, an account section.
-  `StudioHomePanel`, `SelectItemPanel`, `ExploreDataPanel`.
+  `PresentationsPanel`, `SelectItemPanel`, `ExploreDataPanel`.
 - **Detail** — the area beside a list or diagram that shows the selected item. `DataViewDetail`, `ColumnDetail`.
   Singular, as in `MasterDetailPanel`: never `Details`, and never `DetailPanel`.
 

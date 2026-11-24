@@ -6,7 +6,7 @@ import { computed, useId } from 'vue';
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
-import { TEXT } from './StudioHomePanel_.json';
+import { TEXT } from './StudioHome_.json';
 import { useStudioOptions } from '@/features/studio/options/useStudioOptions.ts';
 
 // ── Static Components
