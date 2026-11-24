@@ -1,0 +1,211 @@
+/**
+ * Preview column rows tests.
+ */
+
+// Vendor dependencies.
+import { describe, expect, it } from 'vitest';
+
+// Framework dependencies.
+import type { ColumnAuditConfig } from '@dpuse/dpuse-shared';
+import type { ItemReading } from '@/features/studio/dataViews/_state/dataViewColumns';
+import {
+    constructColumnFacts,
+    constructColumnValueCounts,
+    constructPreviewColumnHeaders,
+    constructPreviewColumnIcons,
+    constructPreviewColumnRows,
+    countChosenTypeMisfits,
+    doesEveryColumnValueLoad,
+    PREVIEW_COLUMN_KEYS
+} from '@/features/studio/dataViews/_columns/previewColumnRows';
+import { DATA_SUBTYPE_ICONS, DATA_TYPE_ICONS, getColumnTypeIcon } from '@/features/studio/dataViews/_columns/columnTypeIcons';
+
+function buildItemReading(hasHeaders: boolean, columnConfig: Partial<ColumnAuditConfig>): ItemReading {
+    const defaultColumnConfig = { dataTypeId: 'string', inferenceCounts: {}, label: { en: 'id' }, leadingInferenceCounts: {} };
+    return { columnConfigs: [{ ...defaultColumnConfig, ...columnConfig }], hasHeaders } as unknown as ItemReading;
+}
+
+describe('constructPreviewColumnHeaders', () => {
+    it('names every column of a row', () => {
+        const headerKeys = Object.keys(constructPreviewColumnHeaders());
+
+        expect(new Set(headerKeys)).toEqual(new Set(PREVIEW_COLUMN_KEYS));
+    });
+});
+
+describe('constructPreviewColumnIcons', () => {
+    it('gives a column its type and subtype icons', () => {
+        const itemReading = buildItemReading(false, { dataSubtypeId: 'integer', dataTypeId: 'numeric' });
+
+        expect(constructPreviewColumnIcons(itemReading)[0]).toEqual({ dataSubtypeIcon: DATA_SUBTYPE_ICONS.integer, dataTypeIcon: DATA_TYPE_ICONS.numeric });
+    });
+
+    it('shows no subtype icon for plain text, which has no subtype label', () => {
+        const itemReading = buildItemReading(false, { dataSubtypeId: 'plain' });
+
+        expect(constructPreviewColumnIcons(itemReading)[0]).toEqual({ dataSubtypeIcon: undefined, dataTypeIcon: DATA_TYPE_ICONS.string });
+    });
+});
+
+describe('getColumnTypeIcon', () => {
+    it('uses the subtype icon, or the type icon when there is no subtype', () => {
+        expect(getColumnTypeIcon({ dataSubtypeId: 'email', dataTypeId: 'string' })).toBe(DATA_SUBTYPE_ICONS.email);
+        expect(getColumnTypeIcon({ dataSubtypeId: undefined, dataTypeId: 'boolean' })).toBe(DATA_TYPE_ICONS.boolean);
+    });
+});
+
+describe('constructPreviewColumnRows', () => {
+    it('leaves the header out of the invalid count', () => {
+        const itemReading = buildItemReading(true, {
+            dataSubtypeId: 'integer',
+            dataTypeId: 'numeric',
+            inferenceCounts: { 'numeric.integer': 3, 'string.plain': 2 },
+            leadingInferenceCounts: { 'string.plain': 1 }
+        });
+
+        expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({ dataSubtypeLabel: 'Integer', dataTypeLabel: 'Number', label: 'id', invalidValueText: '1' });
+    });
+
+    it('shows no subtype for plain text, which fits every value', () => {
+        const itemReading = buildItemReading(false, { dataSubtypeId: 'plain', inferenceCounts: { 'numeric.integer': 1, 'string.plain': 1 } });
+
+        expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({ dataSubtypeLabel: '', dataTypeLabel: 'Text', label: 'id', invalidValueText: '0' });
+    });
+
+    it('shows every measured item', () => {
+        const itemReading = buildItemReading(false, {
+            dataTypeId: 'numeric',
+            decimalSeparatorId: ',',
+            validDistinctValueCount: 2,
+            validFormats: { '9999': 3, '9999,9': 5 },
+            validFrequentValues: { '7': 2 },
+            invalidValueCount: 1,
+            invalidValues: { none: 'string.plain' },
+            formatIssueIds: ['decimalSeparatorUnproven'],
+            hasMissingValues: true,
+            validIsUnique: false,
+            validMaxDecimals: 2,
+            validMaxWholeDigits: 2,
+            validMinDecimals: 2,
+            validMinWholeDigits: 1
+        });
+
+        expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({
+            formatText: '9999,9 (5), 9999 (3)',
+            uniqueText: 'No'
+        });
+    });
+
+    it('names a derived column as derived, because the item does not hold it', () => {
+        const itemReading = buildItemReading(false, { derivedFromColumnIndex: 0, label: { en: 'Amount currency' } });
+
+        expect(constructPreviewColumnRows(itemReading)[0]?.label).toBe('Amount currency (derived)');
+    });
+
+    it('keeps the counts in step with a type the user chose', () => {
+        const itemReading = buildItemReading(false, {
+            blankValueCount: 1,
+            dataTypeId: 'string',
+            emptyValueCount: 2,
+            inferenceCounts: { 'numeric.integer': 3, 'string.plain': 1 },
+            invalidValueCount: 1,
+            nullValueCount: 3,
+            validValueCount: 3
+        });
+
+        expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({
+            blankValueText: '1',
+            emptyValueText: '2',
+            invalidValueText: '0',
+            nullValueText: '3'
+        });
+    });
+
+    it('splits a column’s values by whether they fit its type, leaving out a header record', () => {
+        const itemReading = buildItemReading(true, {
+            blankValueCount: 1,
+            dataTypeId: 'numeric',
+            inferenceCounts: { 'numeric.integer': 4, 'string.plain': 3 },
+            emptyValueCount: 2,
+            leadingInferenceCounts: { 'string.plain': 1 },
+            nullValueCount: 3
+        });
+
+        expect(constructColumnValueCounts(itemReading)[0]).toEqual({ blankCount: 1, emptyCount: 2, invalidCount: 2, nullCount: 3, validCount: 4 });
+    });
+
+    it('shows no invalid count for a column with no sampled values', () => {
+        expect(constructPreviewColumnRows(buildItemReading(false, {}))[0]?.invalidValueText).toBe('');
+    });
+});
+
+describe('countChosenTypeMisfits', () => {
+    const inferenceCounts = { 'numeric.integer': 6, 'string.plain': 3 };
+    const detectedText = { dataSubtypeId: 'plain', dataTypeId: 'string' } as const;
+
+    it('counts the values that do not fit a chosen type, leaving out a header', () => {
+        const itemReading = buildItemReading(true, { dataSubtypeId: 'integer', dataTypeId: 'numeric', inferenceCounts, leadingInferenceCounts: { 'string.plain': 1 } });
+
+        expect(countChosenTypeMisfits(itemReading, 0, detectedText)).toBe(2);
+    });
+
+    it('counts none for the detected type, a text type or a column that is not there', () => {
+        const numericReading = buildItemReading(false, { dataSubtypeId: 'integer', dataTypeId: 'numeric', inferenceCounts });
+
+        expect(countChosenTypeMisfits(numericReading, 0, { dataSubtypeId: 'integer', dataTypeId: 'numeric' })).toBe(0);
+        expect(countChosenTypeMisfits(buildItemReading(false, { dataSubtypeId: 'email', dataTypeId: 'string', inferenceCounts }), 0, detectedText)).toBe(0);
+        expect(countChosenTypeMisfits(numericReading, 1, detectedText)).toBe(0);
+        expect(countChosenTypeMisfits(numericReading, 0, undefined)).toBe(0);
+    });
+});
+
+describe('doesEveryColumnValueLoad', () => {
+    const detectedText = { dataSubtypeId: 'plain', dataTypeId: 'string' } as const;
+
+    it('is true when every record has a value, and the type in use fits them all', () => {
+        const textReading = buildItemReading(false, { dataSubtypeId: 'plain', dataTypeId: 'string', inferenceCounts: { 'string.plain': 3 }, hasMissingValues: false });
+
+        expect(doesEveryColumnValueLoad(textReading, 0, detectedText)).toBe(true);
+        expect(doesEveryColumnValueLoad(buildItemReading(false, { dataTypeId: 'string', hasMissingValues: true }), 0, detectedText)).toBe(false);
+    });
+
+    it('is false when a chosen type leaves values that load empty', () => {
+        const itemReading = buildItemReading(false, { dataSubtypeId: 'integer', dataTypeId: 'numeric', inferenceCounts: { 'numeric.integer': 6, 'string.plain': 1 }, hasMissingValues: false });
+
+        expect(doesEveryColumnValueLoad(itemReading, 0, detectedText)).toBe(false);
+    });
+
+    it('is false when an invalid value loads empty, though invalid values are not missing ones', () => {
+        const itemReading = buildItemReading(false, { dataTypeId: 'string', hasMissingValues: false, invalidValueCount: 1 });
+
+        expect(doesEveryColumnValueLoad(itemReading, 0, detectedText)).toBe(false);
+    });
+});
+
+describe('constructColumnFacts', () => {
+    const detectedText = { dataSubtypeId: 'plain', dataTypeId: 'string' } as const;
+
+    it('settles nothing until the whole item is read', () => {
+        const itemReading = buildItemReading(false, { hasMissingValues: false, validIsUnique: true });
+
+        expect(constructColumnFacts(itemReading, 0, detectedText, false)).toEqual({ isKey: undefined, isMandatory: undefined, isUnique: undefined });
+    });
+
+    it('calls a unique column with every value present a key', () => {
+        const itemReading = buildItemReading(false, { hasMissingValues: false, validIsUnique: true });
+
+        expect(constructColumnFacts(itemReading, 0, detectedText, true)).toEqual({ isKey: true, isMandatory: true, isUnique: true });
+    });
+
+    it('keeps a column with an invalid value mandatory, but not a key, because the value loads empty', () => {
+        const itemReading = buildItemReading(false, { hasMissingValues: false, invalidValueCount: 1, validIsUnique: true });
+
+        expect(constructColumnFacts(itemReading, 0, detectedText, true)).toEqual({ isKey: false, isMandatory: true, isUnique: true });
+    });
+
+    it('keeps a column with missing values unique, but neither mandatory nor a key', () => {
+        const itemReading = buildItemReading(false, { hasMissingValues: true, validIsUnique: true });
+
+        expect(constructColumnFacts(itemReading, 0, detectedText, true)).toEqual({ isKey: false, isMandatory: false, isUnique: true });
+    });
+});

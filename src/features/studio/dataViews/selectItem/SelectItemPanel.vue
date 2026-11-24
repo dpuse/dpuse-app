@@ -91,16 +91,16 @@ import { applyPreviewHeaders } from './_previewHeaders';
 import { assertDefined } from '@/utilities/index.ts';
 import type { AuditChoice } from './AuditMenu.vue';
 import AuditMenu from './AuditMenu.vue';
-import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
+import { changeDataView } from '@/features/studio/dataViews/_state/dataViewDraft';
 import ColumnValueBar from './ColumnValueBar.vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import { establishEngineWorker } from '@/services/engine';
-import { getColumnTypeIcon } from '../_columnTypeIcons';
+import { getColumnTypeIcon } from '@/features/studio/dataViews/_columns/columnTypeIcons';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { renderMarkdown } from '@/services/useMarkedTool';
 import { TEXT } from './SelectItemPanel_.json';
 import { useItemAudit } from './useItemAudit';
-import { useItemStepTrail } from '../_itemStepTrail';
+import { useItemStepTrail } from '@/features/studio/dataViews/_state/itemStepTrail';
 import { type AppFailure, raiseFailure } from '@/state/errors';
 import {
     applyPreviewColumnType,
@@ -116,7 +116,7 @@ import {
     constructDecimalPadding,
     type DetectedColumnType
 } from './_previewColumnTypes';
-import { areItemColumnsUnchanged, type ItemColumns } from '@/features/studio/dataViews/_itemChange';
+import { areItemColumnsUnchanged, type ItemColumns } from '@/features/studio/dataViews/_components/itemChange';
 import {
     type ChosenBlankValues,
     type ChosenColumnTypes,
@@ -139,7 +139,7 @@ import {
     constructSampleConfig,
     isDerivedColumn,
     type ItemReading
-} from '../_dataViewColumns';
+} from '@/features/studio/dataViews/_state/dataViewColumns';
 import {
     type ColumnFacts,
     constructColumnFacts,
@@ -148,43 +148,43 @@ import {
     constructDataTypeLabel,
     constructPreviewColumnRows,
     countChosenTypeMisfits
-} from '../_previewColumnRows';
-import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from '../_readingLabels';
-import { constructDataViewConnection, constructItemPath } from '../dataViewSummary';
+} from '@/features/studio/dataViews/_columns/previewColumnRows';
+import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from '@/features/studio/dataViews/_components/readingLabels';
+import { constructDataViewConnection, constructItemPath } from '@/features/studio/dataViews/_state/dataViewSummary';
 import { constructFittedColumnWidth, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
-import { constructLoadTimingParts, type DataViewLoadTiming, type DataViewStoreConfig, findDataViewLoadTiming, INVESTIGATE_STORE_CONNECTOR_ID } from '../_dataViewStore';
-import { DATA_FORMAT_ICON_CONFIGS, type DataFormatIconConfig } from '../_dataFormatIcons';
-import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
+import { constructLoadTimingParts, type DataViewLoadTiming, type DataViewStoreConfig, findDataViewLoadTiming, INVESTIGATE_STORE_CONNECTOR_ID } from '@/features/studio/dataViews/_state/dataViewStore';
+import { DATA_FORMAT_ICON_CONFIGS, type DataFormatIconConfig } from '@/features/studio/dataViews/_components/dataFormatIcons';
+import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, useCurrentDataView } from '@/features/studio/dataViews/_state/dataViews';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
-import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_statusBar';
+import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_components/_statusBar';
 import { holdStore, isStoreConnection, openStore, storeTakeover } from '@/services/storeUse';
-import { listDataViewStoreConfigs, resolveStoreConnectorId } from '../_dataViewStore';
+import { listDataViewStoreConfigs, resolveStoreConnectorId } from '@/features/studio/dataViews/_state/dataViewStore';
 import { localeId, t } from '@/state/locale';
-import { useItemChange, wasItemRefreshRequested } from '@/features/studio/dataViews/_itemChange';
+import { useItemChange, wasItemRefreshRequested } from '@/features/studio/dataViews/_components/itemChange';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
-import ColumnDetailPanel from '@/features/studio/dataViews/ColumnDetailPanel.vue';
-import ColumnSearch from '@/features/studio/dataViews/ColumnSearch.vue';
-import type { ColumnSearchOption } from '@/features/studio/dataViews/ColumnSearch.vue';
+import ColumnDetail from '@/features/studio/dataViews/_columns/ColumnDetail.vue';
+import ColumnSearch from '@/features/studio/dataViews/_columns/ColumnSearch.vue';
+import type { ColumnSearchOption } from '@/features/studio/dataViews/_columns/ColumnSearch.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
-import DataViewSource from '../DataViewSource.vue';
+import DataViewSource from '@/features/studio/dataViews/_components/DataViewSource.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import HeadersIcon from './HeadersIcon.vue';
-import ItemChangedNotice from '@/features/studio/dataViews/ItemChangedNotice.vue';
+import ItemChangedNotice from '@/features/studio/dataViews/_components/ItemChangedNotice.vue';
 import { Menu } from '@/components/ui/menu';
 import PillSegment from '@/components/ui/action/PillSegment.vue';
-import PreviewColumnTable from '../PreviewColumnTable.vue';
+import PreviewColumnTable from '@/features/studio/dataViews/_columns/PreviewColumnTable.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import ScrollEndButtons from '@/components/ui/scroll/ScrollEndButtons.vue';
 import SelectInput from '@/components/ui/SelectInput.vue';
 import type { SelectOption } from '@/components/ui/SelectInput.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
-import StatusBar from '@/features/studio/dataViews/StatusBar.vue';
+import StatusBar from '@/features/studio/dataViews/_components/StatusBar.vue';
 import StructureTree from './StructureTree.vue';
 import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
 import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
@@ -3043,7 +3043,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                      over the header. The box lets clicks through to the rows when the detail is closed. -->
                     <div class="pointer-events-none absolute inset-x-0 top-10 bottom-0 z-10 overflow-hidden">
                         <Transition name="dpuse-slide-down">
-                            <ColumnDetailPanel
+                            <ColumnDetail
                                 v-if="selectedColumnIndex != null && activeItemReading != null"
                                 class="pointer-events-auto absolute inset-0 bg-surface shadow-md"
                                 :blank-value-reading="constructBlankValueReading(String(selectedColumnIndex))"

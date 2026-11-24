@@ -1,5 +1,5 @@
 // ── Local Framework
-import type { ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
+import type { ItemReading } from '@/features/studio/dataViews/_state/dataViewColumns';
 // ── DPUse Framework
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────

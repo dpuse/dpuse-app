@@ -7,10 +7,10 @@ import { mount, RouterLinkStub } from '@vue/test-utils';
 import { constructStoreError } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
-import ColumnDetailPanel from '@/features/studio/dataViews/ColumnDetailPanel.vue';
+import { changeDataView } from '@/features/studio/dataViews/_state/dataViewDraft';
+import ColumnDetail from '@/features/studio/dataViews/_columns/ColumnDetail.vue';
 import { constructFittedColumnWidth } from '@/components/ui/table/tableColumnWidth';
-import type { DataViewStoreConfig } from '@/features/studio/dataViews/_dataViewStore';
+import type { DataViewStoreConfig } from '@/features/studio/dataViews/_state/dataViewStore';
 import InvestigateDataPanel from '@/features/studio/dataViews/exploreData/InvestigateDataPanel.vue';
 import { settle } from '~/tests/support/settle';
 import { storeTakeover } from '@/services/storeUse';
@@ -28,8 +28,8 @@ import {
     openDataViewStore,
     queryDataViewColumnValueCounts,
     queryDataViewRecords
-} from '@/features/studio/dataViews/_dataViewStore';
-import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_statusBar';
+} from '@/features/studio/dataViews/_state/dataViewStore';
+import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_components/_statusBar';
 import { localeId, t } from '@/state/locale';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -46,21 +46,21 @@ const routerPush = vi.hoisted(() => vi.fn(() => Promise.resolve())); // Stands f
 
 // The panel reads the data view the route names. The spec sets that data view directly.
 const dataView = vi.hoisted((): { config: unknown } => ({ config: undefined }));
-vi.mock('@/features/studio/dataViews/_dataViews', async (importOriginal) => {
+vi.mock('@/features/studio/dataViews/_state/dataViews', async (importOriginal) => {
     const { computed } = await import('vue');
     return {
         // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
-        ...(await importOriginal<typeof import('@/features/studio/dataViews/_dataViews')>()),
+        ...(await importOriginal<typeof import('@/features/studio/dataViews/_state/dataViews')>()),
         useCurrentDataView: (): { data: unknown; draftIsCurrent: unknown } => ({ data: computed(() => dataView.config), draftIsCurrent: computed(() => false) })
     };
 });
 // A store choice goes into the data view's draft. The spec checks what was put there.
-vi.mock('@/features/studio/dataViews/_dataViewDraft', async (importOriginal) => ({
+vi.mock('@/features/studio/dataViews/_state/dataViewDraft', async (importOriginal) => ({
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
-    ...(await importOriginal<typeof import('@/features/studio/dataViews/_dataViewDraft')>()),
+    ...(await importOriginal<typeof import('@/features/studio/dataViews/_state/dataViewDraft')>()),
     changeDataView: vi.fn()
 }));
-vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({
+vi.mock('@/features/studio/dataViews/_state/dataViewStore', () => ({
     abortDataViewRecordLoad: vi.fn(),
     constructLoadTimingParts: vi.fn(),
     constructStoredColumnConfigs: (): { label: string }[] => STORED_COLUMN_CONFIGS,
@@ -86,7 +86,7 @@ vi.mock('@/services/storeUse', async () => {
 });
 // The shared check tells the panel whether the item has changed. The spec says what the check found.
 const itemChange = vi.hoisted(() => ({ changedAt: undefined as number | undefined, ignoreItemChange: vi.fn(), isShown: false }));
-vi.mock('@/features/studio/dataViews/_itemChange', async () => {
+vi.mock('@/features/studio/dataViews/_components/itemChange', async () => {
     const { computed } = await import('vue');
     return {
         useItemChange: (): unknown => ({
@@ -314,7 +314,7 @@ describe('InvestigateDataPanel', () => {
             .find((button) => button.text() === 'Day')
             ?.trigger('click');
 
-        const detail = wrapper.findComponent(ColumnDetailPanel);
+        const detail = wrapper.findComponent(ColumnDetail);
         expect(detail.props('columnIndex')).toBe(1);
         expect(detail.props('isTypeDisabled')).toBe(true);
         expect(wrapper.findComponent(RouterLinkStub).props('to')).toMatchObject({ name: 'item', state: { columnIndex: 1 } });
@@ -340,7 +340,7 @@ describe('InvestigateDataPanel', () => {
         await settle();
 
         expect(queryDataViewColumnValueCounts).toHaveBeenCalledWith('dpuse-connector-sqlite-wasm', 'dataView1', STORED_COLUMN_CONFIGS, 1);
-        const { columnConfigs } = wrapper.findComponent(ColumnDetailPanel).props('itemReading');
+        const { columnConfigs } = wrapper.findComponent(ColumnDetail).props('itemReading');
         expect(columnConfigs[1]).toMatchObject(valueCounts);
     });
 
@@ -365,7 +365,7 @@ describe('InvestigateDataPanel', () => {
         await settle();
 
         expect(queryDataViewColumnValueCounts).toHaveBeenCalledWith('dpuse-connector-sqlite-wasm', 'dataView1', STORED_COLUMN_CONFIGS, 1);
-        const { columnConfigs } = wrapper.findComponent(ColumnDetailPanel).props('itemReading');
+        const { columnConfigs } = wrapper.findComponent(ColumnDetail).props('itemReading');
         expect(columnConfigs[1]).toMatchObject({ ...valueCounts, validCountsAreEstimated: undefined });
     });
 

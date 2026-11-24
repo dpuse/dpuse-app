@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 
 // ── DPUse Framework
-import { constructColumnTypeId, type ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
+import { constructColumnTypeId, type ItemReading } from '@/features/studio/dataViews/_state/dataViewColumns';
 
 // ── Local Framework
 import {

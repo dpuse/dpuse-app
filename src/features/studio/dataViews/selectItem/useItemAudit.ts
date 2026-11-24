@@ -8,7 +8,7 @@ import type { AuditObjectContentResult, DataViewConfig } from '@dpuse/dpuse-shar
 
 // ── Local Framework
 import { raiseAppFailure } from '@/state/errors';
-import { abortDataViewContentAudit, auditDataViewContent, stopDataViewContentAudit } from '@/features/studio/dataViews/_dataViews';
+import { abortDataViewContentAudit, auditDataViewContent, stopDataViewContentAudit } from '@/features/studio/dataViews/_state/dataViews';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

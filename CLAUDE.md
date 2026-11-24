@@ -82,8 +82,9 @@ Design rules:
 ### Feature folders
 
 - A `_` prefix (`_components/`, `_data/`, `_context.ts`) marks files private to their feature folder.
-- Code that only one feature uses lives in that feature: one file as `_name.ts` (`_dataViews.ts`), several in a `_`
-  folder. It sits in the lowest folder that holds all its users, and moves to a shared top-level folder (`src/state/`,
+- Code that only one feature uses lives in that feature: one file as `_name.ts` (`_dataViewDiagram.ts`), several in a
+  `_` folder (`dataViews/_state/`). Files inside a `_` folder take no `_` of their own, because the folder already
+  marks them private. It sits in the lowest folder that holds all its users, and moves to a shared top-level folder (`src/state/`,
   `src/composables/`) once a second feature uses it. A file used from outside its feature, by `App.vue` or the router,
   is not private and takes no `_`. A feature's own components and route views take no `_` either, and shared UI
   building blocks in `src/components/ui/` stay there even when one feature uses them today.
@@ -129,10 +130,16 @@ Name a component for what it **is**, not for an architectural role. Plain nouns 
   in `AssistantLayout`.
 - **Layout** — arranges or frames other components, through a `<slot>` or a nested `<RouterView>`, and has no
   content of its own beyond a header. `StudioLayout`, `DataViewsLayout`, `SetupLayout`, `AssistantLayout`.
-- **Panel** — content. A page the router shows, a detail area beside a list, an account section. `StudioHomePanel`,
-  `SelectItemPanel`, `DataViewPanel`.
+- **Panel** — content with no more specific noun: a whole page the router shows, an account section.
+  `StudioHomePanel`, `SelectItemPanel`, `ExploreDataPanel`.
+- **Detail** — the area beside a list or diagram that shows the selected item. `DataViewDetail`, `ColumnDetail`.
+  Singular, as in `MasterDetailPanel`: never `Details`, and never `DetailPanel`.
 
-To choose: a component that shows its own content is a panel; one that holds other components' content is a layout.
+A component that a more specific noun describes takes that noun, not `Panel`: `DataViewList`, `DataViewDiagram`,
+`DataViewCard`, `DataViewDetail`.
+
+To choose: a component that shows its own content is a panel, unless a more specific noun fits; one that holds other
+components' content is a layout.
 What the router shows at a given level is a **view**, whichever of the two it is.
 
 ### Props

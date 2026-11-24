@@ -3,7 +3,7 @@ import { DATA_TYPE_CONFIGS } from '@dpuse/dpuse-shared';
 import type { ColumnAuditConfig, DataSubtypeId, DateOrderId, DecimalSeparatorId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import type { ChosenColumnTypes, ChosenDateOrders, ChosenDecimalSeparators, ChosenNullWords, ColumnType, ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
+import type { ChosenColumnTypes, ChosenDateOrders, ChosenDecimalSeparators, ChosenNullWords, ColumnType, ItemReading } from '@/features/studio/dataViews/_state/dataViewColumns';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

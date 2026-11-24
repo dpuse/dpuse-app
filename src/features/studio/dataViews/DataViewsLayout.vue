@@ -11,18 +11,18 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 import { AppError, localiseConfig, localiseConfigs } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { constructDataViewTrail } from './_dataViewTrail';
-import { itemStepTrail } from './_itemStepTrail';
+import { constructDataViewTrail } from '@/features/studio/dataViews/_state/dataViewTrail';
+import { itemStepTrail } from '@/features/studio/dataViews/_state/itemStepTrail';
 import { PILL_CLASSES } from '@/components/ui/action/action';
 import { raiseAppFailure } from '@/state/errors';
-import { readDataViewDiagramFocus } from './_dataViewDiagram';
-import { resolveCurrentDataViewStepId } from './dataViewSummary';
+import { readDataViewDiagramFocus } from './_state/dataViewFocus';
+import { resolveCurrentDataViewStepId } from '@/features/studio/dataViews/_state/dataViewSummary';
 import { sessionIsAuthenticated } from '@/state/session';
 import { useQueryFailure } from '@/services/queryClient';
 import { useUnsavedWork } from '@/state/unsavedWork';
 import { workspaceStoreId } from '@/services/workspaceStore';
 import { accountConfigStatus, configStatus, connectionLocalisedConfigs, findConnectionLocalisedConfig } from '@/state/configs';
-import { completeDataViewDraft, dataViewCanBeSaved, dataViewHasChanges, discardDataViewDraft } from './_dataViewDraft';
+import { completeDataViewDraft, dataViewCanBeSaved, dataViewHasChanges, discardDataViewDraft } from '@/features/studio/dataViews/_state/dataViewDraft';
 import {
     constructDataViewsViewRoute,
     DATA_VIEW_ADD_ACTION_ID,
@@ -35,8 +35,8 @@ import {
     resolveDataViewIdParameter,
     useCurrentDataView,
     useUpdateDataView
-} from '@/features/studio/dataViews/_dataViews';
-import { dataViewRecordsAreLoading, isDataViewLoaded } from './_dataViewStore';
+} from '@/features/studio/dataViews/_state/dataViews';
+import { dataViewRecordsAreLoading, isDataViewLoaded } from '@/features/studio/dataViews/_state/dataViewStore';
 import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
 import { localeId, t } from '@/state/locale';
 import { TASK_CONFIGS, TEXT } from './DataViewsLayout_.json';

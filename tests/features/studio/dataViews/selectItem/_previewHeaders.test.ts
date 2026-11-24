@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 
 // ── DPUse Framework
-import type { ItemReading } from '@/features/studio/dataViews/_dataViewColumns';
+import type { ItemReading } from '@/features/studio/dataViews/_state/dataViewColumns';
 
 // ── Local Framework
 import { applyPreviewHeaders } from '@/features/studio/dataViews/selectItem/_previewHeaders';

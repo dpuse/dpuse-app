@@ -12,14 +12,14 @@ import type { ColumnAuditConfig, DataSubtypeId, StoreRecord, StoreValue } from '
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
-import { changeDataView } from '@/features/studio/dataViews/_dataViewDraft';
-import { constructColumnTypeLabel } from '@/features/studio/dataViews/_previewColumnRows';
+import { changeDataView } from '@/features/studio/dataViews/_state/dataViewDraft';
+import { constructColumnTypeLabel } from '@/features/studio/dataViews/_columns/previewColumnRows';
 import type { DataSource } from '@/composables/useDataWindow';
 import { findConnectionLocalisedConfig } from '@/state/configs';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { TEXT } from './InvestigateDataPanel_.json';
-import { useCurrentDataView } from '@/features/studio/dataViews/_dataViews';
-import { useItemChange } from '@/features/studio/dataViews/_itemChange';
+import { useCurrentDataView } from '@/features/studio/dataViews/_state/dataViews';
+import { useItemChange } from '@/features/studio/dataViews/_components/itemChange';
 import { viewportIsWide } from '@/state/device';
 import {
     abortDataViewRecordLoad,
@@ -39,7 +39,7 @@ import {
     queryDataViewRecords,
     resolveDataViewTablePath,
     resolveStoreConnectorId
-} from '@/features/studio/dataViews/_dataViewStore';
+} from '@/features/studio/dataViews/_state/dataViewStore';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 import {
     type ColumnType,
@@ -52,9 +52,9 @@ import {
     isEmptyUnitColumn,
     type ItemReading,
     placeLoadedValues
-} from '@/features/studio/dataViews/_dataViewColumns';
+} from '@/features/studio/dataViews/_state/dataViewColumns';
 import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
-import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_statusBar';
+import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_components/_statusBar';
 import { holdStore, isStoreConnection, openStore, storeTakeover } from '@/services/storeUse';
 import { localeId, t } from '@/state/locale';
 
@@ -62,16 +62,16 @@ import { localeId, t } from '@/state/locale';
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
 import CloseButton from '@/components/ui/action/CloseButton.vue';
-import ColumnDetailPanel from '@/features/studio/dataViews/ColumnDetailPanel.vue';
-import ColumnSearch from '@/features/studio/dataViews/ColumnSearch.vue';
-import type { ColumnSearchOption } from '@/features/studio/dataViews/ColumnSearch.vue';
+import ColumnDetail from '@/features/studio/dataViews/_columns/ColumnDetail.vue';
+import ColumnSearch from '@/features/studio/dataViews/_columns/ColumnSearch.vue';
+import type { ColumnSearchOption } from '@/features/studio/dataViews/_columns/ColumnSearch.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
-import ItemChangedNotice from '@/features/studio/dataViews/ItemChangedNotice.vue';
+import ItemChangedNotice from '@/features/studio/dataViews/_components/ItemChangedNotice.vue';
 import { Menu } from '@/components/ui/menu';
 import type { SelectOption } from '@/components/ui/SelectInput.vue';
-import StatusBar from '@/features/studio/dataViews/StatusBar.vue';
+import StatusBar from '@/features/studio/dataViews/_components/StatusBar.vue';
 import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 import TransformDataPanel from './TransformDataPanel.vue';
@@ -898,7 +898,7 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                      the tabs stay in reach and another one can be chosen, as on the item step. -->
                 <div class="pointer-events-none absolute inset-x-0 top-20 bottom-0 z-10 overflow-hidden">
                     <Transition name="dpuse-slide-down">
-                        <ColumnDetailPanel
+                        <ColumnDetail
                             v-if="selectedColumnIndex != null && itemReading != null"
                             class="pointer-events-auto absolute inset-0 bg-surface shadow-md"
                             :blank-value-reading="selectedBlankValueReading"
@@ -924,7 +924,7 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                                     t(TEXT, 'columnDetail.change.label')
                                 }}</RouterLink>
                             </template>
-                        </ColumnDetailPanel>
+                        </ColumnDetail>
                     </Transition>
                 </div>
             </div>

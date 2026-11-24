@@ -18,12 +18,12 @@ import StudioHomePanel from '@/features/studio/StudioHomePanel.vue'; // Static, 
 // ── Dynamic Components
 // Every loader is wrapped so that a failed chunk can be reported by name, and so that loading one raises the spinner.
 // The number is the nesting level of the 'RouterView' that renders the component. The one in 'App.vue' is 0, the one
-// inside a layout such as 'DataViewsLayout' is 1, and the one inside 'DataViewsHomePanel' is 2. 'assertViewDepths'
+// inside a layout such as 'DataViewsLayout' is 1, and the one inside 'DataViewsOverview' is 2. 'assertViewDepths'
 // checks these against the route table at startup in Dev environment.
 const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/features/studio/dataViews/DataViewsLayout.vue'));
-const DataViewsHomePanel = defineLazyLoader('DataViewsHomePanel', 1, () => import('@/features/studio/dataViews/DataViewsHomePanel.vue'));
-const DataViewDiagram = defineLazyLoader('DataViewDiagram', 2, () => import('@/features/studio/dataViews/DataViewDiagram.vue'));
-const DataViewList = defineLazyLoader('DataViewList', 2, () => import('@/features/studio/dataViews/DataViewList.vue'));
+const DataViewsOverview = defineLazyLoader('DataViewsOverview', 1, () => import('@/features/studio/dataViews/overview/DataViewsOverview.vue'));
+const DataViewDiagram = defineLazyLoader('DataViewDiagram', 2, () => import('@/features/studio/dataViews/overview/DataViewDiagram.vue'));
+const DataViewList = defineLazyLoader('DataViewList', 2, () => import('@/features/studio/dataViews/overview/DataViewList.vue'));
 const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/features/studio/dataViews/selectConnection/SelectConnectionList.vue'));
 const SelectItemPanel = defineLazyLoader('SelectItemPanel', 1, () => import('@/features/studio/dataViews/selectItem/SelectItemPanel.vue'));
 const ExploreDataPanel = defineLazyLoader('ExploreDataPanel', 1, () => import('@/features/studio/dataViews/exploreData/ExploreDataPanel.vue'));
@@ -68,7 +68,7 @@ export const APP_ROUTES: RouteRecordRaw[] = [
                 children: [
                     {
                         path: '',
-                        component: DataViewsHomePanel,
+                        component: DataViewsOverview,
                         children: [
                             { name: 'dataViews', path: '', redirect: redirectToDataViewsView }, // Kept for the studio's own links.
                             { name: 'dataViewDiagram', path: 'diagram/:connectorId?/:connectionId?/:dataViewId?', component: DataViewDiagram }, // The connector and connection the diagram has been drilled down to.

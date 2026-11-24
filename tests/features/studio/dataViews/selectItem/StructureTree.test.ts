@@ -7,14 +7,14 @@ import type { StructurePath } from '@dpuse/dpuse-shared';
 import type { ListObjectStructureEntriesOptions, ListStructureEntriesResult, SampleIssue, StructureEntry, StructureIndex } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { listItemStructureEntries } from '@/features/studio/dataViews/_dataViews';
+import { listItemStructureEntries } from '@/features/studio/dataViews/_state/dataViews';
 import { raiseFailure } from '@/state/errors';
 import { settle } from '~/tests/support/settle';
 import StructureTree from '@/features/studio/dataViews/selectItem/StructureTree.vue';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-vi.mock('@/features/studio/dataViews/_dataViews', () => ({ listItemStructureEntries: vi.fn() }));
+vi.mock('@/features/studio/dataViews/_state/dataViews', () => ({ listItemStructureEntries: vi.fn() }));
 vi.mock('@/state/errors', () => ({ raiseFailure: vi.fn() }));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -9,17 +9,17 @@ import type { ConnectionConfig, EngineAuthActionOptions, LocalisedConfig } from 
 
 // ── Local Framework
 import { accountId } from '@/state/session';
-import { constructDataViewConnection } from '@/features/studio/dataViews/dataViewSummary';
+import { constructDataViewConnection } from '@/features/studio/dataViews/_state/dataViewSummary';
 import { establishEngineWorker } from '@/services/engine';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './SelectConnectionPanel_.json';
-import { constructDataViewsViewRoute, DATA_VIEW_SCROLL_ACTIONS_ID, lastDataViewsViewId, useDataViews } from '@/features/studio/dataViews/_dataViews';
+import { constructDataViewsViewRoute, DATA_VIEW_SCROLL_ACTIONS_ID, lastDataViewsViewId, useDataViews } from '@/features/studio/dataViews/_state/dataViews';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
-import ConnectorDetails from '@/features/studio/dataViews/ConnectorDetails.vue';
+import ConnectorDetail from '@/features/studio/dataViews/_components/ConnectorDetail.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import ScrollEndButtons from '@/components/ui/scroll/ScrollEndButtons.vue';
@@ -173,7 +173,7 @@ async function testAuth(): Promise<void> {
                     <dl
                         class="grid grid-cols-[minmax(7.5rem,max-content)_1fr] text-sm *:border-b *:border-separator *:py-1 [&:is(:last-child,:has(+section))>:nth-last-child(-n+2)]:border-b-0 [&>dt]:pr-4"
                     >
-                        <ConnectorDetails :data-view-connection="dataViewConnection" />
+                        <ConnectorDetail :data-view-connection="dataViewConnection" />
                     </dl>
                 </StudioDocumentSection>
 

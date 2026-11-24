@@ -11,13 +11,13 @@ import type { ContentAuditConfig, DataViewConfig } from '@dpuse/dpuse-shared';
 import { assertDefined } from '@/utilities/index.ts';
 import { raiseAppFailure } from '@/state/errors';
 import { useItemAudit } from '@/features/studio/dataViews/selectItem/useItemAudit';
-import { abortDataViewContentAudit, auditDataViewContent, stopDataViewContentAudit } from '@/features/studio/dataViews/_dataViews';
+import { abortDataViewContentAudit, auditDataViewContent, stopDataViewContentAudit } from '@/features/studio/dataViews/_state/dataViews';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
 vi.mock('@/state/errors', async (importOriginal) => ({ ...(await importOriginal<object>()), raiseAppFailure: vi.fn() }));
-vi.mock('@/features/studio/dataViews/_dataViews', () => ({ abortDataViewContentAudit: vi.fn(), auditDataViewContent: vi.fn(), stopDataViewContentAudit: vi.fn() }));
+vi.mock('@/features/studio/dataViews/_state/dataViews', () => ({ abortDataViewContentAudit: vi.fn(), auditDataViewContent: vi.fn(), stopDataViewContentAudit: vi.fn() }));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 

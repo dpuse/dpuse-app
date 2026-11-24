@@ -8,7 +8,7 @@ import { AppError, formatNumberAsDecimalNumber } from '@dpuse/dpuse-shared';
 import type { DataFormatId, SampleIssue, StructureEntry, StructureIndex, StructureKindId, StructureLocator, StructurePath } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { listItemStructureEntries } from '@/features/studio/dataViews/_dataViews';
+import { listItemStructureEntries } from '@/features/studio/dataViews/_state/dataViews';
 import { raiseFailure } from '@/state/errors';
 import { TEXT } from './StructureTree_.json';
 import { localeId, t } from '@/state/locale';

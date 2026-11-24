@@ -4,7 +4,7 @@ import { computed } from 'vue';
 
 // ── Local Framework
 import { TEXT } from './ColumnValueBar_.json';
-import { COLUMN_VALUE_SEGMENTS, type ColumnValueCounts } from '@/features/studio/dataViews/_previewColumnRows';
+import { COLUMN_VALUE_SEGMENTS, type ColumnValueCounts } from '@/features/studio/dataViews/_columns/previewColumnRows';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
