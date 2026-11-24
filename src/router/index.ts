@@ -28,8 +28,9 @@ const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => i
 const SelectItemPanel = defineLazyLoader('SelectItemPanel', 1, () => import('@/features/studio/dataViews/selectItem/SelectItemPanel.vue'));
 const ExploreDataPanel = defineLazyLoader('ExploreDataPanel', 1, () => import('@/features/studio/dataViews/exploreData/ExploreDataPanel.vue'));
 const EventQueriesLayout = defineLazyLoader('EventQueriesLayout', 0, () => import('@/features/studio/eventQueries/EventQueriesLayout.vue'));
-const ContextNetwork2dPanel = defineLazyLoader('ContextNetwork2dPanel', 1, () => import('@/features/studio/eventQueries/ContextNetwork2dPanel.vue'));
-const EventQueryList = defineLazyLoader('EventQueryList', 1, () => import('@/features/studio/eventQueries/EventQueryList.vue'));
+const EventQueriesOverview = defineLazyLoader('EventQueriesOverview', 1, () => import('@/features/studio/eventQueries/EventQueriesOverview.vue'));
+const EventQueryDiagram = defineLazyLoader('EventQueryDiagram', 2, () => import('@/features/studio/eventQueries/EventQueryDiagram.vue'));
+const EventQueryList = defineLazyLoader('EventQueryList', 2, () => import('@/features/studio/eventQueries/EventQueryList.vue'));
 const PresentationsPanel = defineLazyLoader('PresentationsPanel', 0, () => import('@/features/studio/presentations/PresentationsPanel.vue'));
 const DataAppsPanel = defineLazyLoader('DataAppsPanel', 0, () => import('@/features/studio/dataApps/DataAppsPanel.vue'));
 const SetupLayout = defineLazyLoader('SetupLayout', 0, () => import('@/features/studio/setup/SetupLayout.vue'));
@@ -91,9 +92,15 @@ export const APP_ROUTES: RouteRecordRaw[] = [
                 path: 'eventQueries',
                 component: EventQueriesLayout,
                 children: [
-                    { name: 'eventQueries', path: '', redirect: (to) => ({ name: 'eventQueryDiagram', query: to.query }) }, // Kept for the studio's own links.
-                    { name: 'eventQueryDiagram', path: 'diagram/:areaId?/:modelId?/:entityId?', component: ContextNetwork2dPanel }, // The area, model and entity the diagram has been drilled down to.
-                    { name: 'eventQueryList', path: 'list/:eventQueryId?', component: EventQueryList },
+                    {
+                        path: '',
+                        component: EventQueriesOverview,
+                        children: [
+                            { name: 'eventQueries', path: '', redirect: (to) => ({ name: 'eventQueryDiagram', query: to.query }) }, // Kept for the studio's own links.
+                            { name: 'eventQueryDiagram', path: 'diagram/:areaId?/:modelId?/:entityId?/:eventId?/:eventQueryId?', component: EventQueryDiagram }, // The area, model, entity and event the diagram has been drilled down to, and the event query selected under the event.
+                            { name: 'eventQueryList', path: 'list/:eventQueryId?', component: EventQueryList }
+                        ]
+                    },
                     { path: ':areaId/:modelId?/:entityId?', redirect: (to) => ({ name: 'eventQueryDiagram', params: to.params, query: to.query }) } // An old link to a level of the diagram.
                 ]
             },

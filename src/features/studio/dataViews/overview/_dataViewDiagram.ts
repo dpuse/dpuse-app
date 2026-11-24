@@ -13,11 +13,13 @@ export interface DataViewDiagramNode {
     label?: string; // Shown beside the node. The top node and the add node have none, because the icon or symbol inside each says what it is.
     level: DataViewDiagramLevel;
     typeId: DataViewDiagramNodeTypeId;
-    color?: string; // The node's colour, which is that of the part of the app it belongs to. The add node keeps the look of an action.
-    discColor?: string; // On the top node: a solid disc behind its icon, so it reads as where the diagram starts.
+    color?: string; // The node's colour, which is that of the part of the app it belongs to. The add node keeps the look of an action. The selected data view takes the outline of the page's action buttons.
+    discColor?: string; // On the top node: a solid disc behind its icon, so it reads as where the diagram starts. On the selected data view: the fill of the page's action buttons, because a click on it opens it.
     icon?: string; // The node's own icon, drawn inside it. A data view has its item's icon, or that of its item's format.
     isAction?: boolean; // On the add node: drawn as something to do, so it stands apart from the things round it.
     isSelected?: boolean; // On the node whose details show beside the diagram.
+    accessibleLabel?: string; // On the selected data view: what screen readers call it, because a click on it now opens it.
+    badge?: 'arrowRight'; // On the selected data view: shows that a click on it opens it.
     symbol?: string; // On the add node: the '+' drawn inside it.
     title?: string; // On the top node and the add node: its name, shown as its tooltip.
     connectionId?: string; // On the add node: the connection a new data view is started on.
@@ -47,11 +49,14 @@ export interface DataViewDiagramDataView {
 // icon and the solid colour behind it, and the ring colours of the connectors and connections and of the data views.
 export interface DataViewDiagramLabels {
     add: string;
+    open: (dataViewLabel: string) => string; // What screen readers call the selected data view, which a click opens.
     root: string;
     rootIcon?: string | undefined;
     rootDiscColor?: string | undefined;
     connectionColor?: string | undefined;
     dataViewColor?: string | undefined;
+    openDiscColor?: string | undefined; // The disc behind the selected data view's icon.
+    openRingColor?: string | undefined; // The ring round the selected data view, in place of the data views' own.
 }
 
 // The connector or connection a focus opens, which is also the one selected while no data view is.
@@ -149,6 +154,12 @@ export function constructDataViewDiagramData(
             typeId: 'dataView',
             ...constructLook(dataView.icon, labels.dataViewColor),
             isSelected: dataView.id === selectedDataViewId,
+            ...(dataView.id === selectedDataViewId && {
+                accessibleLabel: labels.open(dataView.label),
+                badge: 'arrowRight' as const,
+                ...(labels.openDiscColor != null && { discColor: labels.openDiscColor }),
+                ...(labels.openRingColor != null && { color: labels.openRingColor })
+            }),
             dataViewId: dataView.id
         });
     }

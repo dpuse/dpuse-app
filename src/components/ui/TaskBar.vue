@@ -45,18 +45,19 @@ function localiseLine(line: LocaleLabel): string {
                 <component
                     :is="item.disabled ? 'div' : ActionWrapper"
                     :aria-current="currentId === item.id ? 'step' : undefined"
+                    :aria-disabled="item.disabled ? 'true' : undefined"
                     class="group flex items-start gap-x-1.5 text-sm"
                     :to="item.to"
                 >
                     <!-- Marker beside the label rather than above it, which keeps the bar to two lines. Solid blue circle
-                         for the current step. Outlined for the others: accent when it can be opened, muted when it is
+                         for the current step. Outlined for the others: accent when it can be opened, faint when it is
                          locked. A step whose choice is made shows a tick instead of its number, as a done step. -->
                     <div
                         aria-hidden="true"
                         class="flex size-5 flex-none items-center justify-center rounded-full border-[1.25px] text-xs font-semibold"
                         :class="[
                             currentId === item.id ? 'border-accent bg-accent text-surface' : 'bg-surface',
-                            currentId !== item.id && (item.disabled ? 'border-muted text-muted' : 'border-accent text-accent')
+                            currentId !== item.id && (item.disabled ? 'border-subtle text-subtle' : 'border-accent text-accent')
                         ]"
                     >
                         <!-- 'text-box' trims the font's empty space above and below the digits, so they sit in the middle of the circle. -->
@@ -68,7 +69,7 @@ function localiseLine(line: LocaleLabel): string {
                          wide: the bar sits in an app pane the splitter resizes. Narrower, the verb is dropped and only the
                          noun stays. Screen readers get the whole step from the hidden text instead, so they hear the
                          number and whether it is locked. -->
-                    <span aria-hidden="true" class="flex flex-col" :class="currentId === item.id ? 'text-accent' : item.disabled ? 'text-muted' : 'group-hover:text-accent'">
+                    <span aria-hidden="true" class="flex flex-col" :class="currentId === item.id ? 'text-accent' : item.disabled ? 'text-subtle' : 'group-hover:text-accent'">
                         <span class="flex items-center">
                             <span class="leading-5 whitespace-nowrap">
                                 <span class="hidden @min-[40rem]:inline">{{ item.label }}</span>
@@ -78,7 +79,7 @@ function localiseLine(line: LocaleLabel): string {
                             <span
                                 v-if="index < items.length - 1"
                                 class="mx-0.5 h-[1.5px] w-8 flex-none rounded-full"
-                                :class="items[index + 1]?.disabled ? 'bg-muted/50' : 'bg-accent'"
+                                :class="items[index + 1]?.disabled ? 'bg-subtle' : 'bg-accent'"
                             />
                         </span>
                     </span>

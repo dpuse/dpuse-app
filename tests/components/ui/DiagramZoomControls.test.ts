@@ -13,7 +13,7 @@ describe('diagram zoom controls', () => {
         const wrapper = mount(DiagramZoomControls);
 
         expect(wrapper.get('[role="group"]').attributes('aria-label')).toBe(TEXT['controls.aria'].en);
-        expect(wrapper.findAll('button').map((button) => button.attributes('aria-label'))).toStrictEqual([TEXT['zoomIn.aria'].en, TEXT['zoomOut.aria'].en, TEXT['fit.aria'].en]);
+        expect(wrapper.findAll('button').map((button) => button.attributes('aria-label'))).toStrictEqual([TEXT['zoomOut.aria'].en, TEXT['zoomIn.aria'].en, TEXT['fit.aria'].en]);
     });
 
     it('reports which button was pressed', async () => {

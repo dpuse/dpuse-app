@@ -124,9 +124,12 @@ describe('createAppRouter', () => {
             expect(await findArrivalPath(path)).toBe(arrivalPath);
         });
 
-        it.each(['/dataViews/list/a', '/dataViews/diagram/dropbox/work/a', '/dataViews/a/items', '/eventQueries/list/a'])('keeps %s as it is', async (path) => {
-            expect(await findArrivalPath(path)).toBe(path);
-        });
+        it.each(['/dataViews/list/a', '/dataViews/diagram/dropbox/work/a', '/dataViews/a/items', '/eventQueries/list/a', '/eventQueries/diagram/hr/workforce/person/activation/a'])(
+            'keeps %s as it is',
+            async (path) => {
+                expect(await findArrivalPath(path)).toBe(path);
+            }
+        );
     });
 
     describe('navigation failure', () => {

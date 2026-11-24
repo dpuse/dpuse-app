@@ -1,5 +1,7 @@
 // ── External Dependencies & Registrations
-import { CableIcon } from '@lucide/vue';
+import { ref } from 'vue';
+import { useElementSize } from '@vueuse/core';
+import { CableIcon, FolderIcon } from '@lucide/vue';
 import { describe, expect, it, vi } from 'vitest';
 import { mount, type VueWrapper } from '@vue/test-utils';
 
@@ -8,7 +10,14 @@ import { buildMemoryRouter } from '~/tests/support/router';
 import TaskTrail from '@/components/ui/TaskTrail.vue';
 import type { TaskTrailContent } from '@/components/ui/taskTrail';
 
+// ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
+// jsdom lays nothing out, so the trail's width and the width its names need in full are set by each test.
+vi.mock('@vueuse/core', async (importOriginal) => ({
+    ...(await importOriginal<object>()),
+    useElementSize: vi.fn(() => ({ height: ref(0), stop: vi.fn(), width: ref(0) }))
+}));
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -40,6 +49,36 @@ describe('TaskTrail', () => {
         expect(crumb.text()).toBe('');
     });
 
+    it('shows a crumb as its compact icon, named by its tooltip, while the trail is too narrow for every name', async () => {
+        setWidths({ fullWidth: 500, navWidth: 200 });
+        const wrapper = await mountTrail({
+            items: [
+                { id: 'folder', label: 'HR', compactIcon: FolderIcon },
+                { id: 'item', label: 'people.csv' }
+            ],
+            label: 'Trail'
+        });
+
+        const crumb = wrapper.get('[title="HR"]');
+        expect(crumb.attributes('aria-label')).toBe('HR');
+        expect(crumb.text()).toBe('');
+        expect(wrapper.find('[title="people.csv"]').exists()).toBe(false);
+    });
+
+    it('shows every name while the trail is wide enough for them', async () => {
+        setWidths({ fullWidth: 200, navWidth: 500 });
+        const wrapper = await mountTrail({
+            items: [
+                { id: 'folder', label: 'HR', compactIcon: FolderIcon },
+                { id: 'item', label: 'people.csv' }
+            ],
+            label: 'Trail'
+        });
+
+        expect(wrapper.find('[title="HR"]').exists()).toBe(false);
+        expect(wrapper.get('nav > span:not([aria-hidden])').text()).toBe('HR');
+    });
+
     it('is named for screen readers while it has links, and hidden from them while it is only text', async () => {
         const linked = await mountTrail({ items: [{ id: 'context', label: 'Context', to: '/up' }], label: 'Level' });
         const textOnly = await mountTrail({ items: [{ id: 'context', label: 'Context' }], label: 'Level' });
@@ -47,6 +86,20 @@ describe('TaskTrail', () => {
         expect(linked.get('nav').attributes()).toMatchObject({ 'aria-label': 'Level' });
         expect(linked.get('nav').attributes('aria-hidden')).toBeUndefined();
         expect(textOnly.get('nav').attributes('aria-hidden')).toBe('true');
+    });
+
+    it('shows the empty text, pale, while there are no crumbs', async () => {
+        const wrapper = await mountTrail({ emptyText: 'Select a data view', items: [], label: 'Trail' });
+
+        expect(wrapper.get('.text-hint').text()).toBe('Select a data view');
+        wrapper.unmount();
+    });
+
+    it('leaves out the empty text once there are crumbs', async () => {
+        const wrapper = await mountTrail({ emptyText: 'Select a data view', items: [{ id: 'model', label: 'Workforce' }], label: 'Trail' });
+
+        expect(wrapper.text()).toBe('Workforce');
+        wrapper.unmount();
     });
 
     it('gives way to one button back, followed by the last crumb', async () => {
@@ -60,6 +113,13 @@ describe('TaskTrail', () => {
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The trail measures itself first, then the hidden copy with every name in full.
+function setWidths({ fullWidth, navWidth }: { fullWidth: number; navWidth: number }): void {
+    vi.mocked(useElementSize)
+        .mockReturnValueOnce({ height: ref(0), stop: vi.fn(), width: ref(navWidth) })
+        .mockReturnValueOnce({ height: ref(0), stop: vi.fn(), width: ref(fullWidth) });
+}
 
 async function mountTrail(content: TaskTrailContent): Promise<VueWrapper> {
     const router = await buildMemoryRouter();

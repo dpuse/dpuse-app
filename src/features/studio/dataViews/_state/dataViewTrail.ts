@@ -1,11 +1,12 @@
 // ── External Dependencies & Registrations
-import { CableIcon } from '@lucide/vue';
+import { CableIcon, FolderIcon } from '@lucide/vue';
 
 // ── DPUse Framework
-import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared';
+import type { ConnectionNodeConfig, DataFormatId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { ItemStepTrail } from './itemStepTrail';
+import { resolveItemIcon } from '@/features/studio/dataViews/_components/itemIcon';
 import { constructItemPath, type DataViewConnection } from './dataViewSummary';
 import type { TaskTrailContent, TaskTrailItem } from '@/components/ui/taskTrail';
 
@@ -21,10 +22,11 @@ interface DataViewTrailLabels {
 // A data view's trail: its connection, then the folders down to its item, then the item. The item task passes its
 // 'ItemStepTrail', which shows the open folder and the chosen item and makes the folders links. Anywhere else the saved
 // item shows as text. A connection with nothing after it shows its name, because its icon alone would not say which one
-// it is.
+// it is. The item shows the same icon as in the data view's detail.
 export function constructDataViewTrail(
-    connection: Pick<DataViewConnection, 'icon' | 'iconDark' | 'label'> | undefined,
+    connection: Pick<DataViewConnection, 'icon' | 'iconDark' | 'itemTypeId' | 'label'> | undefined,
     savedItemConfig: ConnectionNodeConfig | undefined,
+    savedDataFormatId: DataFormatId | undefined,
     itemStepTrail: ItemStepTrail | undefined,
     labels: DataViewTrailLabels
 ): TaskTrailContent {
@@ -32,6 +34,7 @@ export function constructDataViewTrail(
         ? itemStepTrail.folderNodeConfigs.map((folderNodeConfig) => folderNodeConfig.label)
         : (savedItemConfig?.folderPath.split('/').filter((folderLabel) => folderLabel !== '') ?? []);
     const itemConfig = itemStepTrail ? itemStepTrail.itemConfig : savedItemConfig;
+    const dataFormatId = itemStepTrail ? itemStepTrail.dataFormatId : savedDataFormatId;
 
     // Index 0 is the connection's top folder and each folder follows it. The open folder is the last one and is text,
     // because opening it again would do nothing.
@@ -49,8 +52,16 @@ export function constructDataViewTrail(
         isLabelHidden: itemStepTrail != null || itemConfig != null || connection == null,
         select: selectFolder(0)
     };
-    const folderItems = folderLabels.map((folderLabel, index): TaskTrailItem => ({ id: `folder-${String(index)}`, label: folderLabel, select: selectFolder(index + 1) }));
-    const itemItems: TaskTrailItem[] = itemConfig ? [{ id: 'item', label: itemConfig.label, select: itemStepTrail?.revealItem }] : []; // On the item task, the item scrolls the list back to it.
+    // A narrow trail shows the folders above the last one as folder icons, so the last folder's name stays in view.
+    const folderItems = folderLabels.map((folderLabel, index): TaskTrailItem => ({
+        id: `folder-${String(index)}`,
+        label: folderLabel,
+        ...(index < folderLabels.length - 1 && { compactIcon: FolderIcon }),
+        select: selectFolder(index + 1)
+    }));
+    const itemItems: TaskTrailItem[] = itemConfig
+        ? [{ id: 'item', label: itemConfig.label, ...resolveItemIcon(itemConfig, dataFormatId, connection?.itemTypeId), select: itemStepTrail?.revealItem }]
+        : []; // On the item task, the item scrolls the list back to it.
 
     return {
         back: itemConfig && itemStepTrail?.backLabel != null ? { label: itemStepTrail.backLabel, select: itemStepTrail.returnToList } : undefined, // A narrow screen shows the item's preview in place of the list.

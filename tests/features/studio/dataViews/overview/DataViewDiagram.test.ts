@@ -132,6 +132,43 @@ describe('data view diagram', () => {
             expect(selectedLabels(wrapper)).toStrictEqual(['Employees']);
         });
 
+        it('opens the selected data view when it is clicked again, and names it for opening', async () => {
+            const { wrapper } = await mountMap(WORK_PATH);
+            const dateNow = vi.spyOn(Date, 'now').mockReturnValue(1000);
+
+            await clickNode(wrapper, 'Employees');
+            await wrapper.setProps({ selectedDataViewId: 'a' });
+            dateNow.mockReturnValue(2000);
+            await clickNode(wrapper, 'Employees');
+
+            expect(wrapper.emitted('select')).toStrictEqual([['a']]);
+            expect(wrapper.emitted('open')).toStrictEqual([[]]);
+            expect(shownData(wrapper).nodes.find((node) => node.label === 'Employees')).toMatchObject({ accessibleLabel: 'Open Employees', badge: 'arrowRight', color: 'var(--color-pill-border)', discColor: 'var(--color-pill)' });
+            dateNow.mockRestore();
+        });
+
+        it('does not open a data view on the second half of the double-click that selected it', async () => {
+            const { wrapper } = await mountMap(WORK_PATH);
+            const dateNow = vi.spyOn(Date, 'now').mockReturnValue(1000);
+
+            await clickNode(wrapper, 'Employees');
+            await wrapper.setProps({ selectedDataViewId: 'a' });
+            dateNow.mockReturnValue(1300);
+            await clickNode(wrapper, 'Employees');
+
+            expect(wrapper.emitted('open')).toBeUndefined();
+            dateNow.mockRestore();
+        });
+
+        it('opens a data view selected elsewhere on its first click in the diagram', async () => {
+            const { wrapper } = await mountMap(`${WORK_PATH}/a`, 'a');
+
+            await clickNode(wrapper, 'Employees');
+
+            expect(wrapper.emitted('open')).toStrictEqual([[]]);
+            expect(wrapper.emitted('select')).toBeUndefined();
+        });
+
         it('keeps every node and link when a data view is selected, so the diagram is not laid out again', async () => {
             const { wrapper } = await mountMap(WORK_PATH);
             const { links, nodes } = shownData(wrapper);

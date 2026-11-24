@@ -1,0 +1,16 @@
+{
+    "TEXT": {
+        "delete.confirm.label": { "en": "Delete", "es": "Eliminar" },
+        "delete.confirm.text": { "en": "Delete “{name}”? This cannot be undone.", "es": "¿Eliminar «{name}»? No se puede deshacer." },
+        "delete.confirm.title": { "en": "Delete Event Query", "es": "Eliminar consulta de eventos" },
+        "delete.done.text": { "en": "“{name}” deleted.", "es": "Se eliminó «{name}»." },
+        "detail.add.label": { "en": "New event query", "es": "Nueva consulta de eventos" },
+        "newEventQuery.name.text": { "en": "{entity}: {event}", "es": "{entity}: {event}" },
+        "newEventQuery.save.label": { "en": "Save", "es": "Guardar" },
+        "newEventQuery.title": { "en": "New Event Query", "es": "Nueva consulta de eventos" },
+        "noSelection.diagram.text": { "en": "Select a node in the diagram.", "es": "Selecciona un nodo en el diagrama." },
+        "noSelection.text": { "en": "Select an event query from the list.", "es": "Selecciona una consulta de eventos de la lista." },
+        "retrieval.cancelled.text": { "en": "Loading event queries was cancelled.", "es": "Se canceló la carga de las consultas de eventos." },
+        "retrieval.retry.label": { "en": "Retry", "es": "Reintentar" }
+    }
+}

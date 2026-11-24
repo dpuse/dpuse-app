@@ -1,14 +1,17 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { GraphStarIcon, LayoutGridIcon } from '@lucide/vue';
+import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router';
 
 // ── Local Framework
 import { contextConfig } from '@/state/configs';
+import { resolveEventQueryDiagramFocus } from './_eventQueryDiagram';
 import type { TaskTrailContent } from '@/components/ui/taskTrail';
 import { TEXT } from './EventQueriesLayout_.json';
+import { useEventQueries } from './_eventQueries';
 import { workspaceStoreId } from '@/services/workspaceStore';
-import { constructContextDiagramTrail, useContextDiagramFocus } from './_contextDiagramFocus';
+import { constructContextDiagramRoute, constructContextDiagramTrail, readContextDiagramFocus, useContextDiagramFocus } from './_contextDiagramFocus';
 import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
 import { localeId, t } from '@/state/locale';
 
@@ -20,23 +23,45 @@ import TaskLayout, { type TaskLayoutView } from '@/features/studio/_components/T
 
 const route = useRoute();
 const router = useRouter();
-const { focusedAreaConfig, focusedEntityConfig, focusedModelReferenceConfig } = useContextDiagramFocus();
+const { data: eventQueryConfigs } = useEventQueries();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// ── Views ─ The context diagram opens first, because an event query is made for an event in the context. The saved
-// event queries are one tab away.
-const viewItems = computed((): TaskLayoutView[] => [
-    { id: 'eventQueryDiagram', label: t(TEXT, 'diagram.label'), to: { name: 'eventQueryDiagram', query: route.query } },
-    { id: 'eventQueryList', label: t(TEXT, 'list.label'), to: { name: 'eventQueryList', query: route.query } }
-]);
+// ── Selection ─ The event query selected in either view. Its event is the level the trail shows and the diagram opens
+// at.
+const selectedEventQueryConfig = computed(() => eventQueryConfigs.value?.find((config) => config.id === route.params.eventQueryId));
 
-// ── Trail ─ The level the diagram is drilled down to, worked out from the route, so it does not change as the diagram
-// redraws. The list has no level to show.
+// ── Views ─ The context diagram opens first, because an event query is made for an event in the context. The saved
+// event queries are one click away. The diagram's icon leads, because it is the view the screen opens on, as on
+// Establish Data Views. Each view opens with the selected event query still selected.
+const viewItems = computed((): TaskLayoutView[] => {
+    const eventQueryId = selectedEventQueryConfig.value?.id;
+    const diagramRoute: RouteLocationRaw =
+        selectedEventQueryConfig.value == null
+            ? { name: 'eventQueryDiagram', query: route.query }
+            : constructContextDiagramRoute(resolveEventQueryDiagramFocus({}, selectedEventQueryConfig.value), route.query, eventQueryId);
+    return [
+        { id: 'eventQueryDiagram', icon: GraphStarIcon, label: t(TEXT, 'diagram.label'), to: diagramRoute },
+        { id: 'eventQueryList', icon: LayoutGridIcon, label: t(TEXT, 'list.label'), to: { name: 'eventQueryList', params: { eventQueryId }, query: route.query } }
+    ];
+});
+
+// ── Trail ─ The same on the diagram and the list: the level of the selected event query's event, or else the level the
+// diagram is drilled down to. It is worked out from the route, so it does not change as the diagram redraws. The list
+// with nothing selected has no level to show, so it asks for an event query instead.
+const { focusedAreaConfig, focusedEntityConfig, focusedEventConfig, focusedModelReferenceConfig } = useContextDiagramFocus(() =>
+    resolveEventQueryDiagramFocus(route.name === 'eventQueryDiagram' ? readContextDiagramFocus(route.params) : {}, selectedEventQueryConfig.value)
+);
 const trail = computed((): TaskTrailContent => {
     const label = t(TEXT, 'trail.aria');
-    if (route.name !== 'eventQueryDiagram' || contextConfig.value == null) return { items: [], label };
-    const focusConfigs = { areaConfig: focusedAreaConfig.value, modelReferenceConfig: focusedModelReferenceConfig.value, entityConfig: focusedEntityConfig.value };
+    if (route.name === 'eventQueryList' && selectedEventQueryConfig.value == null) return { emptyText: t(TEXT, 'trail.empty.list.text'), items: [], label };
+    if (contextConfig.value == null) return { items: [], label };
+    const focusConfigs = {
+        areaConfig: focusedAreaConfig.value,
+        modelReferenceConfig: focusedModelReferenceConfig.value,
+        entityConfig: focusedEntityConfig.value,
+        eventConfig: focusedEventConfig.value
+    };
     return constructContextDiagramTrail(contextConfig.value, focusConfigs, localeId.value, route.query, label);
 });
 

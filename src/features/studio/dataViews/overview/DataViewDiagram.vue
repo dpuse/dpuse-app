@@ -1,10 +1,11 @@
 <script setup lang="ts">
 // The user's connections and data views as a diagram that is drilled down one level at a time. A click on a connector,
 // a connection or a data view selects it, which shows its details beside the diagram, and a connector or connection
-// also opens to show what it holds. The '+' node is the one node that is an action: it starts a new data view.
+// also opens to show what it holds. A second click on the selected data view opens it, as the badge on it shows. The
+// '+' node is the one node that is an action: it starts a new data view.
 
 // ── External Dependencies & Registrations
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -28,6 +29,7 @@ import NetworkDiagram from '@/components/ui/NetworkDiagram.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const DOUBLE_CLICK_MS = 500; // A click this soon after the one that selected a data view is the second half of a double-click, so it does not open the data view.
 const DATA_VIEWS_OPTION_ID = 'dataViews'; // The studio option this screen belongs to, whose icon and colour the top node takes.
 // A table or API endpoint has no format, so it shows the icon of its kind that its card shows: Lucide 'sheet' and
 // 'braces', as markup because the diagram draws icons from SVG strings. They take the DPUse green and the stroke of the
@@ -37,6 +39,8 @@ const ITEM_TYPE_ICONS: Record<Exclude<ConnectorItemTypeId, 'file'>, string> = {
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>',
     table: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="3" x2="21" y1="15" y2="15"/><line x1="9" x2="9" y1="9" y2="21"/><line x1="15" x2="15" y1="9" y2="21"/></svg>'
 };
+const OPEN_DISC_COLOR = 'var(--color-pill)'; // Behind the selected data view's icon, the fill of the add node and the pill, because a click on it opens it.
+const OPEN_RING_COLOR = 'var(--color-pill-border)'; // Round the selected data view, the outline of the add node and the pill.
 const ROOT_ICON_COLOR = '#ffffff'; // The top node's icon, on the solid data views colour.
 const SETUP_OPTION_ID = 'setup'; // The studio option whose colour every node below the top one, and every line, takes, so only the top node stands out.
 
@@ -48,6 +52,7 @@ const { dataViewLocalisedConfigs, selectedDataViewId } = defineProps<{
 }>();
 const emit = defineEmits<{
     add: [connectionId: string]; // Start a new data view on the connection.
+    open: []; // Open the selected data view.
     select: [dataViewId: string];
 }>();
 
@@ -56,6 +61,7 @@ const emit = defineEmits<{
 const route = useRoute();
 const router = useRouter();
 const studioOptionLocalisedConfigs = useStudioOptions();
+const dataViewSelectedTime = ref<number>(); // When a click in the diagram last selected a data view.
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -90,11 +96,14 @@ const diagramLabels = computed(() => {
     // can be with a white icon still clear on it (3.6:1). Its icon is the option's own, redrawn in white.
     return {
         add: t(TEXT, 'add.label'),
+        open: (name: string): string => t(TEXT, 'open.aria', { name }),
         root: t(TEXT, 'root.label'),
         rootIcon: dataViewsColor == null ? dataViewsIcon.value : dataViewsIcon.value?.replaceAll(dataViewsColor, () => ROOT_ICON_COLOR),
         rootDiscColor: dataViewsColor,
         connectionColor: ringColor,
-        dataViewColor: ringColor
+        dataViewColor: ringColor,
+        openDiscColor: OPEN_DISC_COLOR,
+        openRingColor: OPEN_RING_COLOR
     };
 });
 
@@ -119,16 +128,30 @@ const diagramData = computed(() =>
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A data view is selected. The add node starts a new data view on its connection. Any other node is selected and
-// opened, which shows the level below it and hides its siblings. A node above the open level goes back up to it, and
-// the top node clears the selection. The node already selected changes nothing.
+// A data view is selected, or opened when it is selected already. The add node starts a new data view on its
+// connection. Any other node is selected and opened, which shows the level below it and hides its siblings. A node
+// above the open level goes back up to it, and the top node clears the selection. A connector or connection already
+// selected changes nothing.
 function handleClickNode(node: DataViewDiagramNode): void {
-    if (node.typeId === 'dataView' && node.dataViewId != null) emit('select', node.dataViewId);
+    if (node.typeId === 'dataView' && node.dataViewId != null) selectOrOpenDataView(node.dataViewId);
     else if (node.typeId === 'add' && node.connectionId != null) emit('add', node.connectionId);
     else if (node.focus && (selectedDiagramDataView.value != null || !isSameFocus(node.focus, focus.value))) focusOn(node.focus);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A second click on the selected data view opens it, unless it comes so soon after the click that selected it that the
+// two are one double-click. A data view selected elsewhere, such as in the list, opens on its first click here.
+function selectOrOpenDataView(dataViewId: string): void {
+    const clickTime = Date.now();
+    const isDoubleClick = dataViewSelectedTime.value != null && clickTime - dataViewSelectedTime.value < DOUBLE_CLICK_MS;
+    if (dataViewId === selectedDataViewId && !isDoubleClick) {
+        emit('open');
+        return;
+    }
+    if (dataViewId !== selectedDataViewId) dataViewSelectedTime.value = clickTime;
+    emit('select', dataViewId);
+}
 
 // A push, so the browser's back button returns to the node selected before.
 function focusOn(newFocus: DataViewDiagramFocus): void {

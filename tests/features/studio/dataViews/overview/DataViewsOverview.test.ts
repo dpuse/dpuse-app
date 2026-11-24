@@ -245,18 +245,6 @@ describe('data views overview views', () => {
         wrapper.unmount();
     });
 
-    it('marks the view on screen in the switch, and links to the other view with the same data view selected', async () => {
-        const router = await buildRouter('/dataViews/list/a');
-        const wrapper = await mountPanel(router);
-        const links = wrapper.findAll('[data-region="DataViewsViewSwitch"] a');
-
-        expect(links.map((link) => [link.text(), link.attributes('aria-current'), link.attributes('href')])).toEqual([
-            [t(OVERVIEW_TEXT, 'view.list.label'), 'page', '/dataViews/list/a'],
-            [t(OVERVIEW_TEXT, 'view.diagram.label'), undefined, SALES_DIAGRAM_PATH]
-        ]);
-        wrapper.unmount();
-    });
-
     it('keeps the one detail panel as it is when the view changes', async () => {
         const router = await buildRouter(SALES_DIAGRAM_PATH);
         const wrapper = await mountPanel(router);
@@ -280,6 +268,44 @@ describe('data views overview views', () => {
         await settle();
 
         expect(router.currentRoute.value.path).toBe(selectedPath);
+        wrapper.unmount();
+    });
+});
+
+describe('data views overview list selection', () => {
+    beforeEach(async () => {
+        const state = await getState();
+        state.dataViewConfigs.value = [buildDataView('a', 'Sales', 'work'), buildDataView('b', 'Stock', 'work')];
+        document.body.replaceChildren();
+    });
+
+    it('opens the selected data view when its card is tapped again beside its detail', async () => {
+        const router = await buildRouter('/dataViews/list/a');
+        const wrapper = await mountPanel(router);
+
+        await wrapper.get('[data-test="list"]').trigger('click');
+        await settle();
+        expect(router.currentRoute.value.path).toBe('/dataViews/list/b');
+
+        const dateNow = vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 1000); // Well after the tap that selected it.
+        await wrapper.get('[data-test="list"]').trigger('click');
+        await settle();
+
+        expect(router.currentRoute.value.path).toBe('/dataViews/b/connections'); // No item chosen, so it opens at its connection.
+        dateNow.mockRestore();
+        wrapper.unmount();
+    });
+
+    it('does not open a data view on the second half of the double-click that selected it', async () => {
+        const router = await buildRouter('/dataViews/list/a');
+        const wrapper = await mountPanel(router);
+
+        await wrapper.get('[data-test="list"]').trigger('click');
+        await settle();
+        await wrapper.get('[data-test="list"]').trigger('click'); // At once, as a double-click's second click comes.
+        await settle();
+
+        expect(router.currentRoute.value.path).toBe('/dataViews/list/b');
         wrapper.unmount();
     });
 });
@@ -377,16 +403,32 @@ describe('opening a data view', () => {
     it('opens at the connection of a data view with no item chosen', async () => {
         expect(await openSelectedDataView(undefined, false)).toBe('connection');
     });
+
+    it('opens the selected data view when the diagram asks, as Open does', async () => {
+        const state = await getState();
+        state.dataViewConfigs.value = [buildDataView('a', 'Sales', 'work')];
+        setConnections(CONNECTION_LOCALISED_CONFIGS);
+        const router = await buildRouter(SALES_DIAGRAM_PATH);
+        const wrapper = await mountPanel(router);
+
+        await wrapper.get('[data-test="diagram-open"]').trigger('click');
+        await settle();
+
+        expect(router.currentRoute.value.path).toBe('/dataViews/a/connections');
+        wrapper.unmount();
+        setConnections([]);
+    });
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // A view stands in as a button that selects the second data view. The list hands over the data view, as a card does,
-// and the diagram its id, as a node does. The diagram's second button asks for a new data view on the 'local' connection.
+// and the diagram its id, as a node does. The diagram's second button asks for a new data view on the 'local' connection,
+// and its third opens the selected data view, as a second click on its node does.
 function constructViewStub(viewId: 'diagram' | 'list'): object {
     return {
-        emits: ['add', 'select'],
-        setup(_properties: object, { emit }: SetupContext<['add', 'select']>) {
+        emits: ['add', 'open', 'select'],
+        setup(_properties: object, { emit }: SetupContext<['add', 'open', 'select']>) {
             const selectButton = (): ReturnType<typeof h> =>
                 h(
                     'button',
@@ -405,7 +447,14 @@ function constructViewStub(viewId: 'diagram' | 'list'): object {
                         emit('add', 'local');
                     }
                 });
-            return (): ReturnType<typeof h> => h('div', viewId === 'diagram' ? [selectButton(), addButton()] : [selectButton()]);
+            const openButton = (): ReturnType<typeof h> =>
+                h('button', {
+                    'data-test': 'diagram-open',
+                    onClick: () => {
+                        emit('open');
+                    }
+                });
+            return (): ReturnType<typeof h> => h('div', viewId === 'diagram' ? [selectButton(), addButton(), openButton()] : [selectButton()]);
         }
     };
 }

@@ -111,18 +111,13 @@ describe('data view list', () => {
         expect(wrapper.emitted('retryRetrieval')).toHaveLength(1);
     });
 
-    it('marks the selected card, and makes it inert only when its detail shows beside the list', async () => {
+    it('marks the selected card, and keeps it clickable, because a second tap opens its data view', async () => {
         const wrapper = await mountList({ selectedDataViewId: 'b' });
         const card = wrapper.get('[data-card="b"]');
 
         expect(card.attributes('data-selected')).toBe('true');
         expect(card.attributes('data-inert')).toBe('false');
         expect(wrapper.get('[data-card="a"]').attributes('data-selected')).toBe('false');
-
-        await wrapper.setProps({ isSplit: true });
-
-        expect(card.attributes('data-inert')).toBe('true');
-        expect(wrapper.get('[data-card="a"]').attributes('data-inert')).toBe('false');
     });
 
     it('hands the data view of a clicked or opened card to its parent', async () => {
@@ -139,11 +134,10 @@ describe('data view list', () => {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function mountList(overrides: { isSplit?: boolean; retrievalIsSettled?: boolean; retrievalIsSlow?: boolean; selectedDataViewId?: string }): Promise<VueWrapper> {
+async function mountList(overrides: { retrievalIsSettled?: boolean; retrievalIsSlow?: boolean; selectedDataViewId?: string }): Promise<VueWrapper> {
     const wrapper = mount(DataViewList, {
         props: {
             dataViewLocalisedConfigs: DATA_VIEW_LOCALISED_CONFIGS,
-            isSplit: false,
             retrievalIsSettled: true,
             retrievalIsSlow: false,
             selectedDataViewId: undefined,

@@ -2,12 +2,13 @@
 import { onScopeDispose, shallowRef, watch } from 'vue';
 
 // ── DPUse Framework
-import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared';
+import type { ConnectionNodeConfig, DataFormatId } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export interface ItemStepTrail {
     backLabel: string | undefined; // Set while a narrow screen shows the item's preview in place of the list, so the trail gives way to one button back.
+    dataFormatId: DataFormatId | undefined; // The chosen item's format, once previewed, which picks its icon.
     folderNodeConfigs: ConnectionNodeConfig[]; // The open folder and the folders above it.
     itemConfig: ConnectionNodeConfig | undefined; // The chosen item, saved or not.
     returnToList: () => void;

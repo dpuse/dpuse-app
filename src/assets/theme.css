@@ -67,6 +67,7 @@
     --color-overlay: var(--overlay); /* Modal/drawer scrim */
     --color-content: var(--content); /* Text/icons (default/primary) */
     --color-muted: var(--muted); /* Text/icons (secondary) */
+    --color-hint: var(--hint); /* Text (a prompt where nothing is shown yet, on a plain background) */
     --color-subtle: var(--subtle); /* Text/icons (tertiary — decorative, structural) */
     --color-emphasis: var(--emphasis); /* Text/icons (strong — headings, prominent labels) */
     --color-accent: var(--accent); /* Text/icons (interactive — links, active states) */
@@ -148,6 +149,7 @@
        secondary step down. */
     --content: var(--color-zinc-700); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-600); /* zinc-500 fell below 4.5:1 under the hover, press and selected layers. */
+    --hint: var(--color-zinc-500); /* Paler than muted, still above 4.5:1 on the plain background. Never under a hover, press or selected layer. */
     --subtle: var(--color-zinc-400);
     --emphasis: var(--color-zinc-900);
     --accent: var(--color-blue-600);
@@ -230,6 +232,7 @@
     --overlay: color-mix(in srgb, black 60%, transparent); /* Dims the near-black page; a grey scrim lightened it. */
     --content: var(--color-zinc-300); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-400);
+    --hint: var(--color-zinc-400); /* The same as muted, because zinc-500 falls below 4.5:1 on the dark background. */
     --subtle: var(--color-zinc-500);
     --emphasis: var(--color-zinc-100);
     --accent: var(--color-blue-400);

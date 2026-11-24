@@ -20,14 +20,12 @@ import { TEXT } from './DataViewsOverview_.json';
 import { useQueryFailure } from '@/services/queryClient';
 import { useSetupOptions } from '@/features/studio/setup/useSetupOptions';
 import { assertDefined, defineLazyComponent } from '@/utilities/index.ts';
-import { cancelDataViewRetrieval, constructDataViewsViewRoute, constructNewDataViewConfig, type DataViewsViewId, NEW_DATA_VIEW_ID, useDataViews, useDeleteDataView } from '@/features/studio/dataViews/_state/dataViews';
+import { cancelDataViewRetrieval, constructDataViewsViewRoute, constructNewDataViewConfig, NEW_DATA_VIEW_ID, useDataViews, useDeleteDataView } from '@/features/studio/dataViews/_state/dataViews';
 import { findDataViewConnection, resolveCurrentDataViewStepId } from '@/features/studio/dataViews/_state/dataViewSummary';
 import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
 import { localeId, t } from '@/state/locale';
-import { PRESS_CLASSES, SEGMENT_SELECTED_CLASSES, UNSELECTED_CLASSES } from '@/components/ui/action/action';
 
 // ── Static Components
-import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import DataViewDetail from './DataViewDetail.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
@@ -53,11 +51,8 @@ type DetailItem =
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const CONNECTORS_SETUP_OPTION_ID = 'connectors'; // The Setup page a connector's panel belongs to, which the panel names above its title.
+const DOUBLE_CLICK_MS = 500; // A tap this soon after the one that selected a data view is the second half of a double-click, so it does not open the data view.
 const SLOW_RETRIEVAL_MS = 2000; // Long enough that a normal load never shows the slow-load message.
-const VIEW_CONFIGS = [
-    { id: 'list', labelKey: 'view.list.label' },
-    { id: 'diagram', labelKey: 'view.diagram.label' }
-] as const satisfies { id: DataViewsViewId; labelKey: string }[];
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -89,6 +84,9 @@ const { start: startSlowRetrievalTimer, stop: stopSlowRetrievalTimer } = useTime
     { immediate: false }
 );
 
+// ── Selection
+const dataViewSelectedTime = ref<number>(); // When a tap in the list last selected a data view.
+
 // ── Delete Confirmation
 const { cancel: cancelDelete, confirm: confirmDelete, isRevealed: deleteConfirmIsOpen, reveal: revealDeleteConfirm } = useConfirmDialog();
 const deletingDataViewLocalisedConfig = shallowRef<LocalisedConfig<DataViewConfig>>(); // Kept after the dialog closes, so its text does not blank while it fades out.
@@ -100,7 +98,7 @@ const deleteStatusElement = useTemplateRef<HTMLParagraphElement>('deleteStatus')
 // ── Views ─ Two ways round the same data views: a diagram of the connections they come from, or the list. Each is a
 // route of its own, shown in this panel's 'RouterView', and they share the one detail panel. The selected data view
 // stays selected across a switch, because both routes carry its id.
-const currentViewId = computed((): DataViewsViewId => (route.name === 'dataViewList' ? 'list' : 'diagram'));
+const currentViewId = computed(() => (route.name === 'dataViewList' ? 'list' : 'diagram'));
 const viewIsLoading = computed(() => navigationPendingDepth.value === 2); // The overview's own 'RouterView' is two levels in, so the overview shows the spinner while a view loads.
 
 // ── Data Views
@@ -120,15 +118,6 @@ const dataViewRetrievalShowsCancelled = computed(() => dataViewRetrievalIsCancel
 // has gone.
 const selectedDataViewLocalisedConfig = computed(() => dataViewLocalisedConfigs.value.find((config) => config.id === route.params.dataViewId));
 const isSelectedDataViewDetailClosed = (history.state as { detailIsClosed?: boolean } | null)?.detailIsClosed === true; // Set by the header's link back from a task, which returns to the list rather than the data view's detail.
-
-// ── View Switch ─ Each view opens with the selected data view still selected.
-const viewItems = computed(() =>
-    VIEW_CONFIGS.map((config) => ({
-        id: config.id,
-        label: t(TEXT, config.labelKey),
-        to: constructDataViewsViewRoute(config.id, route.query, { dataView: selectedDataViewLocalisedConfig.value })
-    }))
-);
 
 // ── Detail ─ What the one detail panel shows: the selected data view, or else, in the diagram, the connector or
 // connection it has been drilled down to. The list selects only data views. The connector behind the selected data
@@ -190,12 +179,22 @@ function handleAddDataView(connectionId?: string): void {
     void ignoreReportedNavigationFailure(router.push({ name: routeName, params: { dataViewId: NEW_DATA_VIEW_ID }, query: route.query }));
 }
 
-// A card stays selected when tapped again, as in a select. On a narrow screen, coming back to the list hides the
-// selected card's detail, so the tap opens it again. Beside the list the detail is already showing, so the tap changes
-// nothing.
-function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>, openDetail: () => void): void {
-    if (selectedDataViewLocalisedConfig.value?.id === dataViewLocalisedConfig.id) openDetail();
-    else updateDataViewIdParameter(dataViewLocalisedConfig.id);
+// A second tap on the selected card opens its data view, as a second click on its node in the diagram does, unless it
+// comes so soon after the tap that selected it that the two are one double-click. On a narrow screen, coming back to
+// the list hides the selected card's detail, so the tap shows the detail again instead.
+function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>, openDetail: () => void, isSplit: boolean): void {
+    const tapTime = Date.now();
+    if (selectedDataViewLocalisedConfig.value?.id !== dataViewLocalisedConfig.id) {
+        dataViewSelectedTime.value = tapTime;
+        updateDataViewIdParameter(dataViewLocalisedConfig.id);
+        return;
+    }
+    if (!isSplit) {
+        openDetail();
+        return;
+    }
+    if (dataViewSelectedTime.value != null && tapTime - dataViewSelectedTime.value < DOUBLE_CLICK_MS) return;
+    handleOpenDataView(dataViewLocalisedConfig);
 }
 
 // Opens the data view at the last task it has finished, or at Explore Data once every other task is done. Explore Data
@@ -205,6 +204,11 @@ function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewCon
     const stepId = resolveCurrentDataViewStepId(dataViewLocalisedConfig);
     const routeName = stepId === 'data' && !isDataViewLoaded(dataViewLocalisedConfig, false) ? 'item' : stepId;
     void ignoreReportedNavigationFailure(router.push({ name: routeName, params: { dataViewId: dataViewLocalisedConfig.id }, query: route.query }));
+}
+
+// The diagram opens the selected data view when it is clicked a second time.
+function handleOpenSelectedDataView(): void {
+    if (selectedDataViewLocalisedConfig.value) handleOpenDataView(selectedDataViewLocalisedConfig.value);
 }
 
 async function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): Promise<void> {
@@ -265,23 +269,6 @@ function updateDataViewIdParameter(dataViewId?: string): void {
              beside them serves both, so it stays as it is when the view changes. -->
         <MasterDetailPanel v-else class="min-h-0 flex-1" :is-detail-initially-closed="isSelectedDataViewDetailClosed" max-detail-width="65ch" :selected-item="selectedDetailItem">
             <template #master="{ isSplit, openDetail }">
-                <!-- View Switch ─ Above both views, so it stays put while they swap. It sits at the right, where the
-                     diagram's zoom buttons fall just below it. -->
-                <nav :aria-label="t(TEXT, 'views.aria')" class="flex flex-none justify-end px-2 pt-2" data-region="DataViewsViewSwitch">
-                    <div class="flex items-center gap-x-1 rounded-full bg-black/4 p-1 dark:bg-white/6">
-                        <ActionWrapper
-                            v-for="item in viewItems"
-                            :key="item.id"
-                            :aria-current="item.id === currentViewId ? 'page' : undefined"
-                            class="rounded-full px-3 py-1 text-sm"
-                            :class="[PRESS_CLASSES, item.id === currentViewId ? SEGMENT_SELECTED_CLASSES : UNSELECTED_CLASSES]"
-                            :to="item.to"
-                        >
-                            {{ item.label }}
-                        </ActionWrapper>
-                    </div>
-                </nav>
-
                 <!-- The list and the diagram take different props and events, so each is rendered by itself. -->
                 <RouterViewTransition v-slot="{ component }" class="min-h-0 flex-1" :is-loading="viewIsLoading">
                     <component
@@ -289,7 +276,6 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                         v-if="currentViewId === 'list'"
                         key="list"
                         :data-view-localised-configs="dataViewLocalisedConfigs"
-                        :is-split="isSplit"
                         :retrieval-is-settled="dataViewRetrievalSucceeded || dataViewRetrievalFailed"
                         :retrieval-is-slow="dataViewRetrievalShowsSlow"
                         :selected-data-view-id="selectedDataViewLocalisedConfig?.id"
@@ -297,7 +283,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                         @cancel-retrieval="handleCancelRetrieval"
                         @open="handleOpenDataView"
                         @retry-retrieval="handleRetryRetrieval"
-                        @select="handleSelectDataView($event, openDetail)"
+                        @select="handleSelectDataView($event, openDetail, isSplit)"
                     />
                     <component
                         :is="component"
@@ -306,6 +292,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                         :data-view-localised-configs="dataViewLocalisedConfigs"
                         :selected-data-view-id="selectedDataViewLocalisedConfig?.id"
                         @add="handleAddDataView"
+                        @open="handleOpenSelectedDataView"
                         @select="updateDataViewIdParameter"
                     />
                 </RouterViewTransition>

@@ -1,5 +1,6 @@
 // ── External Dependencies & Registrations
 import { describe, expect, it, vi } from 'vitest';
+import { ListIcon, NetworkIcon } from '@lucide/vue';
 import { mount, type VueWrapper } from '@vue/test-utils';
 
 // ── DPUse Framework
@@ -8,6 +9,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { buildMemoryRouter } from '~/tests/support/router';
 import TaskLayout from '@/features/studio/_components/TaskLayout.vue';
+import type { TaskLayoutView } from '@/features/studio/_components/TaskLayout.vue';
 import type { TaskTrailContent } from '@/components/ui/taskTrail';
 import type { TaskBarItem, TaskConfig } from '@/components/ui/taskBar';
 
@@ -33,11 +35,33 @@ describe('TaskLayout', () => {
         expect(wrapper.get('[data-region="TaskBar"] [aria-current="step"]').text()).toContain('Select Connection');
     });
 
+    it('marks a locked task as disabled, so it is not read as one that can be opened', async () => {
+        const wrapper = await mountLayout({ currentTaskId: 'connection', taskItems: TASK_ITEMS });
+
+        const steps = wrapper.get('[data-region="TaskBar"]').findAll('li > *');
+        expect(steps.map((step) => step.attributes('aria-disabled'))).toStrictEqual([undefined, 'true']);
+    });
+
     it('marks the view on screen, and shows no tasks where there are none', async () => {
         const wrapper = await mountLayout({ currentViewId: 'list' });
 
         expect(wrapper.get('[data-region="TabBar"] [aria-current="page"]').text()).toBe('List');
         expect(wrapper.find('[data-region="TaskBar"]').exists()).toBe(false);
+    });
+
+    it('shows views with icons as icon links, named by their labels, marking the one on screen', async () => {
+        const viewItems = [
+            { id: 'list', icon: ListIcon, label: 'List', to: '/list' },
+            { id: 'diagram', icon: NetworkIcon, label: 'Diagram', to: '/diagram' }
+        ];
+        const wrapper = await mountLayout({ currentViewId: 'diagram', viewItems });
+
+        const viewLinks = wrapper.get('[data-region="TaskLayoutViews"]').findAll('a');
+        expect(viewLinks.map((link) => [link.attributes('aria-label'), link.attributes('aria-current')])).toStrictEqual([
+            ['List', undefined],
+            ['Diagram', 'page']
+        ]);
+        expect(wrapper.find('[data-region="TabBar"]').exists()).toBe(false);
     });
 
     it('shows the trail it is given', async () => {
@@ -63,6 +87,7 @@ async function mountLayout(properties: {
     taskItems?: TaskBarItem[];
     tasksArePending?: boolean;
     trail?: TaskTrailContent;
+    viewItems?: TaskLayoutView[];
 }): Promise<VueWrapper> {
     const router = await buildMemoryRouter();
     return mount(TaskLayout, {

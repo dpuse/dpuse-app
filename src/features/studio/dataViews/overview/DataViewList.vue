@@ -23,9 +23,8 @@ const EmptyPlaceholder = defineLazyComponent(() => import('@/components/ui/place
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { dataViewLocalisedConfigs, isSplit, retrievalIsSettled, retrievalIsSlow, selectedDataViewId } = defineProps<{
+const { dataViewLocalisedConfigs, retrievalIsSettled, retrievalIsSlow, selectedDataViewId } = defineProps<{
     dataViewLocalisedConfigs: LocalisedConfig<DataViewConfig>[];
-    isSplit: boolean; // The detail is showing beside the list, so the selected card's detail is already on screen.
     retrievalIsSettled: boolean; // The data views have been retrieved, or retrieving them has failed. Until then the list stays busy.
     retrievalIsSlow: boolean; // Retrieving is taking a while, so the list says so and offers a way out.
     selectedDataViewId: string | undefined;
@@ -91,12 +90,9 @@ function handleFilterByCategory(): void {
         </template>
 
         <template #default="{ item }">
-            <!-- 'is-inert' ─ Beside the list, the selected card's detail is already showing, so a click on it does
-                 nothing and the card does not look clickable. -->
             <DataViewCard
                 :data-view-connection="dataViewConnectionsById.get(item.id)"
                 :data-view-localised-config="item"
-                :is-inert="isSplit && item.id === selectedDataViewId"
                 :selected="item.id === selectedDataViewId"
                 @category-click="handleFilterByCategory"
                 @click="$emit('select', item)"

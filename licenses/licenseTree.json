@@ -1,15 +1,15 @@
 {
-  "version": "1.0.315",
+  "version": "1.0.317",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
-      "version": "4.14.0",
-      "resolved": "https://registry.npmjs.org/@axe-core/playwright/-/playwright-4.14.0.tgz",
+      "version": "4.14.1",
+      "resolved": "https://registry.npmjs.org/@axe-core/playwright/-/playwright-4.14.1.tgz",
       "overridden": false,
       "dependencies": {
         "axe-core": {
-          "version": "4.14.0",
-          "resolved": "https://registry.npmjs.org/axe-core/-/axe-core-4.14.0.tgz",
+          "version": "4.14.1",
+          "resolved": "https://registry.npmjs.org/axe-core/-/axe-core-4.14.1.tgz",
           "overridden": false
         },
         "playwright-core": {
@@ -487,8 +487,8 @@
       }
     },
     "@dpuse/dpuse-tool-d3-visualiser": {
-      "version": "1.0.140",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-d3-visualiser/-/dpuse-tool-d3-visualiser-1.0.140.tgz",
+      "version": "1.0.146",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-d3-visualiser/-/dpuse-tool-d3-visualiser-1.0.146.tgz",
       "overridden": false,
       "dependencies": {
         "@dagrejs/dagre": {
@@ -5712,8 +5712,8 @@
       "overridden": false
     },
     "wrangler": {
-      "version": "4.167.0",
-      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.167.0.tgz",
+      "version": "4.168.0",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.168.0.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/kv-asset-handler": {
@@ -6062,8 +6062,8 @@
           "version": "2.3.3"
         },
         "miniflare": {
-          "version": "5.20261123.0-beta",
-          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261123.0-beta.tgz",
+          "version": "5.20261123.1-beta",
+          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261123.1-beta.tgz",
           "overridden": false,
           "dependencies": {
             "@cspotcode/source-map-support": {

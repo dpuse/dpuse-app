@@ -1028,6 +1028,7 @@ const connectionNodeConfigsDataSource = computed<DataSource<LocalisedConfig<Conn
 // A narrow screen shows the preview in place of the list, so there the trail gives way to one button back to it.
 useItemStepTrail(() => ({
     backLabel: gridDetailPanelComponent.value?.isNarrow === true && activeConnectionObjectConfig.value != null ? backLabel.value : undefined,
+    dataFormatId: activeItemReading.value?.dataFormatId,
     folderNodeConfigs: currentFolderNodes.value,
     itemConfig: activeConnectionObjectConfig.value,
     returnToList: handleReturnToList,

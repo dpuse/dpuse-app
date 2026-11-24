@@ -1,232 +1,157 @@
 // ── External Dependencies & Registrations
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createMemoryHistory, createRouter, type Router } from 'vue-router';
-import { defineComponent, h, type PropType, type SetupContext } from 'vue';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { h, type PropType, type SetupContext, shallowRef, watchEffect } from 'vue';
 import { mount, type VueWrapper } from '@vue/test-utils';
 
 // ── DPUse Framework
 import type { EventQueryConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { TEXT as CONFIRM_DIALOG_TEXT } from '@/components/ui/dialog/ConfirmDialog_.json';
-import { TEXT as EVENT_QUERY_LIST_TEXT } from '@/features/studio/eventQueries/EventQueryList_.json';
-import { raiseAppFailure } from '@/state/errors';
+import type { DataSource } from '@/composables/useDataWindow';
+import EventQueryList from '@/features/studio/eventQueries/EventQueryList.vue';
 import { settle } from '~/tests/support/settle';
 import { t } from '@/state/locale';
+import { TEXT } from '@/features/studio/eventQueries/EventQueryList_.json';
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
 
-vi.mock('@/state/errors', async (importOriginal) => ({ ...(await importOriginal<object>()), raiseAppFailure: vi.fn() }));
-
-// The list reads and deletes its event queries through these hooks, so the spec drives them directly: the refs below
-// are the query and the mutation, and each test moves them the way a real delete would.
-vi.mock('@/features/studio/eventQueries/_eventQueries', async () => {
-    const { ref } = await import('vue');
-    const state = {
-        eventQueryConfigs: ref<EventQueryConfig[]>([]),
-        deleteIsPending: ref(false),
-        deleteEventQuery: vi.fn<(id: string) => Promise<void>>()
-    };
-    return {
-        cancelEventQueryRetrieval: vi.fn(),
-        useEventQueries: (): object => ({
-            data: state.eventQueryConfigs,
-            error: ref(null),
-            isError: ref(false),
-            isFetching: ref(false),
-            isSuccess: ref(true),
-            refetch: vi.fn()
-        }),
-        useDeleteEventQuery: (): object => ({ isPending: state.deleteIsPending, mutateAsync: state.deleteEventQuery }),
-        stateForTest: state
-    };
-});
-
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-interface StateForTest {
-    eventQueryConfigs: { value: EventQueryConfig[] };
-    deleteIsPending: { value: boolean };
-    deleteEventQuery: ReturnType<typeof vi.fn<(id: string) => Promise<void>>>;
-}
+type EventQueryDataSource = DataSource<LocalisedConfig<EventQueryConfig>>;
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The grid needs a measured layout that jsdom cannot give, so this stand-in only shows the selected event query's
-// detail and an Add button.
-const GridDetailPanelStub = {
-    props: { selectedItem: { type: Object as PropType<LocalisedConfig<EventQueryConfig>>, default: undefined } },
+const EVENT_QUERY_LOCALISED_CONFIGS = [
+    { id: 'a', label: 'Hires' },
+    { id: 'b', label: 'Sales' }
+] as LocalisedConfig<EventQueryConfig>[];
+
+// The grid needs a measured layout that jsdom cannot give, so this stand-in shows every row the list hands it, the
+// list's slow-retrieval notice while the row count is unknown, and an Add button, as the grid does.
+const GridStub = {
+    props: { dataSource: { type: Object as PropType<EventQueryDataSource>, default: undefined } },
     emits: ['add'],
-    setup(properties: { selectedItem?: LocalisedConfig<EventQueryConfig> }, { emit, slots }: SetupContext<['add']>) {
+    setup(properties: { dataSource?: EventQueryDataSource }, { emit, slots }: SetupContext<['add']>) {
+        const rows = shallowRef<LocalisedConfig<EventQueryConfig>[]>([]);
+        watchEffect(() => {
+            const { dataSource } = properties;
+            if (dataSource == null) return;
+            if ('rows' in dataSource) rows.value = dataSource.rows;
+            else void dataSource.getRows(0, dataSource.rowCount ?? 0).then((result) => (rows.value = result.rows));
+        });
         return (): ReturnType<typeof h> =>
-            h('div', [
-                h(
-                    'button',
-                    {
-                        'data-test': 'add',
-                        onClick: () => {
-                            emit('add');
-                        }
-                    },
-                    'Add'
-                ),
-                properties.selectedItem ? slots.detail?.({ item: properties.selectedItem, close: vi.fn() }) : undefined
+            h('div', { 'data-row-count': String(properties.dataSource?.rowCount) }, [
+                h('button', {
+                    'data-test': 'add',
+                    onClick: () => {
+                        emit('add');
+                    }
+                }),
+                properties.dataSource?.rowCount === undefined ? slots.busy?.() : undefined,
+                ...rows.value.map((item) => slots.default?.({ item }))
             ]);
     }
 };
 
-// The detail panel stands in as its Delete button, which is all the list reads from it.
-const EventQueryPanelStub = defineComponent({
-    props: { isDeleting: { type: Boolean, default: false } },
-    emits: ['delete'],
-    setup(properties: { isDeleting: boolean }, { emit }: SetupContext<['delete']>) {
+// The card has its own look, so it stands in as a button that selects it.
+const ConfigCardStub = {
+    props: {
+        config: { type: Object as PropType<LocalisedConfig<EventQueryConfig>>, default: undefined },
+        isInert: Boolean,
+        selected: Boolean
+    },
+    emits: ['click'],
+    setup(properties: { config?: LocalisedConfig<EventQueryConfig>; isInert?: boolean; selected?: boolean }, { emit }: SetupContext<['click']>) {
         return (): ReturnType<typeof h> =>
-            h(
-                'button',
-                {
-                    'data-test': 'delete',
-                    disabled: properties.isDeleting,
-                    onClick: () => {
-                        emit('delete');
-                    }
-                },
-                'Delete Event Query'
-            );
+            h('button', {
+                'data-card': properties.config?.id,
+                'data-inert': String(properties.isInert),
+                'data-selected': String(properties.selected),
+                onClick: () => {
+                    emit('click');
+                }
+            });
     }
-});
+};
+
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const wrappers: VueWrapper[] = [];
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('event query list', () => {
-    beforeEach(async () => {
-        const state = await getState();
-        state.eventQueryConfigs.value = [buildEventQuery('a', 'Hires'), buildEventQuery('b', 'Sales')];
-        state.deleteIsPending.value = false;
-        state.deleteEventQuery.mockReset();
-        vi.mocked(raiseAppFailure).mockClear();
-        document.body.replaceChildren();
+    afterEach(() => {
+        for (const wrapper of wrappers.splice(0)) wrapper.unmount();
     });
 
-    describe('adding', () => {
-        it('opens the context diagram, where the event for a new event query is chosen', async () => {
-            const router = await buildRouter();
-            const wrapper = await mountList(router);
+    it('shows a card for every event query once retrieval has settled', async () => {
+        const wrapper = await mountList({});
 
-            await wrapper.get('[data-test="add"]').trigger('click');
-            await settle();
-
-            expect(router.currentRoute.value.name).toBe('eventQueryDiagram');
-            wrapper.unmount();
-        });
+        expect(wrapper.findAll('[data-card]').map((card) => card.attributes('data-card'))).toStrictEqual(['a', 'b']);
     });
 
-    describe('deleting', () => {
-        it('deletes nothing when the user cancels', async () => {
-            const state = await getState();
-            const router = await buildRouter();
-            const wrapper = await mountList(router);
+    it('keeps the list busy, with no row count, until retrieval settles', async () => {
+        const wrapper = await mountList({ retrievalIsSettled: false });
 
-            await wrapper.get('[data-test="delete"]').trigger('click');
-            await settle();
-            findDialogButton(t(CONFIRM_DIALOG_TEXT, 'cancel.label')).click();
-            await settle();
+        expect(wrapper.attributes('data-row-count')).toBe('undefined');
+        expect(wrapper.find('[role="status"]').exists()).toBe(false);
+    });
 
-            expect(state.deleteEventQuery).not.toHaveBeenCalled();
-            expect(router.currentRoute.value.params.eventQueryId).toBe('a');
-            wrapper.unmount();
-        });
+    it('says a slow retrieval is slow, and offers to cancel it or try again', async () => {
+        const wrapper = await mountList({ retrievalIsSettled: false, retrievalIsSlow: true });
 
-        it('deletes the selected event query, clears it from the URL and moves focus to the message', async () => {
-            const state = await getState();
-            // The list drops the event query as soon as the delete resolves, as the cache update does.
-            state.deleteEventQuery.mockImplementation((id) => {
-                state.eventQueryConfigs.value = state.eventQueryConfigs.value.filter((config) => config.id !== id);
-                return Promise.resolve();
-            });
-            const router = await buildRouter();
-            const wrapper = await mountList(router);
+        expect(wrapper.get('[role="status"]').text()).toBe(t(TEXT, 'retrieval.slow.text'));
+        const buttons = wrapper.findAll('[role="status"] + div button');
+        expect(buttons.map((button) => button.text())).toStrictEqual([t(TEXT, 'retrieval.cancel.label'), t(TEXT, 'retrieval.retry.label')]);
 
-            await wrapper.get('[data-test="delete"]').trigger('click');
-            await settle();
-            findDialogButton(t(EVENT_QUERY_LIST_TEXT, 'delete.confirm.label')).click();
-            await settle();
+        await buttons[0]?.trigger('click');
+        await buttons[1]?.trigger('click');
 
-            expect(state.deleteEventQuery).toHaveBeenCalledWith('a');
-            expect(router.currentRoute.value.params.eventQueryId).toBeUndefined();
-            expect(document.activeElement?.textContent).toBe(t(EVENT_QUERY_LIST_TEXT, 'delete.done.text', { name: 'Hires' }));
-            wrapper.unmount();
-        });
+        expect(wrapper.emitted('cancelRetrieval')).toHaveLength(1);
+        expect(wrapper.emitted('retryRetrieval')).toHaveLength(1);
+    });
 
-        it('reports a failed delete and keeps the event query selected', async () => {
-            const state = await getState();
-            state.deleteEventQuery.mockRejectedValue(new Error('Store unavailable.'));
-            const router = await buildRouter();
-            const wrapper = await mountList(router);
+    it('marks the selected card, and makes it inert only when its detail shows beside the list', async () => {
+        const wrapper = await mountList({ selectedEventQueryId: 'b' });
+        const card = wrapper.get('[data-card="b"]');
 
-            await wrapper.get('[data-test="delete"]').trigger('click');
-            await settle();
-            findDialogButton(t(EVENT_QUERY_LIST_TEXT, 'delete.confirm.label')).click();
-            await settle();
+        expect(card.attributes('data-selected')).toBe('true');
+        expect(card.attributes('data-inert')).toBe('false');
+        expect(wrapper.get('[data-card="a"]').attributes('data-selected')).toBe('false');
 
-            expect(raiseAppFailure).toHaveBeenCalledOnce();
-            expect(router.currentRoute.value.params.eventQueryId).toBe('a');
-            wrapper.unmount();
-        });
+        await wrapper.setProps({ isSplit: true });
 
-        it('shows the Delete button as busy while a delete is under way', async () => {
-            const state = await getState();
-            const router = await buildRouter();
-            const wrapper = await mountList(router);
+        expect(card.attributes('data-inert')).toBe('true');
+        expect(wrapper.get('[data-card="a"]').attributes('data-inert')).toBe('false');
+    });
 
-            state.deleteIsPending.value = true;
-            await settle();
+    it('hands the event query of a clicked card to its parent, and asks it for a new one from Add', async () => {
+        const wrapper = await mountList({});
 
-            expect(wrapper.get('[data-test="delete"]').attributes('disabled')).toBeDefined();
-            wrapper.unmount();
-        });
+        await wrapper.get('[data-card="b"]').trigger('click');
+        await wrapper.get('[data-test="add"]').trigger('click');
+
+        expect(wrapper.emitted('select')).toStrictEqual([[EVENT_QUERY_LOCALISED_CONFIGS[1]]]);
+        expect(wrapper.emitted('add')).toHaveLength(1);
     });
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function buildEventQuery(id: string, label: string): EventQueryConfig {
-    return { id, label: { en: label }, description: {}, icon: null, iconDark: null, typeId: 'eventQuery' } as EventQueryConfig;
-}
-
-async function getState(): Promise<StateForTest> {
-    const module_ = (await import('@/features/studio/eventQueries/_eventQueries')) as unknown as { stateForTest: StateForTest };
-    return module_.stateForTest;
-}
-
-async function buildRouter(): Promise<Router> {
-    const component = { render: (): null => null };
-    const router = createRouter({
-        history: createMemoryHistory(),
-        routes: [
-            { name: 'eventQueryDiagram', path: '/eventQueries/diagram', component },
-            { name: 'eventQueryList', path: '/eventQueries/list/:eventQueryId?', component }
-        ]
+async function mountList(overrides: { isSplit?: boolean; retrievalIsSettled?: boolean; retrievalIsSlow?: boolean; selectedEventQueryId?: string }): Promise<VueWrapper> {
+    const wrapper = mount(EventQueryList, {
+        props: {
+            eventQueryLocalisedConfigs: EVENT_QUERY_LOCALISED_CONFIGS,
+            isSplit: false,
+            retrievalIsSettled: true,
+            retrievalIsSlow: false,
+            selectedEventQueryId: undefined,
+            ...overrides
+        },
+        global: { stubs: { ConfigCard: ConfigCardStub, Grid: GridStub } }
     });
-    await router.push('/eventQueries/list/a');
-    await router.isReady();
-    return router;
-}
-
-async function mountList(router: Router): Promise<VueWrapper> {
-    const listModule = await import('@/features/studio/eventQueries/EventQueryList.vue');
-    const wrapper = mount(listModule.default, {
-        attachTo: document.body, // Focus only moves between elements in the document.
-        global: {
-            plugins: [router],
-            stubs: { EventQueryPanel: EventQueryPanelStub, GridDetailPanel: GridDetailPanelStub }
-        }
-    });
+    wrappers.push(wrapper);
     await settle();
     return wrapper;
-}
-
-function findDialogButton(label: string): HTMLButtonElement {
-    const button = [...document.querySelectorAll<HTMLButtonElement>('[data-region="ConfirmDialog"] button')].find((candidate) => candidate.textContent.trim() === label);
-    if (!button) throw new Error(`The confirm dialog has no '${label}' button.`);
-    return button;
 }

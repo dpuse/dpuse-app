@@ -6,7 +6,7 @@ import { constructDataViewDiagramData, findFocusedDataViewDiagramNode, resolveDa
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const LABELS = { add: 'Add', root: 'Data Views' };
+const LABELS = { add: 'Add', open: (name: string): string => `Open ${name}`, root: 'Data Views' };
 
 // Dropbox has two connections, as a connector can, and SQLite one.
 const CONNECTIONS = [
@@ -101,6 +101,16 @@ describe('selection and icons', () => {
         expect(readSelected(constructDataViewDiagramData(LABELS, CONNECTIONS, DATA_VIEWS, { connectorId: 'dropbox' }))).toStrictEqual(['connector']);
         expect(readSelected(constructDataViewDiagramData(LABELS, CONNECTIONS, DATA_VIEWS, WORK_FOCUS))).toStrictEqual(['connection']);
         expect(readSelected(constructDataViewDiagramData(LABELS, CONNECTIONS, DATA_VIEWS, WORK_FOCUS, 'a'))).toStrictEqual(['dataView']);
+    });
+
+    it('gives the selected data view an open badge in the action fill and outline and names it for opening, and no other node', () => {
+        const labels = { ...LABELS, dataViewColor: '#222222', openDiscColor: 'var(--pill)', openRingColor: 'var(--pill-border)' };
+        const data = constructDataViewDiagramData(labels, CONNECTIONS, DATA_VIEWS, WORK_FOCUS, 'a');
+
+        expect(data.nodes.filter((node) => node.badge != null || node.accessibleLabel != null)).toMatchObject([
+            { accessibleLabel: 'Open Employees', badge: 'arrowRight', color: 'var(--pill-border)', discColor: 'var(--pill)', label: 'Employees' }
+        ]);
+        expect(constructDataViewDiagramData(LABELS, CONNECTIONS, DATA_VIEWS, WORK_FOCUS).nodes.some((node) => node.badge != null)).toBe(false);
     });
 
     it('keeps the connection selected when the selected data view belongs to another connection', () => {

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { BracesIcon, CableIcon, ChevronRightIcon, FileIcon, SheetIcon, SquareDashedIcon } from '@lucide/vue';
-import { type Component, computed } from 'vue';
+import { computed } from 'vue';
+import { CableIcon, ChevronRightIcon, SquareDashedIcon } from '@lucide/vue';
 
 // ── DPUse Framework
 import type { ConnectionNodeConfig, ConnectorItemTypeId, DataFormatId } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { DATA_FORMAT_ICON_CONFIGS } from './dataFormatIcons';
+import { resolveItemIcon } from './itemIcon';
 import { t } from '@/state/locale';
 import { TEXT } from './DataViewSource_.json';
 import { constructItemPath, type DataViewConnection } from '@/features/studio/dataViews/_state/dataViewSummary';
@@ -20,11 +20,6 @@ import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 // A chosen connection or item takes the main text colour, so it stands apart from the muted text of a line with nothing
 // chosen. The difference comes from the chosen lines because muted is already the lightest grey that stays readable.
 const CHOSEN_CLASSES = 'text-content';
-
-// A chosen item without an icon of its own shows what kind of item it is. A file shows its format's icon instead, once it
-// has been previewed. A table connector's items always show the table grid, even the application emulator's, whose
-// tables are stored as CSV files. A connector released before it said which shows the table grid.
-const ITEM_TYPE_ICONS: Record<ConnectorItemTypeId, Component> = { apiEndpoint: BracesIcon, file: FileIcon, table: SheetIcon };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -43,15 +38,10 @@ const { connectionId, connectionNodeConfig, dataFormatId, dataViewConnection, is
 
 const connectionLabel = computed(() => dataViewConnection?.label ?? t(TEXT, connectionId == null ? 'connection.none.text' : 'connection.unavailable.text'));
 const itemIsShown = computed(() => !isSingleLine || dataViewConnection != null || connectionNodeConfig != null);
-const itemIconIsPresent = computed(() => [connectionNodeConfig?.icon, connectionNodeConfig?.iconDark].some((svg) => svg != null && svg !== ''));
 // Messages name the connector's kind of item, e.g. 'No file', and fall back to 'item' for a connector released before
 // it said which.
 const itemSubject = computed(() => itemTypeId ?? 'item');
-const itemFormatIconConfig = computed(() => (itemTypeId !== 'file' || dataFormatId == null || dataFormatId === 'unknown' ? undefined : DATA_FORMAT_ICON_CONFIGS[dataFormatId]));
-const itemTypeIcon = computed(() => {
-    if (itemTypeId === 'table') return SheetIcon;
-    return itemTypeId ? ITEM_TYPE_ICONS[itemTypeId] : SheetIcon;
-});
+const itemIcon = computed(() => (connectionNodeConfig ? resolveItemIcon(connectionNodeConfig, dataFormatId, itemTypeId) : undefined));
 
 // The item's folder path then its label, which a connector can set apart from the name the engine uses, e.g. to show a
 // file as a table. Split before the label, so a long path is cut in the middle: the start of its folder path and the
@@ -88,20 +78,9 @@ const itemPathParts = computed(() => {
             class="flex min-h-4 min-w-0 items-center gap-x-2"
             :class="{ 'opacity-60': itemIsDraft || !connectionNodeConfig, [CHOSEN_CLASSES]: connectionNodeConfig }"
         >
-            <template v-if="connectionNodeConfig && itemPathParts">
-                <ConfigIcon v-if="itemIconIsPresent" class="size-5" :icon="connectionNodeConfig.icon" :icon-dark="connectionNodeConfig.iconDark" />
-                <ConfigIcon v-else-if="itemFormatIconConfig" class="size-5" :icon="itemFormatIconConfig.icon" :icon-dark="itemFormatIconConfig.iconDark" />
-                <!-- A table or API endpoint has no format icon, so its kind's icon takes the DPUse green and stroke weight
-                     the delimited-text format icon uses. A file still to be previewed stays grey until its format icon
-                     replaces it. -->
-                <component
-                    :is="itemTypeIcon"
-                    v-else
-                    aria-hidden="true"
-                    class="size-5 flex-none"
-                    :class="{ 'text-[#488f86]': itemTypeId !== 'file' }"
-                    :stroke-width="itemTypeId === 'file' ? 1.5 : 1.75"
-                />
+            <template v-if="connectionNodeConfig && itemPathParts && itemIcon">
+                <ConfigIcon v-if="itemIcon.configIcon" class="size-5" :icon="itemIcon.configIcon.icon" :icon-dark="itemIcon.configIcon.iconDark" />
+                <component :is="itemIcon.icon" v-else aria-hidden="true" class="size-5 flex-none" :class="itemIcon.iconClass" :stroke-width="itemIcon.iconStrokeWidth" />
                 <!-- The folder path is cut first, down to its ellipsis, and the label only once it alone is too long. -->
                 <span class="flex min-w-0" :title="itemPathParts.path">
                     <span class="min-w-0 truncate">{{ itemPathParts.folderPath }}</span>

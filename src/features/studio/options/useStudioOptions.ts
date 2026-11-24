@@ -51,7 +51,7 @@ const STUDIO_OPTION_CONFIGS: StudioOptionConfig[] = [
             en: 'Bring data from several views together by mapping it to the events in a context model, such as a hire, a sale or a support case. Data from different systems then shares one meaning, so it can be combined and compared.',
             es: 'Reúne datos de varias vistas asignándolos a los eventos de un modelo de contexto, como una contratación, una venta o un caso de soporte. Así, los datos de distintos sistemas comparten un mismo significado y pueden combinarse y compararse.'
         },
-        icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="1.38 2.38 21.25 19.25" fill="none" stroke="#bc904d" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-audio-lines-icon lucide-audio-lines"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg>',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="1.38 1.38 21.25 21.25" fill="none" stroke="#bc904d" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity-icon lucide-activity"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>',
         iconDark: null,
         step: 2,
         tasks: []

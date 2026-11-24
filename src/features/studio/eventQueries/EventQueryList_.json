@@ -1,16 +1,28 @@
 {
     "TEXT": {
-        "delete.confirm.label": { "en": "Delete", "es": "Eliminar" },
-        "delete.confirm.text": { "en": "Delete “{name}”? This cannot be undone.", "es": "¿Eliminar «{name}»? No se puede deshacer." },
-        "delete.confirm.title": { "en": "Delete Event Query", "es": "Eliminar consulta de eventos" },
-        "delete.done.text": { "en": "“{name}” deleted.", "es": "Se eliminó «{name}»." },
-        "eventQuery.label": { "en": "Event Query", "es": "Consulta de eventos" },
-        "eventQuery.new.text": { "en": "a new event query", "es": "una nueva consulta de eventos" },
-        "eventQuery.other.text": { "en": "event queries", "es": "consultas de eventos" },
-        "noSelection.text": { "en": "Select an event query from the list.", "es": "Selecciona una consulta de eventos de la lista." },
-        "retrieval.cancel.label": { "en": "Cancel", "es": "Cancelar" },
-        "retrieval.cancelled.text": { "en": "Loading event queries was cancelled.", "es": "Se canceló la carga de las consultas de eventos." },
-        "retrieval.retry.label": { "en": "Retry", "es": "Reintentar" },
-        "retrieval.slow.text": { "en": "Still loading event queries…", "es": "Todavía se están cargando las consultas de eventos…" }
+        "eventQuery.label": {
+            "en": "Event Query",
+            "es": "Consulta de eventos"
+        },
+        "eventQuery.new.text": {
+            "en": "a new event query",
+            "es": "una nueva consulta de eventos"
+        },
+        "eventQuery.other.text": {
+            "en": "event queries",
+            "es": "consultas de eventos"
+        },
+        "retrieval.cancel.label": {
+            "en": "Cancel",
+            "es": "Cancelar"
+        },
+        "retrieval.retry.label": {
+            "en": "Retry",
+            "es": "Reintentar"
+        },
+        "retrieval.slow.text": {
+            "en": "Still loading event queries…",
+            "es": "Todavía se están cargando las consultas de eventos…"
+        }
     }
 }

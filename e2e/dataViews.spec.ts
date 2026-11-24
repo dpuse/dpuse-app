@@ -93,4 +93,29 @@ test.describe('Data views', () => {
         await taskLinks.first().click();
         await expect(page).toHaveURL(new RegExp(`/dataViews/${dataViewId}/connections`));
     });
+
+    test('opens the data view selected in the diagram when its node is clicked again', async ({ browserName, page }) => {
+        // eslint-disable-next-line playwright/no-skipped-test -- Firefox and WebKit fail to load the page at random, as the first test says.
+        test.skip(browserName !== 'chromium', 'Firefox and WebKit fail to load the page at random.');
+
+        await page.goto('/dataViews/list');
+        await page.locator('[data-region="PillButton"]').getByText('Data View', { exact: true }).click();
+        await page.getByRole('button', { name: 'DPUse Application Emulator', exact: true }).click();
+        await page.getByRole('button', { name: 'Select', exact: true }).click();
+        await page.getByRole('button', { name: 'Table: People' }).click();
+        await page.locator('[data-region="DataViewPill"]').getByRole('button', { name: 'Save' }).click();
+        await expect(page).toHaveURL(/\/dataViews\/(?!new\/)[^/]+\/items/);
+        const dataViewId = /\/dataViews\/([^/]+)\/items/.exec(page.url())?.[1] ?? '';
+
+        // Selected in the list, so the diagram shows it selected, with its open badge, and the first click opens it.
+        await page.goto(`/dataViews/list/${dataViewId}`);
+        await expect(page.locator('[data-region="TaskTrail"]').getByLabel('DPUse Application Emulator')).toBeVisible(); // The connection has loaded, which the diagram's link needs.
+        await page.getByRole('link', { name: 'Diagram' }).click();
+        await expect(page).toHaveURL(new RegExp(`/dataViews/diagram/.+/${dataViewId}`));
+        const node = page.locator('[data-region="DataViewDiagram"] g[role="button"]:has(g.badge)');
+        await expect(node).toHaveCount(1, { timeout: 15_000 }); // The diagram's tool loads when the diagram is first shown.
+        await expect(node).toHaveAttribute('aria-label', /^Open /);
+        await node.locator('circle').first().click(); // The node's disc, because the middle of the node's box, which takes in its label, can be empty.
+        await expect(page).toHaveURL(new RegExp(`/dataViews/${dataViewId}/items`)); // At its item, because its records are not loaded.
+    });
 });

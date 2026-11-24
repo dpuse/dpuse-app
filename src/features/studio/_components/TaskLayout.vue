@@ -5,12 +5,14 @@
 
 // ── External Dependencies & Registrations
 import type { RouteLocationRaw } from 'vue-router';
+import { type Component, computed } from 'vue';
 
 // ── Local Framework
 import type { TaskBarItem } from '@/components/ui/taskBar';
 import type { TaskTrailContent } from '@/components/ui/taskTrail';
 
 // ── Static Components
+import IconButton from '@/components/ui/action/IconButton.vue';
 import StudioHeader from './StudioHeader.vue';
 import StudioLayout from './StudioLayout.vue';
 import TabBar from '@/components/ui/TabBar.vue';
@@ -21,6 +23,7 @@ import TaskTrail from '@/components/ui/TaskTrail.vue';
 
 export interface TaskLayoutView {
     id: string;
+    icon?: Component; // Views that all have an icon show as icon buttons, named by their labels, rather than as tabs.
     label: string;
     to: RouteLocationRaw;
 }
@@ -54,6 +57,10 @@ const {
 }>();
 
 defineSlots<{ default(): unknown }>();
+
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const viewsAreIcons = computed(() => viewItems.length > 0 && viewItems.every((item) => item.icon != null));
 </script>
 
 <template>
@@ -63,7 +70,23 @@ defineSlots<{ default(): unknown }>();
 
         <!-- Views and Tasks ─ One row, so a view is one click from any task and the way back is in plain sight. -->
         <div class="flex min-w-0 flex-none items-center">
-            <TabBar class="flex-none" :active-id="currentViewId" :aria-label="viewsLabel" is-borderless :items="viewItems" />
+            <!-- Views ─ Icons lead the row as a switch between the views, and read as a different kind of thing from
+                 the numbered tasks beside them. Neither is marked on a task, where no view is on screen. -->
+            <nav v-if="viewsAreIcons" :aria-label="viewsLabel" class="-mt-1.5 flex flex-none items-center gap-x-1 pr-3 pl-page" data-region="TaskLayoutViews">
+                <IconButton
+                    v-for="item in viewItems"
+                    :key="item.id"
+                    :accessible-label="item.label"
+                    :aria-current="item.id === currentViewId ? 'page' : undefined"
+                    class="first:-ml-1.75"
+                    :is-active="item.id === currentViewId"
+                    size="sm"
+                    :to="item.to"
+                >
+                    <component :is="item.icon" :stroke-width="1.5" />
+                </IconButton>
+            </nav>
+            <TabBar v-else class="flex-none" :active-id="currentViewId" :aria-label="viewsLabel" is-borderless :items="viewItems" />
             <template v-if="taskItems.length > 0">
                 <span aria-hidden="true" class="-mt-1.5 h-5 w-px flex-none bg-separator" />
                 <!-- The task bar sizes itself from its own width, so a box that grows gives it the rest of the row. The box

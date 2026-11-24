@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed, ref, watch } from 'vue';
+import { GraphStarIcon, LayoutGridIcon } from '@lucide/vue';
 import { type RouteLocationNamedRaw, useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
@@ -8,6 +9,7 @@ import { localiseConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { accountConnectionsStatusTypeId } from '@/state/session';
+import { constructDataViewConnection } from '@/features/studio/dataViews/_state/dataViewSummary';
 import { constructDataViewTrail } from '@/features/studio/dataViews/_state/dataViewTrail';
 import { dataViewHasChanges } from '@/features/studio/dataViews/_state/dataViewDraft';
 import { itemStepTrail } from '@/features/studio/dataViews/_state/itemStepTrail';
@@ -89,21 +91,26 @@ const tasksArePending = computed(() => headerTitleIsPending.value || (dataViewCo
 const trailConnectionLocalisedConfig = computed(() =>
     dataViewConfig.value != null || routeIsTask.value ? dataViewConnectionLocalisedConfig.value : findConnectionLocalisedConfig(readDataViewDiagramFocus(route.params).connectionId)
 );
+const trailConnection = computed(() => (trailConnectionLocalisedConfig.value ? constructDataViewConnection(trailConnectionLocalisedConfig.value, localeId.value) : undefined)); // Says which kind of item the connection holds, which picks the item's icon.
 const trail = computed((): TaskTrailContent => {
     const labels = { home: t(TEXT, 'trail.home.label'), trail: t(TEXT, 'trail.aria') };
-    if (!routeIsTask.value && dataViewConfig.value == null && trailConnectionLocalisedConfig.value == null) return { items: [], label: labels.trail };
+    if (!routeIsTask.value && dataViewConfig.value == null && trailConnectionLocalisedConfig.value == null) {
+        return { emptyText: t(TEXT, route.name === 'dataViewList' ? 'trail.empty.list.text' : 'trail.empty.diagram.text'), items: [], label: labels.trail };
+    }
     const savedItemConfig = route.name === 'connection' ? undefined : dataViewConfig.value?.connectionNodeConfig;
-    return constructDataViewTrail(trailConnectionLocalisedConfig.value, savedItemConfig, routeIsTask.value ? itemStepTrail.value : undefined, labels);
+    const savedDataFormatId = dataViewConfig.value?.readingConfig?.dataFormatId;
+    return constructDataViewTrail(trailConnection.value, savedItemConfig, savedDataFormatId, routeIsTask.value ? itemStepTrail.value : undefined, labels);
 });
 
-// ── Views ─ The diagram and the list of data views share the one Overview tab, which switches between them. The tab
-// opens the one last shown, with the open or selected data view selected.
+// ── Views ─ The diagram and the list of data views. Each opens with the open or selected data view selected.
 const currentViewId = computed((): DataViewsViewId | undefined => {
     if (route.name === 'dataViewDiagram') return 'diagram';
     return route.name === 'dataViewList' ? 'list' : undefined;
 });
-const currentTabId = computed(() => (currentViewId.value == null ? undefined : 'overview'));
-const viewItems = computed((): TaskLayoutView[] => [{ id: 'overview', label: t(TEXT, 'view.overview.label'), to: constructOpenDataViewRoute(lastDataViewsViewId.value) }]);
+const viewItems = computed((): TaskLayoutView[] => [
+    { id: 'diagram', icon: GraphStarIcon, label: t(TEXT, 'view.diagram.label'), to: constructOpenDataViewRoute('diagram') }, // First, because it is the view the screen opens on.
+    { id: 'list', icon: LayoutGridIcon, label: t(TEXT, 'view.list.label'), to: constructOpenDataViewRoute('list') }
+]);
 
 // ── Views and Task Panel ─ The layout's own 'RouterView' sits one level in, so the layout shows the spinner while the
 // diagram and list or a task panel loads. 'App.vue' shows the spinner for the layout itself, which keeps the header and
@@ -156,7 +163,7 @@ function constructOpenDataViewRoute(viewId: DataViewsViewId): RouteLocationNamed
 <template>
     <TaskLayout
         :current-task-id="currentTaskLocalisedConfig?.id"
-        :current-view-id="currentTabId"
+        :current-view-id="currentViewId"
         :overline="headerOverline"
         :task-items="taskBarLocalisedItems"
         :tasks-are-pending="tasksArePending"

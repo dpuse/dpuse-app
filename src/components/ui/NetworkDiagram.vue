@@ -20,13 +20,6 @@ import BusyBar from '@/components/ui/BusyBar.vue';
 import DiagramZoomControls from '@/components/ui/DiagramZoomControls.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 
-// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// TODO: Use 'NetworkDiagramOptions' and 'D3NetworkView' alone once the app takes the d3 tool release whose types include
-// these options and methods.
-type DiagramOptions = NetworkDiagramOptions & { compactWidth?: number; disablesNodeDrag?: boolean; disablesPointerZoom?: boolean; fitAlignmentId?: 'middle' | 'top'; maximumFitScale?: number; maximumLabelLength?: number };
-type DiagramView = D3NetworkView & { fitView?: () => void; zoomBy?: (factor: number) => void };
-
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Labels go in the widest gap beside each node, wrap onto two lines, and have room kept for them, so the labels round
@@ -39,6 +32,7 @@ type DiagramView = D3NetworkView & { fitView?: () => void; zoomBy?: (factor: num
 const DIAGRAM_OPTIONS = {
     compactWidth: 480, // On a pane as narrow as a phone, labels go below their nodes, which leaves more of the width to the nodes.
     actionNodeColors: { border: 'var(--color-pill-border)', fill: 'var(--color-pill)', fillHovered: 'var(--color-pill-hover)', symbol: 'var(--color-selected-text)' },
+    actionNodeSize: 40, // As tall as the pill, ring included, because the add node is the same kind of action.
     chargeStrength: -400,
     disablesNodeDrag: true,
     disablesPointerZoom: true, // The wheel scrolls the page past the diagram. The zoom buttons still zoom.
@@ -59,7 +53,7 @@ const DIAGRAM_OPTIONS = {
     selectedRingColor: 'var(--color-focus-ring)', // A ring a little apart from the selected node, as the app's focus ring sits round a control. The ring for keyboard focus is drawn outside it.
     selectsOnClick: false,
     wrapsLabels: true
-} satisfies DiagramOptions;
+} satisfies NetworkDiagramOptions;
 
 const ZOOM_STEP = 1.25; // How much one press of a zoom button enlarges the diagram.
 
@@ -76,7 +70,7 @@ const emit = defineEmits<{ nodeClick: [node: TNode] }>();
 
 const containerElement = useTemplateRef<HTMLDivElement>('container');
 const diagramIsPending = ref(true); // The diagram area is blank while the d3 tool downloads and draws, so the wait is shown.
-const diagramView = shallowRef<DiagramView>();
+const diagramView = shallowRef<D3NetworkView>();
 const renderFailure = shallowRef<AppFailure | undefined>();
 const renderCount = ref(0); // Tells a render that a newer one has started while it waited for the tool, so it keeps nothing it drew.
 
@@ -166,8 +160,9 @@ function destroyDiagram(): void {
         <div v-show="!renderFailure" class="relative min-h-0 w-full flex-1">
             <div ref="container" :aria-busy="diagramIsPending" :aria-label="label" class="absolute inset-0" role="group" />
 
-            <!-- Zoom ─ Only for a diagram drawn by a tool that can zoom. -->
-            <DiagramZoomControls v-if="diagramView?.zoomBy" class="absolute top-2 right-2" @fit="handleFit" @zoom-in="handleZoomIn" @zoom-out="handleZoomOut" />
+            <!-- Zoom ─ Only for a diagram drawn by a tool that can zoom. At the bottom right, level with the page's other floating
+                 pills, so every floating action sits on one row. -->
+            <DiagramZoomControls v-if="diagramView?.zoomBy" class="absolute right-6 bottom-(--safe-bottom-offset)" @fit="handleFit" @zoom-in="handleZoomIn" @zoom-out="handleZoomOut" />
         </div>
     </div>
 </template>

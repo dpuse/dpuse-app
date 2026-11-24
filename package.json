@@ -1,6 +1,6 @@
 {
     "name": "dpuse-app",
-    "version": "1.0.317",
+    "version": "1.0.318",
     "private": false,
     "description": "The DPUse browser application.",
     "license": "MIT",
@@ -88,11 +88,11 @@
         "web-vitals": "^6.2.3"
     },
     "devDependencies": {
-        "@axe-core/playwright": "^4.14.0",
+        "@axe-core/playwright": "^4.14.1",
         "@cloudflare/vite-plugin": "1.70.1",
         "@cloudflare/workers-types": "^5.20261124.1",
         "@dpuse/dpuse-development": "^1.1.105",
-        "@dpuse/dpuse-tool-d3-visualiser": "^1.0.140",
+        "@dpuse/dpuse-tool-d3-visualiser": "^1.0.146",
         "@dpuse/dpuse-tool-marked-markdown-parser": "^1.0.106",
         "@dpuse/eslint-config-dpuse": "^1.1.108",
         "@eslint/css": "^2.0.1",
@@ -134,6 +134,6 @@
         "vite": "^8.3.8",
         "vitest": "^5.1.1",
         "vue-tsc": "^3.3.14",
-        "wrangler": "4.167.0"
+        "wrangler": "4.168.0"
     }
 }

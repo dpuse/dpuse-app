@@ -67,7 +67,7 @@ describe('network diagram', () => {
 
     it('zooms in, zooms out and fits the diagram from its buttons', async () => {
         const wrapper = await mountDiagram(TOP_DATA);
-        const [zoomInButton, zoomOutButton, fitButton] = wrapper.findAll('[data-region="DiagramZoomControls"] button');
+        const [zoomOutButton, zoomInButton, fitButton] = wrapper.findAll('[data-region="DiagramZoomControls"] button');
 
         await zoomInButton.trigger('click');
         expect(diagramView.zoomBy).toHaveBeenLastCalledWith(1.25);
