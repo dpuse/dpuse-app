@@ -5,27 +5,26 @@ import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } fro
 import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError, localiseConfig, localiseReference } from '@dpuse/dpuse-shared';
+import { AppError, localiseReference } from '@dpuse/dpuse-shared';
 import type { ContextConfig, ContextEventReference } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import { defineLazyComponent } from '@/utilities/index.ts';
 import { ignoreReportedNavigationFailure } from '@/router';
+import { localiseText } from '@/state/contextModels';
 import { TEXT } from './ContextNetworkPanel_.json';
 import { useUnsavedWork } from '@/state/unsavedWork';
 import { appearanceIsDark, resolveAppearanceIcon } from '@/state/appearance';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
 import { constructContextDiagramData, type ContextDiagramData, type ContextDiagramFocus, type ContextDiagramView } from './_contextDiagram';
+import { constructContextDiagramRoute, useContextDiagramFocus } from './_contextDiagramFocus';
 import { constructNewEventQueryConfig, useUpdateEventQuery } from './_eventQueries';
 import { constructRingColor, readIconColor, useStudioOptions } from '@/features/studio/options/useStudioOptions';
 import { contextConfig, contextConfigStatus } from '@/state/configs';
 import type { ContextSearchEntry, RenderContextDiagram } from './_contextDiagram';
 import { localeId, t } from '@/state/locale';
-import { localiseText, useContextModel } from '@/state/contextModels';
 
 // ── Static Components
-import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
 import ContextSearch from './ContextSearch.vue';
 import DiagramZoomControls from '@/components/ui/DiagramZoomControls.vue';
@@ -33,7 +32,6 @@ import Dialog from '@/components/ui/dialog/Dialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import RetrievalGate from '@/components/ui/RetrievalGate.vue';
-import Separator from '@/components/ui/Separator.vue';
 import StudioListLayout from '@/features/studio/_components/StudioListLayout.vue';
 
 // ── Dynamic Components
@@ -88,18 +86,8 @@ const draftLabel = ref('');
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// ── Focus ─ How far the diagram has been drilled down. The URL is its one source, so reload, deep links and
-// back/forward all land on the same level. An id the context does not have counts as no focus at that level.
-const focusedAreaConfig = computed(() => contextConfig.value?.areas.find((config) => config.id === route.params.areaId));
-const focusedModelReferenceConfig = computed(() => focusedAreaConfig.value?.models.find((config) => config.id === route.params.modelId));
-const { data: focusedModelConfig, isFetching: focusedModelIsFetching } = useContextModel(() => focusedModelReferenceConfig.value?.id);
-const focusedModelIsLoading = computed(() => focusedModelReferenceConfig.value != null && focusedModelIsFetching.value);
-const focusedEntityConfig = computed(() => focusedModelConfig.value?.entities.find((config) => config.id === route.params.entityId));
-const focus = computed((): ContextDiagramFocus => ({
-    areaId: focusedAreaConfig.value?.id,
-    modelId: focusedModelReferenceConfig.value?.id,
-    entityId: focusedEntityConfig.value?.id
-}));
+// ── Focus
+const { focus, focusedAreaConfig, focusedEntityConfig, focusedModelConfig, focusedModelIsLoading, focusedModelReferenceConfig } = useContextDiagramFocus();
 
 // A model with no entities or no data at all, or an entity with no events, has nothing to show below it, so a message
 // says so above the diagram.
@@ -122,22 +110,6 @@ const optionIcon = computed(() => {
 const setupColor = computed(() => {
     const setupOption = studioOptionLocalisedConfigs.value.find((config) => config.id === SETUP_OPTION_ID);
     return readIconColor(resolveAppearanceIcon(setupOption?.icon, setupOption?.iconDark));
-});
-
-// ── Breadcrumbs ─ The way back up: the context, then the area, model and entity drilled down to. The last one is
-// where the user is, so it is not a link.
-const breadcrumbs = computed((): BreadcrumbConfig[] => {
-    if (contextConfig.value == null) return [];
-    const { areaId, modelId, entityId } = focus.value;
-    const items: BreadcrumbConfig[] = [{ id: 'context', label: localiseConfig(contextConfig.value, localeId.value).label, to: constructFocusRoute({}) }];
-    if (focusedAreaConfig.value) items.push({ id: 'area', label: localiseConfig(focusedAreaConfig.value, localeId.value).label, to: constructFocusRoute({ areaId }) });
-    if (focusedModelReferenceConfig.value) {
-        items.push({ id: 'model', label: localiseReference(focusedModelReferenceConfig.value, localeId.value).label, to: constructFocusRoute({ areaId, modelId }) });
-    }
-    if (focusedEntityConfig.value) {
-        items.push({ id: 'entity', label: localiseText(focusedEntityConfig.value.label, localeId.value), to: constructFocusRoute({ areaId, modelId, entityId }) });
-    }
-    return items;
 });
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -288,8 +260,8 @@ function focusOn(newFocus: ContextDiagramFocus): void {
     void ignoreReportedNavigationFailure(router.push(constructFocusRoute(newFocus)));
 }
 
-function constructFocusRoute({ areaId, modelId, entityId }: ContextDiagramFocus): RouteLocationRaw {
-    return { name: 'eventQueries', params: { areaId, modelId, entityId }, query: route.query };
+function constructFocusRoute(newFocus: ContextDiagramFocus): RouteLocationRaw {
+    return constructContextDiagramRoute(newFocus, route.query);
 }
 
 function openNewEventQueryDialog(event: NewEventQueryEvent): void {
@@ -302,16 +274,11 @@ function openNewEventQueryDialog(event: NewEventQueryEvent): void {
 
 <template>
     <StudioListLayout>
-        <Separator class="flex-none" />
-
         <!-- Waits for the context, because the diagram is drawn from it. -->
         <RetrievalGate :status="contextConfigStatus">
-            <!-- Level and Search ─ Shown even when the diagram fails, because both still work without it. The trail
-                 says which level is drawn and leads back up. Search jumps to anything by name. -->
-            <div class="flex flex-none flex-wrap items-center gap-x-3 gap-y-2 px-page pt-2">
-                <nav :aria-label="t(TEXT, 'breadcrumbs.aria')" class="min-w-0 flex-1 text-sm">
-                    <Breadcrumbs disable-last :items="breadcrumbs" />
-                </nav>
+            <!-- Search ─ Shown even when the diagram fails, because it still works without it. It jumps to anything by
+                 name. -->
+            <div class="flex flex-none justify-end px-page pt-2">
                 <ContextSearch class="w-full sm:w-80" @select="handleSelectSearchEntry" />
             </div>
 

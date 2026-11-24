@@ -13,7 +13,7 @@ test.describe('Data views', () => {
         // eslint-disable-next-line playwright/no-skipped-test -- Skipped on purpose until the page loads reliably.
         test.skip(true, 'Suspended: the page fails to load at random (Vite module downloads cut short in Firefox, configuration WebSocket silent in WebKit).');
 
-        await page.goto('/dataViews?dvView=list'); // The list, because the diagram opens first.
+        await page.goto('/dataViews/list'); // The list, because the diagram opens first.
         await page.locator('[data-region="PillButton"]').getByText('Data View', { exact: true }).click(); // The empty list's own 'Data View' button shares the name.
 
         // Nothing is saved until a connection is committed.
@@ -27,11 +27,11 @@ test.describe('Data views', () => {
         const dataViewId = /\/dataViews\/([^/]+)\/items/.exec(page.url())?.[1];
         expect(dataViewId).toBeDefined();
 
-        await page.goto(`/dataViews/${dataViewId ?? ''}`);
+        await page.goto(`/dataViews/list/${dataViewId ?? ''}`);
         await page.getByRole('button', { name: 'Delete Data View' }).click();
         await page.getByRole('alertdialog', { name: 'Delete Data View' }).getByRole('button', { name: 'Delete', exact: true }).click();
 
-        await expect(page).toHaveURL(/\/dataViews(\?|$)/);
+        await expect(page).toHaveURL(/\/dataViews\/list(\?|$)/);
         await expect(page.locator('[data-region="ConfigCard"]')).toHaveCount(0);
         await expect(page.getByText('“Untitled Data View” deleted.')).toBeFocused();
     });
@@ -40,7 +40,7 @@ test.describe('Data views', () => {
         // eslint-disable-next-line playwright/no-skipped-test -- Firefox and WebKit fail to load the page at random, as the test above says.
         test.skip(browserName !== 'chromium', 'Firefox and WebKit fail to load the page at random.');
 
-        await page.goto('/dataViews?dvView=list'); // The list, because the diagram opens first.
+        await page.goto('/dataViews/list'); // The list, because the diagram opens first.
         await page.locator('[data-region="PillButton"]').getByText('Data View', { exact: true }).click();
         await expect(page).toHaveURL(/\/dataViews\/new\/connections/);
         const pill = page.locator('[data-region="DataViewPill"]');
@@ -57,7 +57,40 @@ test.describe('Data views', () => {
 
         await page.getByRole('link', { name: 'Establish Data Views' }).last().click();
         await question.getByRole('button', { name: 'Discard' }).click();
-        await expect(page).toHaveURL(/\/dataViews(\?|$)/);
+        await expect(page).toHaveURL(/\/dataViews\/list(\?|$)/);
         await expect(page.locator('[data-region="ConfigCard"]')).toHaveCount(0);
+    });
+
+    test('opens a data view selected in the list at any task it has reached', async ({ browserName, page }) => {
+        // eslint-disable-next-line playwright/no-skipped-test -- Firefox and WebKit fail to load the page at random, as the first test says.
+        test.skip(browserName !== 'chromium', 'Firefox and WebKit fail to load the page at random.');
+
+        await page.goto('/dataViews/list');
+        await page.locator('[data-region="PillButton"]').getByText('Data View', { exact: true }).click();
+        await page.getByRole('button', { name: 'DPUse Application Emulator', exact: true }).click();
+        await page.getByRole('button', { name: 'Select', exact: true }).click();
+        await page.getByRole('button', { name: 'Table: People' }).click();
+        await page.locator('[data-region="DataViewPill"]').getByRole('button', { name: 'Save' }).click();
+        await expect(page).toHaveURL(/\/dataViews\/(?!new\/)[^/]+\/items/); // Saved, so it has its own id.
+        const dataViewId = /\/dataViews\/([^/]+)\/items/.exec(page.url())?.[1] ?? '';
+
+        await page.goto(`/dataViews/list/${dataViewId}`);
+        const taskLinks = page.locator('[data-region="TaskBar"] a');
+        await expect(taskLinks).toHaveCount(2); // Its connection and item. Explore Data waits for the records, which are not loaded.
+
+        // The trail shows the same connection and item on the list, the diagram and the item task.
+        const trail = page.locator('[data-region="TaskTrail"]');
+        await expect(trail.getByText('People')).toBeVisible();
+        await expect(trail.getByLabel('DPUse Application Emulator')).toBeVisible();
+        const listTrailText = (await trail.textContent()) ?? '';
+        await page.getByRole('link', { name: 'Diagram' }).click();
+        await expect(page).toHaveURL(new RegExp(`/dataViews/diagram/[^/]+/[^/]+/${dataViewId}`));
+        await expect(trail).toHaveText(listTrailText);
+        await taskLinks.nth(1).click();
+        await expect(page).toHaveURL(new RegExp(`/dataViews/${dataViewId}/items`));
+        await expect(trail).toHaveText(listTrailText);
+
+        await taskLinks.first().click();
+        await expect(page).toHaveURL(new RegExp(`/dataViews/${dataViewId}/connections`));
     });
 });

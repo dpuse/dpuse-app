@@ -22,10 +22,13 @@ vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTrac
 // A draft's records are kept in a store the tests do not open.
 vi.mock('@/features/studio/dataViews/_dataViewStore', () => ({ forgetDraftLoad: vi.fn(), isDataViewLoaded: vi.fn(), promoteDraftLoad: vi.fn() }));
 
-// The app builds its connections from the connectors it is sent, so the list is replaced here with one a test can set.
+// The app builds its connections from the connectors it is sent, so the list is replaced here with one a test can set,
+// and a connection is looked up in it.
 vi.mock('@/state/configs', async (importOriginal) => {
     const { shallowRef } = await import('vue');
-    return { ...(await importOriginal<object>()), connectionLocalisedConfigs: shallowRef([]) };
+    const connectionLocalisedConfigs = shallowRef<{ id: string }[]>([]);
+    const findConnectionLocalisedConfig = (id?: string): object | undefined => connectionLocalisedConfigs.value.find((config) => config.id === id);
+    return { ...(await importOriginal<object>()), connectionLocalisedConfigs, findConnectionLocalisedConfig };
 });
 
 // The connection and connector panels have their own screens, so each stands in as the name of what it is given. They
@@ -56,9 +59,12 @@ vi.mock('@/features/studio/setup/plugins/PluginConnectorPanel.vue', async () => 
 vi.mock('@/state/errors', async (importOriginal) => ({ ...(await importOriginal<object>()), raiseAppFailure: vi.fn() }));
 
 // The panel reads its data views and deletes them through these hooks, so the spec drives them directly: the refs
-// below are the query and the mutation, and each test moves them the way a real delete would.
-vi.mock('@/features/studio/dataViews/_dataViews', async () => {
+// below are the query and the mutation, and each test moves them the way a real delete would. The routes to the
+// diagram and the list are the app's own.
+vi.mock('@/features/studio/dataViews/_dataViews', async (importOriginal) => {
     const { ref } = await import('vue');
+    // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
+    const { constructDataViewsViewRoute } = await importOriginal<typeof import('@/features/studio/dataViews/_dataViews')>();
     const state = {
         dataViewConfigs: ref<DataViewConfig[]>([]),
         deleteIsPending: ref(false),
@@ -67,6 +73,7 @@ vi.mock('@/features/studio/dataViews/_dataViews', async () => {
     return {
         NEW_DATA_VIEW_ID: 'new',
         cancelDataViewRetrieval: vi.fn(),
+        constructDataViewsViewRoute,
         constructNewDataViewConfig: (connectionId: string): object => ({ id: 'new', connectionId }),
         useDataViews: (): object => ({
             data: state.dataViewConfigs,
@@ -97,6 +104,7 @@ const CONNECTION_LOCALISED_CONFIGS = [
     buildConnection('personal', 'Personal', 'dropbox', 'Dropbox'),
     buildConnection('local', 'Local', 'sqlite', 'SQLite')
 ];
+const SALES_DIAGRAM_PATH = '/dataViews/diagram/dropbox/work/a'; // 'Sales' selected in the diagram, under its connection.
 
 // The panes need a measured layout that jsdom cannot give, so this stand-in shows the left pane's content, and the
 // selected item's detail and its action.
@@ -111,10 +119,10 @@ const MasterDetailPanelStub = {
     }
 };
 
-// The list and the diagram have their own tests, so each stands in as a button that selects the second data view. The
-// diagram has a second button, which asks for a new data view on a connection as its add node does.
+// The list and the diagram have their own tests, so each route stands in as a button that selects the second data view.
+// The diagram has a second button, which asks for a new data view on a connection as its add node does.
 const DataViewListStub = constructViewStub('list');
-const DataViewMapStub = constructViewStub('diagram');
+const DataViewDiagramStub = constructViewStub('diagram');
 
 // The detail panel stands in as its Delete button, which is all the list reads from it.
 const DataViewPanelStub = defineComponent({
@@ -216,60 +224,50 @@ describe('data views home panel deletion', () => {
 describe('data views home panel views', () => {
     beforeEach(async () => {
         const state = await getState();
-        state.dataViewConfigs.value = [buildDataView('a', 'Sales'), buildDataView('b', 'Stock')];
+        state.dataViewConfigs.value = [buildDataView('a', 'Sales', 'work'), buildDataView('b', 'Stock', 'work')];
+        setConnections(CONNECTION_LOCALISED_CONFIGS);
         document.body.replaceChildren();
     });
 
-    it('shows the diagram, not the list, unless the URL asks for the list', async () => {
-        const router = await buildRouter();
-        const wrapper = await mountPanel(router);
-
-        expect(wrapper.find('[data-test="diagram"]').exists()).toBe(true);
-        expect(wrapper.find('[data-test="list"]').exists()).toBe(false);
-        wrapper.unmount();
+    afterEach(() => {
+        setConnections([]);
     });
 
-    it('offers the diagram, then the list, as links that keep the selected data view', async () => {
-        const router = await buildRouter();
+    it.each([
+        ['diagram', '/dataViews/diagram', 'list'],
+        ['list', '/dataViews/list/a', 'diagram']
+    ])('shows the %s, and not the other view, when the route names it', async (viewId, path, otherViewId) => {
+        const router = await buildRouter(path);
         const wrapper = await mountPanel(router);
 
-        const links = wrapper.get('[data-region="TabBar"]').findAll('a');
-        expect(links.map((link) => link.text())).toStrictEqual([t(HOME_TEXT, 'view.diagram.label'), t(HOME_TEXT, 'view.list.label')]);
-        expect(links[1]?.attributes('href')).toBe('/dataViews/a?dvView=list');
-        wrapper.unmount();
-    });
-
-    it('shows the list in the diagram’s place when the URL asks for it', async () => {
-        const router = await buildRouter();
-        await router.push('/dataViews/a?dvView=list');
-        const wrapper = await mountPanel(router);
-
-        expect(wrapper.find('[data-test="list"]').exists()).toBe(true);
-        expect(wrapper.find('[data-test="diagram"]').exists()).toBe(false);
+        expect(wrapper.find(`[data-test="${viewId}"]`).exists()).toBe(true);
+        expect(wrapper.find(`[data-test="${otherViewId}"]`).exists()).toBe(false);
         wrapper.unmount();
     });
 
     it('keeps the one detail panel as it is when the view changes', async () => {
-        const router = await buildRouter();
+        const router = await buildRouter(SALES_DIAGRAM_PATH);
         const wrapper = await mountPanel(router);
         const detailElement = wrapper.get('[data-test="delete"]').element;
 
-        await router.push('/dataViews/a?dvView=list');
+        await router.push('/dataViews/list/a');
         await settle();
 
         expect(wrapper.get('[data-test="delete"]').element).toBe(detailElement);
         wrapper.unmount();
     });
 
-    it.each(['list', 'diagram'])('selects the data view chosen in the %s', async (viewId) => {
-        const router = await buildRouter();
-        await router.push(viewId === 'list' ? '/dataViews/a?dvView=list' : '/dataViews/a');
+    it.each([
+        ['list', '/dataViews/list/a', '/dataViews/list/b'],
+        ['diagram', SALES_DIAGRAM_PATH, '/dataViews/diagram/dropbox/work/b']
+    ])('selects the data view chosen in the %s, and stays in that view', async (viewId, path, selectedPath) => {
+        const router = await buildRouter(path);
         const wrapper = await mountPanel(router);
 
         await wrapper.get(`[data-test="${viewId}"]`).trigger('click');
         await settle();
 
-        expect(router.currentRoute.value.params.dataViewId).toBe('b');
+        expect(router.currentRoute.value.path).toBe(selectedPath);
         wrapper.unmount();
     });
 });
@@ -288,8 +286,7 @@ describe('data views home panel diagram selection', () => {
     });
 
     it('shows the connection the diagram is drilled down to, without Delete or Hide, and starts a data view on it from its action', async () => {
-        const router = await buildRouter();
-        await router.push('/dataViews?dvConnector=dropbox&dvConnection=work');
+        const router = await buildRouter('/dataViews/diagram/dropbox/work');
         const wrapper = await mountPanel(router);
 
         const connectionPanel = wrapper.get('[data-test="connection-panel"]');
@@ -306,8 +303,7 @@ describe('data views home panel diagram selection', () => {
     });
 
     it('shows the connector the diagram is drilled down to, as Setup does, with no action', async () => {
-        const router = await buildRouter();
-        await router.push('/dataViews?dvConnector=dropbox');
+        const router = await buildRouter('/dataViews/diagram/dropbox');
         const wrapper = await mountPanel(router);
 
         const connectorPanel = wrapper.get('[data-test="connector-panel"]');
@@ -318,8 +314,7 @@ describe('data views home panel diagram selection', () => {
     });
 
     it('shows the selected data view in place of the connection it belongs to', async () => {
-        const router = await buildRouter();
-        await router.push('/dataViews/a?dvConnector=dropbox&dvConnection=work');
+        const router = await buildRouter(SALES_DIAGRAM_PATH);
         const wrapper = await mountPanel(router);
 
         expect(wrapper.find('[data-test="delete"]').exists()).toBe(true);
@@ -327,18 +322,8 @@ describe('data views home panel diagram selection', () => {
         wrapper.unmount();
     });
 
-    it('shows no connection in the list, which selects only data views', async () => {
-        const router = await buildRouter();
-        await router.push('/dataViews?dvView=list&dvConnector=dropbox&dvConnection=work');
-        const wrapper = await mountPanel(router);
-
-        expect(wrapper.find('[data-test="connection-panel"]').exists()).toBe(false);
-        wrapper.unmount();
-    });
-
     it('starts a data view on the connection whose add node is clicked in the diagram, and opens the item step', async () => {
-        const router = await buildRouter();
-        await router.push('/dataViews?dvConnector=sqlite&dvConnection=local');
+        const router = await buildRouter('/dataViews/diagram/sqlite/local');
         const wrapper = await mountPanel(router);
 
         await wrapper.get('[data-test="diagram-add"]').trigger('click');
@@ -367,7 +352,7 @@ describe('opening a data view', () => {
         return routeName;
     }
 
-    const itemConfig = { name: 'sales' } as DataViewConfig['connectionNodeConfig'];
+    const itemConfig = { folderPath: '', label: 'sales', name: 'sales' } as DataViewConfig['connectionNodeConfig'];
 
     it('opens at Explore Data once the records are loaded', async () => {
         expect(await openSelectedDataView(itemConfig, true)).toBe('data');
@@ -426,8 +411,8 @@ function findButton(wrapper: VueWrapper, label: string): ReturnType<VueWrapper['
     return wrapper.findAll('button').find((candidate) => candidate.text() === label);
 }
 
-function buildDataView(id: string, label: string): DataViewConfig {
-    return { id, label: { en: label }, description: {}, icon: null, iconDark: null, typeId: 'dataView' } as DataViewConfig;
+function buildDataView(id: string, label: string, connectionId?: string): DataViewConfig {
+    return { id, label: { en: label }, description: {}, icon: null, iconDark: null, typeId: 'dataView', connectionId } as DataViewConfig;
 }
 
 async function getState(): Promise<StateForTest> {
@@ -435,18 +420,21 @@ async function getState(): Promise<StateForTest> {
     return module_.stateForTest;
 }
 
-async function buildRouter(): Promise<Router> {
+// The panel is mounted by itself, so its 'RouterView' shows the diagram or list route at the top level. The data view
+// 'a' starts selected in the list, which needs no connection to show it.
+async function buildRouter(path = '/dataViews/list/a'): Promise<Router> {
     const component = { render: (): null => null };
     const router = createRouter({
         history: createMemoryHistory(),
         routes: [
-            { name: 'dataViews', path: '/dataViews/:dataViewId?', component },
+            { name: 'dataViewDiagram', path: '/dataViews/diagram/:connectorId?/:connectionId?/:dataViewId?', component: DataViewDiagramStub },
+            { name: 'dataViewList', path: '/dataViews/list/:dataViewId?', component: DataViewListStub },
             { name: 'connection', path: '/dataViews/:dataViewId/connections', component },
             { name: 'item', path: '/dataViews/:dataViewId/items', component },
             { name: 'data', path: '/dataViews/:dataViewId/data', component }
         ]
     });
-    await router.push('/dataViews/a');
+    await router.push(path);
     await router.isReady();
     return router;
 }
@@ -458,8 +446,6 @@ async function mountPanel(router: Router): Promise<VueWrapper> {
         global: {
             plugins: [router],
             stubs: {
-                DataViewList: DataViewListStub,
-                DataViewMap: DataViewMapStub,
                 DataViewPanel: DataViewPanelStub,
                 MasterDetailPanel: MasterDetailPanelStub,
                 Transition: false

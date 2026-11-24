@@ -1,15 +1,15 @@
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export interface DataViewMapData {
+export interface DataViewDiagramData {
     links: { source: string; target: string }[];
-    nodes: DataViewMapNode[];
+    nodes: DataViewDiagramNode[];
 }
 
-export interface DataViewMapNode {
+export interface DataViewDiagramNode {
     id: string;
     label?: string; // Shown beside the node. The top node and the add node have none, because the icon or symbol inside each says what it is.
-    level: DataViewMapLevel;
-    typeId: DataViewMapNodeTypeId;
+    level: DataViewDiagramLevel;
+    typeId: DataViewDiagramNodeTypeId;
     color?: string; // The node's colour, which is that of the part of the app it belongs to. The add node keeps the look of an action.
     discColor?: string; // On the top node: a solid disc behind its icon, so it reads as where the diagram starts.
     icon?: string; // The node's own icon, drawn inside it. A data view has its item's icon, or that of its item's format.
@@ -19,17 +19,17 @@ export interface DataViewMapNode {
     title?: string; // On the top node and the add node: its name, shown as its tooltip.
     connectionId?: string; // On the add node: the connection a new data view is started on.
     dataViewId?: string; // On a data view node: the data view to select.
-    focus?: DataViewMapFocus; // On a node that opens: the level a click on it shows.
+    focus?: DataViewDiagramFocus; // On a node that opens: the level a click on it shows.
 }
 
 // How far the diagram has been drilled down: every connector, one connector, or one of its connections.
-export interface DataViewMapFocus {
+export interface DataViewDiagramFocus {
     connectorId?: string | undefined;
     connectionId?: string | undefined;
 }
 
 // A connection as the diagram shows it, with its connector.
-export interface DataViewMapConnection {
+export interface DataViewDiagramConnection {
     id: string;
     label: string;
     icon?: string | undefined;
@@ -39,7 +39,7 @@ export interface DataViewMapConnection {
 }
 
 // A saved data view as the diagram shows it.
-export interface DataViewMapDataView {
+export interface DataViewDiagramDataView {
     id: string;
     label: string;
     icon?: string | undefined;
@@ -48,7 +48,7 @@ export interface DataViewMapDataView {
 
 // The top node and the add node, named in the user's language by the caller, and how the nodes look: the top node's
 // icon and the solid colour behind it, and the ring colours of the connectors and connections and of the data views.
-export interface DataViewMapLabels {
+export interface DataViewDiagramLabels {
     add: string;
     root: string;
     rootIcon?: string | undefined;
@@ -58,16 +58,16 @@ export interface DataViewMapLabels {
 }
 
 // The connector or connection a focus opens, which is also the one selected while no data view is.
-export type DataViewMapFocusedNode = { typeId: 'connection'; connectionId: string; connectorId: string } | { typeId: 'connector'; connectorId: string };
+export type DataViewDiagramFocusedNode = { typeId: 'connection'; connectionId: string; connectorId: string } | { typeId: 'connector'; connectorId: string };
 
-type DataViewMapLevel = (typeof DATA_VIEW_MAP_LEVELS)[DataViewMapNodeTypeId];
-type DataViewMapNodeTypeId = keyof typeof DATA_VIEW_MAP_LEVELS;
+type DataViewDiagramLevel = (typeof DATA_VIEW_DIAGRAM_LEVELS)[DataViewDiagramNodeTypeId];
+type DataViewDiagramNodeTypeId = keyof typeof DATA_VIEW_DIAGRAM_LEVELS;
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // How deep each kind of node sits, which sets its size and colour in the diagram. A connection's data views and its
 // node for adding one sit at one level.
-const DATA_VIEW_MAP_LEVELS = { root: 0, connector: 1, connection: 2, add: 3, dataView: 3 } as const;
+const DATA_VIEW_DIAGRAM_LEVELS = { root: 0, connector: 1, connection: 2, add: 3, dataView: 3 } as const;
 const ROOT_NODE_ID = 'data';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -78,28 +78,28 @@ const ROOT_NODE_ID = 'data';
 // for adding one. The siblings of the nodes on the path are left out. Every node's id is prefixed with its parent's id,
 // so a node keeps its id at every level. The selected node is the selected data view, or else the focused connector or
 // connection. The top node is never selected, because it stands for nothing being selected.
-export function constructDataViewMapData(
-    labels: DataViewMapLabels,
-    connections: DataViewMapConnection[],
-    dataViews: DataViewMapDataView[],
-    focus: DataViewMapFocus,
+export function constructDataViewDiagramData(
+    labels: DataViewDiagramLabels,
+    connections: DataViewDiagramConnection[],
+    dataViews: DataViewDiagramDataView[],
+    focus: DataViewDiagramFocus,
     selectedDataViewId?: string
-): DataViewMapData {
-    const rootNode: DataViewMapNode = {
+): DataViewDiagramData {
+    const rootNode: DataViewDiagramNode = {
         id: ROOT_NODE_ID,
-        level: DATA_VIEW_MAP_LEVELS.root,
+        level: DATA_VIEW_DIAGRAM_LEVELS.root,
         typeId: 'root',
         ...constructLook(labels.rootIcon, labels.rootDiscColor),
         ...(labels.rootDiscColor != null && { discColor: labels.rootDiscColor }),
         title: labels.root,
         focus: {}
     };
-    const data: DataViewMapData = { links: [], nodes: [rootNode] };
-    const addNode = (parentId: string, node: DataViewMapNode): void => {
+    const data: DataViewDiagramData = { links: [], nodes: [rootNode] };
+    const addNode = (parentId: string, node: DataViewDiagramNode): void => {
         data.nodes.push(node);
         data.links.push({ source: parentId, target: node.id });
     };
-    const focusedNode = findFocusedDataViewMapNode(connections, focus);
+    const focusedNode = findFocusedDataViewDiagramNode(connections, focus);
     const focusedConnectionId = focusedNode?.typeId === 'connection' ? focusedNode.connectionId : undefined;
     const isDataViewSelected = dataViews.some((dataView) => dataView.id === selectedDataViewId && dataView.connectionId === focusedConnectionId);
 
@@ -117,7 +117,7 @@ export function constructDataViewMapData(
             addNode(ROOT_NODE_ID, {
                 id: connectorNodeId,
                 label: connectorConnections[0]?.connectorLabel,
-                level: DATA_VIEW_MAP_LEVELS.connector,
+                level: DATA_VIEW_DIAGRAM_LEVELS.connector,
                 typeId: 'connector',
                 ...constructLook(connectorConnections[0]?.connectorIcon, labels.connectionColor),
                 isSelected: focusedNode?.typeId === 'connector',
@@ -131,7 +131,7 @@ export function constructDataViewMapData(
             addNode(connectorIsShown ? connectorNodeId : ROOT_NODE_ID, {
                 id: `${connectorNodeId}.${connection.id}`,
                 label: connection.label,
-                level: DATA_VIEW_MAP_LEVELS.connection,
+                level: DATA_VIEW_DIAGRAM_LEVELS.connection,
                 typeId: 'connection',
                 ...constructLook(connection.icon, labels.connectionColor),
                 isSelected: connection.id === focusedConnectionId && !isDataViewSelected,
@@ -148,7 +148,7 @@ export function constructDataViewMapData(
         addNode(connectionNodeId, {
             id: `${connectionNodeId}.dataView.${dataView.id}`,
             label: dataView.label,
-            level: DATA_VIEW_MAP_LEVELS.dataView,
+            level: DATA_VIEW_DIAGRAM_LEVELS.dataView,
             typeId: 'dataView',
             ...constructLook(dataView.icon, labels.dataViewColor),
             isSelected: dataView.id === selectedDataViewId,
@@ -157,7 +157,7 @@ export function constructDataViewMapData(
     }
     addNode(connectionNodeId, {
         id: `${connectionNodeId}.add`,
-        level: DATA_VIEW_MAP_LEVELS.add,
+        level: DATA_VIEW_DIAGRAM_LEVELS.add,
         typeId: 'add',
         isAction: true,
         symbol: '+',
@@ -169,7 +169,7 @@ export function constructDataViewMapData(
 
 // The connector or connection a focus opens. A focus that names a connection the user does not have falls back to its
 // connector, and one that names a connector the user does not have, or one with no node of its own, to the top.
-export function findFocusedDataViewMapNode(connections: Pick<DataViewMapConnection, 'connectorId' | 'id'>[], focus: DataViewMapFocus): DataViewMapFocusedNode | undefined {
+export function findFocusedDataViewDiagramNode(connections: Pick<DataViewDiagramConnection, 'connectorId' | 'id'>[], focus: DataViewDiagramFocus): DataViewDiagramFocusedNode | undefined {
     const { connectorId, connectionId } = focus;
     if (connectorId == null) return undefined;
     if (connectionId != null && connections.some((connection) => connection.id === connectionId && connection.connectorId === connectorId)) {
@@ -178,19 +178,19 @@ export function findFocusedDataViewMapNode(connections: Pick<DataViewMapConnecti
     return connections.filter((connection) => connection.connectorId === connectorId).length > 1 ? { typeId: 'connector', connectorId } : undefined;
 }
 
-// The level the URL names, in the screen's own query parameters. A parameter given more than once is ignored.
-export function readDataViewMapFocus(query: Record<string, unknown>): DataViewMapFocus {
-    const { dvConnector, dvConnection } = query;
-    return { connectorId: typeof dvConnector === 'string' ? dvConnector : undefined, connectionId: typeof dvConnection === 'string' ? dvConnection : undefined };
+// The level the URL names, in the diagram route's path. A part that is left out is empty, which names no level.
+export function readDataViewDiagramFocus(parameters: Record<string, unknown>): DataViewDiagramFocus {
+    const { connectorId, connectionId } = parameters;
+    return { connectorId: readPathPart(connectorId), connectionId: readPathPart(connectionId) };
 }
 
 // The level the diagram shows: the selected data view's connection, so the data view is always in view, or else the
 // level the URL names.
-export function resolveDataViewMapFocus(
-    connections: Pick<DataViewMapConnection, 'connectorId' | 'id'>[],
-    urlFocus: DataViewMapFocus,
-    selectedDataView?: Pick<DataViewMapDataView, 'connectionId'>
-): DataViewMapFocus {
+export function resolveDataViewDiagramFocus(
+    connections: Pick<DataViewDiagramConnection, 'connectorId' | 'id'>[],
+    urlFocus: DataViewDiagramFocus,
+    selectedDataView?: Pick<DataViewDiagramDataView, 'connectionId'>
+): DataViewDiagramFocus {
     const connection = selectedDataView == null ? undefined : connections.find((candidate) => candidate.id === selectedDataView.connectionId);
     return connection == null ? urlFocus : { connectorId: connection.connectorId, connectionId: connection.id };
 }
@@ -200,4 +200,8 @@ export function resolveDataViewMapFocus(
 // A node with no icon or no colour carries no such field at all, so it is drawn in its level's own look.
 function constructLook(icon: string | undefined, color: string | undefined): { color?: string; icon?: string } {
     return { ...(icon != null && icon !== '' && { icon }), ...(color != null && color !== '' && { color }) };
+}
+
+function readPathPart(part: unknown): string | undefined {
+    return typeof part === 'string' && part !== '' ? part : undefined;
 }

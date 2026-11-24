@@ -1,6 +1,7 @@
 // ── External Dependencies & Registrations
 import { type Component, shallowRef } from 'vue';
-import { createRouter, createWebHistory, isNavigationFailure, type LocationQueryRaw, NavigationFailureType, type Router, type RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory, isNavigationFailure, type LocationQuery, type LocationQueryRaw, NavigationFailureType, type Router } from 'vue-router';
+import type { RouteLocation, RouteLocationRaw, RouteRecordRaw } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError } from '@dpuse/dpuse-shared';
@@ -16,11 +17,13 @@ import StudioHomePanel from '@/features/studio/StudioHomePanel.vue'; // Static, 
 
 // ── Dynamic Components
 // Every loader is wrapped so that a failed chunk can be reported by name, and so that loading one raises the spinner.
-// The number is the nesting level of the 'RouterView' that renders the component. The one in 'App.vue' is 0, and the
-// one inside a layout such as 'DataViewsLayout' is 1. 'assertViewDepths' checks these against the route table at
-// startup in Dev environment.
+// The number is the nesting level of the 'RouterView' that renders the component. The one in 'App.vue' is 0, the one
+// inside a layout such as 'DataViewsLayout' is 1, and the one inside 'DataViewsHomePanel' is 2. 'assertViewDepths'
+// checks these against the route table at startup in Dev environment.
 const DataViewsLayout = defineLazyLoader('DataViewsLayout', 0, () => import('@/features/studio/dataViews/DataViewsLayout.vue'));
 const DataViewsHomePanel = defineLazyLoader('DataViewsHomePanel', 1, () => import('@/features/studio/dataViews/DataViewsHomePanel.vue'));
+const DataViewDiagram = defineLazyLoader('DataViewDiagram', 2, () => import('@/features/studio/dataViews/DataViewDiagram.vue'));
+const DataViewList = defineLazyLoader('DataViewList', 2, () => import('@/features/studio/dataViews/DataViewList.vue'));
 const SelectConnectionList = defineLazyLoader('SelectConnectionList', 1, () => import('@/features/studio/dataViews/selectConnection/SelectConnectionList.vue'));
 const SelectItemPanel = defineLazyLoader('SelectItemPanel', 1, () => import('@/features/studio/dataViews/selectItem/SelectItemPanel.vue'));
 const ExploreDataPanel = defineLazyLoader('ExploreDataPanel', 1, () => import('@/features/studio/dataViews/exploreData/ExploreDataPanel.vue'));
@@ -63,10 +66,19 @@ export const APP_ROUTES: RouteRecordRaw[] = [
                 path: 'dataViews',
                 component: DataViewsLayout,
                 children: [
-                    { name: 'dataViews', path: ':dataViewId?', component: DataViewsHomePanel },
+                    {
+                        path: '',
+                        component: DataViewsHomePanel,
+                        children: [
+                            { name: 'dataViews', path: '', redirect: redirectToDataViewsView }, // Kept for the studio's own links.
+                            { name: 'dataViewDiagram', path: 'diagram/:connectorId?/:connectionId?/:dataViewId?', component: DataViewDiagram }, // The connector and connection the diagram has been drilled down to.
+                            { name: 'dataViewList', path: 'list/:dataViewId?', component: DataViewList }
+                        ]
+                    },
                     {
                         path: ':dataViewId',
                         children: [
+                            { path: '', redirect: (to) => ({ name: 'dataViewList', params: to.params, query: removeOldDataViewsQuery(to.query) }) }, // An old link to a selected data view.
                             { name: 'connection', path: 'connections', component: SelectConnectionList },
                             { name: 'item', path: 'items', component: SelectItemPanel },
                             { path: 'content', redirect: (to) => ({ name: 'item', params: to.params, query: to.query }) }, // The audit moved into the item step, so an old link lands there.
@@ -79,8 +91,10 @@ export const APP_ROUTES: RouteRecordRaw[] = [
                 path: 'eventQueries',
                 component: EventQueriesLayout,
                 children: [
-                    { name: 'eventQueries', path: ':areaId?/:modelId?/:entityId?', component: ContextNetwork2dPanel }, // The area, model and entity the diagram has been drilled down to.
-                    { name: 'eventQueryList', path: 'list/:eventQueryId?', component: EventQueryList }
+                    { name: 'eventQueries', path: '', redirect: (to) => ({ name: 'eventQueryDiagram', query: to.query }) }, // Kept for the studio's own links.
+                    { name: 'eventQueryDiagram', path: 'diagram/:areaId?/:modelId?/:entityId?', component: ContextNetwork2dPanel }, // The area, model and entity the diagram has been drilled down to.
+                    { name: 'eventQueryList', path: 'list/:eventQueryId?', component: EventQueryList },
+                    { path: ':areaId/:modelId?/:entityId?', redirect: (to) => ({ name: 'eventQueryDiagram', params: to.params, query: to.query }) } // An old link to a level of the diagram.
                 ]
             },
             { name: 'presentations', path: 'presentations', component: PresentationsPanel },
@@ -194,6 +208,17 @@ function assertViewDepths(routes: RouteRecordRaw[], depth = 0): void {
     }
 }
 
+// An old link chose the view and the diagram's level in the query. The level is kept only with its connector, because
+// a connection alone would be read as a connector.
+function redirectToDataViewsView(to: RouteLocation): RouteLocationRaw {
+    const { dvConnection, dvConnector, dvView } = to.query;
+    const query = removeOldDataViewsQuery(to.query);
+    if (dvView === 'list') return { name: 'dataViewList', query };
+    const connectorId = typeof dvConnector === 'string' ? dvConnector : undefined;
+    const connectionId = connectorId != null && typeof dvConnection === 'string' ? dvConnection : undefined;
+    return { name: 'dataViewDiagram', params: { connectorId, connectionId }, query };
+}
+
 function clearNavigationPending(): void {
     clearTimeout(pending.timer);
     pending.depth = pending.timer = undefined;
@@ -232,6 +257,11 @@ async function loadRouteComponent(label: string, loader: () => Promise<Component
         const data = { componentName: label, typeId: 'componentLoad' };
         throw new AppError(`Failed to load the ${label} route component.`, 'dpuse-app.router.loadRouteComponent', { data, cause: error });
     }
+}
+
+function removeOldDataViewsQuery(query: LocationQuery): LocationQuery {
+    const { dvConnection: _dvConnection, dvConnector: _dvConnector, dvView: _dvView, ...otherQuery } = query;
+    return otherQuery;
 }
 
 async function writeQueryUpdate(router: Router, queryUpdate: QueryUpdate): Promise<void> {

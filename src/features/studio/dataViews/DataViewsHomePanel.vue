@@ -2,8 +2,8 @@
 // ── External Dependencies & Registrations
 import { ArrowRightIcon, PlusIcon } from '@lucide/vue';
 import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue';
-import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router';
 import { useConfirmDialog, useTimeoutFn } from '@vueuse/core';
+import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError, localiseConfig, localiseConfigs } from '@dpuse/dpuse-shared';
@@ -12,30 +12,28 @@ import type { ConnectionConfig, ConnectorConfig, DataViewConfig, LocalisedConfig
 // ── Local Framework
 import { changeDataView } from './_dataViewDraft';
 import { connectionLocalisedConfigs } from '@/state/configs';
-import { ignoreReportedNavigationFailure } from '@/router';
 import { isDataViewLoaded } from './_dataViewStore';
 import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './DataViewsHomePanel_.json';
 import { useQueryFailure } from '@/services/queryClient';
 import { useSetupOptions } from '@/features/studio/setup/useSetupOptions';
 import { assertDefined, defineLazyComponent } from '@/utilities/index.ts';
-import { cancelDataViewRetrieval, constructNewDataViewConfig, NEW_DATA_VIEW_ID, useDataViews, useDeleteDataView } from '@/features/studio/dataViews/_dataViews';
+import { cancelDataViewRetrieval, constructDataViewsViewRoute, constructNewDataViewConfig, NEW_DATA_VIEW_ID, useDataViews, useDeleteDataView } from '@/features/studio/dataViews/_dataViews';
 import { findDataViewConnection, resolveCurrentDataViewStepId } from './dataViewSummary';
-import { findFocusedDataViewMapNode, readDataViewMapFocus } from './_dataViewMap';
+import { findFocusedDataViewDiagramNode, readDataViewDiagramFocus } from './_dataViewDiagram';
+import { ignoreReportedNavigationFailure, navigationPendingDepth } from '@/router';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
-import DataViewList from './DataViewList.vue';
-import DataViewMap from './DataViewMap.vue';
 import DataViewPanel from './DataViewPanel.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import MasterDetailPanel from '@/components/ui/MasterDetailPanel.vue';
 import PillButton from '@/components/ui/action/PillButton.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
+import RouterViewTransition from '@/components/ui/RouterViewTransition.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import StudioListLayout from '@/features/studio/_components/StudioListLayout.vue';
-import TabBar from '@/components/ui/TabBar.vue';
 
 // ── Dynamic Components ─ Only the diagram selects a connector or a connection, so their panels load when first shown.
 const PluginConnectorPanel = defineLazyComponent(() => import('@/features/studio/setup/plugins/PluginConnectorPanel.vue'), 'PluginConnectorPanel');
@@ -52,8 +50,6 @@ type DetailItem =
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const CONNECTORS_SETUP_OPTION_ID = 'connectors'; // The Setup page a connector's panel belongs to, which the panel names above its title.
-const DIAGRAM_VIEW_ID = 'diagram';
-const LIST_VIEW_ID = 'list';
 const SLOW_RETRIEVAL_MS = 2000; // Long enough that a normal load never shows the slow-load message.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -94,14 +90,11 @@ const deleteStatusElement = useTemplateRef<HTMLParagraphElement>('deleteStatus')
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// ── Views ─ Two ways round the same data views: a diagram of the connections they come from, which opens first, or
-// the list. They share one detail panel. The choice is in the URL, so a reload or a link opens the same one, and the
-// selected data view stays selected across a switch.
-const currentViewId = computed(() => (route.query.dvView === LIST_VIEW_ID ? LIST_VIEW_ID : DIAGRAM_VIEW_ID));
-const viewTabItems = computed(() => [
-    { id: DIAGRAM_VIEW_ID, label: t(TEXT, 'view.diagram.label'), to: constructViewRoute() },
-    { id: LIST_VIEW_ID, label: t(TEXT, 'view.list.label'), to: constructViewRoute(LIST_VIEW_ID) }
-]);
+// ── Views ─ Two ways round the same data views: a diagram of the connections they come from, or the list. Each is a
+// route of its own, shown in this panel's 'RouterView', and they share the one detail panel. The selected data view
+// stays selected across a switch, because both routes carry its id.
+const currentViewId = computed(() => (route.name === 'dataViewList' ? 'list' : 'diagram'));
+const viewIsLoading = computed(() => navigationPendingDepth.value === 2); // The panel's own 'RouterView' is two levels in, so the panel shows the spinner while a view loads.
 
 // ── Data Views
 const dataViewLocalisedConfigs = computed((): LocalisedConfig<DataViewConfig>[] => localiseConfigs<DataViewConfig>(dataViewConfigs.value ?? [], localeId.value));
@@ -127,10 +120,10 @@ const isSelectedDataViewDetailClosed = (history.state as { detailIsClosed?: bool
 const selectedDetailItem = computed((): DetailItem | undefined => {
     const dataViewLocalisedConfig = selectedDataViewLocalisedConfig.value;
     if (dataViewLocalisedConfig) return { id: `dataView.${dataViewLocalisedConfig.id}`, typeId: 'dataView', dataViewLocalisedConfig };
-    if (currentViewId.value !== DIAGRAM_VIEW_ID) return undefined;
+    if (currentViewId.value !== 'diagram') return undefined;
 
     const connections = connectionLocalisedConfigs.value.map((config) => ({ id: config.id, connectorId: config.connectorConfig.id }));
-    const focusedNode = findFocusedDataViewMapNode(connections, readDataViewMapFocus(route.query));
+    const focusedNode = findFocusedDataViewDiagramNode(connections, readDataViewDiagramFocus(route.params));
     const connectionLocalisedConfig = connectionLocalisedConfigs.value.find((config) =>
         focusedNode?.typeId === 'connection' ? config.id === focusedNode.connectionId : config.connectorConfig.id === focusedNode?.connectorId
     );
@@ -223,24 +216,19 @@ async function handleDeleteDataView(dataViewLocalisedConfig: LocalisedConfig<Dat
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The diagram is the view with nothing in the URL, because it is the one that opens first.
-function constructViewRoute(viewId?: string): RouteLocationRaw {
-    return { name: 'dataViews', params: { dataViewId: route.params.dataViewId }, query: { ...route.query, dvView: viewId } };
-}
-
-// An explicit 'name' is needed even though this stays on the same route. Without it, an absent 'dataViewId' keeps the
-// one already in the URL instead of clearing it. 'detailIsClosed' is reset because a replace keeps the history entry's
-// other state, and the browser's back button would otherwise return to this entry with the new selection's detail closed.
+// The route is built in full even though this stays in the same view. Without a 'name', an absent 'dataViewId' keeps the
+// one already in the URL instead of clearing it. With no data view, the diagram stays at the level it shows.
+// 'detailIsClosed' is reset because a replace keeps the history entry's other state, and the browser's back button
+// would otherwise return to this entry with the new selection's detail closed.
 function updateDataViewIdParameter(dataViewId?: string): void {
-    void ignoreReportedNavigationFailure(router.replace({ name: 'dataViews', params: { dataViewId }, query: route.query, state: { detailIsClosed: false } }));
+    const dataView = dataViewLocalisedConfigs.value.find((config) => config.id === dataViewId);
+    const location = constructDataViewsViewRoute(currentViewId.value, route.query, { dataView, focus: readDataViewDiagramFocus(route.params) });
+    void ignoreReportedNavigationFailure(router.replace({ ...location, state: { detailIsClosed: false } }));
 }
 </script>
 
 <template>
     <StudioListLayout>
-        <!-- Views ─ A diagram of the data views, or the list of them. -->
-        <TabBar :active-id="currentViewId" :aria-label="t(TEXT, 'views.aria')" :items="viewTabItems" />
-
         <!-- Delete Status ─ Hidden from view. It takes focus once a delete finishes, so screen readers say what was
              deleted. -->
         <p ref="deleteStatus" class="sr-only" tabindex="-1">{{ deleteStatusText }}</p>
@@ -261,10 +249,11 @@ function updateDataViewIdParameter(dataViewId?: string): void {
              beside them serves both, so it stays as it is when the view changes. -->
         <MasterDetailPanel v-else class="min-h-0 flex-1" :is-detail-initially-closed="isSelectedDataViewDetailClosed" max-detail-width="65ch" :selected-item="selectedDetailItem">
             <template #master="{ isSplit, openDetail }">
-                <!-- The old view fades out before the new one fades in, so the two never share the pane. -->
-                <Transition name="dpuse-action-fade" mode="out-in">
-                    <DataViewList
-                        v-if="currentViewId === LIST_VIEW_ID"
+                <!-- The list and the diagram take different props and events, so each is rendered by itself. -->
+                <RouterViewTransition v-slot="{ component }" class="min-h-0 flex-1" :is-loading="viewIsLoading">
+                    <component
+                        :is="component"
+                        v-if="currentViewId === 'list'"
                         key="list"
                         :data-view-localised-configs="dataViewLocalisedConfigs"
                         :is-split="isSplit"
@@ -277,7 +266,8 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                         @retry-retrieval="handleRetryRetrieval"
                         @select="handleSelectDataView($event, openDetail)"
                     />
-                    <DataViewMap
+                    <component
+                        :is="component"
                         v-else
                         key="diagram"
                         :data-view-localised-configs="dataViewLocalisedConfigs"
@@ -285,7 +275,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                         @add="handleAddDataView"
                         @select="updateDataViewIdParameter"
                     />
-                </Transition>
+                </RouterViewTransition>
             </template>
 
             <!-- Detail ─ The panel each kind of thing has elsewhere in the app. A connection's Delete and Hide are left
@@ -331,7 +321,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
             </template>
 
             <template #no-selection>
-                <SelectPlaceholder :message="t(TEXT, currentViewId === DIAGRAM_VIEW_ID ? 'noSelection.diagram.text' : 'noSelection.text')" />
+                <SelectPlaceholder :message="t(TEXT, currentViewId === 'diagram' ? 'noSelection.diagram.text' : 'noSelection.text')" />
             </template>
         </MasterDetailPanel>
 

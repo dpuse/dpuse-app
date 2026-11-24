@@ -21,7 +21,7 @@ defineSlots<{ default: (slotProperties: { component: VNode }) => unknown }>();
         <!-- The spinner stays outside the transition, so a slow load does not fade into and out of it. The old view fades
              out quickly before the new one fades in, so it does not vanish in a flash. The header and task bar change
              on the click, so for that moment the old view sits under the new header, unless the layout switches it as
-             the new view mounts, as 'DataViewsLayout' does with its summary and task bar. The first view after a page
+             the new view mounts, as 'DataViewsLayout' does with its trail. The first view after a page
              load does not fade in ('appear'), because Chrome does not count it towards Largest Contentful Paint until
              it is visible, which delays LCP by the length of the fade. -->
         <ComponentLoadingSpinner v-if="isLoading" v-bind="$attrs" />

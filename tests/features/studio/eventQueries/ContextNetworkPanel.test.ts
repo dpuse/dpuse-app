@@ -246,7 +246,7 @@ describe('context network panel', () => {
         });
 
         it('opens a model in place when it is clicked, showing its entities without their events', async () => {
-            const { router } = await mountPanel('/eventQueries/hr');
+            const { router } = await mountPanel('/eventQueries/diagram/hr');
 
             await clickNode(MODEL_NODE_ID);
 
@@ -256,7 +256,7 @@ describe('context network panel', () => {
         });
 
         it('opens an entity in place when it is clicked, hiding the other entities and showing its events', async () => {
-            const { router } = await mountPanel('/eventQueries/hr/workforce');
+            const { router } = await mountPanel('/eventQueries/diagram/hr/workforce');
 
             await clickNode(ENTITY_NODE_ID);
 
@@ -266,7 +266,7 @@ describe('context network panel', () => {
         });
 
         it('goes back up one level when the node of the open level is clicked', async () => {
-            const { router } = await mountPanel('/eventQueries/hr/workforce/person');
+            const { router } = await mountPanel('/eventQueries/diagram/hr/workforce/person');
 
             await clickNode(ENTITY_NODE_ID);
             expect(router.currentRoute.value.params).toStrictEqual({ areaId: 'hr', modelId: 'workforce' });
@@ -280,7 +280,7 @@ describe('context network panel', () => {
         });
 
         it('goes back up to a node above the open level when it is clicked', async () => {
-            const { router } = await mountPanel('/eventQueries/hr/workforce/person');
+            const { router } = await mountPanel('/eventQueries/diagram/hr/workforce/person');
 
             await clickNode(MODEL_NODE_ID);
             expect(router.currentRoute.value.params).toStrictEqual({ areaId: 'hr', modelId: 'workforce' });
@@ -288,7 +288,7 @@ describe('context network panel', () => {
             await clickNode(AREA_NODE_ID);
             expect(router.currentRoute.value.params).toStrictEqual({ areaId: 'hr' });
 
-            await router.push('/eventQueries/hr/workforce/person');
+            await router.push('/eventQueries/diagram/hr/workforce/person');
             await settle();
             await clickNode(CONTEXT_NODE_ID);
             expect(router.currentRoute.value.params).toStrictEqual({});
@@ -304,7 +304,7 @@ describe('context network panel', () => {
         });
 
         it('opens at the level the URL names', async () => {
-            await mountPanel('/eventQueries/hr/workforce/person');
+            await mountPanel('/eventQueries/diagram/hr/workforce/person');
 
             expect(shownLabels()).toStrictEqual(['Context', 'Human Resource', 'Workforce', 'Person', 'Birth']);
         });
@@ -313,9 +313,9 @@ describe('context network panel', () => {
             const modelState = await getModelState();
             modelState.modelConfig.value = undefined;
             modelState.modelIsFetching.value = true;
-            const { router } = await mountPanel('/eventQueries/hr');
+            const { router } = await mountPanel('/eventQueries/diagram/hr');
 
-            await router.push('/eventQueries/hr/workforce');
+            await router.push('/eventQueries/diagram/hr/workforce');
             await settle();
 
             expect(shownLabels()).toStrictEqual(['Context', 'Human Resource', 'Workforce']);
@@ -341,37 +341,23 @@ describe('context network panel', () => {
         it('says so when the model has no entities', async () => {
             const modelState = await getModelState();
             modelState.modelConfig.value = null;
-            const { wrapper } = await mountPanel('/eventQueries/hr/workforce');
+            const { wrapper } = await mountPanel('/eventQueries/diagram/hr/workforce');
 
             expect(wrapper.get('[role="status"]').text()).toBe('Workforce has no entities yet.');
             expect(shownLabels()).toStrictEqual(['Context', 'Human Resource', 'Workforce']);
         });
 
         it('says so when the entity has no events', async () => {
-            const { wrapper } = await mountPanel('/eventQueries/hr/workforce/job');
+            const { wrapper } = await mountPanel('/eventQueries/diagram/hr/workforce/job');
 
             expect(wrapper.get('[role="status"]').text()).toBe('Job has no events yet.');
             expect(shownLabels()).toStrictEqual(['Context', 'Human Resource', 'Workforce', 'Job']);
         });
 
         it('shows the level above for an area, model or entity the context does not have', async () => {
-            await mountPanel('/eventQueries/gone');
+            await mountPanel('/eventQueries/diagram/gone');
 
             expect(shownLabels()).toStrictEqual(['Context', 'Human Resource']);
-        });
-
-        it('lists the levels above as links back up, and the current level as text', async () => {
-            const { router, wrapper } = await mountPanel('/eventQueries/hr/workforce/person');
-
-            const trail = wrapper.get('[data-region="Breadcrumbs"]');
-            expect(trail.findAll('a').map((link) => link.text())).toStrictEqual(['Context', 'Human Resource', 'Workforce']);
-            expect(trail.text()).toContain('Person');
-
-            await trail.findAll('a')[1]?.trigger('click');
-            await settle();
-
-            expect(router.currentRoute.value.params).toStrictEqual({ areaId: 'hr' });
-            expect(shownLabels()).toStrictEqual(['Context', 'Human Resource', 'Workforce']);
         });
     });
 
@@ -421,7 +407,7 @@ describe('context network panel', () => {
         it('offers a name made from the entity and event, saves the event query for that event and opens it in the list', async () => {
             const addEventQuery = await getAddEventQuery();
             addEventQuery.mockImplementation((config) => Promise.resolve(config));
-            const { router } = await mountPanel('/eventQueries/hr/workforce/person');
+            const { router } = await mountPanel('/eventQueries/diagram/hr/workforce/person');
 
             await clickNode(EVENT_NODE_ID);
 
@@ -444,27 +430,27 @@ describe('context network panel', () => {
         it('reports a failed save and stays on the diagram', async () => {
             const addEventQuery = await getAddEventQuery();
             addEventQuery.mockRejectedValue(new Error('Store unavailable.'));
-            const { router } = await mountPanel('/eventQueries/hr/workforce/person');
+            const { router } = await mountPanel('/eventQueries/diagram/hr/workforce/person');
             await clickNode(EVENT_NODE_ID);
 
             findButton(TEXT['newEventQuery.save.label'].en).click();
             await settle();
 
             expect(raiseAppFailure).toHaveBeenCalledOnce();
-            expect(router.currentRoute.value.name).toBe('eventQueries');
+            expect(router.currentRoute.value.name).toBe('eventQueryDiagram');
         });
     });
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function mountPanel(path = '/eventQueries'): Promise<{ router: Router; wrapper: VueWrapper }> {
+async function mountPanel(path = '/eventQueries/diagram'): Promise<{ router: Router; wrapper: VueWrapper }> {
     const component = { render: (): null => null };
     const router = createRouter({
         history: createMemoryHistory(),
         routes: [
             { name: 'eventQueryList', path: '/eventQueries/list/:eventQueryId?', component },
-            { name: 'eventQueries', path: '/eventQueries/:areaId?/:modelId?/:entityId?', component }
+            { name: 'eventQueryDiagram', path: '/eventQueries/diagram/:areaId?/:modelId?/:entityId?', component }
         ]
     });
     await router.push(path);

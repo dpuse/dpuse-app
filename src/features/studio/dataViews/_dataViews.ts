@@ -1,5 +1,6 @@
 // ── External Dependencies & Registrations
 import { computed, type ComputedRef, type MaybeRefOrGetter, ref, toValue } from 'vue';
+import type { LocationQuery, RouteLocationNamedRaw } from 'vue-router';
 import { useMutation, type UseMutationReturnType, useQuery, type UseQueryReturnType } from '@tanstack/vue-query';
 
 // ── DPUse Framework
@@ -11,6 +12,7 @@ import type { ListObjectStructureEntriesOptions, ListStructureEntriesResult } fr
 import { assertDefined } from '@/utilities/index.ts';
 import { constructAppliedReading } from './_dataViewColumns';
 import { constructItemPath } from './dataViewSummary';
+import type { DataViewDiagramFocus } from './_dataViewDiagram';
 import { draftDataViewConfig } from './_dataViewDraft';
 import { establishEngineWorker } from '@/services/engine';
 import { establishFileValueDelimiterId } from './_dataViewColumns';
@@ -37,7 +39,14 @@ export const DATA_VIEW_STEP_ACTION_ID = 'dpuse-data-view-step-action'; // Where 
 export const NEW_DATA_VIEW_ID = 'new'; // Stands in the URL for the id of a data view being added, which has none until it is saved.
 const UNTITLED_DATA_VIEW_LABEL = { en: 'Untitled Data View', es: 'Vista de datos sin título' }; // Stored with the record, so it carries every language rather than reading the current one.
 
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+export type DataViewsViewId = 'diagram' | 'list'; // The two ways round the saved data views, which a task leads back to.
+
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The view the user last had open, so the way back from a task returns to it. The diagram opens first.
+export const lastDataViewsViewId = ref<DataViewsViewId>('diagram');
 
 // Set by a step whose bottom row is too wide for its detail pane, so the pill shows icons only. The row's own width
 // cannot tell, because it runs across both panes.
@@ -140,6 +149,23 @@ export function constructNewDataViewConfig(connectionId: string): DataViewConfig
 // because a saved data view keeps no other record of whether the user has named it.
 export function isDataViewUntitled(label: string): boolean {
     return Object.values(UNTITLED_DATA_VIEW_LABEL).includes(label);
+}
+
+// The diagram or the list, with the data view selected, or else the diagram at the level given. The diagram's path
+// names the data view's connector and connection before the data view. A data view whose connection has gone has
+// neither, so it is selected in the list instead, where its panel says the connection has gone.
+export function constructDataViewsViewRoute(
+    viewId: DataViewsViewId,
+    query: LocationQuery,
+    { dataView, focus = {} }: { dataView?: Pick<DataViewConfig, 'connectionId' | 'id'>; focus?: DataViewDiagramFocus } = {}
+): RouteLocationNamedRaw {
+    if (viewId === 'list') return { name: 'dataViewList', params: { dataViewId: dataView?.id }, query };
+    if (dataView == null) return { name: 'dataViewDiagram', params: { connectorId: focus.connectorId, connectionId: focus.connectorId == null ? undefined : focus.connectionId }, query };
+
+    const connectorId = findConnectionLocalisedConfig(dataView.connectionId)?.connectorConfig.id;
+    return connectorId == null
+        ? { name: 'dataViewList', params: { dataViewId: dataView.id }, query }
+        : { name: 'dataViewDiagram', params: { connectorId, connectionId: dataView.connectionId, dataViewId: dataView.id }, query };
 }
 
 // The data view id in the URL, or undefined while a data view is added and has no id yet.

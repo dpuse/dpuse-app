@@ -10,8 +10,8 @@ import type { ConnectionConfig, DataViewConfig, LocalisedConfig } from '@dpuse/d
 // ── Local Framework
 import { connectionLocalisedConfigs } from '@/state/configs';
 import { DATA_FORMAT_ICON_CONFIGS } from '@/features/studio/dataViews/_dataFormatIcons';
-import DataViewMap from '@/features/studio/dataViews/DataViewMap.vue';
-import type { DataViewMapData } from '@/features/studio/dataViews/_dataViewMap';
+import DataViewDiagram from '@/features/studio/dataViews/DataViewDiagram.vue';
+import type { DataViewDiagramData } from '@/features/studio/dataViews/_dataViewDiagram';
 import { settle } from '~/tests/support/settle';
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
@@ -28,15 +28,15 @@ vi.mock('@/state/configs', async (importOriginal) => {
 const CONNECTION_LOCALISED_CONFIGS = [
     buildConnection('work', 'Work', 'dropbox', 'Dropbox'),
     buildConnection('personal', 'Personal', 'dropbox', 'Dropbox'),
-    buildConnection('local', 'Local', 'sqlite', 'SQLite')
+    buildConnection('local', 'Local', 'sqlite', 'SQLite', 'table')
 ];
 const EMPLOYEES = { id: 'a', label: 'Employees', connectionId: 'work' };
 const DATA_VIEW_LOCALISED_CONFIGS = [EMPLOYEES] as LocalisedConfig<DataViewConfig>[];
-const WORK_QUERY = 'dvConnector=dropbox&dvConnection=work';
+const WORK_PATH = '/dropbox/work'; // The Work connection's level, as the diagram's route names it.
 
 // The diagram has its own tests, so it stands in as nothing, and a test clicks a node by emitting what it would.
 const NetworkDiagramStub = defineComponent({
-    props: { data: { type: Object as PropType<DataViewMapData>, default: undefined }, linkColor: { type: String, default: undefined } },
+    props: { data: { type: Object as PropType<DataViewDiagramData>, default: undefined }, linkColor: { type: String, default: undefined } },
     emits: ['nodeClick'],
     render: (): null => null
 });
@@ -47,7 +47,7 @@ const wrappers: VueWrapper[] = [];
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-describe('data view map', () => {
+describe('data view diagram', () => {
     beforeEach(() => {
         setConnections(CONNECTION_LOCALISED_CONFIGS);
     });
@@ -68,7 +68,7 @@ describe('data view map', () => {
             const { router, wrapper } = await mountMap();
 
             await clickNode(wrapper, 'Local');
-            expect(router.currentRoute.value.query).toMatchObject({ dvConnector: 'sqlite', dvConnection: 'local' });
+            expect(router.currentRoute.value.path).toBe('/dataViews/diagram/sqlite/local');
             expect(shownLabels(wrapper)).toStrictEqual(['Data Views', 'Local', 'Add data view']);
 
             const { fullPath } = router.currentRoute.value;
@@ -81,25 +81,24 @@ describe('data view map', () => {
 
             await clickNode(wrapper, 'Dropbox');
 
-            expect(router.currentRoute.value.query).toMatchObject({ dvConnector: 'dropbox' });
+            expect(router.currentRoute.value.path).toBe('/dataViews/diagram/dropbox');
             expect(shownLabels(wrapper)).toStrictEqual(['Data Views', 'Dropbox', 'Work', 'Personal']);
         });
 
         it('shows a connection’s data views with a node for adding one', async () => {
-            const { wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const { wrapper } = await mountMap(WORK_PATH);
 
             expect(shownLabels(wrapper)).toStrictEqual(['Data Views', 'Dropbox', 'Work', 'Employees', 'Add data view']);
         });
 
         it('goes back up to a node above the open level when that node is clicked, and to the top from the top node', async () => {
-            const { router, wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const { router, wrapper } = await mountMap(WORK_PATH);
 
             await clickNode(wrapper, 'Dropbox');
-            expect(router.currentRoute.value.query).not.toHaveProperty('dvConnection');
-            expect(router.currentRoute.value.query).toMatchObject({ dvConnector: 'dropbox' });
+            expect(router.currentRoute.value.path).toBe('/dataViews/diagram/dropbox');
 
             await clickNode(wrapper, 'Data Views');
-            expect(router.currentRoute.value.query).not.toHaveProperty('dvConnector');
+            expect(router.currentRoute.value.path).toBe('/dataViews/diagram');
             expect(shownLabels(wrapper)).toStrictEqual(['Data Views', 'Dropbox', 'Local']);
         });
 
@@ -110,42 +109,21 @@ describe('data view map', () => {
         });
     });
 
-    describe('path', () => {
-        it('shows no path at the top, where it would only repeat the top node', async () => {
-            const { wrapper } = await mountMap();
-
-            expect(wrapper.find('[data-region="Breadcrumbs"]').exists()).toBe(false);
-        });
-
-        it('lists the levels above the selected node as links back up, and the selected node as text', async () => {
-            const { wrapper } = await mountMap(`?${WORK_QUERY}`);
-            const trail = wrapper.get('[data-region="Breadcrumbs"]');
-
-            expect(trail.findAll('a').map((link) => link.text())).toStrictEqual(['Data Views', 'Dropbox']);
-            expect(trail.text()).toContain('Work');
-
-            await wrapper.setProps({ selectedDataViewId: 'a' });
-
-            expect(trail.findAll('a').map((link) => link.text())).toStrictEqual(['Data Views', 'Dropbox', 'Work']);
-            expect(trail.text()).toContain('Employees');
-        });
-    });
-
     describe('selecting', () => {
         it('marks the connector or connection the diagram is drilled down to as selected, and never the top node', async () => {
-            const { router, wrapper } = await mountMap('?dvConnector=dropbox');
+            const { router, wrapper } = await mountMap('/dropbox');
             expect(selectedLabels(wrapper)).toStrictEqual(['Dropbox']);
 
             await clickNode(wrapper, 'Work');
             expect(selectedLabels(wrapper)).toStrictEqual(['Work']);
 
             await clickNode(wrapper, 'Data Views');
-            expect(router.currentRoute.value.query).not.toHaveProperty('dvConnector');
+            expect(router.currentRoute.value.path).toBe('/dataViews/diagram');
             expect(selectedLabels(wrapper)).toStrictEqual([]);
         });
 
         it('asks for a data view to be selected when its node is clicked, and marks it in place of its connection once it is', async () => {
-            const { wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const { wrapper } = await mountMap(WORK_PATH);
 
             await clickNode(wrapper, 'Employees');
             expect(wrapper.emitted('select')).toStrictEqual([['a']]);
@@ -155,7 +133,7 @@ describe('data view map', () => {
         });
 
         it('keeps every node and link when a data view is selected, so the diagram is not laid out again', async () => {
-            const { wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const { wrapper } = await mountMap(WORK_PATH);
             const { links, nodes } = shownData(wrapper);
 
             await wrapper.setProps({ selectedDataViewId: 'a' });
@@ -165,16 +143,15 @@ describe('data view map', () => {
         });
 
         it('selects the connection in the data view’s place when the connection is clicked', async () => {
-            const { router, wrapper } = await mountMap(`/a?${WORK_QUERY}`, 'a');
+            const { router, wrapper } = await mountMap(`${WORK_PATH}/a`, 'a');
 
             await clickNode(wrapper, 'Work');
 
-            expect(router.currentRoute.value.path).toBe('/dataViews');
-            expect(router.currentRoute.value.query).toMatchObject({ dvConnector: 'dropbox', dvConnection: 'work' });
+            expect(router.currentRoute.value.path).toBe('/dataViews/diagram/dropbox/work');
         });
 
         it('asks for a new data view on the connection when the add node is clicked', async () => {
-            const { router, wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const { router, wrapper } = await mountMap(WORK_PATH);
             const { fullPath } = router.currentRoute.value;
 
             await clickNode(wrapper, 'Add data view');
@@ -186,7 +163,7 @@ describe('data view map', () => {
 
     describe('names', () => {
         it('names a data view the user has not named after its item, and keeps a name the user gave it', async () => {
-            const { wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const { wrapper } = await mountMap(WORK_PATH);
             const connectionNodeConfig = { label: 'employees.csv' };
             const readDataViewLabels = (): (string | undefined)[] =>
                 shownData(wrapper)
@@ -208,7 +185,7 @@ describe('data view map', () => {
 
     describe('colours', () => {
         it('draws data views, connectors and connections in the colour of Setup’s option bar button', async () => {
-            const { wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const { wrapper } = await mountMap(WORK_PATH);
             const colors = Object.fromEntries(shownData(wrapper).nodes.map((node) => [node.label ?? node.title, node.color]));
 
             // A soft shade of the colour, as the pill's border is of the pill's text colour.
@@ -219,14 +196,14 @@ describe('data view map', () => {
         });
 
         it('draws the lines between nodes in the nodes’ ring colour', async () => {
-            const { wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const { wrapper } = await mountMap(WORK_PATH);
             const employees = shownData(wrapper).nodes.find((node) => node.label === 'Employees');
 
             expect(wrapper.getComponent(NetworkDiagramStub).props('linkColor')).toBe(employees?.color);
         });
 
         it('sets the top node apart as the data views icon in white on the data views colour, and no other node', async () => {
-            const { wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const { wrapper } = await mountMap(WORK_PATH);
             const [rootNode, ...otherNodes] = shownData(wrapper).nodes;
 
             expect(rootNode.discColor).toBe('#5686d6');
@@ -239,7 +216,7 @@ describe('data view map', () => {
 
     describe('icons', () => {
         it('gives the top node, a connector and a connection its own icon, and a data view with no item the data views icon in its own colour', async () => {
-            const { wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const { wrapper } = await mountMap(WORK_PATH);
             const icons = Object.fromEntries(shownData(wrapper).nodes.map((node) => [node.label ?? node.title, node.icon]));
 
             expect(icons['Data Views']).toContain('<svg');
@@ -249,7 +226,7 @@ describe('data view map', () => {
         });
 
         it('gives a data view its item’s own icon, or else its file’s format icon, as its card does', async () => {
-            const { wrapper } = await mountMap(`?${WORK_QUERY}`);
+            const { wrapper } = await mountMap(WORK_PATH);
             const readEmployeesIcon = (): string | undefined => shownData(wrapper).nodes.find((node) => node.label === 'Employees')?.icon;
 
             // 'Work' reads files, so a previewed file shows its format.
@@ -261,13 +238,25 @@ describe('data view map', () => {
             });
             expect(readEmployeesIcon()).toBe('<svg data-id="item"/>');
         });
+
+        it('gives a data view on a table its kind’s icon once its item is chosen, as its card does', async () => {
+            const { wrapper } = await mountMap('/sqlite/local');
+            const readPeopleIcon = (): string | undefined => shownData(wrapper).nodes.find((node) => node.label === 'People')?.icon;
+
+            await wrapper.setProps({ dataViewLocalisedConfigs: [{ id: 'b', label: 'People', connectionId: 'local' }] });
+            expect(readPeopleIcon()).toContain('stroke="#5686d6"');
+
+            await wrapper.setProps({ dataViewLocalisedConfigs: [{ id: 'b', label: 'People', connectionId: 'local', connectionNodeConfig: { label: 'People' } }] });
+            expect(readPeopleIcon()).toContain('stroke="#488f86"');
+            expect(readPeopleIcon()).toContain('<rect width="18" height="18"');
+        });
     });
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function buildConnection(id: string, label: string, connectorId: string, connectorLabel: string): LocalisedConfig<ConnectionConfig> {
-    const connectorConfig = { id: connectorId, label: { en: connectorLabel }, description: {}, icon: `<svg data-id="${connectorId}"/>`, itemTypeId: 'file' };
+function buildConnection(id: string, label: string, connectorId: string, connectorLabel: string, itemTypeId = 'file'): LocalisedConfig<ConnectionConfig> {
+    const connectorConfig = { id: connectorId, label: { en: connectorLabel }, description: {}, icon: `<svg data-id="${connectorId}"/>`, itemTypeId };
     return { id, label, description: '', icon: `<svg data-id="${id}"/>`, connectorConfig } as unknown as LocalisedConfig<ConnectionConfig>;
 }
 
@@ -276,18 +265,19 @@ function setConnections(configs: LocalisedConfig<ConnectionConfig>[]): void {
     (connectionLocalisedConfigs as unknown as { value: LocalisedConfig<ConnectionConfig>[] }).value = configs;
 }
 
-async function mountMap(search = '', selectedDataViewId?: string): Promise<{ router: Router; wrapper: VueWrapper }> {
+async function mountMap(levelPath = '', selectedDataViewId?: string): Promise<{ router: Router; wrapper: VueWrapper }> {
     const component = { render: (): null => null };
     const router = createRouter({
         history: createMemoryHistory(),
         routes: [
-            { name: 'dataViews', path: '/dataViews/:dataViewId?', component },
+            { name: 'dataViewDiagram', path: '/dataViews/diagram/:connectorId?/:connectionId?/:dataViewId?', component },
+            { name: 'dataViewList', path: '/dataViews/list/:dataViewId?', component },
             { name: 'item', path: '/dataViews/:dataViewId/items', component }
         ]
     });
-    await router.push(`/dataViews${search}`);
+    await router.push(`/dataViews/diagram${levelPath}`);
     await router.isReady();
-    const wrapper = mount(DataViewMap, {
+    const wrapper = mount(DataViewDiagram, {
         props: { dataViewLocalisedConfigs: DATA_VIEW_LOCALISED_CONFIGS, selectedDataViewId },
         global: { plugins: [router], stubs: { NetworkDiagram: NetworkDiagramStub } }
     });
@@ -296,7 +286,7 @@ async function mountMap(search = '', selectedDataViewId?: string): Promise<{ rou
     return { router, wrapper };
 }
 
-function shownData(wrapper: VueWrapper): DataViewMapData {
+function shownData(wrapper: VueWrapper): DataViewDiagramData {
     const data = wrapper.getComponent(NetworkDiagramStub).props('data');
     if (!data) throw new Error('The diagram has been given nothing to draw.');
     return data;

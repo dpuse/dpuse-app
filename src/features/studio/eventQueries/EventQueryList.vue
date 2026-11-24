@@ -27,7 +27,6 @@ import EventQueryPanel from './EventQueryPanel.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
-import Separator from '@/components/ui/Separator.vue';
 import StudioListLayout from '@/features/studio/_components/StudioListLayout.vue';
 
 // ── Dynamic Components
@@ -132,7 +131,7 @@ function handleCancelRetrieval(): void {
 
 // Starts at the context diagram, because an event query is made for an event chosen there.
 function handleAddEventQuery(): void {
-    void ignoreReportedNavigationFailure(router.push({ name: 'eventQueries', query: route.query }));
+    void ignoreReportedNavigationFailure(router.push({ name: 'eventQueryDiagram', query: route.query }));
 }
 
 // A card stays selected when tapped again, as in a select. On a narrow screen, coming back to the list hides the
@@ -177,8 +176,6 @@ function updateEventQueryIdParameter(eventQueryId?: string): void {
 
 <template>
     <StudioListLayout>
-        <Separator class="flex-none" />
-
         <!-- Delete Status ─ Hidden from view. It takes focus once a delete finishes, so screen readers say what was
              deleted. -->
         <p ref="deleteStatus" class="sr-only" tabindex="-1">{{ deleteStatusText }}</p>

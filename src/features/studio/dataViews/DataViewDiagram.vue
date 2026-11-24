@@ -9,27 +9,33 @@ import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import { localiseConfig } from '@dpuse/dpuse-shared';
-import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
+import type { ConnectorItemTypeId, DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import type { BreadcrumbConfig } from '@/composables/useBreadcrumbs';
 import { connectionLocalisedConfigs } from '@/state/configs';
 import { DATA_FORMAT_ICON_CONFIGS } from './_dataFormatIcons';
 import { ignoreReportedNavigationFailure } from '@/router';
-import { isDataViewUntitled } from './_dataViews';
 import { resolveAppearanceIcon } from '@/state/appearance';
-import { TEXT } from './DataViewMap_.json';
-import { constructDataViewMapData, type DataViewMapFocus, type DataViewMapNode, readDataViewMapFocus, resolveDataViewMapFocus } from './_dataViewMap';
+import { TEXT } from './DataViewDiagram_.json';
+import { constructDataViewDiagramData, type DataViewDiagramFocus, type DataViewDiagramNode, readDataViewDiagramFocus, resolveDataViewDiagramFocus } from './_dataViewDiagram';
+import { constructDataViewsViewRoute, isDataViewUntitled } from './_dataViews';
 import { constructRingColor, readIconColor, useStudioOptions } from '@/features/studio/options/useStudioOptions';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
-import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import NetworkDiagram from '@/components/ui/NetworkDiagram.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const DATA_VIEWS_OPTION_ID = 'dataViews'; // The studio option this screen belongs to, whose icon and colour the top node takes.
+// A table or API endpoint has no format, so it shows the icon of its kind that its card shows: Lucide 'sheet' and
+// 'braces', as markup because the diagram draws icons from SVG strings. They take the DPUse green and the stroke of the
+// delimited-text format icon, as on the card.
+const ITEM_TYPE_ICONS: Record<Exclude<ConnectorItemTypeId, 'file'>, string> = {
+    apiEndpoint:
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>',
+    table: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="3" x2="21" y1="15" y2="15"/><line x1="9" x2="9" y1="9" y2="21"/><line x1="15" x2="15" y1="9" y2="21"/></svg>'
+};
 const ROOT_ICON_COLOR = '#ffffff'; // The top node's icon, on the solid data views colour.
 const SETUP_OPTION_ID = 'setup'; // The studio option whose colour every node below the top one, and every line, takes, so only the top node stands out.
 
@@ -54,7 +60,7 @@ const studioOptionLocalisedConfigs = useStudioOptions();
 
 // ── Connections and Data Views ─ As the diagram shows them, named in the user's language, with the icon for the
 // light or dark appearance.
-const mapConnections = computed(() =>
+const diagramConnections = computed(() =>
     connectionLocalisedConfigs.value.map((config) => {
         const connectorLocalisedConfig = localiseConfig(config.connectorConfig, localeId.value);
         return {
@@ -67,14 +73,14 @@ const mapConnections = computed(() =>
         };
     })
 );
-const mapDataViews = computed(() =>
+const diagramDataViews = computed(() =>
     dataViewLocalisedConfigs.map((config) => ({ id: config.id, label: resolveDataViewLabel(config), icon: resolveDataViewIcon(config), connectionId: config.connectionId }))
 );
 const dataViewsIcon = computed(() => {
     const dataViewsOption = studioOptionLocalisedConfigs.value.find((config) => config.id === DATA_VIEWS_OPTION_ID);
     return resolveAppearanceIcon(dataViewsOption?.icon, dataViewsOption?.iconDark);
 });
-const mapLabels = computed(() => {
+const diagramLabels = computed(() => {
     const setupOption = studioOptionLocalisedConfigs.value.find((config) => config.id === SETUP_OPTION_ID);
     const dataViewsColor = readIconColor(dataViewsIcon.value);
     const ringColor = constructRingColor(readIconColor(resolveAppearanceIcon(setupOption?.icon, setupOption?.iconDark)));
@@ -94,65 +100,47 @@ const mapLabels = computed(() => {
 // ── Focus ─ How far the diagram has been drilled down: to the selected data view's connection, or else the level the
 // URL names, so reload, links and back/forward all land on the same level. Each part is read by itself, because
 // selecting a data view changes the URL but not the level, and the diagram must then stay as drawn.
-const selectedMapDataView = computed(() => mapDataViews.value.find((dataView) => dataView.id === selectedDataViewId));
-const focus = computed(() => resolveDataViewMapFocus(mapConnections.value, readDataViewMapFocus(route.query), selectedMapDataView.value));
+const selectedDiagramDataView = computed(() => diagramDataViews.value.find((dataView) => dataView.id === selectedDataViewId));
+const focus = computed(() => resolveDataViewDiagramFocus(diagramConnections.value, readDataViewDiagramFocus(route.params), selectedDiagramDataView.value));
 const focusedConnectorId = computed(() => focus.value.connectorId);
 const focusedConnectionId = computed(() => focus.value.connectionId);
 
 // ── Diagram ─ The level the focus asks for, with the selected node marked.
-const mapData = computed(() =>
-    constructDataViewMapData(
-        mapLabels.value,
-        mapConnections.value,
-        mapDataViews.value,
+const diagramData = computed(() =>
+    constructDataViewDiagramData(
+        diagramLabels.value,
+        diagramConnections.value,
+        diagramDataViews.value,
         { connectorId: focusedConnectorId.value, connectionId: focusedConnectionId.value },
-        selectedMapDataView.value?.id
+        selectedDiagramDataView.value?.id
     )
 );
-
-// ── Breadcrumbs ─ The way back up: every level from the top down to the selected node. The last one is where the user
-// is, so it is not a link. None at the top, where the one crumb would only repeat the top node.
-const breadcrumbs = computed((): BreadcrumbConfig[] => {
-    const levelNodes = mapData.value.nodes.filter((node) => node.focus != null && isOnFocusPath(node.focus));
-    const levelCrumbs = levelNodes.map((node) => ({ id: node.id, label: node.label ?? node.title ?? '', to: constructFocusRoute(node.focus ?? {}) })); // The top node has a name in place of a label.
-    const selectedDataViewNode = mapData.value.nodes.find((node) => node.typeId === 'dataView' && node.isSelected === true);
-    const crumbs = selectedDataViewNode ? [...levelCrumbs, { id: selectedDataViewNode.id, label: selectedDataViewNode.label ?? '' }] : levelCrumbs;
-    return crumbs.length > 1 ? crumbs : [];
-});
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 // A data view is selected. The add node starts a new data view on its connection. Any other node is selected and
 // opened, which shows the level below it and hides its siblings. A node above the open level goes back up to it, and
 // the top node clears the selection. The node already selected changes nothing.
-function handleClickNode(node: DataViewMapNode): void {
+function handleClickNode(node: DataViewDiagramNode): void {
     if (node.typeId === 'dataView' && node.dataViewId != null) emit('select', node.dataViewId);
     else if (node.typeId === 'add' && node.connectionId != null) emit('add', node.connectionId);
-    else if (node.focus && (selectedMapDataView.value != null || !isSameFocus(node.focus, focus.value))) focusOn(node.focus);
+    else if (node.focus && (selectedDiagramDataView.value != null || !isSameFocus(node.focus, focus.value))) focusOn(node.focus);
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // A push, so the browser's back button returns to the node selected before.
-function focusOn(newFocus: DataViewMapFocus): void {
+function focusOn(newFocus: DataViewDiagramFocus): void {
     void ignoreReportedNavigationFailure(router.push(constructFocusRoute(newFocus)));
 }
 
-// No data view stays selected, because the connector or connection of the level is selected in its place. A part of
-// the focus that is not set is left out of the URL.
-function constructFocusRoute(newFocus: DataViewMapFocus): RouteLocationRaw {
-    const query = { ...route.query, dvConnector: newFocus.connectorId, dvConnection: newFocus.connectionId };
-    return { name: 'dataViews', params: { dataViewId: undefined }, query };
+// No data view stays selected, because the connector or connection of the level is selected in its place.
+function constructFocusRoute(newFocus: DataViewDiagramFocus): RouteLocationRaw {
+    return constructDataViewsViewRoute('diagram', route.query, { focus: newFocus });
 }
 
-function isSameFocus(left: DataViewMapFocus, right: DataViewMapFocus): boolean {
+function isSameFocus(left: DataViewDiagramFocus, right: DataViewDiagramFocus): boolean {
     return left.connectorId === right.connectorId && left.connectionId === right.connectionId;
-}
-
-// A level is on the way down to the one shown when the focus agrees with every part it sets.
-function isOnFocusPath(nodeFocus: DataViewMapFocus): boolean {
-    const { connectorId, connectionId } = focus.value;
-    return (nodeFocus.connectorId == null || nodeFocus.connectorId === connectorId) && (nodeFocus.connectionId == null || nodeFocus.connectionId === connectionId);
 }
 
 // A data view the user has not named yet is named after its item, so two of them on one connection can be told
@@ -162,33 +150,27 @@ function resolveDataViewLabel(dataViewLocalisedConfig: LocalisedConfig<DataViewC
     return connectionNodeConfig != null && isDataViewUntitled(label) ? connectionNodeConfig.label : label;
 }
 
-// A data view shows what kind of item it reads, as its card does: the item's own icon, or else, for a file, the icon of
-// its format. One with neither, such as a table or a data view with no item chosen yet, shows the data views icon, so
-// every node has an icon and is the same size.
+// A data view shows what kind of item it reads, as its card does: the item's own icon, or else the icon of a file's
+// format or of a table's or API endpoint's kind. One with none of these, such as a data view with no item chosen yet or
+// a file not yet previewed, shows the data views icon, so every node has an icon and is the same size.
 function resolveDataViewIcon(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>): string | undefined {
     const { connectionId, connectionNodeConfig, readingConfig } = dataViewLocalisedConfig;
     const itemIcon = resolveAppearanceIcon(connectionNodeConfig?.icon, connectionNodeConfig?.iconDark);
     if (itemIcon != null && itemIcon !== '') return itemIcon;
 
-    const itemTypeId = connectionLocalisedConfigs.value.find((config) => config.id === connectionId)?.connectorConfig.itemTypeId;
+    const itemTypeId = connectionLocalisedConfigs.value.find((config) => config.id === connectionId)?.connectorConfig.itemTypeId; // Undefined when the data view's connection is gone.
+    if (itemTypeId == null) return dataViewsIcon.value;
+    if (itemTypeId !== 'file') return connectionNodeConfig == null ? dataViewsIcon.value : ITEM_TYPE_ICONS[itemTypeId];
     const dataFormatId = readingConfig?.dataFormatId;
-    if (itemTypeId !== 'file' || dataFormatId == null || dataFormatId === 'unknown') return dataViewsIcon.value;
+    if (dataFormatId == null || dataFormatId === 'unknown') return dataViewsIcon.value;
     const formatIconConfig = DATA_FORMAT_ICON_CONFIGS[dataFormatId];
     return resolveAppearanceIcon(formatIconConfig.icon, formatIconConfig.iconDark);
 }
 </script>
 
 <template>
-    <div class="flex min-h-0 min-w-0 flex-1 flex-col" data-region="DataViewMap">
-        <!-- Path ─ Says what is selected and leads back up. Its row keeps its height at the top level, where it is empty,
-             so the diagram does not move down when the first node is opened. -->
-        <div class="h-8 flex-none px-page pt-2 text-sm">
-            <nav v-if="breadcrumbs.length > 0" :aria-label="t(TEXT, 'breadcrumbs.aria')">
-                <Breadcrumbs disable-last :items="breadcrumbs" />
-            </nav>
-        </div>
-
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col" data-region="DataViewDiagram">
         <!-- The lines take the nodes' ring colour, so the diagram reads as one drawing. -->
-        <NetworkDiagram :data="mapData" :label="t(TEXT, 'diagram.aria')" :link-color="mapLabels.dataViewColor" @node-click="handleClickNode" />
+        <NetworkDiagram :data="diagramData" :label="t(TEXT, 'diagram.aria')" :link-color="diagramLabels.dataViewColor" @node-click="handleClickNode" />
     </div>
 </template>

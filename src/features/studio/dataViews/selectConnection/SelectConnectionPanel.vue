@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed, ref, shallowRef } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
 import { AppError, localiseConfig } from '@dpuse/dpuse-shared';
@@ -14,7 +14,7 @@ import { establishEngineWorker } from '@/services/engine';
 import { ignoreReportedNavigationFailure } from '@/router';
 import { raiseAppFailure } from '@/state/errors';
 import { TEXT } from './SelectConnectionPanel_.json';
-import { DATA_VIEW_SCROLL_ACTIONS_ID, useDataViews } from '@/features/studio/dataViews/_dataViews';
+import { constructDataViewsViewRoute, DATA_VIEW_SCROLL_ACTIONS_ID, lastDataViewsViewId, useDataViews } from '@/features/studio/dataViews/_dataViews';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -101,6 +101,11 @@ function handleSubmit(): void {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Selects the data view in the diagram or list the user last had open.
+function constructUsingDataViewRoute(dataViewId: string): RouteLocationRaw {
+    return constructDataViewsViewRoute(lastDataViewsViewId.value, route.query, { dataView: { id: dataViewId, connectionId: connectionLocalisedConfig.id } });
+}
+
 async function testAuth(): Promise<void> {
     const { processRequest } = await establishEngineWorker();
     (await processRequest('authenticateConnection', connectionLocalisedConfig, {
@@ -147,7 +152,7 @@ async function testAuth(): Promise<void> {
                                 <template v-if="dataViewItem.isCurrent">
                                     {{ dataViewItem.label }} <span class="text-muted">{{ t(TEXT, 'usedBy.current.text') }}</span>
                                 </template>
-                                <RouterLink v-else :to="{ name: 'dataViews', params: { dataViewId: dataViewItem.id }, query: route.query }">{{ dataViewItem.label }}</RouterLink>
+                                <RouterLink v-else :to="constructUsingDataViewRoute(dataViewItem.id)">{{ dataViewItem.label }}</RouterLink>
                             </li>
                         </ul>
                         <p v-else class="text-muted">{{ t(TEXT, 'usedBy.none.text') }}</p>

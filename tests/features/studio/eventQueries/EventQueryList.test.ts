@@ -115,7 +115,7 @@ describe('event query list', () => {
             await wrapper.get('[data-test="add"]').trigger('click');
             await settle();
 
-            expect(router.currentRoute.value.name).toBe('eventQueries');
+            expect(router.currentRoute.value.name).toBe('eventQueryDiagram');
             wrapper.unmount();
         });
     });
@@ -203,7 +203,7 @@ async function buildRouter(): Promise<Router> {
     const router = createRouter({
         history: createMemoryHistory(),
         routes: [
-            { name: 'eventQueries', path: '/eventQueries', component },
+            { name: 'eventQueryDiagram', path: '/eventQueries/diagram', component },
             { name: 'eventQueryList', path: '/eventQueries/list/:eventQueryId?', component }
         ]
     });

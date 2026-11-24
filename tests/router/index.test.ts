@@ -102,6 +102,33 @@ describe('createAppRouter', () => {
         });
     });
 
+    describe('diagram and list routes', () => {
+        beforeEach(() => {
+            history.replaceState({}, '', '/');
+        });
+
+        it.each([
+            ['/dataViews?studio=1', '/dataViews/diagram?studio=1'],
+            ['/eventQueries?studio=1', '/eventQueries/diagram?studio=1']
+        ])('opens the diagram first, from %s', async (path, arrivalPath) => {
+            expect(await findArrivalPath(path)).toBe(arrivalPath);
+        });
+
+        it.each([
+            ['/dataViews?dvView=list&studio=1', '/dataViews/list?studio=1'],
+            ['/dataViews?dvConnector=dropbox&dvConnection=work', '/dataViews/diagram/dropbox/work'],
+            ['/dataViews?dvConnection=work', '/dataViews/diagram'],
+            ['/dataViews/a?dvView=list&studio=1', '/dataViews/list/a?studio=1'],
+            ['/eventQueries/hr/workforce', '/eventQueries/diagram/hr/workforce']
+        ])('takes the old link %s to the view it named', async (path, arrivalPath) => {
+            expect(await findArrivalPath(path)).toBe(arrivalPath);
+        });
+
+        it.each(['/dataViews/list/a', '/dataViews/diagram/dropbox/work/a', '/dataViews/a/items', '/eventQueries/list/a'])('keeps %s as it is', async (path) => {
+            expect(await findArrivalPath(path)).toBe(path);
+        });
+    });
+
     describe('navigation failure', () => {
         it('reports a failed navigation once', async () => {
             // The setup screen's chunk cannot be fetched. Fresh modules, so the router imports the failing chunk.
@@ -129,3 +156,18 @@ describe('createAppRouter', () => {
         });
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A guard added after the app's own stands in for the rest of the navigation, recording where it arrives after any
+// redirect and stopping it before any screen has to load.
+async function findArrivalPath(path: string): Promise<string> {
+    const router = createAppRouter();
+    let arrivalPath = '';
+    router.beforeEach((to) => {
+        arrivalPath = to.fullPath;
+        return false;
+    });
+    await router.push(path);
+    return arrivalPath;
+}

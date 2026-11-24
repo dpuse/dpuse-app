@@ -17,6 +17,7 @@ import {
     abortDataViewContentAudit,
     auditDataViewContent,
     cancelDataViewRetrieval,
+    constructDataViewsViewRoute,
     constructNewDataViewConfig,
     isDataViewUntitled,
     listItemStructureEntries,
@@ -446,6 +447,44 @@ describe('data views', () => {
         it('has no id for a data view being added, or for a missing parameter', () => {
             expect(resolveDataViewIdParameter(NEW_DATA_VIEW_ID)).toBeUndefined();
             expect(resolveDataViewIdParameter(undefined)).toBeUndefined();
+        });
+    });
+
+    describe('constructDataViewsViewRoute', () => {
+        const QUERY = { studio: '1' };
+        const SALES = { id: 'a', connectionId: 'work' };
+
+        it('selects a data view in the list by its id alone', () => {
+            expect(constructDataViewsViewRoute('list', QUERY, { dataView: SALES })).toStrictEqual({ name: 'dataViewList', params: { dataViewId: 'a' }, query: QUERY });
+        });
+
+        it('selects a data view in the diagram under its connector and connection', () => {
+            vi.mocked(findConnectionLocalisedConfig).mockReturnValue({ connectorConfig: { id: 'dropbox' } } as ReturnType<typeof findConnectionLocalisedConfig>);
+
+            expect(constructDataViewsViewRoute('diagram', QUERY, { dataView: SALES })).toStrictEqual({
+                name: 'dataViewDiagram',
+                params: { connectorId: 'dropbox', connectionId: 'work', dataViewId: 'a' },
+                query: QUERY
+            });
+        });
+
+        it('selects a data view whose connection has gone in the list, because the diagram cannot show it', () => {
+            vi.mocked(findConnectionLocalisedConfig).mockReturnValue(undefined);
+
+            expect(constructDataViewsViewRoute('diagram', QUERY, { dataView: SALES })).toStrictEqual({ name: 'dataViewList', params: { dataViewId: 'a' }, query: QUERY });
+        });
+
+        it('opens the diagram at the level given, and leaves out a connection given without its connector', () => {
+            expect(constructDataViewsViewRoute('diagram', QUERY, { focus: { connectorId: 'dropbox', connectionId: 'work' } })).toStrictEqual({
+                name: 'dataViewDiagram',
+                params: { connectorId: 'dropbox', connectionId: 'work' },
+                query: QUERY
+            });
+            expect(constructDataViewsViewRoute('diagram', QUERY, { focus: { connectionId: 'work' } })).toStrictEqual({
+                name: 'dataViewDiagram',
+                params: { connectorId: undefined, connectionId: undefined },
+                query: QUERY
+            });
         });
     });
 });

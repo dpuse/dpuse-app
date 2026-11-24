@@ -28,18 +28,20 @@ export interface TaskConfig {
     number: number;
 }
 
-// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
-
 // 'detail' names what was chosen in a step, such as the connection. It is read out with the step; the host shows it on
 // screen wherever there is room for it.
+export type TaskBarItem = LocalisedConfig<TaskConfig> & { detail?: string; disabled: boolean; to?: RouteLocationRaw };
+
+// ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
+
 const { currentId, items = [] } = defineProps<{
     currentId?: string;
-    items?: (LocalisedConfig<TaskConfig> & { detail?: string; disabled: boolean; to?: RouteLocationRaw })[];
+    items?: TaskBarItem[];
 }>();
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function describeStep(item: LocalisedConfig<TaskConfig> & { detail?: string; disabled: boolean }): string {
+function describeStep(item: TaskBarItem): string {
     const parameters = { detail: item.detail ?? '', label: item.label, number: item.number };
     if (item.disabled) return t(TEXT, 'step.locked.aria', parameters);
     return t(TEXT, item.detail == null ? 'step.aria' : 'step.chosen.aria', parameters);

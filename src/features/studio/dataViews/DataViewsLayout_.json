@@ -51,6 +51,11 @@
         "save.loading.text": { "en": "Wait for the records to load, or stop the load", "es": "Espera a que se carguen los registros, o detén la carga" },
         "save.noChanges.text": { "en": "No changes to save", "es": "No hay cambios que guardar" },
         "save.noItem.text": { "en": "Open an item before saving", "es": "Abre un elemento antes de guardar" },
-        "studio.label": { "en": "Studio", "es": "Estudio" }
+        "studio.label": { "en": "Studio", "es": "Estudio" },
+        "trail.aria": { "en": "What the data view is built from", "es": "De qué se compone la vista de datos" },
+        "trail.home.label": { "en": "Home", "es": "Inicio" },
+        "view.diagram.label": { "en": "Diagram", "es": "Diagrama" },
+        "view.list.label": { "en": "List", "es": "Lista" },
+        "views.aria": { "en": "Ways to view data views", "es": "Formas de ver las vistas de datos" }
     }
 }
