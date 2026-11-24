@@ -25,7 +25,7 @@ const NEXT_DATA = { links: [], nodes: [{ id: 'a', label: 'A', level: 1 }] };
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const diagramView = { destroy: vi.fn(), resize: vi.fn(), triggerAutoLayout: vi.fn(), update: vi.fn() };
+const diagramView = { destroy: vi.fn(), fitView: vi.fn(), resize: vi.fn(), triggerAutoLayout: vi.fn(), update: vi.fn(), zoomBy: vi.fn() };
 const renderNetworkDiagram = vi.fn();
 const wrappers: VueWrapper[] = []; // Unmounted after each test, so no diagram from one test redraws in the next.
 
@@ -57,6 +57,31 @@ describe('network diagram', () => {
 
         await mountDiagram(TOP_DATA, 'var(--line)');
         expect(renderNetworkDiagram.mock.lastCall?.[2]).toMatchObject({ linkColor: 'var(--line)' });
+    });
+
+    it('fills a large pane, puts labels below the nodes in a narrow one, and cuts long labels short', async () => {
+        await mountDiagram(TOP_DATA);
+
+        expect(renderNetworkDiagram.mock.lastCall?.[2]).toMatchObject({ compactWidth: 480, maximumFitScale: 1.5, maximumLabelLength: 24 });
+    });
+
+    it('zooms in, zooms out and fits the diagram from its buttons', async () => {
+        const wrapper = await mountDiagram(TOP_DATA);
+        const [zoomInButton, zoomOutButton, fitButton] = wrapper.findAll('[data-region="DiagramZoomControls"] button');
+
+        await zoomInButton.trigger('click');
+        expect(diagramView.zoomBy).toHaveBeenLastCalledWith(1.25);
+        await zoomOutButton.trigger('click');
+        expect(diagramView.zoomBy).toHaveBeenLastCalledWith(0.8);
+        await fitButton.trigger('click');
+        expect(diagramView.fitView).toHaveBeenCalledOnce();
+    });
+
+    it('shows no zoom buttons for a diagram that cannot zoom', async () => {
+        renderNetworkDiagram.mockResolvedValue({ destroy: vi.fn(), resize: vi.fn(), triggerAutoLayout: vi.fn(), update: vi.fn() });
+        const wrapper = await mountDiagram(TOP_DATA);
+
+        expect(wrapper.find('[data-region="DiagramZoomControls"]').exists()).toBe(false);
     });
 
     it('draws nothing until it has data', async () => {

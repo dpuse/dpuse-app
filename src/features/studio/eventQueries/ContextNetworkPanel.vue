@@ -28,6 +28,7 @@ import { localiseText, useContextModel } from '@/state/contextModels';
 import Breadcrumbs from '@/components/ui/Breadcrumbs.vue';
 import BusyBar from '@/components/ui/BusyBar.vue';
 import ContextSearch from './ContextSearch.vue';
+import DiagramZoomControls from '@/components/ui/DiagramZoomControls.vue';
 import Dialog from '@/components/ui/dialog/Dialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
@@ -50,12 +51,15 @@ interface NewEventQueryEvent {
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const EVENT_QUERIES_OPTION_ID = 'eventQueries'; // The studio option this screen belongs to, whose icon and colour the context node takes.
+const ZOOM_STEP = 1.25; // How much one press of a zoom button enlarges the diagram.
 const ROOT_ICON_COLOR = '#ffffff'; // The context node's icon, on the solid colour of the option.
 const SETUP_OPTION_ID = 'setup'; // The studio option whose colour every node below the context node takes, so only the context node stands out.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { hint, renderContextDiagram } = defineProps<{
+// TODO: The hint is switched off for the time being, so 'hint' is not read. Once it shows again: 'const { hint,
+// renderContextDiagram } = …'.
+const { renderContextDiagram } = defineProps<{
     hint: string; // What a click does in this kind of diagram, because nothing in the diagram itself shows it.
     renderContextDiagram: RenderContextDiagram; // Draws the diagram with one tool, so the same panel could serve another kind of diagram.
 }>();
@@ -98,13 +102,15 @@ const focus = computed((): ContextDiagramFocus => ({
 }));
 
 // A model with no entities or no data at all, or an entity with no events, has nothing to show below it, so a message
-// says so in the hint's place.
+// says so above the diagram.
 const focusedModelIsEmpty = computed(() => focusedModelReferenceConfig.value != null && !focusedModelIsLoading.value && (focusedModelConfig.value?.entities.length ?? 0) === 0);
 const statusText = computed(() => {
     const modelReferenceConfig = focusedModelReferenceConfig.value;
     if (modelReferenceConfig && focusedModelIsEmpty.value) return t(TEXT, 'model.empty.text', { model: localiseReference(modelReferenceConfig, localeId.value).label });
     const entityConfig = focusedEntityConfig.value;
-    return entityConfig?.events.length === 0 ? t(TEXT, 'entity.empty.text', { entity: localiseText(entityConfig.label, localeId.value) }) : hint;
+    // TODO: The hint is switched off for the time being. Its line is: '… : hint;'
+    // return entityConfig?.events.length === 0 ? t(TEXT, 'entity.empty.text', { entity: localiseText(entityConfig.label, localeId.value) }) : hint;
+    return entityConfig?.events.length === 0 ? t(TEXT, 'entity.empty.text', { entity: localiseText(entityConfig.label, localeId.value) }) : '';
 });
 
 // ── Look ─ The context node is the option's own icon in white on the option's colour, as the data views diagram draws
@@ -160,8 +166,21 @@ function handleRetry(): void {
     void renderDiagram();
 }
 
-function handleAutoLayout(): void {
-    diagramView.value?.triggerAutoLayout?.();
+// TODO: Auto-layout is switched off for the time being.
+// function handleAutoLayout(): void {
+//     diagramView.value?.triggerAutoLayout?.();
+// }
+
+function handleZoomIn(): void {
+    diagramView.value?.zoomBy?.(ZOOM_STEP);
+}
+
+function handleZoomOut(): void {
+    diagramView.value?.zoomBy?.(1 / ZOOM_STEP);
+}
+
+function handleFit(): void {
+    diagramView.value?.fitView?.();
 }
 
 // An event starts an event query. An area, a model or an entity opens, hiding its siblings and showing what is below
@@ -298,10 +317,11 @@ function openNewEventQueryDialog(event: NewEventQueryEvent): void {
 
             <ErrorNotice v-if="renderFailure" :failures="[renderFailure]" @retry="handleRetry" />
 
-            <!-- Toolbar ─ Auto-layout shows only for a diagram that can lay itself out again. The hint says what a click
-                 does, and a model with nothing below it says so in its place. -->
-            <div v-show="!renderFailure" class="flex flex-none flex-wrap items-center gap-x-3 gap-y-2 px-page py-2">
-                <RectangleButton v-if="diagramView?.triggerAutoLayout" variant="outline" @click="handleAutoLayout">{{ t(TEXT, 'autoLayout.label') }}</RectangleButton>
+            <!-- Status ─ A model or an entity with nothing below it says so. The row is hidden while it has nothing to say,
+                 so the diagram has the room. TODO: Auto-layout and the hint are switched off for the time being. The
+                 button is: RectangleButton v-if="diagramView?.triggerAutoLayout" variant="outline"
+                 @click="handleAutoLayout", holding t(TEXT, 'autoLayout.label'). -->
+            <div v-show="!renderFailure && statusText !== ''" class="flex flex-none flex-wrap items-center gap-x-3 gap-y-2 px-page py-2">
                 <p class="text-sm text-muted" role="status">{{ statusText }}</p>
             </div>
 
@@ -309,7 +329,12 @@ function openNewEventQueryDialog(event: NewEventQueryEvent): void {
 
             <!-- 'v-show' rather than 'v-if' ─ The container stays on the page, so a retry after a failure has an element
                  to draw into. -->
-            <div v-show="!renderFailure" ref="container" :aria-busy="diagramIsPending" :aria-label="t(TEXT, 'diagram.aria')" class="min-h-0 w-full flex-1" role="group" />
+            <div v-show="!renderFailure" class="relative min-h-0 w-full flex-1">
+                <div ref="container" :aria-busy="diagramIsPending" :aria-label="t(TEXT, 'diagram.aria')" class="absolute inset-0" role="group" />
+
+                <!-- Zoom ─ Only for a diagram drawn by a tool that can zoom. -->
+                <DiagramZoomControls v-if="diagramView?.zoomBy" class="absolute top-2 right-2" @fit="handleFit" @zoom-in="handleZoomIn" @zoom-out="handleZoomOut" />
+            </div>
         </RetrievalGate>
 
         <Dialog

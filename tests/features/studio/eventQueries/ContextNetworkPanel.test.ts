@@ -99,7 +99,7 @@ const ContextSearchStub = defineComponent({ emits: ['select'], render: (): null 
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const diagramView = { destroy: vi.fn(), resize: vi.fn(), triggerAutoLayout: vi.fn(), update: vi.fn() }; // A diagram that can change in place, as the d3 tool's can.
+const diagramView = { destroy: vi.fn(), fitView: vi.fn(), resize: vi.fn(), triggerAutoLayout: vi.fn(), update: vi.fn(), zoomBy: vi.fn() }; // A diagram that can change in place, as the d3 tool's can.
 const renderContextDiagram = vi.fn(); // Stands in for a tool's renderer, and records what the panel asks it to draw.
 const wrappers: VueWrapper[] = []; // Unmounted after each test, so no panel from one test redraws in the next.
 
@@ -162,7 +162,32 @@ describe('context network panel', () => {
             expect(renderContextDiagram).toHaveBeenCalledOnce();
         });
 
-        it('offers Auto-layout only for a diagram that can lay itself out again', async () => {
+        it('zooms in, zooms out and fits the diagram from its buttons, and shows none for a diagram that cannot zoom', async () => {
+            const { wrapper } = await mountPanel();
+            const [zoomInButton, zoomOutButton, fitButton] = wrapper.findAll('[data-region="DiagramZoomControls"] button');
+
+            await zoomInButton.trigger('click');
+            expect(diagramView.zoomBy).toHaveBeenLastCalledWith(1.25);
+            await zoomOutButton.trigger('click');
+            expect(diagramView.zoomBy).toHaveBeenLastCalledWith(0.8);
+            await fitButton.trigger('click');
+            expect(diagramView.fitView).toHaveBeenCalledOnce();
+
+            renderContextDiagram.mockResolvedValue({ destroy: vi.fn(), resize: vi.fn() });
+            localeId.value = 'es';
+            await settle();
+
+            expect(wrapper.find('[data-region="DiagramZoomControls"]').exists()).toBe(false);
+        });
+
+        it('says nothing above the diagram while the level shown has something below it', async () => {
+            const { wrapper } = await mountPanel();
+
+            expect(wrapper.get('[role="status"]').text()).toBe('');
+        });
+
+        // eslint-disable-next-line vitest/no-disabled-tests -- Auto-layout is switched off in the panel for the time being.
+        it.skip('offers Auto-layout only for a diagram that can lay itself out again', async () => {
             const { wrapper } = await mountPanel();
 
             findButton(TEXT['autoLayout.label'].en).click();

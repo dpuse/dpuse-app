@@ -34,6 +34,7 @@ describe('context network 2D panel', () => {
 
         expect(establishTool).toHaveBeenCalledWith('d3-visualiser');
         expect(renderNetworkDiagram).toHaveBeenCalledWith(data, renderTo, expect.objectContaining({ fitsView: true, onNodeClick }));
+        expect(renderNetworkDiagram).toHaveBeenCalledWith(data, renderTo, expect.objectContaining({ compactWidth: 480, maximumFitScale: 1.5, maximumLabelLength: 24 }));
         expect(view.triggerAutoLayout).toHaveBeenCalledOnce();
         expect(drawnView).toBe(view);
         wrapper.unmount();

@@ -13,6 +13,11 @@ import type { ContextDiagramData, ContextDiagramView } from './_contextDiagram';
 // ── Static Components
 import ContextNetworkPanel from './ContextNetworkPanel.vue';
 
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// TODO: Use 'NetworkDiagramOptions' alone once the app takes the d3 tool release whose types include these options.
+type DiagramOptions = NetworkDiagramOptions & { compactWidth?: number; maximumFitScale?: number; maximumLabelLength?: number };
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Labels go in the widest gap beside each node, wrap onto two lines, and have room kept for them, so the labels round
@@ -21,6 +26,7 @@ import ContextNetworkPanel from './ContextNetworkPanel.vue';
 // draws its nodes: one size whatever the pointer does, with a 1px ring, and a second ring round the node last clicked.
 const DIAGRAM_OPTIONS = {
     chargeStrength: -400,
+    compactWidth: 480, // On a pane as narrow as a phone, labels go below their nodes, which leaves more of the width to the nodes.
     fitsView: true,
     focusRingColor: 'var(--color-focus-ring)',
     growsActiveNodes: false,
@@ -30,11 +36,13 @@ const DIAGRAM_OPTIONS = {
     labelPlacementId: 'outside',
     linkDistance: 80,
     linkWidth: 1, // As wide as the rings round the nodes.
+    maximumFitScale: 1.5, // A small level is enlarged to use a large pane, but not so far that its labels are larger than the headings round it.
+    maximumLabelLength: 24, // A longer name is cut short. The whole name is the node's tooltip.
     nodeBorderWidth: 1,
     reservesLabelRoom: true,
     selectedRingColor: 'var(--color-focus-ring)',
     wrapsLabels: true
-} satisfies NetworkDiagramOptions;
+} satisfies DiagramOptions;
 
 const SETUP_OPTION_ID = 'setup'; // The studio option whose colour the lines take, as the nodes they join do.
 

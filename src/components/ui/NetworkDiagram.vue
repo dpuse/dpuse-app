@@ -17,7 +17,15 @@ import { type AppFailure, raiseFailure } from '@/state/errors';
 
 // ── Static Components
 import BusyBar from '@/components/ui/BusyBar.vue';
+import DiagramZoomControls from '@/components/ui/DiagramZoomControls.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
+
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// TODO: Use 'NetworkDiagramOptions' and 'D3NetworkView' alone once the app takes the d3 tool release whose types include
+// these options and methods.
+type DiagramOptions = NetworkDiagramOptions & { compactWidth?: number; maximumFitScale?: number; maximumLabelLength?: number };
+type DiagramView = D3NetworkView & { fitView?: () => void; zoomBy?: (factor: number) => void };
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -29,6 +37,7 @@ import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 // node, such as one that adds something, takes all of the pill's colours, because it is the same kind of action. The
 // colours are variables, so they follow the theme.
 const DIAGRAM_OPTIONS = {
+    compactWidth: 480, // On a pane as narrow as a phone, labels go below their nodes, which leaves more of the width to the nodes.
     actionNodeColors: { border: 'var(--color-pill-border)', fill: 'var(--color-pill)', fillHovered: 'var(--color-pill-hover)', symbol: 'var(--color-selected-text)' },
     chargeStrength: -400,
     fitsView: true,
@@ -40,12 +49,16 @@ const DIAGRAM_OPTIONS = {
     labelPlacementId: 'outside',
     linkDistance: 80,
     linkWidth: 1, // As wide as the rings round the nodes.
+    maximumFitScale: 1.5, // A small diagram is enlarged to use a large pane, but not so far that its labels are larger than the headings round it.
+    maximumLabelLength: 24, // A longer name, such as a file named by an id, is cut short. The whole name is the node's tooltip.
     nodeBorderWidth: 1,
     reservesLabelRoom: true,
     selectedRingColor: 'var(--color-focus-ring)', // A ring a little apart from the selected node, as the app's focus ring sits round a control. The ring for keyboard focus is drawn outside it.
     selectsOnClick: false,
     wrapsLabels: true
-} satisfies NetworkDiagramOptions;
+} satisfies DiagramOptions;
+
+const ZOOM_STEP = 1.25; // How much one press of a zoom button enlarges the diagram.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -60,7 +73,7 @@ const emit = defineEmits<{ nodeClick: [node: TNode] }>();
 
 const containerElement = useTemplateRef<HTMLDivElement>('container');
 const diagramIsPending = ref(true); // The diagram area is blank while the d3 tool downloads and draws, so the wait is shown.
-const diagramView = shallowRef<D3NetworkView>();
+const diagramView = shallowRef<DiagramView>();
 const renderFailure = shallowRef<AppFailure | undefined>();
 const renderCount = ref(0); // Tells a render that a newer one has started while it waited for the tool, so it keeps nothing it drew.
 
@@ -87,6 +100,18 @@ onBeforeUnmount(destroyDiagram);
 
 function handleRetry(): void {
     void renderDiagram();
+}
+
+function handleZoomIn(): void {
+    diagramView.value?.zoomBy?.(ZOOM_STEP);
+}
+
+function handleZoomOut(): void {
+    diagramView.value?.zoomBy?.(1 / ZOOM_STEP);
+}
+
+function handleFit(): void {
+    diagramView.value?.fitView?.();
 }
 
 // The tool hands back the node it was given, which is one of the caller's own.
@@ -135,6 +160,11 @@ function destroyDiagram(): void {
 
         <!-- 'v-show' rather than 'v-if' ─ The container stays on the page, so a retry after a failure has an element to
              draw into. -->
-        <div v-show="!renderFailure" ref="container" :aria-busy="diagramIsPending" :aria-label="label" class="min-h-0 w-full flex-1" role="group" />
+        <div v-show="!renderFailure" class="relative min-h-0 w-full flex-1">
+            <div ref="container" :aria-busy="diagramIsPending" :aria-label="label" class="absolute inset-0" role="group" />
+
+            <!-- Zoom ─ Only for a diagram drawn by a tool that can zoom. -->
+            <DiagramZoomControls v-if="diagramView?.zoomBy" class="absolute top-2 right-2" @fit="handleFit" @zoom-in="handleZoomIn" @zoom-out="handleZoomOut" />
+        </div>
     </div>
 </template>

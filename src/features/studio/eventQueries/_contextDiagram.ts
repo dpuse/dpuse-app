@@ -52,12 +52,15 @@ export interface ContextDiagramFocus {
 }
 
 // A drawn diagram, whichever tool drew it. Only a diagram whose layout can be worked out again has 'triggerAutoLayout',
-// and only one that can change to new data in place, without being drawn again from nothing, has 'update'.
+// only one that can change to new data in place, without being drawn again from nothing, has 'update', and only one
+// that can zoom has 'fitView' and 'zoomBy'.
 export interface ContextDiagramView {
     destroy: () => void;
+    fitView?: () => void; // Shows the whole diagram again.
     resize: () => void;
     triggerAutoLayout?: () => void;
     update?: (data: ContextDiagramData) => void;
+    zoomBy?: (factor: number) => void; // Zooms in for a factor above 1, out for one below.
 }
 
 // Draws the diagram into an element with one tool, and reports each node the user clicks by its id.
