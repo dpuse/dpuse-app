@@ -31,13 +31,11 @@ const pendingEvents: Record<string, unknown>[] = [];
 //
 // The first flush is 5 seconds after load and later ones every 30 seconds. 'useIntervalFn' restarts on the new
 // interval.
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
 useIntervalFn(() => {
     flushEvents();
     flushInterval.value = FLUSH_INTERVAL_SUBSEQUENT_MS;
 }, flushInterval);
 // A hidden tab may never come back, so whatever is queued is sent while it still can be.
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- see comment above
 useEventListener(document, 'visibilitychange', () => {
     if (document.hidden) flushEvents();
 });

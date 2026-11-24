@@ -29,7 +29,6 @@ export const unsavedWorkIsPresent = computed(() => unsavedWorkSources.value.some
 
 // Attached only while there is unsaved work, because the handler always asks the user to confirm leaving. It covers
 // what the app cannot intercept itself: a manual reload, closing the tab and typing another address.
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- An app-lifetime singleton, so the listener belongs to the module rather than a component.
 useEventListener(() => (unsavedWorkIsPresent.value ? globalThis : undefined), 'beforeunload', handleBeforeUnload);
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────

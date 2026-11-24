@@ -104,15 +104,15 @@ function handleRetry(): void {
 }
 
 function handleZoomIn(): void {
-    diagramView.value?.zoomBy?.(ZOOM_STEP);
+    diagramView.value?.zoomBy(ZOOM_STEP);
 }
 
 function handleZoomOut(): void {
-    diagramView.value?.zoomBy?.(1 / ZOOM_STEP);
+    diagramView.value?.zoomBy(1 / ZOOM_STEP);
 }
 
 function handleFit(): void {
-    diagramView.value?.fitView?.();
+    diagramView.value?.fitView();
 }
 
 // The tool hands back the node it was given, which is one of the caller's own.
