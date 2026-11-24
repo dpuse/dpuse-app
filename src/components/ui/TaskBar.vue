@@ -1,36 +1,18 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { CheckIcon } from '@lucide/vue';
-import type { RouteLocationRaw } from 'vue-router';
 
 // ── DPUse Framework
-import { DEFAULT_LOCALE_ID, type LocaleDescription, type LocaleLabel, type LocalisedConfig } from '@dpuse/dpuse-shared';
+import { DEFAULT_LOCALE_ID, type LocaleLabel } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import type { TaskBarItem } from './taskBar';
 import { TEXT } from './TaskBar_.json';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ScrollRow from '@/components/ui/scroll/ScrollRow.vue';
-
-// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// The label is also given split over two lines for a narrow bar. Each language sets its own split, because word order
-// differs between languages and the words cannot be joined or divided in code.
-export interface TaskConfig {
-    id: string;
-    label: LocaleLabel;
-    labelLine1: LocaleLabel;
-    labelLine2: LocaleLabel;
-    description: LocaleDescription;
-    enableUpTo: number;
-    number: number;
-}
-
-// 'detail' names what was chosen in a step, such as the connection. It is read out with the step; the host shows it on
-// screen wherever there is room for it.
-export type TaskBarItem = LocalisedConfig<TaskConfig> & { detail?: string; disabled: boolean; to?: RouteLocationRaw };
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 

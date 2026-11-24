@@ -1,20 +1,15 @@
 <script setup lang="ts">
 // ── Local Framework
 import { t } from '@/state/locale';
+import { TEXT } from './AssistantPaneToggle_.json';
 
 // ── Static Components
 import AssistantLogo from '@/components/branding/AssistantLogo.vue';
 import ToggleButton from '@/components/ui/action/ToggleButton.vue';
 
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const TEXT = {
-    'toggle.aria': { en: 'Toggle assistant panel', es: 'Alternar el panel asistente' }
-};
-
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { isOpen } = defineProps<{ isOpen: boolean }>(); // Whether the pane is on screen, so on a narrow display only the one in front.
+const { isOpen } = defineProps<{ isOpen: boolean }>(); // Whether the assistant pane is on screen. A narrow display shows one pane at a time.
 </script>
 
 <template>

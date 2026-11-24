@@ -59,10 +59,10 @@ describe('network diagram', () => {
         expect(renderNetworkDiagram.mock.lastCall?.[2]).toMatchObject({ linkColor: 'var(--line)' });
     });
 
-    it('fills a large pane, puts labels below the nodes in a narrow one, and cuts long labels short', async () => {
+    it('keeps a small diagram at full size at the top of the pane, puts labels below the nodes in a narrow one, and cuts long labels short', async () => {
         await mountDiagram(TOP_DATA);
 
-        expect(renderNetworkDiagram.mock.lastCall?.[2]).toMatchObject({ compactWidth: 480, maximumFitScale: 1.5, maximumLabelLength: 24 });
+        expect(renderNetworkDiagram.mock.lastCall?.[2]).toMatchObject({ compactWidth: 480, fitAlignmentId: 'top', maximumFitScale: 1, maximumLabelLength: 24 });
     });
 
     it('zooms in, zooms out and fits the diagram from its buttons', async () => {

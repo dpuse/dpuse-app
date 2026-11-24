@@ -1,0 +1,39 @@
+{
+    "TASK_CONFIGS": [
+        {
+            "id": "connection",
+            "number": 1,
+            "label": { "en": "Select Connection", "es": "Seleccionar conexión" },
+            "labelLine1": { "en": "Select", "es": "Seleccionar" },
+            "labelLine2": { "en": "Connection", "es": "conexión" },
+            "description": {},
+            "enableUpTo": 1
+        },
+        {
+            "id": "item",
+            "number": 2,
+            "label": { "en": "Select Item", "es": "Seleccionar elemento" },
+            "labelLine1": { "en": "Select", "es": "Seleccionar" },
+            "labelLine2": { "en": "Item", "es": "elemento" },
+            "description": {},
+            "enableUpTo": 2
+        },
+        {
+            "id": "data",
+            "number": 3,
+            "label": { "en": "Explore Data", "es": "Explorar datos" },
+            "labelLine1": { "en": "Explore", "es": "Explorar" },
+            "labelLine2": { "en": "Explore", "es": "Explorar" },
+            "description": {},
+            "enableUpTo": 3
+        }
+    ],
+    "TEXT": {
+        "itemTask.apiEndpoint.label": { "en": "Select API Endpoint", "es": "Seleccionar endpoint de API" },
+        "itemTask.apiEndpoint.short.label": { "en": "API Endpoint", "es": "endpoint de API" },
+        "itemTask.file.label": { "en": "Select File", "es": "Seleccionar archivo" },
+        "itemTask.file.short.label": { "en": "File", "es": "archivo" },
+        "itemTask.table.label": { "en": "Select Table", "es": "Seleccionar tabla" },
+        "itemTask.table.short.label": { "en": "Table", "es": "tabla" }
+    }
+}

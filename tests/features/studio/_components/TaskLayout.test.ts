@@ -9,7 +9,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 import { buildMemoryRouter } from '~/tests/support/router';
 import TaskLayout from '@/features/studio/_components/TaskLayout.vue';
 import type { TaskTrailContent } from '@/components/ui/taskTrail';
-import type { TaskBarItem, TaskConfig } from '@/components/ui/TaskBar.vue';
+import type { TaskBarItem, TaskConfig } from '@/components/ui/taskBar';
 
 vi.mock('@/observability/errorTracking', () => import('~/tests/support/errorTracking'));
 

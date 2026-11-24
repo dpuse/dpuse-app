@@ -49,8 +49,8 @@ describe('App', () => {
     it('renders both pane toggles', async () => {
         const { wrapper } = await mountApp('/');
 
-        expect(wrapper.find('button[aria-label="Toggle studio panel"]').exists()).toBe(true);
-        expect(wrapper.find('button[aria-label="Toggle assistant panel"]').exists()).toBe(true);
+        expect(wrapper.find('button[aria-label="Studio"]').exists()).toBe(true);
+        expect(wrapper.find('button[aria-label="Assistant"]').exists()).toBe(true);
     });
 
     // The screen a user lands on with no path. The studio pane opens by itself, because the URL does not ask for only
@@ -121,6 +121,8 @@ describe('App', () => {
 
             expect(wrapper.find('[data-region="StudioPane"]').attributes('hidden')).toBeDefined();
             expect(wrapper.find('[data-region="AssistantPane"]').attributes('hidden')).toBeUndefined();
+            expect(wrapper.find('button[aria-label="Studio"]').attributes('aria-expanded')).toBe('false');
+            expect(wrapper.find('button[aria-label="Assistant"]').attributes('aria-expanded')).toBe('true');
         });
 
         // The URL cannot be trusted when the router fails to start, so the app falls back to the studio alone.
@@ -154,19 +156,26 @@ describe('App', () => {
             const { wrapper } = await mountApp('/');
             const studioPane = (): ReturnType<VueWrapper['find']> => wrapper.find('[data-region="StudioPane"]');
             const assistantPane = (): ReturnType<VueWrapper['find']> => wrapper.find('[data-region="AssistantPane"]');
+            const studioToggle = (): ReturnType<VueWrapper['find']> => wrapper.find('button[aria-label="Studio"]');
+            const assistantToggle = (): ReturnType<VueWrapper['find']> => wrapper.find('button[aria-label="Assistant"]');
+            expect(studioToggle().attributes('aria-expanded')).toBe('true');
+            expect(assistantToggle().attributes('aria-expanded')).toBe('false');
 
-            await wrapper.find('button[aria-label="Toggle assistant panel"]').trigger('click');
+            await assistantToggle().trigger('click');
             await settle();
             expect(studioPane().attributes('hidden')).toBeUndefined();
             expect(assistantPane().attributes('hidden')).toBeUndefined();
+            expect(assistantToggle().attributes('aria-expanded')).toBe('true');
 
-            await wrapper.find('button[aria-label="Toggle studio panel"]').trigger('click');
+            await studioToggle().trigger('click');
             await settle();
             expect(studioPane().attributes('hidden')).toBeDefined();
+            expect(studioToggle().attributes('aria-expanded')).toBe('false');
 
-            await wrapper.find('button[aria-label="Toggle assistant panel"]').trigger('click');
+            await assistantToggle().trigger('click');
             await settle();
             expect(assistantPane().attributes('hidden')).toBeUndefined();
+            expect(assistantToggle().attributes('aria-expanded')).toBe('true');
         });
     });
 
@@ -182,7 +191,7 @@ describe('App', () => {
             const { errors, router, wrapper } = await mountApp(entryUrl);
             const landedAt = router.currentRoute.value.fullPath;
 
-            await wrapper.find('button[aria-label="Toggle studio panel"]').trigger('click');
+            await wrapper.find('button[aria-label="Studio"]').trigger('click');
             await flushPromises();
 
             expect(errors).toStrictEqual([]);

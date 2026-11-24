@@ -30,7 +30,7 @@ import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import PillSegment from '@/components/ui/action/PillSegment.vue';
 import SelectConnectionPanel from './SelectConnectionPanel.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
-import type { TaskConfig } from '@/components/ui/TaskBar.vue';
+import type { TaskConfig } from '@/components/ui/taskBar';
 
 // ── Dynamic Components
 const EmptyPlaceholder = defineLazyComponent(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');

@@ -24,7 +24,7 @@ import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 
 // TODO: Use 'NetworkDiagramOptions' and 'D3NetworkView' alone once the app takes the d3 tool release whose types include
 // these options and methods.
-type DiagramOptions = NetworkDiagramOptions & { compactWidth?: number; maximumFitScale?: number; maximumLabelLength?: number };
+type DiagramOptions = NetworkDiagramOptions & { compactWidth?: number; fitAlignmentId?: 'middle' | 'top'; maximumFitScale?: number; maximumLabelLength?: number };
 type DiagramView = D3NetworkView & { fitView?: () => void; zoomBy?: (factor: number) => void };
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -40,6 +40,7 @@ const DIAGRAM_OPTIONS = {
     compactWidth: 480, // On a pane as narrow as a phone, labels go below their nodes, which leaves more of the width to the nodes.
     actionNodeColors: { border: 'var(--color-pill-border)', fill: 'var(--color-pill)', fillHovered: 'var(--color-pill-hover)', symbol: 'var(--color-selected-text)' },
     chargeStrength: -400,
+    fitAlignmentId: 'top', // A small diagram stays near the headings and the detail text, rather than floating in the middle of a tall pane.
     fitsView: true,
     focusRingColor: 'var(--color-focus-ring)',
     growsActiveNodes: false, // Every node keeps one size. The selected node and the one under the pointer show in their fill, as the pill does.
@@ -49,7 +50,7 @@ const DIAGRAM_OPTIONS = {
     labelPlacementId: 'outside',
     linkDistance: 80,
     linkWidth: 1, // As wide as the rings round the nodes.
-    maximumFitScale: 1.5, // A small diagram is enlarged to use a large pane, but not so far that its labels are larger than the headings round it.
+    maximumFitScale: 1, // A small diagram is never enlarged, so its icons and labels match the rest of the app. Only the user's own zoom makes it larger.
     maximumLabelLength: 24, // A longer name, such as a file named by an id, is cut short. The whole name is the node's tooltip.
     nodeBorderWidth: 1,
     reservesLabelRoom: true,

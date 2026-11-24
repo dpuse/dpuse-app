@@ -1,6 +1,6 @@
 // ── External Dependencies & Registrations
 import type { Claims } from '@teamhanko/hanko-frontend-sdk';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useDocumentVisibility, useIntervalFn } from '@vueuse/core';
 
 // ── DPUse Framework
@@ -9,6 +9,7 @@ import { AppError } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { hasReportedAppError } from '@/observability/errorTracking';
 import { raiseAppFailure } from '@/state/errors';
+import type { RetrievalStatus } from '@/state/configs';
 import { accountConfigStatus, connectionAccountConfigs, initialiseConfigMonitor, initialiseContextConfig } from '@/state/configs';
 import { type AuthSessionChangeId, loadAuthClient, validateAuthSession } from '@/services/auth';
 import { forgetUser, identifyUser } from '@/observability/eventTracking';
@@ -36,10 +37,15 @@ const state = { accountMonitorIsStarted: false }; // A visitor who never signed 
 
 const { pause: pauseExpiryTimer, resume: resumeExpiryTimer } = useIntervalFn(updateExpiresIn, expiryIntervalMs, { immediate: false });
 
+// ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Where the account's connections stand. Signed out, there are none, so there is nothing to wait for. Signed in, or while
+// Hanko is still checking, they are as the account monitor sent them.
+export const accountConnectionsStatusTypeId = computed((): RetrievalStatus['typeId'] => (sessionIsAuthenticated.value === false ? 'ready' : accountConfigStatus.value.typeId));
+
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // A backgrounded tab has its timers throttled, so the countdown is brought up to date as soon as the tab is looked at.
-// eslint-disable-next-line unicorn/no-top-level-side-effects -- An app-lifetime singleton, so the watcher belongs to the module rather than a component.
 watch(useDocumentVisibility(), (visibility) => {
     if (visibility === 'visible' && expiresAt.value != null) updateExpiresIn();
 });

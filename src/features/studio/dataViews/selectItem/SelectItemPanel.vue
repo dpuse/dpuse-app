@@ -190,7 +190,7 @@ import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPan
 import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
 import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
-import type { TaskConfig } from '@/components/ui/TaskBar.vue';
+import type { TaskConfig } from '@/components/ui/taskBar';
 import ValueDelimiterIcon from './ValueDelimiterIcon.vue';
 import TextViewer, { type LineHighlightId } from '@/components/ui/text/TextViewer.vue';
 

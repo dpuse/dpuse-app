@@ -1,56 +1,14 @@
 {
-    "TASK_CONFIGS": [
-        {
-            "id": "connection",
-            "number": 1,
-            "label": { "en": "Select Connection", "es": "Seleccionar conexión" },
-            "labelLine1": { "en": "Select", "es": "Seleccionar" },
-            "labelLine2": { "en": "Connection", "es": "conexión" },
-            "description": {},
-            "enableUpTo": 1
-        },
-        {
-            "id": "item",
-            "number": 2,
-            "label": { "en": "Select Item", "es": "Seleccionar elemento" },
-            "labelLine1": { "en": "Select", "es": "Seleccionar" },
-            "labelLine2": { "en": "Item", "es": "elemento" },
-            "description": {},
-            "enableUpTo": 2
-        },
-        {
-            "id": "data",
-            "number": 3,
-            "label": { "en": "Explore Data", "es": "Explorar datos" },
-            "labelLine1": { "en": "Explore", "es": "Explorar" },
-            "labelLine2": { "en": "Explore", "es": "Explorar" },
-            "description": {},
-            "enableUpTo": 3
-        }
-    ],
     "TEXT": {
-        "actions.aria": { "en": "Data view actions", "es": "Acciones de la vista de datos" },
         "dataView.failed.title": { "en": "Data View Unavailable", "es": "Vista de datos no disponible" },
         "dataView.new.title": { "en": "New Data View", "es": "Nueva vista de datos" },
         "dataView.pending.title": { "en": "Loading…", "es": "Cargando…" },
         "discard.label": { "en": "Discard", "es": "Descartar" },
         "discard.new.text": { "en": "This data view has not been saved, so it will be lost.", "es": "Esta vista de datos no se ha guardado, así que se perderá." },
-        "discard.loading.text": { "en": "Wait for the records to load, or stop the load", "es": "Espera a que se carguen los registros, o detén la carga" },
-        "discard.noChanges.text": { "en": "No changes to discard", "es": "No hay cambios que descartar" },
         "discard.stay.label": { "en": "Stay", "es": "Quedarse" },
         "discard.text": { "en": "Your changes will be lost, and the saved data view stays as it was.", "es": "Tus cambios se perderán y la vista de datos guardada quedará como estaba." },
         "discard.title": { "en": "Discard Changes?", "es": "¿Descartar los cambios?" },
         "establishDataViews.title": { "en": "Establish Data Views", "es": "Establecer vistas de datos" },
-        "itemTask.apiEndpoint.label": { "en": "Select API Endpoint", "es": "Seleccionar endpoint de API" },
-        "itemTask.apiEndpoint.short.label": { "en": "API Endpoint", "es": "endpoint de API" },
-        "itemTask.file.label": { "en": "Select File", "es": "Seleccionar archivo" },
-        "itemTask.file.short.label": { "en": "File", "es": "archivo" },
-        "itemTask.table.label": { "en": "Select Table", "es": "Seleccionar tabla" },
-        "itemTask.table.short.label": { "en": "Table", "es": "tabla" },
-        "save.label": { "en": "Save", "es": "Guardar" },
-        "save.loading.text": { "en": "Wait for the records to load, or stop the load", "es": "Espera a que se carguen los registros, o detén la carga" },
-        "save.noChanges.text": { "en": "No changes to save", "es": "No hay cambios que guardar" },
-        "save.noItem.text": { "en": "Open an item before saving", "es": "Abre un elemento antes de guardar" },
         "studio.label": { "en": "Studio", "es": "Estudio" },
         "trail.aria": { "en": "What the data view is built from", "es": "De qué se compone la vista de datos" },
         "trail.home.label": { "en": "Home", "es": "Inicio" },

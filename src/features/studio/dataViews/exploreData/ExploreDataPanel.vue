@@ -12,7 +12,7 @@ import type { LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Static Components
 import InvestigateDataPanel from './InvestigateDataPanel.vue';
-import type { TaskConfig } from '@/components/ui/TaskBar.vue';
+import type { TaskConfig } from '@/components/ui/taskBar';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 // Declared (even though this is the last wizard step and never actually emits) so Vue treats these as real

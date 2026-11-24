@@ -136,9 +136,9 @@ const config = defineConfigWithVueTs(
         }
     },
 
-    // `DataViewsLayout`'s `TASK_CONFIGS` is a list of tasks, each reading id first, so its keys are not sorted.
+    // `useDataViewTasks`'s `TASK_CONFIGS` is a list of tasks, each reading id first, so its keys are not sorted.
     {
-        files: ['src/features/studio/dataViews/DataViewsLayout_.json'],
+        files: ['src/features/studio/dataViews/_useDataViewTasks_.json'],
         rules: {
             'json/sort-keys': 'off'
         }

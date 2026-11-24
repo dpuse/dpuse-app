@@ -7,14 +7,15 @@
 import type { RouteLocationRaw } from 'vue-router';
 
 // ── Local Framework
+import type { TaskBarItem } from '@/components/ui/taskBar';
 import type { TaskTrailContent } from '@/components/ui/taskTrail';
 
 // ── Static Components
 import StudioHeader from './StudioHeader.vue';
 import StudioLayout from './StudioLayout.vue';
 import TabBar from '@/components/ui/TabBar.vue';
+import TaskBar from '@/components/ui/TaskBar.vue';
 import TaskTrail from '@/components/ui/TaskTrail.vue';
-import TaskBar, { type TaskBarItem } from '@/components/ui/TaskBar.vue';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

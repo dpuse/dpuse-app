@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { ArrowDownNarrowWideIcon, ArrowUpWideNarrowIcon, AsteriskIcon, ChevronLeftIcon, ChevronRightIcon } from '@lucide/vue';
-import { FingerprintPatternIcon, KeyRoundIcon, RulerIcon, TagsIcon, TriangleAlertIcon } from '@lucide/vue';
 import { computed, nextTick, ref, useTemplateRef } from 'vue';
+import { FingerprintPatternIcon, KeyRoundIcon, RulerIcon, TagsIcon, TriangleAlertIcon } from '@lucide/vue';
 
 // ── DPUse Framework
 import type { ColumnAuditConfig, FormatIssueId } from '@dpuse/dpuse-shared';
@@ -11,11 +11,11 @@ import type { ColumnAuditConfig, FormatIssueId } from '@dpuse/dpuse-shared';
 import { TEXT } from './ColumnDetail_.json';
 import {
     COLUMN_VALUE_SEGMENTS,
+    constructColumnFacts,
     constructColumnTypeLabel,
     constructPreviewColumnHeaders,
     constructPreviewColumnRows,
     countChosenTypeMisfits,
-    constructColumnFacts,
     formatYesNo,
     type PreviewColumnRow
 } from './previewColumnRows';
