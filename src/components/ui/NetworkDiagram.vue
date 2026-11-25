@@ -64,7 +64,10 @@ const { data, label, linkColor } = defineProps<{
     label: string; // Names the diagram for screen readers.
     linkColor?: string; // The colour of the lines between nodes, for a caller whose nodes have their own colours. Any CSS colour. Read once, when the diagram is first drawn.
 }>();
-const emit = defineEmits<{ nodeClick: [node: TNode] }>();
+const emit = defineEmits<{
+    backgroundClick: []; // A click away from every node. The click that ends a pan is not one.
+    nodeClick: [node: TNode];
+}>();
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -111,6 +114,10 @@ function handleFit(): void {
     diagramView.value?.fitView();
 }
 
+function handleClickBackground(): void {
+    emit('backgroundClick');
+}
+
 // The tool hands back the node it was given, which is one of the caller's own.
 function handleClickNode(node: NetworkDiagramNode): void {
     const clickedNode = data?.nodes.find((candidate) => candidate.id === node.id);
@@ -128,7 +135,7 @@ async function renderDiagram(): Promise<void> {
     try {
         destroyDiagram(); // A retry replaces the diagram rather than drawing a second one.
         const d3Tool = await establishTool<D3Tool>('d3-visualiser');
-        const view = await d3Tool.renderNetworkDiagram(data, containerElement.value, { ...DIAGRAM_OPTIONS, ...(linkColor != null && { linkColor }), onNodeClick: handleClickNode });
+        const view = await d3Tool.renderNetworkDiagram(data, containerElement.value, { ...DIAGRAM_OPTIONS, ...(linkColor != null && { linkColor }), onBackgroundClick: handleClickBackground, onNodeClick: handleClickNode });
         if (thisRenderCount !== renderCount.value) {
             view.destroy();
             return;

@@ -4,12 +4,11 @@ import { describe, expect, it } from 'vitest';
 // ── Local Framework
 import { constructDataViewDiagramData } from '@/features/studio/dataViews/overview/_dataViewDiagram';
 import { findFocusedDataViewDiagramNode } from '@/features/studio/dataViews/overview/_dataViewDiagram';
-import { listDataViewDiagramFolderPaths } from '@/features/studio/dataViews/overview/_dataViewDiagram';
 import { resolveDataViewDiagramFocus } from '@/features/studio/dataViews/overview/_dataViewDiagram';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const LABELS = { add: 'Add', open: (name: string): string => `Open ${name}`, root: 'Data Views' };
+const LABELS = { add: 'Add', root: 'Data Views' };
 
 // Dropbox has two connections, as a connector can, and SQLite one.
 const CONNECTIONS = [
@@ -29,6 +28,15 @@ const FOLDER_DATA_VIEWS = [
     { id: 'c', label: 'Sales', connectionId: 'work', folderPath: '/finance/2026' },
     { id: 'd', label: 'Payroll', connectionId: 'work', folderPath: '/hr' },
     { id: 'e', label: 'Untitled', connectionId: 'work', folderPath: undefined }
+];
+
+// A tree of folders: 'reports' holds a data view and a folder, '2026', that holds two more. 'hr/team/a' is three folders
+// with nothing on the way, so it is one node.
+const TREE_DATA_VIEWS = [
+    { id: 'q1', label: 'Q1', connectionId: 'work', folderPath: '/reports/2026/q1' },
+    { id: 'q2', label: 'Q2', connectionId: 'work', folderPath: '/reports/2026/q2' },
+    { id: 'summary', label: 'Summary', connectionId: 'work', folderPath: '/reports' },
+    { id: 'team', label: 'Team', connectionId: 'work', folderPath: '/hr/team/a' }
 ];
 
 const WORK_FOCUS = { connectorId: 'dropbox', connectionId: 'work' };
@@ -115,16 +123,6 @@ describe('selection and icons', () => {
         expect(readSelected(constructDataViewDiagramData(LABELS, CONNECTIONS, DATA_VIEWS, WORK_FOCUS, 'a'))).toStrictEqual(['dataView']);
     });
 
-    it('gives the selected data view an open badge in the action fill and outline and names it for opening, and no other node', () => {
-        const labels = { ...LABELS, dataViewColor: '#222222', openDiscColor: 'var(--pill)', openRingColor: 'var(--pill-border)' };
-        const data = constructDataViewDiagramData(labels, CONNECTIONS, DATA_VIEWS, WORK_FOCUS, 'a');
-
-        expect(data.nodes.filter((node) => node.badge != null || node.accessibleLabel != null)).toMatchObject([
-            { accessibleLabel: 'Open Employees', badge: 'arrowRight', color: 'var(--pill-border)', discColor: 'var(--pill)', label: 'Employees' }
-        ]);
-        expect(constructDataViewDiagramData(LABELS, CONNECTIONS, DATA_VIEWS, WORK_FOCUS).nodes.some((node) => node.badge != null)).toBe(false);
-    });
-
     it('keeps the connection selected when the selected data view belongs to another connection', () => {
         const data = constructDataViewDiagramData(LABELS, CONNECTIONS, DATA_VIEWS, WORK_FOCUS, 'b');
 
@@ -209,18 +207,17 @@ describe('folders', () => {
         );
     });
 
-    it('names the top folder of a file store, and cuts a long path at its start with the whole path as its tooltip', () => {
+    it('shows a data view in the top folder of a file store on the connection, and names every folder by its whole path for its tooltip', () => {
         const longPath = '/reports/regional/quarterly/2026';
         const dataViews = [
             { id: 'a', label: 'Employees', connectionId: 'work', folderPath: '' },
             { id: 'c', label: 'Sales', connectionId: 'work', folderPath: longPath }
         ];
-        const folderNodes = constructDataViewDiagramData(LABELS, CONNECTIONS, dataViews, WORK_FOCUS).nodes.filter((node) => node.typeId === 'folder');
+        const data = constructDataViewDiagramData(LABELS, CONNECTIONS, dataViews, WORK_FOCUS);
 
-        expect(folderNodes[0]).toMatchObject({ label: '/' });
-        expect(folderNodes[0]).not.toHaveProperty('title');
-        expect(folderNodes[1]).toMatchObject({ accessibleLabel: longPath, label: '…regional/quarterly/2026', title: longPath });
-        expect(folderNodes[1]?.label).toHaveLength(24);
+        expect(readNodes(data).slice(3)).toStrictEqual(['folder:…regional/quarterly/2026', 'dataView:Employees', 'add:Add']);
+        expect(data.nodes.find((node) => node.typeId === 'folder')).toMatchObject({ accessibleLabel: longPath, title: longPath });
+        expect(data.nodes.find((node) => node.typeId === 'folder')?.label).toHaveLength(24);
     });
 
     it('gives a folder its connection’s folder icon and the connection colour', () => {
@@ -231,11 +228,52 @@ describe('folders', () => {
     });
 });
 
-describe('listDataViewDiagramFolderPaths', () => {
-    it('lists a connection’s folders only when there are several', () => {
-        expect(listDataViewDiagramFolderPaths(FOLDER_DATA_VIEWS, 'work')).toStrictEqual(['/hr', '/finance/2026']);
-        expect(listDataViewDiagramFolderPaths(DATA_VIEWS, 'work')).toStrictEqual([]);
-        expect(listDataViewDiagramFolderPaths(FOLDER_DATA_VIEWS, 'personal')).toStrictEqual([]);
+describe('folder tree', () => {
+    it('merges folders that hold no data view and lead to only one folder, and keeps those where the tree branches', () => {
+        const data = constructDataViewDiagramData(LABELS, CONNECTIONS, TREE_DATA_VIEWS, WORK_FOCUS);
+
+        expect(readNodes(data).slice(3)).toStrictEqual(['folder:reports', 'folder:hr/team/a', 'add:Add']);
+    });
+
+    it('opens a folder to show its folders and data views, keeping the folders above it and hiding their other folders', () => {
+        const data = constructDataViewDiagramData(LABELS, CONNECTIONS, TREE_DATA_VIEWS, { ...WORK_FOCUS, folderPath: '/reports/2026' });
+
+        expect(readNodes(data).slice(3)).toStrictEqual(['folder:reports', 'folder:2026', 'folder:q1', 'folder:q2', 'add:Add']);
+        expect(data.nodes.slice(3).map((node) => node.level)).toStrictEqual([3, 4, 5, 5, 3]);
+        expect(data.links.slice(2, 5)).toStrictEqual([
+            { source: 'data.dropbox.work', target: 'data.dropbox.work.folder./reports' },
+            { source: 'data.dropbox.work.folder./reports', target: 'data.dropbox.work.folder./reports/2026' },
+            { source: 'data.dropbox.work.folder./reports/2026', target: 'data.dropbox.work.folder./reports/2026/q1' }
+        ]);
+        expect(data.nodes.filter((node) => node.isSelected === true).map((node) => node.label)).toStrictEqual(['2026']);
+    });
+
+    it('shows a folder’s own data views beside the folders in it', () => {
+        const data = constructDataViewDiagramData(LABELS, CONNECTIONS, TREE_DATA_VIEWS, { ...WORK_FOCUS, folderPath: '/reports' });
+
+        expect(readNodes(data).slice(3)).toStrictEqual(['folder:reports', 'folder:2026', 'dataView:Summary', 'add:Add']);
+        expect(data.nodes.find((node) => node.typeId === 'dataView')?.level).toBe(4);
+    });
+
+    it('starts the tree at the deepest folder every data view is in or below', () => {
+        const dataViews = [
+            { id: 'a', label: 'A', connectionId: 'work', folderPath: '/data/a' },
+            { id: 'b', label: 'B', connectionId: 'work', folderPath: '/data/b/' }
+        ];
+        const data = constructDataViewDiagramData(LABELS, CONNECTIONS, dataViews, WORK_FOCUS);
+
+        expect(readNodes(data).slice(3)).toStrictEqual(['folder:a', 'folder:b', 'add:Add']);
+        expect(data.nodes.filter((node) => node.typeId === 'folder').map((node) => node.title)).toStrictEqual(['/data/a', '/data/b']);
+    });
+
+    it('falls back to the nearest folder above one that is no longer shown', () => {
+        const nearestFocus = { ...WORK_FOCUS, folderPath: '/reports/2026' };
+
+        expect(constructDataViewDiagramData(LABELS, CONNECTIONS, TREE_DATA_VIEWS, { ...WORK_FOCUS, folderPath: '/reports/2026/q9' })).toStrictEqual(
+            constructDataViewDiagramData(LABELS, CONNECTIONS, TREE_DATA_VIEWS, nearestFocus)
+        );
+        expect(resolveDataViewDiagramFocus(CONNECTIONS, TREE_DATA_VIEWS, { ...WORK_FOCUS, folderPath: '/reports/2026/q9' })).toStrictEqual(nearestFocus);
+        expect(resolveDataViewDiagramFocus(CONNECTIONS, TREE_DATA_VIEWS, { ...WORK_FOCUS, folderPath: '/hr/team' })).toStrictEqual({ ...WORK_FOCUS, folderPath: undefined });
     });
 });
 
@@ -268,6 +306,7 @@ describe('resolveDataViewDiagramFocus', () => {
         });
         expect(resolveDataViewDiagramFocus(CONNECTIONS, FOLDER_DATA_VIEWS, HR_FOCUS)).toStrictEqual(HR_FOCUS);
         expect(resolveDataViewDiagramFocus(CONNECTIONS, DATA_VIEWS, HR_FOCUS)).toStrictEqual({ ...WORK_FOCUS, folderPath: undefined });
+        expect(resolveDataViewDiagramFocus(CONNECTIONS, TREE_DATA_VIEWS, {}, { connectionId: 'work', folderPath: '/reports' })).toStrictEqual({ ...WORK_FOCUS, folderPath: '/reports' });
     });
 });
 

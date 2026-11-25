@@ -22,20 +22,8 @@
         "columnDetail.close.label": { "en": "Close the detail of {label}", "es": "Cerrar el detalle de {label}" },
         "columnDetail.ignored.label": { "en": "Show the detail of {label}, ignored when loading", "es": "Ver el detalle de {label}, ignorada al cargar" },
         "columnDetail.label": { "en": "Show the detail of {label}", "es": "Ver el detalle de {label}" },
-        "columnKey.aria": {
-            "en": "Every value is unique, none is missing and none is invalid, so this column appears to be a key",
-            "es": "Todos los valores son únicos, no falta ninguno y ninguno es no válido, por lo que esta columna parece ser una clave"
-        },
-        "columnMandatory.aria": {
-            "en": "Every record has a value in this column, so it appears to be mandatory",
-            "es": "Todos los registros tienen un valor en esta columna, por lo que parece ser obligatoria"
-        },
         "columnType.aria": { "en": "Data type of {label}", "es": "Tipo de dato de {label}" },
         "columnType.ignored.aria": { "en": "{type}, ignored when loading", "es": "{type}, ignorada al cargar" },
-        "columnUnique.aria": {
-            "en": "No value repeats, leaving out missing ones, so this column appears to be unique",
-            "es": "Ningún valor se repite, sin contar los que faltan, por lo que esta columna parece ser única"
-        },
         "dataFormatSource.default.text": { "en": "assumed", "es": "supuesto" },
         "dataFormatSource.extension.text": { "en": "file extension", "es": "extensión del archivo" },
         "dataFormatSource.fileContent.text": { "en": "file content", "es": "contenido del archivo" },

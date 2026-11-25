@@ -172,6 +172,7 @@ const columnVirtualizer = useVirtualizer({
 const leftLeafHeaders = computed(() => table.getStartLeafHeaders());
 const leftPinnedWidth = computed(() => leftLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0));
 const rightLeafHeaders = computed(() => table.getEndLeafHeaders());
+const firstLeafHeaderId = computed(() => (leftLeafHeaders.value.at(0) ?? centerLeafHeaders.value.at(0))?.id);
 const rightPinnedWidth = computed(() => rightLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0));
 const totalCenterWidth = computed(() =>
     columnVirtualisationIsRequired.value ? columnVirtualizer.value.getTotalSize() : centerLeafHeaders.value.reduce((sum, header) => sum + header.column.getSize(), 0)
@@ -261,10 +262,17 @@ function restoreScroll(): void {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// A tabbed header row has no gap above its tabs, so the selected tab's top border meets the top of the row, as in VS
+// Code's panel tabs. The row is 6px shorter than a plain one, so the tabs keep their height.
+function constructHeaderRowHeightClass(hasDetail: boolean): string {
+    if (isHeaderTabbed) return hasDetail ? 'h-15.5' : 'h-8.5';
+    return hasDetail ? 'h-17' : 'h-10';
+}
+
 // A tabbed header's cell is the tab, padded in from its column so the gap either side, where the resize handle sits,
 // shows the header row behind it.
 function constructHeaderClass(columnId: string): string | undefined {
-    if (isHeaderTabbed) return 'px-1 pt-1.5';
+    if (isHeaderTabbed) return 'px-1';
     return columnId === selectedColumnId ? 'state-selected' : undefined;
 }
 </script>
@@ -272,8 +280,9 @@ function constructHeaderClass(columnId: string): string | undefined {
 <template>
     <div class="relative flex h-full flex-col overflow-y-hidden" data-region="Table">
         <!-- Toolbar ─ 40px high, as the other toolbars on the data view screens are. Positioned, so a control in it can
-             open over the whole row. -->
-        <div v-if="!isColumnPickerHidden" class="relative flex h-10 flex-none items-center gap-x-3 border-b border-separator px-page text-xs">
+             open over the whole row. No bottom line over a tabbed header, whose grey row already marks where the table
+             starts. -->
+        <div v-if="!isColumnPickerHidden" class="relative flex h-10 flex-none items-center gap-x-3 px-page text-xs" :class="{ 'border-b border-separator': !isHeaderTabbed }">
             <!-- '-ml-2' cancels the button's padding, so its icon lines up with the page edge. -->
             <TableColumnPicker class="mr-auto -ml-2" :table="table" />
             <slot name="toolbar-end" />
@@ -288,7 +297,7 @@ function constructHeaderClass(columnId: string): string | undefined {
                     <div ref="header" class="sticky top-0 z-3" role="rowgroup">
                         <div
                             class="flex border-b"
-                            :class="[$slots['header-detail'] ? 'h-17' : 'h-10', headerBackgroundClass, isHeaderTabbed ? 'border-separator' : 'border-boundary']"
+                            :class="[constructHeaderRowHeightClass($slots['header-detail'] != null), headerBackgroundClass, isHeaderTabbed ? 'border-separator' : 'border-boundary']"
                             :style="{ minWidth: contentMinWidth }"
                             role="row"
                         >
@@ -305,6 +314,7 @@ function constructHeaderClass(columnId: string): string | undefined {
                             >
                                 <TableHeaderCell
                                     :header="leftLeafHeader"
+                                    :is-first="leftLeafHeader.id === firstLeafHeaderId"
                                     :is-menu-hidden="isColumnMenuHidden"
                                     :is-resize-hidden="columnResizeIsHidden"
                                     :is-selected="leftLeafHeader.column.id === selectedColumnId"
@@ -328,7 +338,7 @@ function constructHeaderClass(columnId: string): string | undefined {
                                     role="columnheader"
                                     :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
                                 >
-                                    <TableHeaderCell :header="centerLeafHeader" :is-menu-hidden="isColumnMenuHidden" :is-resize-hidden="columnResizeIsHidden" :is-selected="centerLeafHeader.column.id === selectedColumnId" :is-tabbed="isHeaderTabbed" @fit-width="handleFitColumn(centerLeafHeader.column.id)">
+                                    <TableHeaderCell :header="centerLeafHeader" :is-first="centerLeafHeader.id === firstLeafHeaderId" :is-menu-hidden="isColumnMenuHidden" :is-resize-hidden="columnResizeIsHidden" :is-selected="centerLeafHeader.column.id === selectedColumnId" :is-tabbed="isHeaderTabbed" @fit-width="handleFitColumn(centerLeafHeader.column.id)">
                                         <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="centerLeafHeader.column.id" /></template>
                                         <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="centerLeafHeader.column.id" /></template>
                                         <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="centerLeafHeader.column.id" /></template>

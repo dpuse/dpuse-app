@@ -41,7 +41,7 @@ const { selectedItem, isDetailInitiallyClosed, maxDetailWidth, maxMasterWidth } 
 
 const slots = defineSlots<{
     header?(properties: { isSplit: boolean }): unknown;
-    master(properties: { detailIsShown: boolean; isSplit: boolean; openDetail: () => void }): unknown; // 'openDetail' shows the selected item's detail or summary again after the user closed it.
+    master(properties: { detailIsShown: boolean; dismissDetail: () => void; isSplit: boolean; openDetail: () => void }): unknown; // 'openDetail' shows the selected item's detail or summary again after the user closed it. 'dismissDetail' hides both and keeps the item selected, as Escape does.
     detail(properties: { item: T; close: () => void }): unknown;
     'detail-summary'?(properties: { item: T }): unknown; // Filling it makes the detail a sheet on a narrow screen, which shows this while at its lowest. It must be filled from the start, not conditionally.
     'detail-action'?(properties: { item: T }): unknown;
@@ -163,6 +163,10 @@ function handleCloseDetail(): void {
     detailPosition.value = hasDetailSummary ? 'summary' : 'closed';
 }
 
+function handleDismissDetail(): void {
+    detailPosition.value = 'closed';
+}
+
 // A click on the sheet's handle raises the sheet one height. At the top it goes back down to the summary.
 function handleStepSheet(): void {
     detailPosition.value = detailPosition.value === 'full' ? 'summary' : resolveSheetPosition(1);
@@ -223,7 +227,7 @@ function resolveSheetPosition(steps: number): DetailPosition {
                     :inert="sheetIsUsed && detailPosition === 'full'"
                     :style="{ maxWidth: isSplit ? maxMasterWidth : undefined }"
                 >
-                    <slot name="master" :detail-is-shown="detailIsShown" :is-split="isSplit" :open-detail="handleOpenDetail" />
+                    <slot name="master" :detail-is-shown="detailIsShown" :dismiss-detail="handleDismissDetail" :is-split="isSplit" :open-detail="handleOpenDetail" />
                 </div>
             </Transition>
 

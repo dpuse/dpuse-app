@@ -2,7 +2,7 @@
 
 const CELL_PADDING_PX = 24; // A cell's 'px-3' on both sides, which the header's label shares.
 export const HEADER_MENU_WIDTH_PX = 24; // The column options button: a 12px icon and its 'px-1.5'.
-export const HEADER_TAB_INSET_PX = 10; // A tabbed header's 'px-1' gap and 1px border on both sides, which the label loses.
+export const HEADER_TAB_INSET_PX = 5; // A tabbed header's 'px-1' gap and 1px border on both sides, which the label loses, less the 5px its left padding gives back.
 const MAXIMUM_FITTED_WIDTH_PX = 320; // So one long value cannot push the other columns out of view. Dragging can still go wider.
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────

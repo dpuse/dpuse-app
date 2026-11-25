@@ -23,7 +23,7 @@ const FOLDER_QUERY_KEY = 'folder';
 export function readDataViewDiagramFocus(parameters: Record<string, unknown>, query: LocationQuery = {}): DataViewDiagramFocus {
     const { connectorId, connectionId } = parameters;
     const focusedConnectionId = readPathPart(connectionId);
-    return { connectorId: readPathPart(connectorId), connectionId: focusedConnectionId, folderPath: focusedConnectionId == null ? undefined : readFolderPath(query[FOLDER_QUERY_KEY]) };
+    return { connectorId: readPathPart(connectorId), connectionId: focusedConnectionId, folderPath: focusedConnectionId == null ? undefined : readPathPart(query[FOLDER_QUERY_KEY]) };
 }
 
 // The query for a level, which names its folder, or no folder for any other level.
@@ -36,9 +36,4 @@ export function constructDataViewDiagramFocusQuery(query: LocationQuery, folderP
 
 function readPathPart(part: unknown): string | undefined {
     return typeof part === 'string' && part !== '' ? part : undefined;
-}
-
-// A file in a file store's top folder has the empty folder path, so an empty folder is a level of its own.
-function readFolderPath(part: unknown): string | undefined {
-    return typeof part === 'string' ? part : undefined;
 }

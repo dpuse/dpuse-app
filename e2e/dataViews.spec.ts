@@ -94,7 +94,7 @@ test.describe('Data views', () => {
         await expect(page).toHaveURL(new RegExp(`/dataViews/${dataViewId}/connections`));
     });
 
-    test('opens the data view selected in the diagram when its node is clicked again', async ({ browserName, page }) => {
+    test('opens a data view in the diagram when its node is double-clicked', async ({ browserName, page }) => {
         // eslint-disable-next-line playwright/no-skipped-test -- Firefox and WebKit fail to load the page at random, as the first test says.
         test.skip(browserName !== 'chromium', 'Firefox and WebKit fail to load the page at random.');
 
@@ -107,15 +107,19 @@ test.describe('Data views', () => {
         await expect(page).toHaveURL(/\/dataViews\/(?!new\/)[^/]+\/items/);
         const dataViewId = /\/dataViews\/([^/]+)\/items/.exec(page.url())?.[1] ?? '';
 
-        // Selected in the list, so the diagram shows it selected, with its open badge, and the first click opens it.
+        // Selected in the list, so the diagram opens at its connection. A click away from every node clears the
+        // selection, a click on the node selects it again, and a double-click opens it.
         await page.goto(`/dataViews/list/${dataViewId}`);
         await expect(page.locator('[data-region="TaskTrail"]').getByLabel('DPUse Application Emulator')).toBeVisible(); // The connection has loaded, which the diagram's link needs.
         await page.getByRole('link', { name: 'Diagram' }).click();
         await expect(page).toHaveURL(new RegExp(`/dataViews/diagram/.+/${dataViewId}`));
-        const node = page.locator('[data-region="DataViewDiagram"] g[role="button"]:has(g.badge)');
+        const node = page.locator('[data-region="DataViewDiagram"] g[role="button"][aria-label="People"]');
         await expect(node).toHaveCount(1, { timeout: 15_000 }); // The diagram's tool loads when the diagram is first shown.
-        await expect(node).toHaveAttribute('aria-label', /^Open /);
+        await page.locator('[data-region="DataViewDiagram"] svg').first().click({ position: { x: 4, y: 4 } }); // A corner, away from every node.
+        await expect(page).not.toHaveURL(new RegExp(`/${dataViewId}$`));
         await node.locator('circle').first().click(); // The node's disc, because the middle of the node's box, which takes in its label, can be empty.
+        await expect(page).toHaveURL(new RegExp(`/dataViews/diagram/.+/${dataViewId}`));
+        await node.locator('circle').first().dblclick();
         await expect(page).toHaveURL(new RegExp(`/dataViews/${dataViewId}/items`)); // At its item, because its records are not loaded.
     });
 
@@ -159,7 +163,7 @@ test.describe('Data views', () => {
         // The diagram stays on screen with the sheet at its summary, whose action opens the data view.
         await expect(page.locator('[data-region="TaskTrail"]').getByLabel('DPUse Application Emulator')).toBeVisible(); // The connection has loaded, which the diagram's link needs.
         await page.getByRole('link', { name: 'Diagram' }).click();
-        await expect(page.locator('[data-region="DataViewDiagram"] g[role="button"]:has(g.badge)')).toHaveCount(1, { timeout: 15_000 }); // The diagram's tool loads when the diagram is first shown.
+        await expect(page.locator('[data-region="DataViewDiagram"] g[role="button"][aria-label="People"]')).toHaveCount(1, { timeout: 15_000 }); // The diagram's tool loads when the diagram is first shown.
         await page.getByRole('link', { name: 'List' }).click(); // A closed sheet opens again when the selected card is tapped.
         await card.click();
         await expect(sheet).toHaveAttribute('data-position', 'summary');

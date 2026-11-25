@@ -2,7 +2,7 @@
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
 import { ChevronDownIcon, SlidersHorizontalIcon, TriangleAlertIcon } from '@lucide/vue';
-import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { type Component, computed, onBeforeUnmount, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import { useConfirmDialog, useIntervalFn } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -14,9 +14,12 @@ import type { ColumnAuditConfig, DataSubtypeId, StoreRecord, StoreValue } from '
 import { assertDefined } from '@/utilities/index.ts';
 import { changeDataView } from '@/features/studio/dataViews/_state/dataViewDraft';
 import { constructColumnTypeLabel } from '@/features/studio/dataViews/_columns/previewColumnRows';
+import { constructColumnValueCounts } from '@/features/studio/dataViews/_columns/previewColumnRows';
 import type { DataSource } from '@/composables/useDataWindow';
 import { findConnectionLocalisedConfig } from '@/state/configs';
+import { getColumnTypeIcon } from '@/features/studio/dataViews/_columns/columnTypeIcons';
 import { ignoreReportedNavigationFailure } from '@/router';
+import { PREVIEW_COLUMN_MARKS_WIDTH_PX } from '@/features/studio/dataViews/_columns/previewColumnRows';
 import { TEXT } from './InvestigateDataPanel_.json';
 import { useCurrentDataView } from '@/features/studio/dataViews/_state/dataViews';
 import { useItemChange } from '@/features/studio/dataViews/_components/itemChange';
@@ -41,8 +44,10 @@ import {
     resolveStoreConnectorId
 } from '@/features/studio/dataViews/_state/dataViewStore';
 import { type AppFailure, raiseAppFailure, raiseFailure } from '@/state/errors';
+import { type ColumnFacts, constructColumnFacts } from '@/features/studio/dataViews/_columns/previewColumnRows';
 import {
     type ColumnType,
+    constructChosenColumnTypes,
     constructColumnsVersion,
     constructColumnTypeId,
     constructDataTypeCellClass,
@@ -65,6 +70,8 @@ import CloseButton from '@/components/ui/action/CloseButton.vue';
 import ColumnDetail from '@/features/studio/dataViews/_columns/ColumnDetail.vue';
 import ColumnSearch from '@/features/studio/dataViews/_columns/ColumnSearch.vue';
 import type { ColumnSearchOption } from '@/features/studio/dataViews/_columns/ColumnSearch.vue';
+import ColumnTabMarks from '@/features/studio/dataViews/_columns/ColumnTabMarks.vue';
+import ColumnValueBar from '@/features/studio/dataViews/_columns/ColumnValueBar.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
@@ -315,6 +322,17 @@ const itemReading = computed((): ItemReading | undefined => {
 const detailColumnIndexes = computed(() =>
     columnConfigs.value.map((columnConfig, index) => (isDerivedColumn(columnConfig) || ignoredColumnIndexes.value.has(index) ? undefined : index)).filter((index) => index !== undefined)
 ); // A derived column only holds values for another, and an ignored one was not loaded.
+// What each column's values are, for the bar on its tab. From the audit, so the bar says how many records it covers.
+const columnValueCounts = computed(() => (itemReading.value == null ? [] : constructColumnValueCounts(itemReading.value)));
+// The marks on each column's tab, as on the item step: the facts its Overview lists, under the same rules, and whether
+// the user chose its type.
+const columnFacts = computed((): ColumnFacts[] => {
+    const reading = itemReading.value;
+    if (reading == null) return [];
+    const isAuditComplete = dataViewConfig.value?.contentAuditConfig?.isComplete === true;
+    return columnConfigs.value.map((_columnConfig, index) => constructColumnFacts(reading, index, findDetectedColumnType(index), isAuditComplete));
+});
+const chosenColumnTypes = computed(() => constructChosenColumnTypes(dataViewConfig.value));
 // The columns the toolbar's search can find. One marked by a load's values that did not fit is the one to check.
 const columnSearchOptions = computed((): ColumnSearchOption[] =>
     detailColumnIndexes.value.map((columnIndex) => ({
@@ -328,10 +346,7 @@ const selectedColumnStepIndex = computed(() => {
     return stepIndex === -1 ? undefined : stepIndex;
 });
 const selectedColumnConfig = computed(() => (selectedColumnIndex.value == null ? undefined : columnConfigs.value[selectedColumnIndex.value]));
-const selectedDetectedColumnType = computed((): ColumnType | undefined => {
-    const auditedColumnConfig = selectedColumnIndex.value == null ? undefined : dataViewConfig.value?.contentAuditConfig?.columns[selectedColumnIndex.value];
-    return auditedColumnConfig == null ? undefined : { dataSubtypeId: auditedColumnConfig.dataSubtypeId, dataTypeId: auditedColumnConfig.dataTypeId };
-});
+const selectedDetectedColumnType = computed((): ColumnType | undefined => (selectedColumnIndex.value == null ? undefined : findDetectedColumnType(selectedColumnIndex.value)));
 const selectedColumnTypeOptions = computed((): SelectOption[] =>
     selectedColumnConfig.value == null ? [] : [{ id: constructColumnTypeId(selectedColumnConfig.value), label: constructColumnTypeLabel(selectedColumnConfig.value) }]
 );
@@ -620,9 +635,16 @@ function fitColumnsToFirstPage(dataSourceId: string, rows: DisplayRow[]): void {
     const widths = columnHeaders.value.map((header, index) => {
         const percentSign = percentageColumnIndexes.value.has(index) ? ' %' : ''; // Measured with its unit, so a currency or sign never covers the number.
         const values = rows.map((row) => `${row[constructUnitKey(index)] ?? ''} ${row[constructColumnKey(index)] ?? ''}${percentSign}`.trim());
-        return constructFittedColumnWidth(header, values, { headerExtraPx: HEADER_MENU_WIDTH_PX + HEADER_TAB_INSET_PX }); // The headers are tabs, which take room from the label.
+        const marksWidthPx = detailColumnIndexes.value.includes(index) ? PREVIEW_COLUMN_MARKS_WIDTH_PX : 0;
+        return constructFittedColumnWidth(header, values, { headerExtraPx: HEADER_MENU_WIDTH_PX + HEADER_TAB_INSET_PX + marksWidthPx }); // The headers are tabs with marks, which take room from the label.
     });
     firstPageColumnWidths.value = { dataSourceId, widths };
+}
+
+// The type the audit found for a column, before any type the user chose in its place.
+function findDetectedColumnType(columnIndex: number): ColumnType | undefined {
+    const auditedColumnConfig = dataViewConfig.value?.contentAuditConfig?.columns[columnIndex];
+    return auditedColumnConfig == null ? undefined : { dataSubtypeId: auditedColumnConfig.dataSubtypeId, dataTypeId: auditedColumnConfig.dataTypeId };
 }
 
 function constructColumnKey(columnIndex: number): string {
@@ -631,6 +653,17 @@ function constructColumnKey(columnIndex: number): string {
 
 function readColumnIndex(columnKey: string): number {
     return Number(columnKey.slice(1));
+}
+
+// The icon for a column's type, and the type's name for screen readers, because the icon alone does not say it.
+function constructColumnTypeIcon(columnIndex: number): Component | undefined {
+    const columnConfig = columnConfigs.value.at(columnIndex);
+    return columnConfig == null ? undefined : getColumnTypeIcon(columnConfig);
+}
+
+function constructColumnTypeText(columnIndex: number): string {
+    const columnConfig = columnConfigs.value.at(columnIndex);
+    return columnConfig == null ? '' : constructColumnTypeLabel(columnConfig);
 }
 
 function constructUnitKey(columnIndex: number): string {
@@ -859,6 +892,27 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                         >
                         <span v-else class="min-w-0 flex-1 truncate text-sm font-medium text-muted">{{ columnHeaders[readColumnIndex(columnId)] }}</span>
                     </template>
+                    <!-- Marks and Value Bar ─ On each tab that has a detail, as on the item step: the column's key, unique and
+                         mandatory marks and its type icon after its name, and its value bar along the bottom. The bar
+                         shows what the column's values are and marks where one column ends and the next starts. The
+                         selected tab has none, so its white runs into the detail below, whose Overview shows the same
+                         counts. The bar is placed on the header cell, so it sits here only to be in the cell. -->
+                    <template #header-label-end="{ columnId }">
+                        <template v-if="detailColumnIndexes.includes(readColumnIndex(columnId))">
+                            <ColumnTabMarks
+                                :column-facts="columnFacts[readColumnIndex(columnId)] ?? { isKey: undefined, isMandatory: undefined, isUnique: undefined }"
+                                :is-type-chosen="chosenColumnTypes[String(readColumnIndex(columnId))] != null"
+                                :type-icon="constructColumnTypeIcon(readColumnIndex(columnId))"
+                                :type-text="constructColumnTypeText(readColumnIndex(columnId))"
+                            />
+                            <ColumnValueBar
+                                v-if="readColumnIndex(columnId) !== selectedColumnIndex && columnValueCounts[readColumnIndex(columnId)]"
+                                :column-label="String(columnHeaders[readColumnIndex(columnId)])"
+                                :column-value-counts="columnValueCounts[readColumnIndex(columnId)]!"
+                                @click="handleToggleColumnDetail(readColumnIndex(columnId))"
+                            />
+                        </template>
+                    </template>
                     <!-- Units ─ A currency at the left edge, and a percent sign after the number. The sign's room is kept
                          on every row of a column with any percentage, unseen where there is none, so the decimal points
                          line up. -->
@@ -894,9 +948,9 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                         </section>
                     </Transition>
                 </div>
-                <!-- Column Detail ─ Slides down from under the column names, 80px down past the toolbar and the names, so
-                     the tabs stay in reach and another one can be chosen, as on the item step. -->
-                <div class="pointer-events-none absolute inset-x-0 top-20 bottom-0 z-10 overflow-hidden">
+                <!-- Column Detail ─ Slides down from under the column names, 74px down past the 40px toolbar and the 34px
+                     tab row, so the tabs stay in reach and another one can be chosen, as on the item step. -->
+                <div class="pointer-events-none absolute inset-x-0 top-18.5 bottom-0 z-10 overflow-hidden">
                     <Transition name="dpuse-slide-down">
                         <ColumnDetail
                             v-if="selectedColumnIndex != null && itemReading != null"

@@ -1,0 +1,16 @@
+{
+    "TEXT": {
+        "key.aria": {
+            "en": "Every value is unique, none is missing and none is invalid, so this column appears to be a key",
+            "es": "Todos los valores son únicos, no falta ninguno y ninguno es no válido, por lo que esta columna parece ser una clave"
+        },
+        "mandatory.aria": {
+            "en": "Every record has a value in this column, so it appears to be mandatory",
+            "es": "Todos los registros tienen un valor en esta columna, por lo que parece ser obligatoria"
+        },
+        "unique.aria": {
+            "en": "No value repeats, leaving out missing ones, so this column appears to be unique",
+            "es": "Ningún valor se repite, sin contar los que faltan, por lo que esta columna parece ser única"
+        }
+    }
+}

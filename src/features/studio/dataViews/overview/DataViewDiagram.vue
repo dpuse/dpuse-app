@@ -2,8 +2,8 @@
 // The user's connections and data views as a diagram that is drilled down one level at a time. A click on a connector,
 // a connection, a folder or a data view selects it, which shows its details beside the diagram, and a connector,
 // connection or folder also opens to show what it holds. A folder shows only when a connection's data views are in more
-// than one folder or database. A second click on the selected data view opens it, as the badge on it shows. The
-// '+' node is the one node that is an action: it starts a new data view.
+// than one folder or database. A double-click on a data view opens it, and a click away from every node is reported,
+// to clear the selection. The '+' node is the one node that is an action: it starts a new data view.
 
 // ── External Dependencies & Registrations
 import { computed, ref } from 'vue';
@@ -30,7 +30,7 @@ import NetworkDiagram from '@/components/ui/NetworkDiagram.vue';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const DOUBLE_CLICK_MS = 500; // A click this soon after the one that selected a data view is the second half of a double-click, so it does not open the data view.
+const DOUBLE_CLICK_MS = 500; // A second click on the same data view this soon after the first is a double-click, which opens it.
 const DATA_VIEWS_OPTION_ID = 'dataViews'; // The studio option this screen belongs to, whose icon and colour the top node takes.
 // A table or API endpoint has no format, so it shows the icon of its kind that its card shows: Lucide 'sheet' and
 // 'braces', as markup because the diagram draws icons from SVG strings. They take the DPUse green and the stroke of the
@@ -47,8 +47,6 @@ const FOLDER_ICONS = {
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>',
     folder: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>'
 };
-const OPEN_DISC_COLOR = 'var(--color-pill)'; // Behind the selected data view's icon, the fill of the add node and the pill, because a click on it opens it.
-const OPEN_RING_COLOR = 'var(--color-pill-border)'; // Round the selected data view, the outline of the add node and the pill.
 const ROOT_ICON_COLOR = '#ffffff'; // The top node's icon, on the solid data views colour.
 const SETUP_OPTION_ID = 'setup'; // The studio option whose colour every node below the top one, and every line, takes, so only the top node stands out.
 
@@ -60,7 +58,9 @@ const { dataViewLocalisedConfigs, selectedDataViewId } = defineProps<{
 }>();
 const emit = defineEmits<{
     add: [connectionId: string]; // Start a new data view on the connection.
+    clear: []; // A click away from every node.
     open: []; // Open the selected data view.
+    reselect: []; // A click on the node that is selected already, which on a narrow screen shows or hides its detail.
     select: [dataViewId: string];
 }>();
 
@@ -69,7 +69,7 @@ const emit = defineEmits<{
 const route = useRoute();
 const router = useRouter();
 const studioOptionLocalisedConfigs = useStudioOptions();
-const dataViewSelectedTime = ref<number>(); // When a click in the diagram last selected a data view.
+const lastDataViewClick = ref<{ dataViewId: string; time: number }>(); // The last click on a data view, to tell a double-click.
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -111,14 +111,11 @@ const diagramLabels = computed(() => {
     // can be with a white icon still clear on it (3.6:1). Its icon is the option's own, redrawn in white.
     return {
         add: t(TEXT, 'add.label'),
-        open: (name: string): string => t(TEXT, 'open.aria', { name }),
         root: t(TEXT, 'root.label'),
         rootIcon: dataViewsColor == null ? dataViewsIcon.value : dataViewsIcon.value?.replaceAll(dataViewsColor, () => ROOT_ICON_COLOR),
         rootDiscColor: dataViewsColor,
         connectionColor: ringColor,
-        dataViewColor: ringColor,
-        openDiscColor: OPEN_DISC_COLOR,
-        openRingColor: OPEN_RING_COLOR
+        dataViewColor: ringColor
     };
 });
 
@@ -146,29 +143,32 @@ const diagramData = computed(() =>
 
 // ── Event Handlers ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A data view is selected, or opened when it is selected already. The add node starts a new data view on its
-// connection. Any other node is selected and opened, which shows the level below it and hides its siblings. A node
-// above the open level goes back up to it, and the top node clears the selection. A connector or connection already
-// selected changes nothing.
+// A data view is selected, and a double-click opens it. The add node starts a new data view on its connection. Any
+// other node is selected and opened, which shows the level below it and hides its siblings. A node above the open
+// level goes back up to it, and the top node clears the selection. A click on the node that is selected already is
+// reported, and changes nothing here.
 function handleClickNode(node: DataViewDiagramNode): void {
     if (node.typeId === 'dataView' && node.dataViewId != null) selectOrOpenDataView(node.dataViewId);
     else if (node.typeId === 'add' && node.connectionId != null) emit('add', node.connectionId);
     else if (node.focus && (selectedDiagramDataView.value != null || !isSameFocus(node.focus, focus.value))) focusOn(node.focus);
+    else if (node.isSelected === true) emit('reselect');
+}
+
+function handleClickBackground(): void {
+    emit('clear');
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A second click on the selected data view opens it, unless it comes so soon after the click that selected it that the
-// two are one double-click. A data view selected elsewhere, such as in the list, opens on its first click here.
+// A second click on the same data view opens it when it comes soon enough to make a double-click. A slower one is a
+// click on the selected data view.
 function selectOrOpenDataView(dataViewId: string): void {
     const clickTime = Date.now();
-    const isDoubleClick = dataViewSelectedTime.value != null && clickTime - dataViewSelectedTime.value < DOUBLE_CLICK_MS;
-    if (dataViewId === selectedDataViewId && !isDoubleClick) {
-        emit('open');
-        return;
-    }
-    if (dataViewId !== selectedDataViewId) dataViewSelectedTime.value = clickTime;
-    emit('select', dataViewId);
+    const isDoubleClick = lastDataViewClick.value?.dataViewId === dataViewId && clickTime - lastDataViewClick.value.time < DOUBLE_CLICK_MS;
+    lastDataViewClick.value = isDoubleClick ? undefined : { dataViewId, time: clickTime }; // A third quick click starts a new double-click rather than opening again.
+    if (dataViewId !== selectedDataViewId) emit('select', dataViewId);
+    else if (isDoubleClick) emit('open');
+    else emit('reselect');
 }
 
 // A push, so the browser's back button returns to the node selected before.
@@ -213,6 +213,6 @@ function resolveDataViewIcon(dataViewLocalisedConfig: LocalisedConfig<DataViewCo
 <template>
     <div class="flex min-h-0 min-w-0 flex-1 flex-col" data-region="DataViewDiagram">
         <!-- The lines take the nodes' ring colour, so the diagram reads as one drawing. -->
-        <NetworkDiagram :data="diagramData" :label="t(TEXT, 'diagram.aria')" :link-color="diagramLabels.dataViewColor" @node-click="handleClickNode" />
+        <NetworkDiagram :data="diagramData" :label="t(TEXT, 'diagram.aria')" :link-color="diagramLabels.dataViewColor" @background-click="handleClickBackground" @node-click="handleClickNode" />
     </div>
 </template>

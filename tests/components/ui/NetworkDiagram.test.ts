@@ -65,6 +65,14 @@ describe('network diagram', () => {
         expect(renderNetworkDiagram.mock.lastCall?.[2]).toMatchObject({ compactWidth: 480, fitAlignmentId: 'top', maximumFitScale: 1, maximumLabelLength: 24 });
     });
 
+    it('reports a click away from every node', async () => {
+        const wrapper = await mountDiagram(TOP_DATA);
+
+        (renderNetworkDiagram.mock.lastCall?.[2] as { onBackgroundClick: () => void }).onBackgroundClick();
+
+        expect(wrapper.emitted('backgroundClick')).toStrictEqual([[]]);
+    });
+
     it('zooms in, zooms out and fits the diagram from its buttons', async () => {
         const wrapper = await mountDiagram(TOP_DATA);
         const [zoomOutButton, zoomInButton, fitButton] = wrapper.findAll('[data-region="DiagramZoomControls"] button');

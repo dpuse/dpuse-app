@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
 // ── Local Framework
-import ColumnValueBar from '@/features/studio/dataViews/selectItem/ColumnValueBar.vue';
+import ColumnValueBar from '@/features/studio/dataViews/_columns/ColumnValueBar.vue';
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 

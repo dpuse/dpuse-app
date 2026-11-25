@@ -113,7 +113,7 @@ const MasterDetailPanelStub = {
     setup(properties: { selectedItem?: { id: string } }, { slots }: SetupContext) {
         return (): ReturnType<typeof h> =>
             h('div', [
-                slots.master?.({ detailIsShown: masterDetail.detailIsShown, isSplit: true, openDetail: masterDetail.openDetail }),
+                slots.master?.({ detailIsShown: masterDetail.detailIsShown, dismissDetail: masterDetail.dismissDetail, isSplit: masterDetail.isSplit, openDetail: masterDetail.openDetail }),
                 ...(properties.selectedItem
                     ? [
                           slots.detail?.({ item: properties.selectedItem, close: vi.fn() }),
@@ -126,7 +126,8 @@ const MasterDetailPanelStub = {
 };
 
 // The list and the diagram have their own tests, so each route stands in as a button that selects the second data view.
-// The diagram has a second button, which asks for a new data view on a connection as its add node does.
+// The diagram has more buttons, which ask for a new data view on a connection as its add node does, open the selected
+// data view as a double-click does, and clear the selection as a click on its background does.
 const DataViewListStub = constructViewStub('list');
 const DataViewDiagramStub = constructViewStub('diagram');
 
@@ -153,7 +154,7 @@ const DataViewDetailStub = defineComponent({
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // What the stand-in panel tells the left pane. The detail counts as shown unless a test closes it, as a narrow screen can.
-const masterDetail = { detailIsShown: true, openDetail: vi.fn() };
+const masterDetail = { detailIsShown: true, dismissDetail: vi.fn(), isSplit: true, openDetail: vi.fn() };
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -288,54 +289,64 @@ describe('data views overview list selection', () => {
         const state = await getState();
         state.dataViewConfigs.value = [buildDataView('a', 'Sales', 'work'), buildDataView('b', 'Stock', 'work')];
         masterDetail.detailIsShown = true;
+        masterDetail.isSplit = true;
+        masterDetail.dismissDetail.mockClear();
         masterDetail.openDetail.mockClear();
         document.body.replaceChildren();
     });
 
-    it('opens the selected data view when its card is tapped again beside its detail', async () => {
+    it('opens a data view when its card is double-tapped', async () => {
         const router = await buildRouter('/dataViews/list/a');
         const wrapper = await mountPanel(router);
 
         await wrapper.get('[data-test="list"]').trigger('click');
         await settle();
         expect(router.currentRoute.value.path).toBe('/dataViews/list/b');
-
-        const dateNow = vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 1000); // Well after the tap that selected it.
-        await wrapper.get('[data-test="list"]').trigger('click');
+        await wrapper.get('[data-test="list"]').trigger('click'); // At once, as a double-tap's second tap comes.
         await settle();
 
         expect(router.currentRoute.value.path).toBe('/dataViews/b/connections'); // No item chosen, so it opens at its connection.
-        dateNow.mockRestore();
         wrapper.unmount();
     });
 
-    it('shows the selected data view’s closed detail again, without opening it, when its card is tapped', async () => {
-        masterDetail.detailIsShown = false;
+    it('changes nothing on a slower second tap on the selected card beside its detail', async () => {
         const router = await buildRouter('/dataViews/list/a');
         const wrapper = await mountPanel(router);
 
-        await wrapper.get('[data-test="list"]').trigger('click');
-        await settle();
-        const dateNow = vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 1000); // Well after the tap that selected it.
-        await wrapper.get('[data-test="list"]').trigger('click');
-        await settle();
+        await tapCardLater(wrapper, 0);
+        await tapCardLater(wrapper, 1);
+
+        expect(router.currentRoute.value.path).toBe('/dataViews/list/b');
+        expect(masterDetail.dismissDetail).not.toHaveBeenCalled();
+        expect(masterDetail.openDetail).not.toHaveBeenCalled();
+        wrapper.unmount();
+    });
+
+    it('hides the selected card’s sheet on a narrow screen on a slower second tap', async () => {
+        masterDetail.isSplit = false;
+        const router = await buildRouter('/dataViews/list/a');
+        const wrapper = await mountPanel(router);
+
+        await tapCardLater(wrapper, 0);
+        await tapCardLater(wrapper, 1);
+
+        expect(masterDetail.dismissDetail).toHaveBeenCalledOnce();
+        expect(masterDetail.openDetail).not.toHaveBeenCalled();
+        expect(router.currentRoute.value.path).toBe('/dataViews/list/b');
+        wrapper.unmount();
+    });
+
+    it('shows the selected card’s hidden sheet again on a narrow screen on a slower second tap', async () => {
+        masterDetail.detailIsShown = false;
+        masterDetail.isSplit = false;
+        const router = await buildRouter('/dataViews/list/a');
+        const wrapper = await mountPanel(router);
+
+        await tapCardLater(wrapper, 0);
+        await tapCardLater(wrapper, 1);
 
         expect(masterDetail.openDetail).toHaveBeenCalledOnce();
-        expect(router.currentRoute.value.path).toBe('/dataViews/list/b');
-        dateNow.mockRestore();
-        wrapper.unmount();
-    });
-
-    it('does not open a data view on the second half of the double-click that selected it', async () => {
-        const router = await buildRouter('/dataViews/list/a');
-        const wrapper = await mountPanel(router);
-
-        await wrapper.get('[data-test="list"]').trigger('click');
-        await settle();
-        await wrapper.get('[data-test="list"]').trigger('click'); // At once, as a double-click's second click comes.
-        await settle();
-
-        expect(router.currentRoute.value.path).toBe('/dataViews/list/b');
+        expect(masterDetail.dismissDetail).not.toHaveBeenCalled();
         wrapper.unmount();
     });
 });
@@ -389,6 +400,34 @@ describe('data views overview diagram selection', () => {
         const wrapper = await mountPanel(await buildRouter(path));
 
         expect(wrapper.get('[data-test="summary"]').text()).toBe(`${t(OVERVIEW_TEXT, kindKey)}${label}`);
+        wrapper.unmount();
+    });
+
+    it('clears the selected data view beside the detail when the diagram’s background is clicked, so the detail shows its connection', async () => {
+        masterDetail.isSplit = true;
+        const router = await buildRouter(SALES_DIAGRAM_PATH);
+        const wrapper = await mountPanel(router);
+
+        await wrapper.get('[data-test="diagram-clear"]').trigger('click');
+        await settle();
+
+        expect(router.currentRoute.value.path).toBe('/dataViews/diagram/dropbox/work');
+        expect(wrapper.get('[data-test="connection-panel"]').text()).toBe('Work');
+        wrapper.unmount();
+    });
+
+    it('hides the sheet on a narrow screen and keeps the selection when the diagram’s background is tapped', async () => {
+        masterDetail.isSplit = false;
+        masterDetail.dismissDetail.mockClear();
+        const router = await buildRouter(SALES_DIAGRAM_PATH);
+        const wrapper = await mountPanel(router);
+
+        await wrapper.get('[data-test="diagram-clear"]').trigger('click');
+        await settle();
+
+        expect(masterDetail.dismissDetail).toHaveBeenCalledOnce();
+        expect(router.currentRoute.value.path).toBe(SALES_DIAGRAM_PATH);
+        masterDetail.isSplit = true;
         wrapper.unmount();
     });
 
@@ -463,13 +502,21 @@ describe('opening a data view', () => {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Taps the list's card the given number of seconds from now, so taps a second or more apart are never a double-tap.
+async function tapCardLater(wrapper: VueWrapper, seconds: number): Promise<void> {
+    const dateNow = vi.spyOn(Date, 'now').mockReturnValue(Date.now() + seconds * 1000);
+    await wrapper.get('[data-test="list"]').trigger('click');
+    await settle();
+    dateNow.mockRestore();
+}
+
 // A view stands in as a button that selects the second data view. The list hands over the data view, as a card does,
 // and the diagram its id, as a node does. The diagram's second button asks for a new data view on the 'local' connection,
 // and its third opens the selected data view, as a second click on its node does.
 function constructViewStub(viewId: 'diagram' | 'list'): object {
     return {
-        emits: ['add', 'open', 'select'],
-        setup(_properties: object, { emit }: SetupContext<['add', 'open', 'select']>) {
+        emits: ['add', 'clear', 'open', 'select'],
+        setup(_properties: object, { emit }: SetupContext<['add', 'clear', 'open', 'select']>) {
             const selectButton = (): ReturnType<typeof h> =>
                 h(
                     'button',
@@ -495,7 +542,14 @@ function constructViewStub(viewId: 'diagram' | 'list'): object {
                         emit('open');
                     }
                 });
-            return (): ReturnType<typeof h> => h('div', viewId === 'diagram' ? [selectButton(), addButton(), openButton()] : [selectButton()]);
+            const clearButton = (): ReturnType<typeof h> =>
+                h('button', {
+                    'data-test': 'diagram-clear',
+                    onClick: () => {
+                        emit('clear');
+                    }
+                });
+            return (): ReturnType<typeof h> => h('div', viewId === 'diagram' ? [selectButton(), addButton(), openButton(), clearButton()] : [selectButton()]);
         }
     };
 }

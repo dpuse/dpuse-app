@@ -279,6 +279,10 @@ Each state looks the same everywhere, by meaning. The states are layers over an 
   are not a choice from a set.
 - **Floating pill** ─ solid `bg-pill`, because a translucent fill would show the content it floats over.
 - **Tabs** ─ a `border-b-content` underline and `text-emphasis` label, the same dark bar as rows, turned on its side.
+- **Column tabs** ─ a table's tabbed header (`Table` `is-header-tabbed`) follows VS Code's panel tabs instead. The
+  selected tab is white with no hover. An unselected tab turns a faint off-white, halfway from `surface` to
+  `backdrop`, and shows its border on hover, with `state-press` over it when pressed. It keeps the header's bottom
+  line. A grey layer is not used, because it would darken the grey row rather than lift the tab out of it.
 - **Segmented controls** keep their own look: a raised white segment.
 
 ### Accessibility

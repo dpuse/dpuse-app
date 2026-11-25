@@ -14,9 +14,9 @@ describe('readDataViewDiagramFocus', () => {
         expect(readDataViewDiagramFocus({ connectorId: ['dropbox', 'sqlite'] })).toStrictEqual({ connectorId: undefined, connectionId: undefined, ...noFolder });
     });
 
-    it('reads the folder from the query, the empty top folder included, only with a connection', () => {
+    it('reads the folder from the query, only with a connection', () => {
         expect(readDataViewDiagramFocus({ connectorId: 'dropbox', connectionId: 'work' }, { folder: '/hr' })).toMatchObject({ folderPath: '/hr' });
-        expect(readDataViewDiagramFocus({ connectorId: 'dropbox', connectionId: 'work' }, { folder: '' })).toMatchObject({ folderPath: '' });
+        expect(readDataViewDiagramFocus({ connectorId: 'dropbox', connectionId: 'work' }, { folder: '' })).toMatchObject({ folderPath: undefined });
         expect(readDataViewDiagramFocus({ connectorId: 'dropbox' }, { folder: '/hr' })).toMatchObject({ folderPath: undefined });
         expect(readDataViewDiagramFocus({ connectorId: 'dropbox', connectionId: 'work' }, { folder: ['/hr', '/x'] })).toMatchObject({ folderPath: undefined });
     });

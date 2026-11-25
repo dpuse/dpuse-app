@@ -9,6 +9,8 @@ import { constructStoreError } from '@dpuse/dpuse-shared';
 // ── Local Framework
 import { changeDataView } from '@/features/studio/dataViews/_state/dataViewDraft';
 import ColumnDetail from '@/features/studio/dataViews/_columns/ColumnDetail.vue';
+import ColumnTabMarks from '@/features/studio/dataViews/_columns/ColumnTabMarks.vue';
+import ColumnValueBar from '@/features/studio/dataViews/_columns/ColumnValueBar.vue';
 import { constructFittedColumnWidth } from '@/components/ui/table/tableColumnWidth';
 import type { DataViewStoreConfig } from '@/features/studio/dataViews/_state/dataViewStore';
 import InvestigateDataPanel from '@/features/studio/dataViews/exploreData/InvestigateDataPanel.vue';
@@ -96,7 +98,7 @@ vi.mock('@/features/studio/dataViews/_components/itemChange', async () => {
         })
     };
 });
-vi.mock('@/components/ui/table/tableColumnWidth', () => ({ HEADER_MENU_WIDTH_PX: 24, HEADER_TAB_INSET_PX: 10, constructFittedColumnWidth: vi.fn() }));
+vi.mock('@/components/ui/table/tableColumnWidth', () => ({ HEADER_MENU_WIDTH_PX: 24, HEADER_TAB_INSET_PX: 5, constructFittedColumnWidth: vi.fn() }));
 
 vi.mock('vue-router', async (importOriginal) => ({
     // eslint-disable-next-line @typescript-eslint/consistent-type-imports -- Vitest's documented pattern for typing 'importOriginal'.
@@ -106,8 +108,8 @@ vi.mock('vue-router', async (importOriginal) => ({
 }));
 
 // The table scrolls and measures, which jsdom cannot, so it is stood in for and what it is given is checked. It renders
-// the panel's toolbar actions, and each column's name through the panel's own 'header-label' slot, so a column's detail
-// can be opened from it.
+// the panel's toolbar actions, and each column's name, marks and value bar through the panel's own 'header-label' and
+// 'header-label-end' slots, so a column's detail can be opened from them.
 const TableStub = defineComponent({
     props: {
         columnDefinitions: { type: Array<{ accessorKey: string }>, required: true },
@@ -119,7 +121,8 @@ const TableStub = defineComponent({
         (): VNode =>
             h('div', [
                 slots['toolbar-end']?.(),
-                ...properties.columnDefinitions.map((columnDefinition) => slots['header-label']?.({ columnId: columnDefinition.accessorKey }))
+                ...properties.columnDefinitions.map((columnDefinition) => slots['header-label']?.({ columnId: columnDefinition.accessorKey })),
+                ...properties.columnDefinitions.map((columnDefinition) => slots['header-label-end']?.({ columnId: columnDefinition.accessorKey }))
             ])
 });
 
@@ -242,7 +245,7 @@ describe('InvestigateDataPanel', () => {
         await settle();
 
         expect((wrapper.findComponent(TableStub).props() as TableProperties).columnDefinitions.map((column) => column.size)).toEqual([90, 130]);
-        expect(constructFittedColumnWidth).toHaveBeenCalledWith('Id', ['7'], { headerExtraPx: 34 }); // The menu button and the tab's inset both take room from the label.
+        expect(constructFittedColumnWidth).toHaveBeenCalledWith('Id', ['7'], { headerExtraPx: 89 }); // The menu button, the tab's inset and the tab's marks all take room from the label.
     });
 
     it('leaves a column that is not numbers on the left', async () => {
@@ -318,6 +321,56 @@ describe('InvestigateDataPanel', () => {
         expect(detail.props('columnIndex')).toBe(1);
         expect(detail.props('isTypeDisabled')).toBe(true);
         expect(wrapper.findComponent(RouterLinkStub).props('to')).toMatchObject({ name: 'item', state: { columnIndex: 1 } });
+    });
+
+    it('shows each column’s value bar on its tab, except the selected one, and opens the detail from a bar', async () => {
+        dataView.config = {
+            ...AUDITED_DATA_VIEW,
+            contentAuditConfig: {
+                asAt: 1,
+                columns: AUDITED_DATA_VIEW.contentAuditConfig.columns.map((columnConfig) => ({ ...columnConfig, validFormats: {}, inferenceCounts: {} })) // What every audited column holds.
+            },
+            readingConfig: { dataFormatId: 'dsv' },
+            sampleConfig: { parsedRecords: [], size: 0, text: '' }
+        };
+        const wrapper = mount(InvestigateDataPanel, { global: { stubs: { RouterLink: RouterLinkStub, Table: TableStub } } });
+        await settle();
+
+        const bars = wrapper.findAllComponents(ColumnValueBar);
+        expect(bars.map((bar) => bar.props('columnLabel'))).toEqual(['Id', 'Day']);
+
+        await bars[1]?.get('button').trigger('click');
+
+        expect(wrapper.findComponent(ColumnDetail).props('columnIndex')).toBe(1);
+        expect(wrapper.findAllComponents(ColumnValueBar).map((bar) => bar.props('columnLabel'))).toEqual(['Id']);
+    });
+
+    it('shows each column’s marks on its tab, as the item step does: its type, a type the user chose and what a whole audit found', async () => {
+        dataView.config = {
+            ...AUDITED_DATA_VIEW,
+            columnChoiceConfigs: { 1: { dataSubtypeId: undefined, dataTypeId: 'string' } },
+            contentAuditConfig: {
+                asAt: 1,
+                columns: [
+                    { dataSubtypeId: 'integer', dataTypeId: 'numeric', hasMissingValues: false, inferenceCounts: {}, label: { en: 'Id' }, validFormats: {}, validIsUnique: true },
+                    { dataSubtypeId: 'date', dataTypeId: 'temporal', hasMissingValues: true, inferenceCounts: {}, label: { en: 'Day' }, validFormats: {}, validIsUnique: false }
+                ],
+                isComplete: true
+            },
+            readingConfig: { dataFormatId: 'dsv' },
+            sampleConfig: { parsedRecords: [], size: 0, text: '' }
+        };
+        const wrapper = mount(InvestigateDataPanel, { global: { stubs: { RouterLink: RouterLinkStub, Table: TableStub } } });
+        await settle();
+
+        const marks = wrapper.findAllComponents(ColumnTabMarks).map((mark) => mark.props());
+
+        expect(marks.map((mark) => mark.columnFacts)).toEqual([
+            { isKey: true, isMandatory: true, isUnique: true },
+            { isKey: false, isMandatory: false, isUnique: false }
+        ]);
+        expect(marks.map((mark) => mark.isTypeChosen)).toEqual([false, true]);
+        expect(marks.map((mark) => mark.typeText)).toEqual(['Integer', 'Plain text']);
     });
 
     it('counts a column’s values in the store when the audit stopped counting them, and shows the counts in its detail', async () => {

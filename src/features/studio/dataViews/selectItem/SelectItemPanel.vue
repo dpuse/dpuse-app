@@ -10,7 +10,6 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import {
     ArrowRightIcon,
-    AsteriskIcon,
     BracesIcon,
     CheckIcon,
     ChevronDownIcon,
@@ -20,10 +19,8 @@ import {
     DatabaseIcon,
     FileIcon,
     FileTextIcon,
-    FingerprintPatternIcon,
     FolderIcon,
     InfoIcon,
-    KeyRoundIcon,
     LanguagesIcon,
     ListTreeIcon,
     RefreshCwIcon,
@@ -33,8 +30,7 @@ import {
     SheetIcon,
     SlidersHorizontalIcon,
     TextIcon,
-    TriangleAlertIcon,
-    XIcon
+    TriangleAlertIcon
 } from '@lucide/vue';
 import { type Component, computed, type CSSProperties, markRaw, nextTick, ref, shallowRef, useId, useTemplateRef, watch } from 'vue';
 import { until, useConfirmDialog, useElementSize } from '@vueuse/core';
@@ -92,7 +88,6 @@ import { assertDefined } from '@/utilities/index.ts';
 import type { AuditChoice } from './AuditMenu.vue';
 import AuditMenu from './AuditMenu.vue';
 import { changeDataView } from '@/features/studio/dataViews/_state/dataViewDraft';
-import ColumnValueBar from './ColumnValueBar.vue';
 import type { DataSource } from '@/composables/useDataWindow';
 import { establishEngineWorker } from '@/services/engine';
 import { getColumnTypeIcon } from '@/features/studio/dataViews/_columns/columnTypeIcons';
@@ -147,7 +142,8 @@ import {
     constructColumnValueCounts,
     constructDataTypeLabel,
     constructPreviewColumnRows,
-    countChosenTypeMisfits
+    countChosenTypeMisfits,
+    PREVIEW_COLUMN_MARKS_WIDTH_PX
 } from '@/features/studio/dataViews/_columns/previewColumnRows';
 import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from '@/features/studio/dataViews/_components/readingLabels';
 import { constructDataViewConnection, constructItemPath } from '@/features/studio/dataViews/_state/dataViewSummary';
@@ -168,6 +164,8 @@ import BusyBar from '@/components/ui/BusyBar.vue';
 import ColumnDetail from '@/features/studio/dataViews/_columns/ColumnDetail.vue';
 import ColumnSearch from '@/features/studio/dataViews/_columns/ColumnSearch.vue';
 import type { ColumnSearchOption } from '@/features/studio/dataViews/_columns/ColumnSearch.vue';
+import ColumnTabMarks from '@/features/studio/dataViews/_columns/ColumnTabMarks.vue';
+import ColumnValueBar from '@/features/studio/dataViews/_columns/ColumnValueBar.vue';
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
@@ -327,7 +325,6 @@ const AUDIT_BYTE_LIMITS = [PREVIEW_BYTE_LIMIT, 1_048_576, 10_485_760, 104_857_60
 const AUDIT_CHOICE_LIMIT = 2; // The next sizes offered, as well as all of the item, because the toolbar has little room.
 const MINIMUM_FITTED_PREVIEW_COLUMN_WIDTH_PX = 72; // A column of short values with a short label stays wide enough to click its type icon and name.
 const MINIMUM_PREVIEW_COLUMN_WIDTH_PX = 72; // Keeps the header's type icon and the start of its name in view.
-const PREVIEW_COLUMN_MARKS_WIDTH_PX = 60; // The type icon before a name, 22px, the mandatory and key marks after it, 34px, and 4px so a measured name is never a pixel short.
 const PREVIEW_INVALID_ICON_WIDTH_PX = 20; // The icon beside an invalid value: 14px and the cell's 'gap-x-1.5'.
 const PREVIEW_SCROLL_PADDING_BOTTOM = 'calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))'; // The usual room after the last row, less the status bar's height, because the preview already ends above it.
 
@@ -1408,22 +1405,9 @@ function constructTabColumnFacts(columnId: string): ColumnFacts {
         : constructColumnFacts(activeItemReading.value, columnIndex, detectedColumnTypes.value[columnIndex], isAuditComplete);
 }
 
-function isMandatoryColumn(columnId: string): boolean {
-    return constructTabColumnFacts(columnId).isMandatory === true;
-}
-
 // The user chose to leave the column out of the load. It stays in the preview, so it can still be checked.
 function isIgnoredColumn(columnId: string): boolean {
     return selectedIgnoredColumns.value[columnId] === true;
-}
-
-function isKeyColumn(columnId: string): boolean {
-    return constructTabColumnFacts(columnId).isKey === true;
-}
-
-// A key is unique too, so a unique column takes the fingerprint only when it is not a key.
-function isUniqueColumn(columnId: string): boolean {
-    return constructTabColumnFacts(columnId).isUnique === true && !isKeyColumn(columnId);
 }
 
 // The detail opens in the tab the user is in, so they keep their place. The table scrolls the clicked column's tab into
@@ -2517,8 +2501,14 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 @ignore="ignoreItemChange"
                 @refresh="handleRefreshChangedItem"
             />
-            <!-- Preview Toolbar ─ One row over the preview only, so the breadcrumbs keep the whole header row. -->
-            <div v-if="itemFailure == null" ref="previewToolbar" class="relative flex h-10 flex-none items-center gap-x-2 border-b border-separator px-page text-xs text-muted">
+            <!-- Preview Toolbar ─ One row over the preview only, so the breadcrumbs keep the whole header row. No bottom line
+                 over the table, whose grey tab row already marks where the preview starts. -->
+            <div
+                v-if="itemFailure == null"
+                ref="previewToolbar"
+                class="relative flex h-10 flex-none items-center gap-x-2 px-page text-xs text-muted"
+                :class="{ 'border-b border-separator': currentPreviewTabId !== 'table' || activeItemReading == null }"
+            >
                 <!-- Read Choices ─ How the item is read and where it loads. A value truncates as the row narrows, but
                      only to 'min-w-22', a few letters, because less says nothing. Past that the toolbar's next stage
                      hides the values, and in the last the selects fold into a popover below one button. 'Teleport'
@@ -2955,57 +2945,24 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 >{{ previewTableColumnDefinitions[Number(columnId)]?.header }}</ActionWrapper
                             >
                         </template>
-                        <!-- Key, Unique and Mandatory ─ The Overview's facts, under the same rules and in the same order. A
-                         key shows in place of the fingerprint, because a key is unique too. The value bar is placed on
-                         the header cell, along its bottom edge, so it sits here only to be in the cell. -->
+                        <!-- Marks and Value Bar ─ The column's key, unique and mandatory marks and its type icon, after its
+                         name. The value bar is placed on the header cell, along its bottom edge, so it sits here only to
+                         be in the cell. The selected tab has no value bar, so its white runs into the detail below, whose
+                         Overview shows the same counts. -->
                         <template #header-label-end="{ columnId }">
-                            <span
-                                v-if="isKeyColumn(columnId) || isUniqueColumn(columnId) || isMandatoryColumn(columnId)"
-                                class="ml-1 flex flex-none items-center gap-x-0.5 text-muted"
-                                :class="{ 'opacity-50': isIgnoredColumn(columnId) }"
-                            >
-                                <span v-if="isKeyColumn(columnId)" :aria-label="t(TEXT, 'columnKey.aria')" role="img" :title="t(TEXT, 'columnKey.aria')">
-                                    <KeyRoundIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
-                                </span>
-                                <span v-else-if="isUniqueColumn(columnId)" :aria-label="t(TEXT, 'columnUnique.aria')" role="img" :title="t(TEXT, 'columnUnique.aria')">
-                                    <FingerprintPatternIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
-                                </span>
-                                <span v-if="isMandatoryColumn(columnId)" :aria-label="t(TEXT, 'columnMandatory.aria')" role="img" :title="t(TEXT, 'columnMandatory.aria')">
-                                    <AsteriskIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
-                                </span>
-                            </span>
+                            <ColumnTabMarks
+                                :column-facts="constructTabColumnFacts(columnId)"
+                                :is-ignored="isIgnoredColumn(columnId)"
+                                :is-type-chosen="selectedColumnTypes[columnId] != null"
+                                :type-icon="constructColumnTypeIcon(columnId)"
+                                :type-text="constructColumnTypeText(columnId)"
+                            />
                             <ColumnValueBar
-                                v-if="columnValueCounts[Number(columnId)]"
+                                v-if="columnValueCounts[Number(columnId)] && Number(columnId) !== selectedColumnIndex"
                                 :column-label="String(previewTableColumnDefinitions[Number(columnId)]?.header)"
                                 :column-value-counts="columnValueCounts[Number(columnId)]!"
-                                :is-emphasised="selectedColumnIndex == null || Number(columnId) === selectedColumnIndex"
                                 @click="handleToggleColumnDetail(Number(columnId))"
                             />
-                            <!-- Type Icon ─ Shows the column's type after its name. The type is chosen in the column's
-                             detail, so a click on the icon opens the detail like the rest of the tab. The dot marks a
-                             type the user chose. A ✕ in its place marks a column left out of the load, because its
-                             type no longer matters then.
-                             'pointer-events-none' lets a click through to the tab, because the dot's positioning would
-                             otherwise lift the icon above the tab's overlay. -->
-                            <span
-                                :aria-label="constructColumnTypeText(columnId)"
-                                class="pointer-events-none relative ml-1.5 flex flex-none items-center text-sm text-muted"
-                                role="img"
-                            >
-                                <component
-                                    :is="constructColumnTypeIcon(columnId)"
-                                    aria-hidden="true"
-                                    class="size-[1.25em] flex-none"
-                                    :class="{ 'opacity-50': isIgnoredColumn(columnId) }"
-                                />
-                                <XIcon
-                                    v-if="isIgnoredColumn(columnId)"
-                                    aria-hidden="true"
-                                    class="absolute -top-1 -right-1 size-2.5 rounded-full bg-surface text-danger-text"
-                                    :stroke-width="3"
-                                />
-                                <span v-else-if="selectedColumnTypes[columnId] != null" aria-hidden="true" class="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-muted" />
-                            </span>
                         </template>
                         <!-- Value Marks ─ A shape as well as the tint, so an invalid value does not rely on colour. It goes at the far
                          end of the cell from the value, so the value never moves. Blank and missing values have nothing to
@@ -3040,9 +2997,10 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             >
                         </template>
                     </Table>
-                    <!-- Column Detail ─ Slides down from under the header. The box below the header clips it, so it never passes
-                     over the header. The box lets clicks through to the rows when the detail is closed. -->
-                    <div class="pointer-events-none absolute inset-x-0 top-10 bottom-0 z-10 overflow-hidden">
+                    <!-- Column Detail ─ Slides down from under the header, which is a 34px tab row. The box below the header
+                     clips it, so it never passes over the header. The box lets clicks through to the rows when the detail is
+                     closed. -->
+                    <div class="pointer-events-none absolute inset-x-0 top-8.5 bottom-0 z-10 overflow-hidden">
                         <Transition name="dpuse-slide-down">
                             <ColumnDetail
                                 v-if="selectedColumnIndex != null && activeItemReading != null"

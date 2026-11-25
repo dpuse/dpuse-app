@@ -48,10 +48,18 @@ type DetailItem =
     | { id: string; typeId: 'connection'; connectionLocalisedConfig: LocalisedConfig<ConnectionConfig> }
     | { id: string; typeId: 'connector'; connectorLocalisedConfig: LocalisedConfig<ConnectorConfig> };
 
+// What the list or diagram can do with the detail panel beside it or over it.
+interface DetailControls {
+    detailIsShown: boolean;
+    dismissDetail: () => void;
+    isSplit: boolean;
+    openDetail: () => void;
+}
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const CONNECTORS_SETUP_OPTION_ID = 'connectors'; // The Setup page a connector's panel belongs to, which the panel names above its title.
-const DOUBLE_CLICK_MS = 500; // A tap this soon after the one that selected a data view is the second half of a double-click, so it does not open the data view.
+const DOUBLE_CLICK_MS = 500; // A second tap on the same card this soon after the first is a double-click, which opens its data view.
 const SLOW_RETRIEVAL_MS = 2000; // Long enough that a normal load never shows the slow-load message.
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -85,7 +93,7 @@ const { start: startSlowRetrievalTimer, stop: stopSlowRetrievalTimer } = useTime
 );
 
 // ── Selection
-const dataViewSelectedTime = ref<number>(); // When a tap in the list last selected a data view.
+const lastDataViewTap = ref<{ dataViewId: string; time: number }>(); // The last tap on a card in the list, to tell a double-click.
 
 // ── Delete Confirmation
 const { cancel: cancelDelete, confirm: confirmDelete, isRevealed: deleteConfirmIsOpen, reveal: revealDeleteConfirm } = useConfirmDialog();
@@ -187,22 +195,24 @@ function handleAddDataView(connectionId?: string): void {
     void ignoreReportedNavigationFailure(router.push({ name: routeName, params: { dataViewId: NEW_DATA_VIEW_ID }, query: route.query }));
 }
 
-// A second tap on the selected card opens its data view, as a second click on its node in the diagram does, unless it
-// comes so soon after the tap that selected it that the two are one double-click. On a narrow screen the selected
-// card's detail or summary can be closed, so the tap shows it again instead.
-function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>, openDetail: () => void, detailIsShown: boolean): void {
+// A tap selects a card, and a double-tap opens its data view, as a double-click on its node in the diagram does. A
+// slower second tap on the selected card is handled as a tap on the selected node in the diagram is.
+function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>, detailControls: DetailControls): void {
+    const dataViewId = dataViewLocalisedConfig.id;
     const tapTime = Date.now();
-    if (selectedDataViewLocalisedConfig.value?.id !== dataViewLocalisedConfig.id) {
-        dataViewSelectedTime.value = tapTime;
-        updateDataViewIdParameter(dataViewLocalisedConfig.id);
-        return;
-    }
-    if (!detailIsShown) {
-        openDetail();
-        return;
-    }
-    if (dataViewSelectedTime.value != null && tapTime - dataViewSelectedTime.value < DOUBLE_CLICK_MS) return;
-    handleOpenDataView(dataViewLocalisedConfig);
+    const isDoubleTap = lastDataViewTap.value?.dataViewId === dataViewId && tapTime - lastDataViewTap.value.time < DOUBLE_CLICK_MS;
+    lastDataViewTap.value = isDoubleTap ? undefined : { dataViewId, time: tapTime }; // A third quick tap starts a new double-tap rather than opening again.
+    if (selectedDataViewLocalisedConfig.value?.id !== dataViewId) updateDataViewIdParameter(dataViewId);
+    else if (isDoubleTap) handleOpenDataView(dataViewLocalisedConfig);
+    else handleReselectDetailItem(detailControls);
+}
+
+// On a narrow screen the detail lies over the list or diagram as a sheet, so a tap on what is selected already hides
+// the sheet, and a second one shows it again. Side by side the detail is always in view, so the tap changes nothing.
+function handleReselectDetailItem({ detailIsShown, dismissDetail, isSplit, openDetail }: DetailControls): void {
+    if (isSplit) return;
+    if (detailIsShown) dismissDetail();
+    else openDetail();
 }
 
 // Opens the data view at the last task it has finished, or at Explore Data once every other task is done. Explore Data
@@ -214,7 +224,16 @@ function handleOpenDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewCon
     void ignoreReportedNavigationFailure(router.push({ name: routeName, params: { dataViewId: dataViewLocalisedConfig.id }, query: route.query }));
 }
 
-// The diagram opens the selected data view when it is clicked a second time.
+// A click on the diagram away from every node. On a narrow screen it hides the sheet and keeps the selection, as Escape
+// does. Clearing the selection there would bring the sheet straight back, showing the connection that is then
+// selected in the data view's place. Side by side it clears the selected data view, so the detail shows the
+// connection, folder or connector the diagram is drilled down to.
+function handleClearDiagramSelection({ dismissDetail, isSplit }: DetailControls): void {
+    if (!isSplit) dismissDetail();
+    else if (selectedDataViewLocalisedConfig.value) updateDataViewIdParameter();
+}
+
+// The diagram opens the selected data view when it is double-clicked.
 function handleOpenSelectedDataView(): void {
     if (selectedDataViewLocalisedConfig.value) handleOpenDataView(selectedDataViewLocalisedConfig.value);
 }
@@ -276,7 +295,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
         <!-- Views and Detail Panel ─ The list and the diagram take turns in the left pane, and the one detail panel
              beside them serves both, so it stays as it is when the view changes. -->
         <MasterDetailPanel v-else class="min-h-0 flex-1" :is-detail-initially-closed="isSelectedDataViewDetailClosed" max-detail-width="65ch" :selected-item="selectedDetailItem">
-            <template #master="{ detailIsShown, openDetail }">
+            <template #master="detailControls">
                 <!-- The list and the diagram take different props and events, so each is rendered by itself. -->
                 <RouterViewTransition v-slot="{ component }" class="min-h-0 flex-1" :is-loading="viewIsLoading">
                     <component
@@ -291,7 +310,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                         @cancel-retrieval="handleCancelRetrieval"
                         @open="handleOpenDataView"
                         @retry-retrieval="handleRetryRetrieval"
-                        @select="handleSelectDataView($event, openDetail, detailIsShown)"
+                        @select="handleSelectDataView($event, detailControls)"
                     />
                     <component
                         :is="component"
@@ -300,7 +319,9 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                         :data-view-localised-configs="dataViewLocalisedConfigs"
                         :selected-data-view-id="selectedDataViewLocalisedConfig?.id"
                         @add="handleAddDataView"
+                        @clear="handleClearDiagramSelection(detailControls)"
                         @open="handleOpenSelectedDataView"
+                        @reselect="handleReselectDetailItem(detailControls)"
                         @select="updateDataViewIdParameter"
                     />
                 </RouterViewTransition>

@@ -132,22 +132,7 @@ describe('data view diagram', () => {
             expect(selectedLabels(wrapper)).toStrictEqual(['Employees']);
         });
 
-        it('opens the selected data view when it is clicked again, and names it for opening', async () => {
-            const { wrapper } = await mountMap(WORK_PATH);
-            const dateNow = vi.spyOn(Date, 'now').mockReturnValue(1000);
-
-            await clickNode(wrapper, 'Employees');
-            await wrapper.setProps({ selectedDataViewId: 'a' });
-            dateNow.mockReturnValue(2000);
-            await clickNode(wrapper, 'Employees');
-
-            expect(wrapper.emitted('select')).toStrictEqual([['a']]);
-            expect(wrapper.emitted('open')).toStrictEqual([[]]);
-            expect(shownData(wrapper).nodes.find((node) => node.label === 'Employees')).toMatchObject({ accessibleLabel: 'Open Employees', badge: 'arrowRight', color: 'var(--color-pill-border)', discColor: 'var(--color-pill)' });
-            dateNow.mockRestore();
-        });
-
-        it('does not open a data view on the second half of the double-click that selected it', async () => {
+        it('opens a data view on a double-click, and reports a slower second click on it as a click on the selected node', async () => {
             const { wrapper } = await mountMap(WORK_PATH);
             const dateNow = vi.spyOn(Date, 'now').mockReturnValue(1000);
 
@@ -155,18 +140,44 @@ describe('data view diagram', () => {
             await wrapper.setProps({ selectedDataViewId: 'a' });
             dateNow.mockReturnValue(1300);
             await clickNode(wrapper, 'Employees');
+            expect(wrapper.emitted('select')).toStrictEqual([['a']]);
+            expect(wrapper.emitted('open')).toStrictEqual([[]]);
 
-            expect(wrapper.emitted('open')).toBeUndefined();
+            dateNow.mockReturnValue(3000);
+            await clickNode(wrapper, 'Employees');
+            expect(wrapper.emitted('open')).toHaveLength(1);
+            expect(wrapper.emitted('reselect')).toStrictEqual([[]]);
             dateNow.mockRestore();
         });
 
-        it('opens a data view selected elsewhere on its first click in the diagram', async () => {
+        it('reports a click on the connection it is drilled down to, with no data view selected, as a click on the selected node', async () => {
+            const { router, wrapper } = await mountMap(WORK_PATH);
+            const { fullPath } = router.currentRoute.value;
+
+            await clickNode(wrapper, 'Work');
+
+            expect(wrapper.emitted('reselect')).toStrictEqual([[]]);
+            expect(router.currentRoute.value.fullPath).toBe(fullPath);
+        });
+
+        it('reports a click away from every node, and changes nothing itself', async () => {
+            const { router, wrapper } = await mountMap(`${WORK_PATH}/a`, 'a');
+            const { fullPath } = router.currentRoute.value;
+
+            wrapper.getComponent(NetworkDiagramStub).vm.$emit('backgroundClick');
+            await settle();
+
+            expect(wrapper.emitted('clear')).toStrictEqual([[]]);
+            expect(router.currentRoute.value.fullPath).toBe(fullPath);
+        });
+
+        it('draws the selected data view as any other selected node, with no badge', async () => {
             const { wrapper } = await mountMap(`${WORK_PATH}/a`, 'a');
 
-            await clickNode(wrapper, 'Employees');
-
-            expect(wrapper.emitted('open')).toStrictEqual([[]]);
-            expect(wrapper.emitted('select')).toBeUndefined();
+            const node = shownData(wrapper).nodes.find((candidate) => candidate.label === 'Employees');
+            expect(node).toMatchObject({ isSelected: true });
+            expect(node).not.toHaveProperty('badge');
+            expect(node).not.toHaveProperty('discColor');
         });
 
         it('keeps every node and link when a data view is selected, so the diagram is not laid out again', async () => {

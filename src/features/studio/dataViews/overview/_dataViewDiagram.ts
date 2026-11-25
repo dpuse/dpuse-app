@@ -1,4 +1,5 @@
 // ── Local Framework
+import { assertDefined } from '@/utilities/index.ts';
 import type { DataViewDiagramFocus } from '@/features/studio/dataViews/_state/dataViewFocus';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -13,15 +14,14 @@ export interface DataViewDiagramNode {
     label?: string; // Shown beside the node. The top node and the add node have none, because the icon or symbol inside each says what it is.
     level: number; // How deep the node sits, which sets its size and colour.
     typeId: DataViewDiagramNodeTypeId;
-    color?: string; // The node's colour, which is that of the part of the app it belongs to. The add node keeps the look of an action. The selected data view takes the outline of the page's action buttons.
-    discColor?: string; // On the top node: a solid disc behind its icon, so it reads as where the diagram starts. On the selected data view: the fill of the page's action buttons, because a click on it opens it.
+    color?: string; // The node's colour, which is that of the part of the app it belongs to. The add node keeps the look of an action.
+    discColor?: string; // On the top node: a solid disc behind its icon, so it reads as where the diagram starts.
     icon?: string; // The node's own icon, drawn inside it. A data view has its item's icon, or that of its item's format.
     isAction?: boolean; // On the add node: drawn as something to do, so it stands apart from the things round it.
     isSelected?: boolean; // On the node whose details show beside the diagram.
-    accessibleLabel?: string; // On the selected data view: what screen readers call it, because a click on it now opens it. On a folder whose label is cut short: its whole path.
-    badge?: 'arrowRight'; // On the selected data view: shows that a click on it opens it.
+    accessibleLabel?: string; // On a folder: its whole path, which is what screen readers call it.
     symbol?: string; // On the add node: the '+' drawn inside it.
-    title?: string; // On the top node and the add node: its name, shown as its tooltip. On a folder whose label is cut short: its whole path.
+    title?: string; // On the top node and the add node: its name, shown as its tooltip. On a folder: its whole path.
     connectionId?: string; // On the add node: the connection a new data view is started on.
     dataViewId?: string; // On a data view node: the data view to select.
     focus?: DataViewDiagramFocus; // On a node that opens: the level a click on it shows.
@@ -51,14 +51,11 @@ export interface DataViewDiagramDataView {
 // icon and the solid colour behind it, and the ring colours of the connectors and connections and of the data views.
 export interface DataViewDiagramLabels {
     add: string;
-    open: (dataViewLabel: string) => string; // What screen readers call the selected data view, which a click opens.
     root: string;
     rootIcon?: string | undefined;
     rootDiscColor?: string | undefined;
     connectionColor?: string | undefined;
     dataViewColor?: string | undefined;
-    openDiscColor?: string | undefined; // The disc behind the selected data view's icon.
-    openRingColor?: string | undefined; // The ring round the selected data view, in place of the data views' own.
 }
 
 // The connector or connection a focus opens, which is also the one selected while no data view is.
@@ -66,10 +63,18 @@ export type DataViewDiagramFocusedNode = { typeId: 'connection'; connectionId: s
 
 type DataViewDiagramNodeTypeId = keyof typeof DATA_VIEW_DIAGRAM_LEVELS;
 
+// A connection's folders as the diagram shows them. Folders that hold no data view and lead to only one folder are
+// merged into the folder below them, so a long path with nothing on the way is one node.
+interface DataViewDiagramFolderTree {
+    rootPath: string; // The folder every data view of the connection is in or below. Its data views show on the connection itself.
+    folders: Map<string, { label: string; parentPath: string | undefined }>; // Each folder node by its path, named by its path below its parent node. The top folders have no parent path.
+}
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// How deep each kind of node sits, which sets its size and colour in the diagram. A connection's folders, its data
-// views and its node for adding one sit at one level. Data views in a folder sit one level lower.
+// How deep each kind of node sits, which sets its size and colour in the diagram. A connection's top folders, its data
+// views and its node for adding one sit at one level. Each folder opened sits one level deeper, and what it holds one
+// level below it.
 const DATA_VIEW_DIAGRAM_LEVELS = { root: 0, connector: 1, connection: 2, folder: 3, add: 3, dataView: 3 } as const;
 const MAXIMUM_FOLDER_LABEL_LENGTH = 24; // The diagram's own limit, which cuts a label at its end. A folder is cut at its start instead, because the end of its path names it.
 const ROOT_NODE_ID = 'data';
@@ -79,10 +84,10 @@ const ROOT_NODE_ID = 'data';
 // The user's connections and data views drilled down to one level, as a small network. The path from the top down to
 // the focused connector or connection is always shown, and below it only the next level: every connector, or its one
 // connection in its place, or the focused connector's connections, or the focused connection's data views with a node
-// for adding one. A connection whose data views are in more than one folder or database shows those first, and each
-// opens to show its data views. The siblings of the nodes on the path are left out, except the node for adding a data
-// view, which stays on its connection. Every node's id is prefixed with its parent's id, so a node keeps its id at
-// every level. The selected node is the selected data view, or else the focused connector, connection or folder. The
+// for adding one. A connection whose data views are in more than one folder or database shows those as a tree, and
+// each folder opens to show its folders and data views. The siblings of the nodes on the path are left out, except the
+// node for adding a data view, which stays on its connection. Every node's id is prefixed with its parent's id, so a
+// node keeps its id at every level. The selected node is the selected data view, or else the focused connector, connection or folder. The
 // top node is never selected, because it stands for nothing being selected.
 export function constructDataViewDiagramData(
     labels: DataViewDiagramLabels,
@@ -107,11 +112,10 @@ export function constructDataViewDiagramData(
     };
     const focusedNode = findFocusedDataViewDiagramNode(connections, focus);
     const focusedConnectionId = focusedNode?.typeId === 'connection' ? focusedNode.connectionId : undefined;
-    const folderPaths = focusedConnectionId == null ? [] : listDataViewDiagramFolderPaths(dataViews, focusedConnectionId);
-    const focusedFolderPath = focus.folderPath != null && folderPaths.includes(focus.folderPath) ? focus.folderPath : undefined;
-    const isDataViewSelected = dataViews.some(
-        (dataView) => dataView.id === selectedDataViewId && dataView.connectionId === focusedConnectionId && (focusedFolderPath == null || dataView.folderPath === focusedFolderPath)
-    );
+    const folderTree = focusedConnectionId == null ? undefined : constructFolderTree(dataViews, focusedConnectionId);
+    const focusedFolderPath = folderTree == null || focus.folderPath == null ? undefined : findShownFolderPath(folderTree, focus.folderPath);
+    const shownDataViews = folderTree == null ? [] : dataViews.filter((dataView) => dataView.connectionId === focusedConnectionId && isDataViewShown(folderTree, dataView, focusedFolderPath));
+    const isDataViewSelected = shownDataViews.some((dataView) => dataView.id === selectedDataViewId);
 
     // Connectors and Connections ─ A connector has a node of its own only when the user has several connections to it,
     // because then it groups them. A connector with one connection is left out, and its connection hangs straight off
@@ -151,50 +155,43 @@ export function constructDataViewDiagramData(
     }
     if (focusedNode?.typeId !== 'connection') return data;
 
-    // Folders ─ Shown only when they group the data views, as a connector is. A data view with no item yet is in no
-    // folder, so it stays beside them. Folders come in the order their first data view is listed.
+    // Folders ─ Shown only where they group the data views, as a connector is: the folders from the top down to the
+    // focused one, and the folders in it. A data view with no item yet is in no folder, so it stays on the connection.
+    // Folders come in the order their first data view is listed. A folder's node is named by its path below the node
+    // above it, and its tooltip and screen-reader name give its whole path.
+    const shownFolderTree = assertDefined(folderTree);
     const connectionNodeId = `${ROOT_NODE_ID}.${focusedNode.connectorId}.${focusedNode.connectionId}`;
     const focusedConnection = connections.find((connection) => connection.id === focusedNode.connectionId);
-    let parentNodeId = connectionNodeId;
-    let levelOffset = 0;
-    for (const folderPath of folderPaths) {
-        if (focusedFolderPath != null && folderPath !== focusedFolderPath) continue;
-        const folderLabel = constructFolderLabel(folderPath);
-        const folderNodeId = `${connectionNodeId}.folder.${folderPath}`;
-        addNode(connectionNodeId, {
-            id: folderNodeId,
-            label: folderLabel,
-            level: DATA_VIEW_DIAGRAM_LEVELS.folder,
+    const constructFolderNodeId = (folderPath: string | undefined): string => (folderPath == null ? connectionNodeId : `${connectionNodeId}.folder.${folderPath}`);
+    const focusedFolderPaths = listFolderPathsDownTo(shownFolderTree, focusedFolderPath);
+    const openFolderPaths = [...shownFolderTree.folders].filter(([, folder]) => folder.parentPath === focusedFolderPath).map(([folderPath]) => folderPath);
+    for (const [index, folderPath] of [...focusedFolderPaths, ...openFolderPaths].entries()) {
+        const folder = assertDefined(shownFolderTree.folders.get(folderPath));
+        addNode(constructFolderNodeId(folder.parentPath), {
+            id: constructFolderNodeId(folderPath),
+            label: constructFolderLabel(folder.label),
+            level: DATA_VIEW_DIAGRAM_LEVELS.folder + Math.min(index, focusedFolderPaths.length),
             typeId: 'folder',
             ...constructLook(focusedConnection?.folderIcon, labels.connectionColor),
-            ...(folderLabel.startsWith('…') && { accessibleLabel: folderPath, title: folderPath }),
+            accessibleLabel: folderPath,
+            title: folderPath,
             isSelected: folderPath === focusedFolderPath && !isDataViewSelected,
             focus: { connectorId: focusedNode.connectorId, connectionId: focusedNode.connectionId, folderPath }
         });
-        if (folderPath !== focusedFolderPath) continue;
-        parentNodeId = folderNodeId;
-        levelOffset = 1;
     }
 
     // Data Views and Add ─ The data views of the focused folder, or else of the focused connection outside any folder it
     // shows. The node that starts a new data view stays on the connection, beside its folders, because a new data view
     // chooses its item, and so its folder, after it is started.
-    for (const dataView of dataViews) {
-        if (dataView.connectionId !== focusedNode.connectionId) continue;
-        if (focusedFolderPath == null ? dataView.folderPath != null && folderPaths.includes(dataView.folderPath) : dataView.folderPath !== focusedFolderPath) continue;
-        addNode(parentNodeId, {
-            id: `${parentNodeId}.dataView.${dataView.id}`,
+    const dataViewParentNodeId = constructFolderNodeId(focusedFolderPath);
+    for (const dataView of shownDataViews) {
+        addNode(dataViewParentNodeId, {
+            id: `${dataViewParentNodeId}.dataView.${dataView.id}`,
             label: dataView.label,
-            level: DATA_VIEW_DIAGRAM_LEVELS.dataView + levelOffset,
+            level: DATA_VIEW_DIAGRAM_LEVELS.dataView + focusedFolderPaths.length,
             typeId: 'dataView',
             ...constructLook(dataView.icon, labels.dataViewColor),
             isSelected: dataView.id === selectedDataViewId,
-            ...(dataView.id === selectedDataViewId && {
-                accessibleLabel: labels.open(dataView.label),
-                badge: 'arrowRight' as const,
-                ...(labels.openDiscColor != null && { discColor: labels.openDiscColor }),
-                ...(labels.openRingColor != null && { color: labels.openRingColor })
-            }),
             dataViewId: dataView.id
         });
     }
@@ -221,17 +218,10 @@ export function findFocusedDataViewDiagramNode(connections: Pick<DataViewDiagram
     return connections.filter((connection) => connection.connectorId === connectorId).length > 1 ? { typeId: 'connector', connectorId } : undefined;
 }
 
-// The folders or databases that group a connection's data views, in the order their first data view is listed. None
-// when its data views are all in one, because a single folder groups nothing.
-export function listDataViewDiagramFolderPaths(dataViews: Pick<DataViewDiagramDataView, 'connectionId' | 'folderPath'>[], connectionId: string): string[] {
-    const folderPaths = [
-        ...new Set(dataViews.filter((dataView) => dataView.connectionId === connectionId).map((dataView) => dataView.folderPath))
-    ].filter((folderPath) => folderPath != null);
-    return folderPaths.length > 1 ? folderPaths : [];
-}
-
 // The level the diagram shows: the selected data view's connection, and its folder when the connection shows folders,
-// so the data view is always in view, or else the level the URL names. A folder the connection does not show is dropped.
+// so the data view is always in view, or else the level the URL names. A folder the connection no longer shows, such as
+// one merged into another after a data view was added or deleted, falls back to the nearest folder above it that it
+// does show.
 export function resolveDataViewDiagramFocus(
     connections: Pick<DataViewDiagramConnection, 'connectorId' | 'id'>[],
     dataViews: Pick<DataViewDiagramDataView, 'connectionId' | 'folderPath'>[],
@@ -240,19 +230,82 @@ export function resolveDataViewDiagramFocus(
 ): DataViewDiagramFocus {
     const connection = selectedDataView == null ? undefined : connections.find((candidate) => candidate.id === selectedDataView.connectionId);
     const focus = connection == null ? urlFocus : { connectorId: connection.connectorId, connectionId: connection.id, folderPath: selectedDataView?.folderPath };
-    const folderPaths = focus.connectionId == null ? [] : listDataViewDiagramFolderPaths(dataViews, focus.connectionId);
-    return { connectorId: focus.connectorId, connectionId: focus.connectionId, folderPath: focus.folderPath != null && folderPaths.includes(focus.folderPath) ? focus.folderPath : undefined };
+    const folderTree = focus.connectionId == null ? undefined : constructFolderTree(dataViews, focus.connectionId);
+    return { connectorId: focus.connectorId, connectionId: focus.connectionId, folderPath: folderTree == null || focus.folderPath == null ? undefined : findShownFolderPath(folderTree, focus.folderPath) };
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // A node with no icon or no colour carries no such field at all, so it is drawn in its level's own look.
-// A folder is named by its path, without the leading slash that every path has. The top folder of a file store has the
-// empty path, so it is named '/'. A long path keeps its end, which names the folder, and loses its start.
-function constructFolderLabel(folderPath: string): string {
-    const label = folderPath.replace(/^\//u, '');
-    if (label === '') return '/';
+// Builds the tree from the folders that hold the connection's data views. Each folder lists the folders below it that
+// lead to a data view, in the order their first data view is listed. The tree starts at the deepest folder that every
+// data view is in or below, because a folder above it groups nothing.
+function constructFolderTree(dataViews: Pick<DataViewDiagramDataView, 'connectionId' | 'folderPath'>[], connectionId: string): DataViewDiagramFolderTree {
+    const childPaths = new Map<string, Set<string>>();
+    const dataViewFolderPaths = new Set<string>();
+    for (const dataView of dataViews) {
+        if (dataView.connectionId !== connectionId || dataView.folderPath == null) continue;
+        const segments = splitFolderPath(dataView.folderPath);
+        dataViewFolderPaths.add(joinFolderPath(segments));
+        for (const index of segments.keys()) {
+            const parentPath = joinFolderPath(segments.slice(0, index));
+            const childPath = joinFolderPath(segments.slice(0, index + 1));
+            childPaths.set(parentPath, (childPaths.get(parentPath) ?? new Set<string>()).add(childPath));
+        }
+    }
+
+    // A folder with no data views of its own and one folder below it is merged into that folder.
+    const findMergedPath = (folderPath: string): string => {
+        const folderChildPaths = [...(childPaths.get(folderPath) ?? [])];
+        const [onlyChildPath] = folderChildPaths;
+        return folderChildPaths.length !== 1 || dataViewFolderPaths.has(folderPath) ? folderPath : findMergedPath(onlyChildPath);
+    };
+    const rootPath = findMergedPath('');
+    const folders: DataViewDiagramFolderTree['folders'] = new Map();
+    const addFolders = (parentPath: string, parentNodePath: string | undefined): void => {
+        const folderChildPaths = childPaths.get(parentPath) ?? [];
+        for (const childPath of folderChildPaths) {
+            const folderPath = findMergedPath(childPath);
+            folders.set(folderPath, { label: folderPath.slice(parentPath.length + 1), parentPath: parentNodePath });
+            addFolders(folderPath, folderPath);
+        }
+    };
+    addFolders(rootPath, undefined);
+    return { rootPath, folders };
+}
+
+// The folder itself when the tree shows it, or else the nearest folder above it that the tree shows. Undefined when
+// none is shown, which is the connection itself.
+function findShownFolderPath(folderTree: DataViewDiagramFolderTree, folderPath: string): string | undefined {
+    const segments = splitFolderPath(folderPath);
+    return segments.map((_segment, index) => joinFolderPath(segments.slice(0, segments.length - index))).find((candidatePath) => folderTree.folders.has(candidatePath));
+}
+
+// The folders from the top of the tree down to the given one, which come first. None for the connection itself.
+function listFolderPathsDownTo(folderTree: DataViewDiagramFolderTree, folderPath: string | undefined): string[] {
+    return folderPath == null ? [] : [...listFolderPathsDownTo(folderTree, folderTree.folders.get(folderPath)?.parentPath), folderPath];
+}
+
+// A data view shows in its own folder's node. On the connection itself show the data views in the tree's top folder,
+// and those with no item yet, which are in no folder.
+function isDataViewShown(folderTree: DataViewDiagramFolderTree, dataView: Pick<DataViewDiagramDataView, 'folderPath'>, focusedFolderPath: string | undefined): boolean {
+    return dataView.folderPath == null ? focusedFolderPath == null : joinFolderPath(splitFolderPath(dataView.folderPath)) === (focusedFolderPath ?? folderTree.rootPath);
+}
+
+// A folder is named by its path below the node above it. A long path keeps its end, which names the folder, and loses
+// its start.
+function constructFolderLabel(label: string): string {
     return label.length > MAXIMUM_FOLDER_LABEL_LENGTH ? `…${label.slice(-(MAXIMUM_FOLDER_LABEL_LENGTH - 1))}` : label;
+}
+
+// Every connector writes a folder's path with a slash before each name, and the top folder as the empty path. Paths are
+// split and joined again so that a trailing or doubled slash cannot make one folder look like two.
+function splitFolderPath(folderPath: string): string[] {
+    return folderPath.split('/').filter((segment) => segment !== '');
+}
+
+function joinFolderPath(segments: string[]): string {
+    return segments.map((segment) => `/${segment}`).join('');
 }
 
 function constructLook(icon: string | undefined, color: string | undefined): { color?: string; icon?: string } {

@@ -59,6 +59,8 @@ export const PREVIEW_COLUMN_KEYS = [
     'formatText'
 ] as const;
 
+export const PREVIEW_COLUMN_MARKS_WIDTH_PX = 60; // A tab's marks beside its name: the type icon, 22px, the mandatory and key marks, 34px, and 4px so a measured name is never a pixel short.
+
 const DATA_TYPE_LABEL_KEYS: Record<DataTypeId, keyof typeof TEXT> = {
     boolean: 'dataType.boolean.label',
     numeric: 'dataType.numeric.label',
