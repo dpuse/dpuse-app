@@ -79,7 +79,7 @@ const BIRTH_REFERENCE = { areaId: 'hr', modelId: 'workforce', entityId: 'person'
 const BIRTH_DIAGRAM_PATH = '/eventQueries/diagram/hr/workforce/person/activation';
 
 // The panes need a measured layout that jsdom cannot give, so this stand-in shows the left pane's content, the selected
-// item's detail and its action, or the placeholder when nothing is selected.
+// item's detail, its summary and its action, or the placeholder when nothing is selected.
 const MasterDetailPanelStub = {
     props: { selectedItem: { type: Object as PropType<{ id: string }>, default: undefined } },
     setup(properties: { selectedItem?: { id: string } }, { slots }: SetupContext) {
@@ -87,7 +87,11 @@ const MasterDetailPanelStub = {
             h('div', [
                 slots.master?.({ isSplit: true, openDetail: vi.fn() }),
                 ...(properties.selectedItem
-                    ? [slots.detail?.({ item: properties.selectedItem, close: vi.fn() }), slots['detail-action']?.({ item: properties.selectedItem })]
+                    ? [
+                          slots.detail?.({ item: properties.selectedItem, close: vi.fn() }),
+                          h('div', { 'data-test': 'summary' }, slots['detail-summary']?.({ item: properties.selectedItem })),
+                          slots['detail-action']?.({ item: properties.selectedItem })
+                      ]
                     : [slots['no-selection']?.()])
             ]);
     }
@@ -184,6 +188,17 @@ describe('event queries overview', () => {
 
             expect(part.text()).toBe('activation');
             expect(part.attributes('data-event-queries')).toBe('a,b');
+            wrapper.unmount();
+        });
+
+        it.each([
+            { path: '/eventQueries/list/a', kindKey: 'eventQuery.label', label: 'Hires' },
+            { path: '/eventQueries/diagram/hr', kindKey: 'area.label', label: 'Human Resource' },
+            { path: '/eventQueries/diagram/hr/workforce', kindKey: 'model.label', label: 'Workforce' }
+        ] as const)('summarises the selection at $path by its kind and name', async ({ path, kindKey, label }) => {
+            const wrapper = await mountOverview(await buildRouter(path));
+
+            expect(wrapper.get('[data-test="summary"]').text()).toBe(`${t(OVERVIEW_TEXT, kindKey)}${label}`);
             wrapper.unmount();
         });
 

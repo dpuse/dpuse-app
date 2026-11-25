@@ -1,10 +1,15 @@
 {
     "TEXT": {
+        "area.label": { "en": "Area", "es": "Área" },
         "delete.confirm.label": { "en": "Delete", "es": "Eliminar" },
         "delete.confirm.text": { "en": "Delete “{name}”? This cannot be undone.", "es": "¿Eliminar «{name}»? No se puede deshacer." },
         "delete.confirm.title": { "en": "Delete Event Query", "es": "Eliminar consulta de eventos" },
         "delete.done.text": { "en": "“{name}” deleted.", "es": "Se eliminó «{name}»." },
         "detail.add.label": { "en": "New event query", "es": "Nueva consulta de eventos" },
+        "entity.label": { "en": "Entity", "es": "Entidad" },
+        "event.label": { "en": "Event", "es": "Evento" },
+        "eventQuery.label": { "en": "Event query", "es": "Consulta de eventos" },
+        "model.label": { "en": "Model", "es": "Modelo" },
         "newEventQuery.name.text": { "en": "{entity}: {event}", "es": "{entity}: {event}" },
         "newEventQuery.save.label": { "en": "Save", "es": "Guardar" },
         "newEventQuery.title": { "en": "New Event Query", "es": "Nueva consulta de eventos" },

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 // The user's connections and data views as a diagram that is drilled down one level at a time. A click on a connector,
-// a connection or a data view selects it, which shows its details beside the diagram, and a connector or connection
-// also opens to show what it holds. A second click on the selected data view opens it, as the badge on it shows. The
+// a connection, a folder or a data view selects it, which shows its details beside the diagram, and a connector,
+// connection or folder also opens to show what it holds. A folder shows only when a connection's data views are in more
+// than one folder or database. A second click on the selected data view opens it, as the badge on it shows. The
 // '+' node is the one node that is an action: it starts a new data view.
 
 // ── External Dependencies & Registrations
@@ -19,9 +20,9 @@ import { ignoreReportedNavigationFailure } from '@/router';
 import { resolveAppearanceIcon } from '@/state/appearance';
 import { TEXT } from './DataViewDiagram_.json';
 import { constructDataViewDiagramData, type DataViewDiagramNode, resolveDataViewDiagramFocus } from './_dataViewDiagram';
+import { constructDataViewDiagramFocusQuery, type DataViewDiagramFocus, readDataViewDiagramFocus } from '@/features/studio/dataViews/_state/dataViewFocus';
 import { constructDataViewsViewRoute, isDataViewUntitled } from '@/features/studio/dataViews/_state/dataViews';
 import { constructRingColor, readIconColor, useStudioOptions } from '@/features/studio/options/useStudioOptions';
-import { type DataViewDiagramFocus, readDataViewDiagramFocus } from '@/features/studio/dataViews/_state/dataViewFocus';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -38,6 +39,13 @@ const ITEM_TYPE_ICONS: Record<Exclude<ConnectorItemTypeId, 'file'>, string> = {
     apiEndpoint:
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>',
     table: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="3" x2="21" y1="15" y2="15"/><line x1="9" x2="9" y1="9" y2="21"/><line x1="15" x2="15" y1="9" y2="21"/></svg>'
+};
+// A folder of a connection shows Lucide 'database' for a connector that holds tables, or else 'folder', in the colours of
+// the item icons.
+const FOLDER_ICONS = {
+    database:
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>',
+    folder: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>'
 };
 const OPEN_DISC_COLOR = 'var(--color-pill)'; // Behind the selected data view's icon, the fill of the add node and the pill, because a click on it opens it.
 const OPEN_RING_COLOR = 'var(--color-pill-border)'; // Round the selected data view, the outline of the add node and the pill.
@@ -76,12 +84,19 @@ const diagramConnections = computed(() =>
             icon: resolveAppearanceIcon(config.icon, config.iconDark),
             connectorId: config.connectorConfig.id,
             connectorLabel: connectorLocalisedConfig.label,
-            connectorIcon: resolveAppearanceIcon(connectorLocalisedConfig.icon, connectorLocalisedConfig.iconDark)
+            connectorIcon: resolveAppearanceIcon(connectorLocalisedConfig.icon, connectorLocalisedConfig.iconDark),
+            folderIcon: config.connectorConfig.itemTypeId === 'table' ? FOLDER_ICONS.database : FOLDER_ICONS.folder
         };
     })
 );
 const diagramDataViews = computed(() =>
-    dataViewLocalisedConfigs.map((config) => ({ id: config.id, label: resolveDataViewLabel(config), icon: resolveDataViewIcon(config), connectionId: config.connectionId }))
+    dataViewLocalisedConfigs.map((config) => ({
+        id: config.id,
+        label: resolveDataViewLabel(config),
+        icon: resolveDataViewIcon(config),
+        connectionId: config.connectionId,
+        folderPath: config.connectionNodeConfig?.folderPath
+    }))
 );
 const dataViewsIcon = computed(() => {
     const dataViewsOption = studioOptionLocalisedConfigs.value.find((config) => config.id === DATA_VIEWS_OPTION_ID);
@@ -111,9 +126,12 @@ const diagramLabels = computed(() => {
 // URL names, so reload, links and back/forward all land on the same level. Each part is read by itself, because
 // selecting a data view changes the URL but not the level, and the diagram must then stay as drawn.
 const selectedDiagramDataView = computed(() => diagramDataViews.value.find((dataView) => dataView.id === selectedDataViewId));
-const focus = computed(() => resolveDataViewDiagramFocus(diagramConnections.value, readDataViewDiagramFocus(route.params), selectedDiagramDataView.value));
+const focus = computed(() =>
+    resolveDataViewDiagramFocus(diagramConnections.value, diagramDataViews.value, readDataViewDiagramFocus(route.params, route.query), selectedDiagramDataView.value)
+);
 const focusedConnectorId = computed(() => focus.value.connectorId);
 const focusedConnectionId = computed(() => focus.value.connectionId);
+const focusedFolderPath = computed(() => focus.value.folderPath);
 
 // ── Diagram ─ The level the focus asks for, with the selected node marked.
 const diagramData = computed(() =>
@@ -121,7 +139,7 @@ const diagramData = computed(() =>
         diagramLabels.value,
         diagramConnections.value,
         diagramDataViews.value,
-        { connectorId: focusedConnectorId.value, connectionId: focusedConnectionId.value },
+        { connectorId: focusedConnectorId.value, connectionId: focusedConnectionId.value, folderPath: focusedFolderPath.value },
         selectedDiagramDataView.value?.id
     )
 );
@@ -158,13 +176,13 @@ function focusOn(newFocus: DataViewDiagramFocus): void {
     void ignoreReportedNavigationFailure(router.push(constructFocusRoute(newFocus)));
 }
 
-// No data view stays selected, because the connector or connection of the level is selected in its place.
+// No data view stays selected, because the connector, connection or folder of the level is selected in its place.
 function constructFocusRoute(newFocus: DataViewDiagramFocus): RouteLocationRaw {
-    return constructDataViewsViewRoute('diagram', route.query, { focus: newFocus });
+    return constructDataViewsViewRoute('diagram', constructDataViewDiagramFocusQuery(route.query, newFocus.folderPath), { focus: newFocus });
 }
 
 function isSameFocus(left: DataViewDiagramFocus, right: DataViewDiagramFocus): boolean {
-    return left.connectorId === right.connectorId && left.connectionId === right.connectionId;
+    return left.connectorId === right.connectorId && left.connectionId === right.connectionId && left.folderPath === right.folderPath;
 }
 
 // A data view the user has not named yet is named after its item, so two of them on one connection can be told

@@ -139,6 +139,14 @@ const selectedDetailItem = computed((): DetailItem | undefined => {
 const selectedDataViewConnection = computed(() =>
     selectedDataViewLocalisedConfig.value ? findDataViewConnection(selectedDataViewLocalisedConfig.value, localeId.value) : undefined
 );
+// What the summary over the foot of the list or diagram says on a narrow screen: the kind of thing selected, and its name.
+const selectedDetailSummary = computed((): { kindLabel: string; label: string } | undefined => {
+    const item = selectedDetailItem.value;
+    if (item == null) return undefined;
+    if (item.typeId === 'dataView') return { kindLabel: t(TEXT, 'dataView.label'), label: item.dataViewLocalisedConfig.label };
+    if (item.typeId === 'connection') return { kindLabel: t(TEXT, 'connection.label'), label: item.connectionLocalisedConfig.label };
+    return { kindLabel: t(TEXT, 'connector.label'), label: item.connectorLocalisedConfig.label };
+});
 const connectorsSetupOptionLocalisedConfig = computed(() => assertDefined(setupOptionLocalisedConfigs.value.find((config) => config.id === CONNECTORS_SETUP_OPTION_ID)));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -180,16 +188,16 @@ function handleAddDataView(connectionId?: string): void {
 }
 
 // A second tap on the selected card opens its data view, as a second click on its node in the diagram does, unless it
-// comes so soon after the tap that selected it that the two are one double-click. On a narrow screen, coming back to
-// the list hides the selected card's detail, so the tap shows the detail again instead.
-function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>, openDetail: () => void, isSplit: boolean): void {
+// comes so soon after the tap that selected it that the two are one double-click. On a narrow screen the selected
+// card's detail or summary can be closed, so the tap shows it again instead.
+function handleSelectDataView(dataViewLocalisedConfig: LocalisedConfig<DataViewConfig>, openDetail: () => void, detailIsShown: boolean): void {
     const tapTime = Date.now();
     if (selectedDataViewLocalisedConfig.value?.id !== dataViewLocalisedConfig.id) {
         dataViewSelectedTime.value = tapTime;
         updateDataViewIdParameter(dataViewLocalisedConfig.id);
         return;
     }
-    if (!isSplit) {
+    if (!detailIsShown) {
         openDetail();
         return;
     }
@@ -268,7 +276,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
         <!-- Views and Detail Panel ─ The list and the diagram take turns in the left pane, and the one detail panel
              beside them serves both, so it stays as it is when the view changes. -->
         <MasterDetailPanel v-else class="min-h-0 flex-1" :is-detail-initially-closed="isSelectedDataViewDetailClosed" max-detail-width="65ch" :selected-item="selectedDetailItem">
-            <template #master="{ isSplit, openDetail }">
+            <template #master="{ detailIsShown, openDetail }">
                 <!-- The list and the diagram take different props and events, so each is rendered by itself. -->
                 <RouterViewTransition v-slot="{ component }" class="min-h-0 flex-1" :is-loading="viewIsLoading">
                     <component
@@ -283,7 +291,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                         @cancel-retrieval="handleCancelRetrieval"
                         @open="handleOpenDataView"
                         @retry-retrieval="handleRetryRetrieval"
-                        @select="handleSelectDataView($event, openDetail, isSplit)"
+                        @select="handleSelectDataView($event, openDetail, detailIsShown)"
                     />
                     <component
                         :is="component"
@@ -322,6 +330,13 @@ function updateDataViewIdParameter(dataViewId?: string): void {
                     :setup-option-localised-config="connectorsSetupOptionLocalisedConfig"
                     @close="close"
                 />
+            </template>
+
+            <!-- Detail Summary ─ On a narrow screen the list or diagram stays, and the detail is a sheet over its foot that
+                 shows this at its lowest, so a diagram can be drilled down without each click covering it. -->
+            <template #detail-summary>
+                <p class="truncate text-sm text-muted">{{ selectedDetailSummary?.kindLabel }}</p>
+                <p class="truncate font-medium text-emphasis">{{ selectedDetailSummary?.label }}</p>
             </template>
 
             <!-- Detail Action ─ What the selected thing is for: a data view opens, and a connection takes a new data view. -->

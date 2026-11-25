@@ -1,5 +1,5 @@
 // ── External Dependencies & Registrations
-import { expect, test } from '@playwright/test';
+import { expect, type Locator, type Page, test } from '@playwright/test';
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -118,4 +118,67 @@ test.describe('Data views', () => {
         await node.locator('circle').first().click(); // The node's disc, because the middle of the node's box, which takes in its label, can be empty.
         await expect(page).toHaveURL(new RegExp(`/dataViews/${dataViewId}/items`)); // At its item, because its records are not loaded.
     });
+
+    test('keeps the list and the diagram on a narrow screen, with the selected data view’s detail in a sheet over their foot', async ({ browserName, page }) => {
+        // eslint-disable-next-line playwright/no-skipped-test -- Firefox and WebKit fail to load the page at random, as the first test says.
+        test.skip(browserName !== 'chromium', 'Firefox and WebKit fail to load the page at random.');
+
+        await page.goto('/dataViews/list');
+        await page.locator('[data-region="PillButton"]').getByText('Data View', { exact: true }).click();
+        await page.getByRole('button', { name: 'DPUse Application Emulator', exact: true }).click();
+        await page.getByRole('button', { name: 'Select', exact: true }).click();
+        await page.getByRole('button', { name: 'Table: People' }).click();
+        await page.locator('[data-region="DataViewPill"]').getByRole('button', { name: 'Save' }).click();
+        await expect(page).toHaveURL(/\/dataViews\/(?!new\/)[^/]+\/items/);
+        const dataViewId = /\/dataViews\/([^/]+)\/items/.exec(page.url())?.[1] ?? '';
+
+        // Too narrow for the detail to sit beside the list, so it is a sheet, which starts at its summary.
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.goto(`/dataViews/list/${dataViewId}`);
+        const sheet = page.getByRole('region', { name: 'Details of the selection' });
+        const card = page.locator('[data-region="ConfigCard"]');
+        await expect(sheet).toHaveAttribute('data-position', 'summary');
+        await expect(sheet.getByText('Data view', { exact: true })).toBeVisible();
+        await expect(card).toBeVisible();
+
+        // The handle raises the sheet to half height, where the detail shows and the list is still on screen.
+        await sheet.getByRole('button', { name: 'Show more details' }).click();
+        await expect(sheet).toHaveAttribute('data-position', 'half');
+        await expect(sheet.getByRole('heading', { level: 1 })).toBeVisible();
+        await expect(card).toBeVisible();
+
+        // A drag of the handle moves the sheet to the position nearest to where it is let go: up to its whole height,
+        // then most of the way down to its summary. Its close button hides it.
+        await dragBy(page, sheet.getByRole('button', { name: 'Show more details' }), -200);
+        await expect(sheet).toHaveAttribute('data-position', 'full');
+        await dragBy(page, sheet.getByRole('button', { name: 'Show fewer details' }), 600);
+        await expect(sheet).toHaveAttribute('data-position', 'summary');
+        await sheet.getByRole('button', { name: 'Close details' }).click();
+        await expect(sheet).toBeHidden();
+
+        // The diagram stays on screen with the sheet at its summary, whose action opens the data view.
+        await expect(page.locator('[data-region="TaskTrail"]').getByLabel('DPUse Application Emulator')).toBeVisible(); // The connection has loaded, which the diagram's link needs.
+        await page.getByRole('link', { name: 'Diagram' }).click();
+        await expect(page.locator('[data-region="DataViewDiagram"] g[role="button"]:has(g.badge)')).toHaveCount(1, { timeout: 15_000 }); // The diagram's tool loads when the diagram is first shown.
+        await page.getByRole('link', { name: 'List' }).click(); // A closed sheet opens again when the selected card is tapped.
+        await card.click();
+        await expect(sheet).toHaveAttribute('data-position', 'summary');
+        await sheet.getByRole('button', { name: 'Open', exact: true }).click();
+        await expect(page).toHaveURL(new RegExp(`/dataViews/${dataViewId}/items`));
+    });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Drags the element down by the given distance, or up when it is negative, in steps, as a pointer moves.
+async function dragBy(page: Page, locator: Locator, distance: number): Promise<void> {
+    await locator.hover(); // Waits for the element to stop moving, which a sheet still sliding has not.
+    const box = await locator.boundingBox();
+    if (box == null) throw new Error('The element to drag is not on screen.');
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x, y + distance, { steps: 8 });
+    await page.mouse.up();
+}

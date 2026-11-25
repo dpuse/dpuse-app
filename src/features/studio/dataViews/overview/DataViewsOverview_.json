@@ -1,5 +1,8 @@
 {
     "TEXT": {
+        "connection.label": { "en": "Connection", "es": "Conexión" },
+        "connector.label": { "en": "Connector", "es": "Conector" },
+        "dataView.label": { "en": "Data view", "es": "Vista de datos" },
         "delete.confirm.label": { "en": "Delete", "es": "Eliminar" },
         "delete.confirm.text": { "en": "Delete “{name}”? This cannot be undone.", "es": "¿Eliminar «{name}»? No se puede deshacer." },
         "delete.confirm.title": { "en": "Delete Data View", "es": "Eliminar vista de datos" },

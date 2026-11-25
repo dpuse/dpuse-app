@@ -1,5 +1,5 @@
 {
-  "version": "1.0.317",
+  "version": "1.0.318",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -174,7 +174,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261124.1"
+              "version": "5.20261125.1"
             },
             "@cspotcode/source-map-support": {
               "version": "0.8.1"
@@ -216,8 +216,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261124.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261124.1.tgz",
+      "version": "5.20261125.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261125.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -2291,8 +2291,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.79.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.79.0.tgz",
+      "version": "1.80.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.80.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -2651,7 +2651,7 @@
       "overridden": false,
       "dependencies": {
         "@types/node": {
-          "version": "26.6.6"
+          "version": "26.6.10"
         },
         "@types/tough-cookie": {
           "version": "4.0.5",
@@ -2678,8 +2678,8 @@
       }
     },
     "@types/node": {
-      "version": "26.6.6",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-26.6.6.tgz",
+      "version": "26.6.10",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-26.6.10.tgz",
       "overridden": false,
       "dependencies": {
         "undici-types": {
@@ -4823,7 +4823,7 @@
         "@automerge/automerge-repo": {},
         "@capacitor-community/sqlite": {},
         "@cloudflare/workers-types": {
-          "version": "5.20261124.1"
+          "version": "5.20261125.1"
         },
         "@electric-sql/pglite": {},
         "@libsql/client": {},
@@ -4873,7 +4873,7 @@
       "overridden": false,
       "dependencies": {
         "@types/node": {
-          "version": "26.6.6"
+          "version": "26.6.10"
         },
         "@vitejs/devtools": {},
         "esbuild": {
@@ -5049,7 +5049,7 @@
           }
         },
         "@types/node": {
-          "version": "26.6.6"
+          "version": "26.6.10"
         },
         "@vitest/browser-playwright": {},
         "@vitest/browser-preview": {},
@@ -5725,7 +5725,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261124.1"
+          "version": "5.20261125.1"
         },
         "@cloudflare/workers-utils": {
           "version": "0.57.0",
@@ -5798,7 +5798,7 @@
               "overridden": false,
               "dependencies": {
                 "@types/node": {
-                  "version": "26.6.6"
+                  "version": "26.6.10"
                 },
                 "form-data": {
                   "version": "4.0.6",

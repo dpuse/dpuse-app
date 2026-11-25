@@ -6,7 +6,7 @@ import { useConfirmDialog, useTimeoutFn } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
 // ── DPUse Framework
-import { AppError, localiseConfigs } from '@dpuse/dpuse-shared';
+import { AppError, localiseConfig, localiseConfigs, localiseReference } from '@dpuse/dpuse-shared';
 import type { ContextEventReference, ContextModelConfig, EventQueryConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
@@ -154,6 +154,19 @@ const selectedDetailItem = computed((): DetailItem | undefined => {
         .join('.');
     return { id, typeId: 'contextPart', contextPart };
 });
+// What the summary over the foot of the list or diagram says on a narrow screen: the kind of thing selected, and its name. The
+// part of the context named is the deepest one the diagram is drilled down to.
+const selectedDetailSummary = computed((): { kindLabel: string; label: string } | undefined => {
+    const item = selectedDetailItem.value;
+    if (item == null) return undefined;
+    if (item.typeId === 'eventQuery') return { kindLabel: t(TEXT, 'eventQuery.label'), label: item.eventQueryLocalisedConfig.label };
+
+    const { areaConfig, entityConfig, eventConfig, modelReferenceConfig } = item.contextPart;
+    if (entityConfig && eventConfig) return { kindLabel: t(TEXT, 'event.label'), label: localiseText(eventConfig.labelAction, localeId.value) };
+    if (entityConfig) return { kindLabel: t(TEXT, 'entity.label'), label: localiseText(entityConfig.label, localeId.value) };
+    if (modelReferenceConfig) return { kindLabel: t(TEXT, 'model.label'), label: localiseReference(modelReferenceConfig, localeId.value).label };
+    return { kindLabel: t(TEXT, 'area.label'), label: localiseConfig(areaConfig, localeId.value).label };
+});
 
 // ── Focused Event ─ The event the diagram is drilled down to, which takes a new event query, and the event queries
 // saved for it, which its detail lists.
@@ -223,9 +236,8 @@ function handleAddEventQueryForEvent(contextEventReference: ContextEventReferenc
     newEventQueryDialogIsOpen.value = true;
 }
 
-// A card stays selected when tapped again, as in a select. On a narrow screen, coming back to the list hides the
-// selected card's detail, so the tap opens it again. Beside the list the detail is already showing, so the tap changes
-// nothing.
+// A card stays selected when tapped again, as in a select. On a narrow screen the selected card's summary can be
+// closed, so the tap shows it again. Beside the list the detail is already showing, so the tap changes nothing.
 function handleSelectEventQuery(eventQueryLocalisedConfig: LocalisedConfig<EventQueryConfig>, openDetail: () => void): void {
     if (selectedEventQueryLocalisedConfig.value?.id === eventQueryLocalisedConfig.id) openDetail();
     else updateEventQueryIdParameter(eventQueryLocalisedConfig.id);
@@ -360,6 +372,13 @@ function updateEventQueryIdParameter(eventQueryId?: string): void {
                     :model-reference-config="item.contextPart.modelReferenceConfig"
                     @close="close"
                 />
+            </template>
+
+            <!-- Detail Summary ─ On a narrow screen the list or diagram stays, and the detail is a sheet over its foot that
+                 shows this at its lowest, so a diagram can be drilled down without each click covering it. -->
+            <template #detail-summary>
+                <p class="truncate text-sm text-muted">{{ selectedDetailSummary?.kindLabel }}</p>
+                <p class="truncate font-medium text-emphasis">{{ selectedDetailSummary?.label }}</p>
             </template>
 
             <!-- Detail Action ─ What the selected thing is for: an event takes a new event query. -->

@@ -107,14 +107,20 @@ const CONNECTION_LOCALISED_CONFIGS = [
 const SALES_DIAGRAM_PATH = '/dataViews/diagram/dropbox/work/a'; // 'Sales' selected in the diagram, under its connection.
 
 // The panes need a measured layout that jsdom cannot give, so this stand-in shows the left pane's content, and the
-// selected item's detail and its action.
+// selected item's detail, its summary and its action.
 const MasterDetailPanelStub = {
     props: { selectedItem: { type: Object as PropType<{ id: string }>, default: undefined } },
     setup(properties: { selectedItem?: { id: string } }, { slots }: SetupContext) {
         return (): ReturnType<typeof h> =>
             h('div', [
-                slots.master?.({ isSplit: true, openDetail: vi.fn() }),
-                ...(properties.selectedItem ? [slots.detail?.({ item: properties.selectedItem, close: vi.fn() }), slots['detail-action']?.({ item: properties.selectedItem })] : [])
+                slots.master?.({ detailIsShown: masterDetail.detailIsShown, isSplit: true, openDetail: masterDetail.openDetail }),
+                ...(properties.selectedItem
+                    ? [
+                          slots.detail?.({ item: properties.selectedItem, close: vi.fn() }),
+                          h('div', { 'data-test': 'summary' }, slots['detail-summary']?.({ item: properties.selectedItem })),
+                          slots['detail-action']?.({ item: properties.selectedItem })
+                      ]
+                    : [])
             ]);
     }
 };
@@ -143,6 +149,11 @@ const DataViewDetailStub = defineComponent({
             );
     }
 });
+
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// What the stand-in panel tells the left pane. The detail counts as shown unless a test closes it, as a narrow screen can.
+const masterDetail = { detailIsShown: true, openDetail: vi.fn() };
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -276,6 +287,8 @@ describe('data views overview list selection', () => {
     beforeEach(async () => {
         const state = await getState();
         state.dataViewConfigs.value = [buildDataView('a', 'Sales', 'work'), buildDataView('b', 'Stock', 'work')];
+        masterDetail.detailIsShown = true;
+        masterDetail.openDetail.mockClear();
         document.body.replaceChildren();
     });
 
@@ -292,6 +305,23 @@ describe('data views overview list selection', () => {
         await settle();
 
         expect(router.currentRoute.value.path).toBe('/dataViews/b/connections'); // No item chosen, so it opens at its connection.
+        dateNow.mockRestore();
+        wrapper.unmount();
+    });
+
+    it('shows the selected data view’s closed detail again, without opening it, when its card is tapped', async () => {
+        masterDetail.detailIsShown = false;
+        const router = await buildRouter('/dataViews/list/a');
+        const wrapper = await mountPanel(router);
+
+        await wrapper.get('[data-test="list"]').trigger('click');
+        await settle();
+        const dateNow = vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 1000); // Well after the tap that selected it.
+        await wrapper.get('[data-test="list"]').trigger('click');
+        await settle();
+
+        expect(masterDetail.openDetail).toHaveBeenCalledOnce();
+        expect(router.currentRoute.value.path).toBe('/dataViews/list/b');
         dateNow.mockRestore();
         wrapper.unmount();
     });
@@ -348,6 +378,17 @@ describe('data views overview diagram selection', () => {
         expect(connectorPanel.text()).toBe('Dropbox');
         expect(connectorPanel.attributes('data-setup-option')).toBe('connectors');
         expect(findButton(wrapper, t(OVERVIEW_TEXT, 'detail.add.label'))).toBeUndefined();
+        wrapper.unmount();
+    });
+
+    it.each([
+        { path: SALES_DIAGRAM_PATH, kindKey: 'dataView.label', label: 'Sales' },
+        { path: '/dataViews/diagram/dropbox/work', kindKey: 'connection.label', label: 'Work' },
+        { path: '/dataViews/diagram/dropbox', kindKey: 'connector.label', label: 'Dropbox' }
+    ] as const)('summarises the selection at $path by its kind and name', async ({ path, kindKey, label }) => {
+        const wrapper = await mountPanel(await buildRouter(path));
+
+        expect(wrapper.get('[data-test="summary"]').text()).toBe(`${t(OVERVIEW_TEXT, kindKey)}${label}`);
         wrapper.unmount();
     });
 
