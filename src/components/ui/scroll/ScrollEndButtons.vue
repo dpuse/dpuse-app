@@ -57,7 +57,7 @@ function handleScrollToBottom(): void {
             :class="[PILL_CLASSES, PILL_FILL_CLASSES, { invisible: arrivedState.top }]"
             @click="handleScrollToTop"
         >
-            <ArrowUpIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
+            <ArrowUpIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
         </ActionWrapper>
         <ActionWrapper
             :aria-label="t(TEXT, 'bottom.aria')"
@@ -65,7 +65,7 @@ function handleScrollToBottom(): void {
             :class="[PILL_CLASSES, PILL_FILL_CLASSES, { invisible: arrivedState.bottom }]"
             @click="handleScrollToBottom"
         >
-            <ArrowDownIcon aria-hidden="true" class="size-5" :stroke-width="1.25" />
+            <ArrowDownIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
         </ActionWrapper>
     </div>
 </template>

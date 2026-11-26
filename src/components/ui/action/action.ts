@@ -36,13 +36,25 @@ export const PRESS_CLASSES = 'touch-manipulation duration-200 active:scale-[92%]
 // Hover and press for an icon button that is not selected.
 export const UNSELECTED_CLASSES = 'hover:state-hover active:state-press';
 
-// An icon button the user chose from a set, or the place they are, e.g. the current account section. Grey rather
-// than the blue of a selected card, because a blue fill clashes with coloured icons.
-export const SELECTED_CLASSES = 'state-selected-icon hover:state-selected-icon-hover';
+// An icon button the user chose from a set, or the place they are, e.g. the current account section. The same tint as
+// every other selection: selected cards, table rows, rail options and list rows.
+export const SELECTED_CLASSES = 'state-selected hover:state-selected-hover';
 
-// An on/off toggle that is on, e.g. bold in a text editor. A different grey from a selected icon button, because it is
+// An on/off toggle that is on, e.g. bold in a text editor. Grey, not the tint of a selected icon button, because it is
 // not a choice from a set, and darker than hover, because the fill alone tells the two apart.
 export const TOGGLED_CLASSES = 'bg-black/6 hover:bg-black/12 active:bg-black/18 dark:bg-white/14 dark:hover:bg-white/18 dark:active:bg-white/26';
+
+// An underline tab, as text or as an icon alone. Every tab has a bar under it, so a row of them reads as one set of
+// tabs and not as separate buttons: faint at rest, grey on hover, and in the studio option's colour when selected,
+// with darker text or icon. The tabs sit side by side with a 1px gap ('gap-x-px' on the row), so their bars read as one
+// line of segments, as the parts of a column's value bar do. Hover and press also fill a rounded shape behind the
+// label, as on a button, because a bar alone can be hard to see. The fill is 28px tall, as the toolbar's buttons are,
+// and centred, so it stays clear of the bar, and it is drawn behind the label by 'isolate'. Every tab keeps a
+// transparent top border as thick as its bar, so its label stays centred. A disabled tab shows no hover.
+export const TAB_CLASSES =
+    'relative isolate border-y-2 border-t-transparent px-1.5 before:absolute before:inset-x-0 before:top-1/2 before:-z-1 before:h-7 before:-translate-y-1/2 before:rounded-md not-disabled:hover:before:state-hover not-disabled:active:before:state-press';
+export const TAB_SELECTED_CLASSES = 'border-b-option-mark text-emphasis';
+export const TAB_UNSELECTED_CLASSES = 'border-b-boundary-hover text-muted not-disabled:hover:border-b-subtle not-disabled:hover:text-content';
 
 // The selected option inside a grey pill track: a raised white segment, as in a segmented control. The track is
 // already grey, so a grey fill would barely show there.

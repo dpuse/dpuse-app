@@ -8,6 +8,7 @@ import { assertDefined } from '@/utilities/index.ts';
 import type { LocalisedEntity } from './_context';
 import { t } from '@/state/locale';
 import { TEXT } from './ContextEntityList_.json';
+import { TAB_CLASSES, TAB_SELECTED_CLASSES, TAB_UNSELECTED_CLASSES } from '@/components/ui/action/action';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -98,7 +99,7 @@ function createEntityTabPanelElementId(entityId: string): string {
             <!-- Entity Tabs -->
             <div
                 :aria-label="t(TEXT, 'entityTabs.aria', { label: entity.label })"
-                class="flex flex-none items-center gap-x-3 overflow-x-auto overscroll-x-none border-b border-separator"
+                class="-ml-1.5 flex flex-none items-center gap-x-px overflow-x-auto overscroll-x-none border-b border-separator"
                 role="tablist"
             >
                 <template v-for="(entityTab, entityTabIndex) in ENTITY_TABS" :key="entityTab.id">
@@ -106,8 +107,8 @@ function createEntityTabPanelElementId(entityId: string): string {
                         :id="createEntityTabElementId(entity.id, entityTab.id)"
                         :aria-controls="createEntityTabPanelElementId(entity.id)"
                         :aria-selected="entityTab.id === expandedEntityTabId"
-                        class="border-y-2 border-t-transparent py-1.25"
-                        :class="entityTab.id === expandedEntityTabId ? 'border-b-blue-400' : 'border-b-transparent'"
+                        class="py-1.75"
+                        :class="[TAB_CLASSES, entityTab.id === expandedEntityTabId ? TAB_SELECTED_CLASSES : TAB_UNSELECTED_CLASSES]"
                         role="tab"
                         :tabindex="entityTab.id === expandedEntityTabId ? 0 : -1"
                         @click="expandedEntityTabId = entityTab.id"

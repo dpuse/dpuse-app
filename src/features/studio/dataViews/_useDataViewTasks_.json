@@ -29,6 +29,7 @@
         }
     ],
     "TEXT": {
+        "dataTask.loaded.text": { "en": "records loaded", "es": "registros cargados" },
         "itemTask.apiEndpoint.label": { "en": "Select API Endpoint", "es": "Seleccionar endpoint de API" },
         "itemTask.apiEndpoint.short.label": { "en": "API Endpoint", "es": "endpoint de API" },
         "itemTask.file.label": { "en": "Select File", "es": "Seleccionar archivo" },

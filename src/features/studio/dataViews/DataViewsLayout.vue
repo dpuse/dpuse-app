@@ -52,7 +52,12 @@ const selectedDataViewId = computed(() => (routeIsTask.value ? undefined : resol
 const dataViewIsNew = computed(() => routeIsTask.value && route.params.dataViewId === NEW_DATA_VIEW_ID); // Being added, so not saved yet.
 
 // The data view selected on the diagram or list loads too, so the task bar can open it at any task it has reached.
-const { data: dataViewConfig, error: dataViewError, refetch: refetchDataView } = useCurrentDataView(() => (routeIsTask.value ? route.params.dataViewId : selectedDataViewId.value));
+const {
+    data: dataViewConfig,
+    draftIsCurrent,
+    error: dataViewError,
+    refetch: refetchDataView
+} = useCurrentDataView(() => (routeIsTask.value ? route.params.dataViewId : selectedDataViewId.value));
 const dataViewQueryFailure = useQueryFailure(dataViewError);
 const dataViewFailure = computed(() => (routeIsTask.value ? dataViewQueryFailure.value : undefined)); // Shown in place of the task, which has nothing to work on without its data view. The diagram and list have their own panel for it.
 
@@ -61,7 +66,7 @@ const dataViewFailure = computed(() => (routeIsTask.value ? dataViewQueryFailure
 const dataViewConnectionLocalisedConfig = computed(() => findConnectionLocalisedConfig(dataViewConfig.value?.connectionId));
 
 // ── Header
-const headerOverline = computed(() => t(TEXT, routeIsTask.value ? 'establishDataViews.title' : 'studio.label'));
+const headerOverline = computed(() => (routeIsTask.value ? t(TEXT, 'establishDataViews.title') : undefined)); // A task says which part of the app it belongs to. The diagram and list's own title already does.
 const headerTitleIsPending = computed(
     () => routeIsTask.value && !dataViewIsNew.value && dataViewConfig.value == null && !dataViewFailure.value && configStatus.value.typeId !== 'failed'
 ); // A saved data view's name is not known until it loads, e.g. after a reload.
@@ -71,12 +76,15 @@ const headerTitle = computed(() => {
     if (dataViewConfig.value) return localiseConfig(dataViewConfig.value, localeId.value).label;
     return t(TEXT, headerTitleIsPending.value ? 'dataView.pending.title' : 'dataView.failed.title');
 });
-const headerBackRoute = computed(() =>
-    routeIsTask.value ? { ...constructOpenDataViewRoute(lastDataViewsViewId.value), state: { detailIsClosed: true } } : { name: 'studio', query: route.query }
-); // From a task, back to the view it was opened from with this data view still selected, but on a narrow screen its detail closed, as the link names the list.
 
 // ── Tasks
-const { completeTask, currentTaskLocalisedConfig, taskBarLocalisedItems } = useDataViewTasks({ currentDataViewId, dataViewConfig, dataViewConnectionLocalisedConfig, routeIsTask });
+const { completeTask, currentTaskLocalisedConfig, taskBarLocalisedItems } = useDataViewTasks({
+    currentDataViewId,
+    dataViewConfig,
+    dataViewConnectionLocalisedConfig,
+    draftIsCurrent,
+    routeIsTask
+});
 
 // After a reload, the task bar stays hidden until the data view and the connection list have loaded, then fades in.
 // Otherwise step 2 first reads 'Select Item', and changes once the connection says which kind of item it holds. Nothing
@@ -169,7 +177,6 @@ function constructOpenDataViewRoute(viewId: DataViewsViewId): RouteLocationNamed
         :tasks-are-pending="tasksArePending"
         :title="headerTitle"
         :title-is-pending="headerTitleIsPending"
-        :to="headerBackRoute"
         :trail="trail"
         :view-items="viewItems"
         :views-label="t(TEXT, 'views.aria')"

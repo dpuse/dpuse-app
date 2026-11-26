@@ -10,6 +10,7 @@ import type { ConnectionConfig, DataViewConfig, LocalisedConfig } from '@dpuse/d
 // ── Local Framework
 import { isDataViewLoaded } from '@/features/studio/dataViews/_state/dataViewStore';
 import { settle } from '~/tests/support/settle';
+import { t } from '@/state/locale';
 import { TEXT } from '@/features/studio/dataViews/_useDataViewTasks_.json';
 import { isDataViewTaskRoute, useDataViewTasks } from '@/features/studio/dataViews/_useDataViewTasks';
 
@@ -37,6 +38,7 @@ const FILE_CONNECTION = { id: 'work', label: 'Work', connectorConfig: { itemType
 const currentDataViewId = ref<string>();
 const dataViewConfig = ref<DataViewConfig>();
 const dataViewConnectionLocalisedConfig = ref<LocalisedConfig<ConnectionConfig>>();
+const draftIsCurrent = ref(false);
 const routeIsTask = ref(false);
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -53,6 +55,7 @@ describe('useDataViewTasks', () => {
         currentDataViewId.value = undefined;
         dataViewConfig.value = undefined;
         dataViewConnectionLocalisedConfig.value = undefined;
+        draftIsCurrent.value = false;
         routeIsTask.value = false;
         vi.mocked(isDataViewLoaded).mockReturnValue(false);
     });
@@ -131,6 +134,18 @@ describe('useDataViewTasks', () => {
             expect(tasks.taskBarLocalisedItems.value.map((task) => task.detail)).toStrictEqual(['Work', '/reports/sales.csv', undefined]);
         });
 
+        it('marks Explore Data done while the records are loaded and still match the columns, checking the draft’s load for a draft', async () => {
+            const { tasks } = await mountTasks('/dataViews/a/items', { dataView: PREVIEWED_DATA_VIEW });
+            expect(findTask(tasks, 'data').detail).toBeUndefined();
+
+            vi.mocked(isDataViewLoaded).mockReturnValue(true);
+            draftIsCurrent.value = true;
+            await settle();
+
+            expect(findTask(tasks, 'data').detail).toBe(t(TEXT, 'dataTask.loaded.text'));
+            expect(isDataViewLoaded).toHaveBeenLastCalledWith(PREVIEWED_DATA_VIEW, true);
+        });
+
         it('links each open task to the same data view with the query kept, and leaves a closed one without a link', async () => {
             const { tasks } = await mountTasks('/dataViews/a/items?sView=items', { dataView: ITEM_CHOSEN_DATA_VIEW });
 
@@ -172,7 +187,7 @@ async function mountTasks(path: string, { dataView, isTask = true }: { dataView?
     let tasks: DataViewTasks | undefined;
     const Host = defineComponent({
         setup() {
-            tasks = useDataViewTasks({ currentDataViewId, dataViewConfig, dataViewConnectionLocalisedConfig, routeIsTask });
+            tasks = useDataViewTasks({ currentDataViewId, dataViewConfig, dataViewConnectionLocalisedConfig, draftIsCurrent, routeIsTask });
             return renderNothing;
         }
     });

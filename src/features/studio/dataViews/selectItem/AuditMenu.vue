@@ -47,7 +47,7 @@ const emit = defineEmits<{
             >
                 <slot />
                 <span class="min-w-0 truncate" :class="{ 'sr-only': isLabelHidden }">{{ t(TEXT, 'audit.label') }}</span>
-                <ChevronDownIcon aria-hidden="true" class="size-3.5 flex-none text-muted" :stroke-width="1.5" />
+                <ChevronDownIcon aria-hidden="true" class="size-3.5 flex-none text-muted" :stroke-width="2" />
             </ActionWrapper>
         </template>
         <Menu.Content :label="t(TEXT, 'audit.aria')" placement="bottom-start">

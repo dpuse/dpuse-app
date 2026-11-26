@@ -51,7 +51,7 @@ const headerMarginRight = computed(() => `${String(Math.max(36, actionsWidth.val
                     "
                     :style="{ marginRight: headerMarginRight }"
                 >
-                    <ArrowLeftIcon v-if="!panesAreSplit" class="size-4 flex-none" />
+                    <ArrowLeftIcon v-if="!panesAreSplit" class="size-4 flex-none" :stroke-width="1.75" />
                     <span class="min-w-0 truncate">{{ overline }} </span>
                 </div>
 

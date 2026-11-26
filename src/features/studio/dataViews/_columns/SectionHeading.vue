@@ -17,7 +17,7 @@ const { countText, icon, subtitle, title } = defineProps<{
         <span>
             {{ title }}
             <span v-if="subtitle" class="font-normal text-muted">– {{ subtitle }}</span>
-            <component :is="icon" v-if="icon" aria-hidden="true" class="ml-1 inline size-4 align-text-bottom text-muted" :stroke-width="1.5" />
+            <component :is="icon" v-if="icon" aria-hidden="true" class="ml-1 inline size-4 align-text-bottom text-muted" :stroke-width="1.75" />
         </span>
         <span v-if="countText" class="font-normal text-muted tabular-nums">{{ countText }}</span>
     </h3>

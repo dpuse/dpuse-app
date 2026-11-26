@@ -136,7 +136,7 @@ function constructURLText(url: string): string {
                             <dd class="m-0 min-w-0">
                                 <a :href="vendorLink.url" class="inline-flex max-w-full items-center gap-x-1" rel="noopener noreferrer" target="_blank">
                                     <span class="min-w-0 truncate">{{ vendorLink.urlText }}</span>
-                                    <ExternalLinkIcon aria-hidden="true" class="size-3.5 flex-none" />
+                                    <ExternalLinkIcon aria-hidden="true" class="size-3.5 flex-none" :stroke-width="2" />
                                 </a>
                             </dd>
                         </template>
@@ -144,7 +144,7 @@ function constructURLText(url: string): string {
                         <dd class="m-0 min-w-0">
                             <a :href="gitHubURL" class="inline-flex max-w-full items-center gap-x-1" rel="noopener noreferrer" target="_blank">
                                 <span class="min-w-0 truncate">{{ constructURLText(gitHubURL) }}</span>
-                                <ExternalLinkIcon aria-hidden="true" class="size-3.5 flex-none" />
+                                <ExternalLinkIcon aria-hidden="true" class="size-3.5 flex-none" :stroke-width="2" />
                             </a>
                         </dd>
                     </dl>

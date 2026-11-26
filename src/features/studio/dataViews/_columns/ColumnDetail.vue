@@ -21,6 +21,7 @@ import {
 } from './previewColumnRows';
 import { type ColumnType, constructColumnTypeId, type ItemReading } from '@/features/studio/dataViews/_state/dataViewColumns';
 import { localeId, t } from '@/state/locale';
+import { TAB_CLASSES, TAB_SELECTED_CLASSES, TAB_UNSELECTED_CLASSES } from '@/components/ui/action/action';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -213,7 +214,13 @@ const lengthText = computed(() => {
 // How many whole digits and decimal places numbers have, which says more about how they are written than their length,
 // because a sign or a thousands separator is not a digit. Dates have neither, because their formats already show it.
 const digitsText = computed(() => {
-    const { dataTypeId, validMaxDecimals: maxDecimals, validMaxWholeDigits: maxWholeDigits, validMinDecimals: minDecimals, validMinWholeDigits: minWholeDigits } = columnConfig.value ?? {};
+    const {
+        dataTypeId,
+        validMaxDecimals: maxDecimals,
+        validMaxWholeDigits: maxWholeDigits,
+        validMinDecimals: minDecimals,
+        validMinWholeDigits: minWholeDigits
+    } = columnConfig.value ?? {};
     if (dataTypeId !== 'numeric' || minWholeDigits == null || maxWholeDigits == null || minDecimals == null || maxDecimals == null) return;
     const wholeDigits = constructDigitRangeText('wholeDigits', minWholeDigits, maxWholeDigits);
     const decimalPlaces = maxDecimals === 0 ? t(TEXT, 'decimalPlaces.none.text') : constructDigitRangeText('decimalPlaces', minDecimals, maxDecimals);
@@ -605,13 +612,13 @@ function constructValueChartRows(
         <!-- Header ─ Stays in place, so only the tab's content scrolls. One row, with the tabs on the left and the
              column controls on the right, so the panel's chrome takes as little height as it can. -->
         <header class="flex h-10 flex-none items-stretch gap-x-4 border-b border-separator px-4">
-            <div ref="tabList" :aria-label="t(TEXT, 'tabs.aria')" class="-mb-px flex min-w-0 flex-1 gap-x-3 overflow-x-auto overscroll-none" role="tablist">
+            <div ref="tabList" :aria-label="t(TEXT, 'tabs.aria')" class="-mb-px -ml-1.5 flex min-w-0 flex-1 gap-x-px overflow-x-auto overscroll-none" role="tablist">
                 <ActionWrapper
                     v-for="(tab, tabIndex) in detailTabs"
                     :key="tab.id"
                     :aria-selected="tab.id === currentTabId"
-                    class="flex flex-none items-center border-y-2 border-t-transparent text-sm whitespace-nowrap"
-                    :class="tab.id === currentTabId ? 'border-b-content text-emphasis' : 'border-b-transparent text-muted'"
+                    class="flex flex-none items-center text-sm whitespace-nowrap"
+                    :class="[TAB_CLASSES, tab.id === currentTabId ? TAB_SELECTED_CLASSES : TAB_UNSELECTED_CLASSES]"
                     role="tab"
                     :tabindex="tab.id === currentTabId ? 0 : -1"
                     @click="selectedTabId = tab.id"
@@ -623,12 +630,7 @@ function constructValueChartRows(
             </div>
 
             <div class="flex flex-none items-center gap-x-2">
-                <ActionWrapper
-                    :aria-label="t(TEXT, 'previous.aria')"
-                    class="rounded-md p-1 enabled:hover:state-hover"
-                    :disabled="!hasPreviousColumn"
-                    @click="emit('step', -1)"
-                >
+                <ActionWrapper :aria-label="t(TEXT, 'previous.aria')" class="rounded-md p-1 enabled:hover:state-hover" :disabled="!hasPreviousColumn" @click="emit('step', -1)">
                     <ChevronLeftIcon aria-hidden="true" class="size-5" :stroke-width="1.5" />
                 </ActionWrapper>
                 <ActionWrapper :aria-label="t(TEXT, 'next.aria')" class="rounded-md p-1 enabled:hover:state-hover" :disabled="!hasNextColumn" @click="emit('step', 1)">
@@ -679,7 +681,7 @@ function constructValueChartRows(
                         <!-- Each fact has the icon its column's tab shows for it, so the tab's icons are explained here. -->
                         <template v-for="fact in overviewFacts" :key="fact.id">
                             <dt class="flex items-center gap-x-1.5 text-muted">
-                                <component :is="fact.icon" aria-hidden="true" class="size-3.5 flex-none" :stroke-width="1.5" />
+                                <component :is="fact.icon" aria-hidden="true" class="size-3.5 flex-none" :stroke-width="2" />
                                 {{ fact.label }}
                             </dt>
                             <dd class="m-0 min-w-0 wrap-break-word">{{ fact.value }}</dd>

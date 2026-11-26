@@ -27,19 +27,22 @@ const ACTIVE_ITEM_SELECTOR = '[aria-selected="true"], [aria-current="step"]';
 const {
     arrowAlignClass = 'items-center py-2',
     isBorderless,
+    itemSelector,
     keepActiveItemInView,
     rowClass,
     rowTag = 'div'
 } = defineProps<{
     arrowAlignClass?: string; // Where the arrow sits in the row's height. Centred by default; e.g. 'items-start pt-1' for two-line items.
     isBorderless?: boolean; // Leaves out the bottom line, for a host that draws its own below more content.
+    itemSelector?: string; // Finds the items inside the row's children, for items grouped in their own elements. The row's children are the items by default.
     keepActiveItemInView?: boolean; // Scrolls the active item into view when the row first shows and whenever it changes.
     rowClass?: string; // Extra classes for the row, such as the gap between items.
     rowTag?: 'div' | 'ol'; // 'ol' for items in a set order, such as steps. Each item must then be an 'li'.
 }>();
 
 defineSlots<{
-    // The items. Each one must be its own element, because the arrows scroll one item at a time. Mark the active item,
+    // The items. Each one must be its own element, or one that 'itemSelector' finds, because the arrows scroll one item
+    // at a time. Mark the active item,
     // or an element inside it, with 'aria-selected="true"' or 'aria-current="step"' so 'keepActiveItemInView' can find it.
     default(): unknown;
 }>();
@@ -90,7 +93,7 @@ function handleRevealItem(event: Event): void {
     const row = rowElement.value;
     if (!row || !(event.target instanceof Node)) return;
     const target = event.target;
-    const item = ([...row.children] as HTMLElement[]).find((child) => child.contains(target));
+    const item = listItems(row).find((child) => child.contains(target));
     if (item) revealItem(row, item);
 }
 
@@ -111,7 +114,7 @@ function handleScrollRow(direction: 'left' | 'right'): void {
 // its text or icons is under the solid part of the arrow button or past the edge of the row.
 function findHiddenItem(row: HTMLElement, direction: 'left' | 'right'): HTMLElement | undefined {
     const rowBox = row.getBoundingClientRect();
-    const items = [...row.children] as HTMLElement[];
+    const items = listItems(row);
 
     // Each check allows 1px, because item positions can be fractions of a pixel.
     if (direction === 'right') {
@@ -149,13 +152,17 @@ function measureItemContent(item: HTMLElement): { left: number; right: number } 
         : { left: Math.min(...boxes.map((box) => box.left)), right: Math.max(...boxes.map((box) => box.right)) };
 }
 
+function listItems(row: HTMLElement): HTMLElement[] {
+    return itemSelector == null ? ([...row.children] as HTMLElement[]) : [...row.querySelectorAll<HTMLElement>(itemSelector)];
+}
+
 // Scrolls just far enough for the item to be fully in view. Where an arrow button is showing, the item stops clear of
 // the whole button, including its fade.
 // Scrolls the active item into view if it has changed since it was last scrolled into view.
 function revealActiveItem(behavior: ScrollBehavior): void {
     const row = rowElement.value;
     if (!keepActiveItemInView || !row) return;
-    const activeItem = ([...row.children] as HTMLElement[]).find((item) => item.matches(ACTIVE_ITEM_SELECTOR) || item.querySelector(ACTIVE_ITEM_SELECTOR) !== null);
+    const activeItem = listItems(row).find((item) => item.matches(ACTIVE_ITEM_SELECTOR) || item.querySelector(ACTIVE_ITEM_SELECTOR) !== null);
     if (!activeItem || activeItem === revealedActiveItem.value) return;
     revealedActiveItem.value = activeItem;
     revealedRowScrollWidth.value = row.scrollWidth;
@@ -223,7 +230,7 @@ function updateScrollState(): void {
             type="button"
             @click="handleScrollRow('left')"
         >
-            <ChevronLeftIcon class="size-5 rounded-full text-content hover:state-hover" />
+            <ChevronLeftIcon class="size-5 rounded-full text-content hover:state-hover" :stroke-width="1.5" />
         </button>
 
         <button
@@ -234,7 +241,7 @@ function updateScrollState(): void {
             type="button"
             @click="handleScrollRow('right')"
         >
-            <ChevronRightIcon class="size-5 rounded-full text-content hover:state-hover" />
+            <ChevronRightIcon class="size-5 rounded-full text-content hover:state-hover" :stroke-width="1.5" />
         </button>
     </div>
 </template>

@@ -366,11 +366,11 @@ function assertRow(row: StructureRow | undefined): StructureRow {
                             aria-hidden="true"
                             class="size-4 flex-none text-muted transition-transform"
                             :class="[expandedPartKeys.has(row.key) ? 'rotate-90' : '', isContainerKind(row.kindId) || row.kindId == null ? '' : 'invisible']"
-                            :stroke-width="1.5"
+                            :stroke-width="1.75"
                         />
                         <span class="truncate" :class="row.keyText == null ? 'font-sans font-medium' : 'text-emphasis'">{{ row.keyText ?? t(TEXT, 'top.label') }}</span>
                         <span v-if="constructValueText(row) != null" class="min-w-0 truncate text-muted">{{ constructValueText(row) }}</span>
-                        <SheetIcon v-if="row.isCandidate" :aria-label="t(TEXT, 'candidate.aria')" class="size-4 flex-none text-muted" role="img" :stroke-width="1.5" />
+                        <SheetIcon v-if="row.isCandidate" :aria-label="t(TEXT, 'candidate.aria')" class="size-4 flex-none text-muted" role="img" :stroke-width="1.75" />
                         <span v-if="row.key === currentStructureKey" class="font-sans text-xs font-medium text-emphasis">{{ t(TEXT, 'current.label') }}</span>
                     </template>
                     <span v-else-if="row.typeId === 'pending'" class="pl-5.5 font-sans text-muted">{{ t(TEXT, 'pending.text') }}</span>

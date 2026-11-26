@@ -50,12 +50,12 @@ test.describe('Data views', () => {
         await expect(pill.getByRole('button', { name: 'Discard' })).toBeEnabled();
         await expect(pill.getByRole('button', { name: 'Save' })).toBeDisabled(); // A connection alone is not a whole data view.
 
-        await page.getByRole('link', { name: 'Establish Data Views' }).last().click();
+        await page.locator('[data-region="TaskLayoutViews"]').getByRole('link', { name: 'List' }).click(); // A task leaves through a view beside the tasks.
         const question = page.getByRole('alertdialog', { name: 'Discard Changes?' });
         await question.getByRole('button', { name: 'Stay' }).click();
         await expect(page).toHaveURL(/\/dataViews\/new\/connections/);
 
-        await page.getByRole('link', { name: 'Establish Data Views' }).last().click();
+        await page.locator('[data-region="TaskLayoutViews"]').getByRole('link', { name: 'List' }).click(); // A task leaves through a view beside the tasks.
         await question.getByRole('button', { name: 'Discard' }).click();
         await expect(page).toHaveURL(/\/dataViews\/list(\?|$)/);
         await expect(page.locator('[data-region="ConfigCard"]')).toHaveCount(0);

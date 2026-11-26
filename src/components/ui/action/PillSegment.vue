@@ -33,8 +33,8 @@ const { disabled, disabledReason, icon, isLabelHidden, isStepAction, label } = d
         :disabled="disabled"
         :title="disabled && disabledReason ? disabledReason : label"
     >
-        <component :is="icon" v-if="!isStepAction" aria-hidden="true" class="size-5" :stroke-width="1.25" />
+        <component :is="icon" v-if="!isStepAction" aria-hidden="true" class="size-5" :stroke-width="1.5" />
         <span class="hidden text-sm" :class="{ '@min-[21.5rem]:inline': isStepAction && !isLabelHidden, '@lg:inline': !isStepAction && !isLabelHidden }">{{ label }}</span>
-        <component :is="icon" v-if="isStepAction" aria-hidden="true" class="size-5" :stroke-width="1.25" />
+        <component :is="icon" v-if="isStepAction" aria-hidden="true" class="size-5" :stroke-width="1.5" />
     </ActionWrapper>
 </template>

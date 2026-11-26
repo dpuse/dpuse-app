@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowRightIcon, PlusIcon } from '@lucide/vue';
 import { computed, onUnmounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { MoveRightIcon, PlusIcon } from '@lucide/vue';
 import { useConfirmDialog, useElementSize } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -227,7 +227,7 @@ function pickConnection(connectionId: string): void {
                 <PillSegment
                     :disabled="pickedConnectionId == null"
                     :disabled-reason="t(TEXT, 'detail.select.disabled.text')"
-                    :icon="ArrowRightIcon"
+                    :icon="MoveRightIcon"
                     :is-label-hidden="actionLabelsAreHidden"
                     is-step-action
                     :label="t(TEXT, 'detail.select.label')"

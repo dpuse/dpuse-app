@@ -72,6 +72,18 @@ const cardId = useId(); // Prefixes the ids of the actions' descriptions, which 
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const compactRowIsSelected = computed(() => isCompact && selected && !isDisabled);
+
+// A selected compact row is marked as most design systems mark a selected nav item: the selected tint, as on selected
+// cards and table rows, with its label in the darker emphasis colour. Not a blue label, because blue text means a link.
+// Hover is a light grey, so it never looks like a selection. The list insets each row 8px from both its edges, and the
+// row has a small radius, so the fill never runs into the panes and headers around it.
+const compactRowClass = computed((): string => {
+    if (isDisabled) return 'border-transparent';
+    if (selected) return ['border-transparent state-selected', isInert ? '' : 'hover:state-selected-hover active:state-press'].join(' ');
+    return 'border-transparent hover:state-hover-row active:state-press';
+});
+
 const iconIsPresent = computed(() => !hidesIcon && [icon ?? config.icon, iconDark ?? config.iconDark].some((svg) => svg != null && svg !== ''));
 
 // Listeners like '@click' from the host land on the card-activation button below rather than on the root, which
@@ -87,16 +99,12 @@ defineOptions({ inheritAttrs: false });
     <div
         class="relative flex size-full border"
         :class="[
-            isCompact ? 'items-center gap-x-2 rounded-md pr-2 pl-1.75' : 'flex-col gap-y-3 rounded-lg p-3', // 'pl-1.75' with the 1px border puts the icon on the 8px the row is inset by.
-            // Compact is a plain list row rather than a boxed card: no border, and no fill until hovered. A selected row
-            // is marked by its bar alone, as the rail's current option is. The border stays, transparent, so a row is the
-            // same size in every state. Hover and press are layers over the card's own fill, as everywhere else in the app.
+            isCompact ? 'items-center gap-x-2 rounded pr-2 pl-1.75' : 'flex-col gap-y-3 rounded-lg p-3', // 'pl-1.75' with the 1px border puts the icon on the 8px the row is inset by.
+            // Compact is a plain list row rather than a boxed card: no border, and no fill until hovered or selected, as
+            // 'compactRowClass' says. The border stays, transparent, so a row is the same size in every state. Hover and
+            // press are layers over the card's own fill, as everywhere else in the app.
             isCompact
-                ? isDisabled
-                    ? 'border-transparent'
-                    : selected
-                      ? ['border-transparent', { 'hover:state-hover active:state-press': !isInert }]
-                      : 'border-transparent hover:state-hover active:state-press'
+                ? compactRowClass
                 : selected
                   ? ['border-selected-border bg-card state-selected', { 'hover:state-selected-hover': !isInert }]
                   : 'border-separator bg-card hover:border-boundary-hover hover:state-hover active:state-press dark:border-zinc-600 dark:hover:border-zinc-500'
@@ -115,15 +123,6 @@ defineOptions({ inheritAttrs: false });
             :title="config.label"
             :to="to"
             v-bind="$attrs"
-        />
-
-        <!-- Selected Bar ─ A compact row has no border or fill to show it is selected, so a bar in the text colour, as
-             tall as the row, marks it. Not blue, because blue means a link. '-left-2.25' moves it past the row's 8px
-             inset and 1px border onto the list's edge, where the rail's bar also sits. -->
-        <span
-            v-if="isCompact && selected && !isDisabled"
-            aria-hidden="true"
-            class="pointer-events-none absolute inset-y-0 -left-2.25 w-0.5 bg-content"
         />
 
         <!-- Header ─ One line only: the label truncates rather than wraps, because the card cannot grow. -->
@@ -148,8 +147,12 @@ defineOptions({ inheritAttrs: false });
                     <span class="min-w-0 truncate">{{ overline }}</span>
                 </div>
 
-                <!-- Label ─ Medium weight above details, so it still leads the details text just below it. -->
-                <div class="min-w-0 truncate leading-tight text-content" :class="{ 'font-medium': $slots.details }">{{ config.label }}</div>
+                <!-- Label ─ Medium weight above details, so it still leads the details text just below it. A selected
+                     compact row has its label in the darker emphasis colour, not blue, because blue text means a link. The
+                     weight stays the same, so a selected name never widens or truncates at a different point. -->
+                <div class="min-w-0 truncate leading-tight" :class="compactRowIsSelected ? 'text-emphasis' : ['text-content', { 'font-medium': $slots.details }]">
+                    {{ config.label }}
+                </div>
 
                 <!-- Details -->
                 <div v-if="!isCompact && $slots.details" class="mt-1 min-w-0 text-sm leading-4.5 text-muted">
@@ -208,7 +211,7 @@ defineOptions({ inheritAttrs: false });
                         :class="ROUND_ACTION_CLASSES"
                         @click="action.onClick(config)"
                     >
-                        <TrashIcon aria-hidden="true" class="size-4 pointer-coarse:size-5" :stroke-width="1.25" />
+                        <TrashIcon aria-hidden="true" class="size-4 pointer-coarse:size-5" :stroke-width="1.75" />
                     </ActionWrapper>
 
                     <!-- Open, ending in the same arrow as the open button at the foot of the detail panel, because it does the
@@ -220,7 +223,7 @@ defineOptions({ inheritAttrs: false });
                         :class="ROUND_ACTION_CLASSES"
                         @click="action.onClick(config)"
                     >
-                        <ArrowRightIcon aria-hidden="true" class="size-4 text-accent pointer-coarse:size-5" :stroke-width="2" />
+                        <ArrowRightIcon aria-hidden="true" class="size-4 text-accent pointer-coarse:size-5" :stroke-width="1.75" />
                     </ActionWrapper>
 
                     <ActionWrapper
@@ -230,7 +233,7 @@ defineOptions({ inheritAttrs: false });
                         :class="ROUND_ACTION_CLASSES"
                         @click="action.onClick(config)"
                     >
-                        <InfoIcon aria-hidden="true" class="size-4 pointer-coarse:size-5" :stroke-width="1.25" />
+                        <InfoIcon aria-hidden="true" class="size-4 pointer-coarse:size-5" :stroke-width="1.75" />
                     </ActionWrapper>
                 </template>
 

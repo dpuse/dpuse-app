@@ -74,7 +74,7 @@ describe('TaskLayout', () => {
         const wrapper = await mountLayout({ taskItems: TASK_ITEMS, tasksArePending: true, trail: { items: [{ id: 'connection', label: 'Work' }], label: 'Trail' } });
 
         expect(wrapper.get('[data-region="TaskBar"]').classes()).toContain('invisible');
-        expect(wrapper.get('[data-region="TaskTrail"]').element.parentElement?.classList).toContain('invisible');
+        expect(wrapper.get('[data-region="TaskTrail"]').element.closest('.invisible')).not.toBeNull();
         expect(wrapper.get('[data-region="TabBar"]').classes()).not.toContain('invisible');
     });
 });

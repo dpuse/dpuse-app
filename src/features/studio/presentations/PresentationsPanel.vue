@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import DOMPurify from 'dompurify';
-import { useRoute } from 'vue-router';
 import { computed, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue';
 
 // ── DPUse Framework
@@ -40,7 +39,6 @@ const presenterByPresentationReference = new WeakMap<LocalisedReference<Componen
 const renderFailure = shallowRef<AppFailure | undefined>();
 const renderIsPending = ref(false); // The detail is blank while the presenter draws, so the wait is shown.
 
-const route = useRoute();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -141,7 +139,7 @@ async function loadPresenters(): Promise<void> {
 <template>
     <StudioLayout>
         <!-- Header -->
-        <StudioHeader class="flex-none px-page" :overline="t(TEXT, 'studio.label')" :title="t(TEXT, 'explorePresentations.title')" :to="{ name: 'studio', query: route.query }" />
+        <StudioHeader class="flex-none px-page" :title="t(TEXT, 'explorePresentations.title')" />
 
         <!-- Body -->
         <Separator />

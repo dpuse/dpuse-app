@@ -275,12 +275,13 @@ function resolveSheetPosition(steps: number): DetailPosition {
                         <!-- Selected Item, or No Selection ─ Keyed on the item, so each new selection fades in. The old
                              detail fades out quickly first, as route views do, so it does not vanish in a flash. The
                              comments stay out here because a comment between the branches would sit inside the
-                             transition. -->
+                             transition. The empty message is set down with padding, not a margin, because a top margin
+                             would collapse through the full-height box around it and push that box off the page. -->
                         <Transition name="dpuse-action-fade" mode="out-in">
                             <div v-if="selectedItem" :key="selectedItem.id" class="relative flex h-full min-h-0 flex-col">
                                 <slot name="detail" :item="selectedItem" :close="handleCloseDetail" />
                             </div>
-                            <div v-else key="noSelection" class="mx-page mt-6">
+                            <div v-else key="noSelection" class="mx-page pt-6">
                                 <slot name="no-selection" />
                             </div>
                         </Transition>

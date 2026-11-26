@@ -45,7 +45,7 @@ const shownColumnRows = computed(() => (rowLimit == null ? columnRows.value : co
                     <td class="py-1 pr-4">{{ columnRow.label }}</td>
                     <td class="py-1 pr-4">
                         <span class="flex items-center gap-x-1.5">
-                            <component :is="columnIcons[index]?.dataTypeIcon" aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
+                            <component :is="columnIcons[index]?.dataTypeIcon" aria-hidden="true" class="size-4 flex-none text-muted" :stroke-width="1.75" />
                             {{ columnRow.dataTypeLabel }}
                         </span>
                     </td>
@@ -54,7 +54,7 @@ const shownColumnRows = computed(() => (rowLimit == null ? columnRows.value : co
                          Safari scrolls the whole page sideways. -->
                     <td v-if="columnRow.dataSubtypeLabel" class="py-1 pr-4">
                         <span class="flex items-center gap-x-1.5">
-                            <component :is="columnIcons[index]?.dataSubtypeIcon" aria-hidden="true" class="size-[1.25em] flex-none text-muted" />
+                            <component :is="columnIcons[index]?.dataSubtypeIcon" aria-hidden="true" class="size-4 flex-none text-muted" :stroke-width="1.75" />
                             {{ columnRow.dataSubtypeLabel }}
                         </span>
                     </td>

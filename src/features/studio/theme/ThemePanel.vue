@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// ── External Dependencies & Registrations
-import { useRoute } from 'vue-router';
-
 // ── Local Framework
 import { appearanceIsDark } from '@/state/appearance';
 import { parseThemeTokens } from './_themeTokens';
@@ -33,24 +30,18 @@ const STATE_LAYERS = [
     { id: 'hover', className: 'state-hover' },
     { id: 'press', className: 'state-press' },
     { id: 'selected', className: 'state-selected' },
-    { id: 'selectedHover', className: 'state-selected-hover' },
-    { id: 'selectedIcon', className: 'state-selected-icon' },
-    { id: 'selectedIconHover', className: 'state-selected-icon-hover' }
+    { id: 'selectedHover', className: 'state-selected-hover' }
 ] as const;
 const STATE_SURFACES = [
     { id: 'backdrop', className: 'bg-backdrop' },
     { id: 'surface', className: 'bg-surface' },
     { id: 'card', className: 'bg-card' }
 ] as const;
-
-// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const route = useRoute();
 </script>
 
 <template>
     <StudioLayout>
-        <StudioHeader class="flex-none px-page" :overline="t(TEXT, 'studio.label')" :title="t(TEXT, 'theme.title')" :to="{ name: 'studio', query: route.query }" />
+        <StudioHeader class="flex-none px-page" :title="t(TEXT, 'theme.title')" />
 
         <Separator />
 

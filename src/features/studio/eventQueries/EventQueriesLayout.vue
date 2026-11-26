@@ -82,9 +82,7 @@ watch(workspaceStoreId, (_newWorkspaceStoreId, oldWorkspaceStoreId) => {
 <template>
     <TaskLayout
         :current-view-id="String(route.name)"
-        :overline="t(TEXT, 'studio.label')"
         :title="t(TEXT, 'contextualiseData.title')"
-        :to="{ name: 'studio', query: route.query }"
         :trail="trail"
         :view-items="viewItems"
         :views-label="t(TEXT, 'views.aria')"

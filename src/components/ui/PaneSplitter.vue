@@ -228,7 +228,7 @@ function moveToPreset(percent: number): void {
             @click="handleMoveLeft"
             @mousedown.prevent
         >
-            <ChevronLeftIcon class="size-4 pointer-coarse:size-5" />
+            <ChevronLeftIcon class="size-4 pointer-coarse:size-5" :stroke-width="1.75" />
         </button>
         <button
             :aria-label="t(TEXT, 'moveRight.aria')"
@@ -238,7 +238,7 @@ function moveToPreset(percent: number): void {
             @click="handleMoveRight"
             @mousedown.prevent
         >
-            <ChevronRightIcon class="size-4 pointer-coarse:size-5" />
+            <ChevronRightIcon class="size-4 pointer-coarse:size-5" :stroke-width="1.75" />
         </button>
     </div>
 </template>

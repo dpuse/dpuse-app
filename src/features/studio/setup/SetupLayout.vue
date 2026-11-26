@@ -54,7 +54,7 @@ function handleSelectTab(setupTabItem: { id: string }): void {
 <template>
     <StudioLayout>
         <!-- Header -->
-        <StudioHeader :overline="t(TEXT, 'studio.label')" :title="t(TEXT, 'manageSetup.title')" :to="{ name: 'studio', query: route.query }" />
+        <StudioHeader :title="t(TEXT, 'manageSetup.title')" />
 
         <!-- Tab Bar -->
         <TabBar :active-id="activeSetupOptionLocalisedConfig.id" :aria-label="t(TEXT, 'sections.aria')" :items="setupTabItems" @select="handleSelectTab">

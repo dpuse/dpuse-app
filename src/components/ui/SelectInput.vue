@@ -140,7 +140,7 @@ const toneClass = computed(() => (tone ? TONE_CLASSES[tone] : undefined));
                 aria-hidden="true"
                 class="pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted"
                 :class="isCompact ? 'right-1.5 size-3.5' : 'right-2.5 size-4'"
-                :stroke-width="1.5"
+                :stroke-width="2"
             />
         </div>
         <span v-if="description" :id="descriptionId" class="sr-only">{{ description }}</span>

@@ -58,6 +58,7 @@
 @theme inline {
     --color-backdrop: var(--backdrop); /* Sidebar (secondary) background */
     --color-surface: var(--surface); /* Content (primary) background */
+    --color-surface-muted: var(--surface-muted); /* The one light grey for what is set apart: column headers and empty cells */
     --color-tab-bar: var(--tab-bar); /* Row behind a table's column tabs */
     --color-card: var(--card); /* ConfigCard background */
     --color-card-hover: var(--card-hover); /* ConfigCard background (hover) */
@@ -123,6 +124,7 @@
        navigation, menu choices. The fills are drawn as layers by the 'state-*' utilities in 'main.css'. */
     --color-selected-text: var(--selected-text);
     --color-selected-border: var(--selected-border);
+    --color-option-mark: var(--option-mark); /* The bar under a selected tab */
 
     /* Floating pill ─ the page's primary action. Solid, because it floats over content that would show through a
        translucent fill. */
@@ -143,7 +145,8 @@
     --boundary: var(--color-zinc-100);
     --boundary-hover: var(--color-zinc-300);
     --separator: var(--color-zinc-200);
-    --tab-bar: var(--color-zinc-100); /* A step darker than the backdrop, so the white selected tab stands out. */
+    --surface-muted: var(--color-zinc-100); /* A step darker than the backdrop. */
+    --tab-bar: var(--surface-muted); /* So the white selected tab stands out. */
     --overlay: color-mix(in srgb, var(--color-zinc-200) 75%, transparent);
     /* Primary text dark grey (about 10:1 on white), two steps below emphasis so headings stand out; muted is the
        secondary step down. */
@@ -176,7 +179,7 @@
     --blank-value: var(--color-amber-500);
     --null-value: var(--color-violet-400);
     --blank-tint: color-mix(in srgb, var(--blank-value) 18%, transparent);
-    --empty-tint: color-mix(in srgb, var(--subtle) 12%, transparent);
+    --empty-tint: var(--surface-muted); /* The same grey as the column headers. */
     --invalid-tint: color-mix(in srgb, var(--danger-text) 10%, transparent);
     --null-tint: color-mix(in srgb, var(--null-value) 15%, transparent);
     --series-1: #2a78d6;
@@ -206,12 +209,20 @@
     /* Light mode states. Translucent, so one value reads the same over white panes, the grey rail and tinted cards. */
     --hover: color-mix(in srgb, black 5%, transparent);
     --press: color-mix(in srgb, black 10%, transparent);
-    --selected: color-mix(in srgb, var(--color-blue-500) 8%, transparent);
-    --selected-hover: color-mix(in srgb, var(--color-blue-500) 12%, transparent);
-    --selected-icon: color-mix(in srgb, black 4%, transparent); /* Grey, because a blue fill clashes with coloured icons. */
-    --selected-icon-hover: color-mix(in srgb, black 6%, transparent);
+    /* A selection is a tint of the colour of the studio option on screen, which 'useStudioOptionTint' sets as
+       '--option-color' on the page's root: blue in Data Views, gold in Contextualise Data, teal in Presentations and Data
+       Apps. Grey in Setup, whose icon is grey, and wherever no option is on screen. Grey has no '--option-color', which
+       leaves each '-tint' value invalid, so its 'var()' falls back to a lighter grey: a grey as strong as the tints
+       reads as too dark. */
+    --selected-tint: color-mix(in srgb, var(--option-color) 14%, transparent);
+    --selected-hover-tint: color-mix(in srgb, var(--option-color) 19%, transparent);
+    --selected-border-tint: color-mix(in srgb, var(--option-color) 40%, var(--surface));
+    --selected: var(--selected-tint, color-mix(in srgb, black 6%, transparent));
+    --selected-hover: var(--selected-hover-tint, color-mix(in srgb, black 9%, transparent));
+    --hover-row: color-mix(in srgb, black 3%, transparent); /* A light grey for rail options and list rows, so a hovered row never looks like the tinted selection. */
     --selected-text: var(--color-blue-700);
-    --selected-border: var(--color-blue-200);
+    --option-mark: var(--option-color, var(--content)); /* Marks where the user is at full strength, as the selected tint does faintly: the studio option's colour, or the text colour where it has none. Follows dark mode through '--content'. */
+    --selected-border: var(--selected-border-tint, var(--color-zinc-300)); /* Edge of a selected card, in its fill's colour. */
     --pill: var(--color-blue-50);
     --pill-hover: var(--color-blue-100);
     --pill-border: var(--color-blue-200);
@@ -228,7 +239,8 @@
     --boundary: var(--color-zinc-800);
     --boundary-hover: var(--color-zinc-600);
     --separator: var(--color-zinc-700);
-    --tab-bar: var(--color-zinc-800); /* A step lighter than the backdrop, so the near-black selected tab stands out. */
+    --surface-muted: var(--color-zinc-800); /* A step lighter than the backdrop. */
+    --tab-bar: var(--surface-muted); /* So the near-black selected tab stands out. */
     --overlay: color-mix(in srgb, black 60%, transparent); /* Dims the near-black page; a grey scrim lightened it. */
     --content: var(--color-zinc-300); /* NOTE: Also 'index.html'. */
     --muted: var(--color-zinc-400);
@@ -255,7 +267,7 @@
     --blank-value: var(--color-amber-500);
     --null-value: var(--color-violet-400);
     --blank-tint: color-mix(in srgb, var(--blank-value) 18%, transparent);
-    --empty-tint: color-mix(in srgb, var(--subtle) 20%, transparent);
+    --empty-tint: var(--surface-muted);
     --invalid-tint: color-mix(in srgb, var(--danger-text) 22%, transparent);
     --null-tint: color-mix(in srgb, var(--null-value) 22%, transparent);
     --series-1: #3987e5;
@@ -285,12 +297,15 @@
     /* Dark mode states. */
     --hover: color-mix(in srgb, white 8%, transparent);
     --press: color-mix(in srgb, white 14%, transparent);
-    --selected: color-mix(in srgb, white 12%, transparent); /* Grey, because a blue fill on near-black reads as muddy. */
-    --selected-hover: color-mix(in srgb, white 16%, transparent);
-    --selected-icon: var(--selected);
-    --selected-icon-hover: var(--selected-hover);
+    --selected-tint: color-mix(in srgb, var(--option-color) 24%, transparent); /* Stronger than in light mode, because a tint shows less on near-black. */
+    --selected-hover-tint: color-mix(in srgb, var(--option-color) 30%, transparent);
+    --selected-border-tint: color-mix(in srgb, var(--option-color) 55%, var(--surface));
+    --selected: var(--selected-tint, color-mix(in srgb, white 12%, transparent));
+    --selected-hover: var(--selected-hover-tint, color-mix(in srgb, white 16%, transparent));
+    --hover-row: var(--hover); /* Already lighter than the selected fill. */
     --selected-text: var(--color-blue-200);
-    --selected-border: var(--color-blue-700);
+    --option-mark: var(--option-color, var(--content));
+    --selected-border: var(--selected-border-tint, var(--color-zinc-600));
     --pill: var(--color-zinc-700); /* Neutral, because a dark blue reads as muddy navy on the near-black surface. */
     --pill-hover: var(--color-zinc-600);
     --pill-border: var(--color-zinc-600);

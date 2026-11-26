@@ -84,7 +84,7 @@ const nullWordsLabel = computed(() => t(TEXT, 'nullWords.label', { count: new In
                 data-region="ColumnMenu"
                 :title="buttonLabel"
             >
-                <component :is="typeIcon" aria-hidden="true" class="size-[1.25em] flex-none" />
+                <component :is="typeIcon" aria-hidden="true" class="size-4 flex-none" :stroke-width="1.75" />
                 <span v-if="isTypeChosen" aria-hidden="true" class="absolute top-0.5 right-0.5 size-2 rounded-full bg-muted" />
             </ActionWrapper>
         </template>

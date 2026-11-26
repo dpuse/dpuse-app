@@ -9,8 +9,8 @@ import { useStudioOptions } from './useStudioOptions';
 import { isPWA, isSafariBrowser } from '@/state/device';
 
 // ── Static Components
+import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
-import IconButton from '@/components/ui/action/IconButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import Separator from '@/components/ui/Separator.vue';
 import StudioHomeIcon from '@/components/icons/StudioHomeIcon.vue';
@@ -46,6 +46,12 @@ const hasTopEdgeLine = isPWA || isSafariBrowser();
 function handleComplete(): void {
     emit('continue');
 }
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function constructOptionStateClass(optionId: string): string {
+    return optionId === selectedOptionId.value ? 'state-selected hover:state-selected-hover active:state-press' : 'hover:state-hover-row active:state-press';
+}
 </script>
 
 <template>
@@ -60,31 +66,35 @@ function handleComplete(): void {
 
         <!-- Studio options scroller -->
         <ScrollArea class="flex-1" :scroll-area-padding-right="0">
-            <div class="flex flex-col items-center gap-y-2 py-2">
-                <!-- Current Option Bar ─ A bar in the text colour at the rail's edge, as tall as the option, marks the
-                     current option without a fill. Not blue, because blue means a link. The row is positioned so the bar stays inside the scroller. -->
-                <div class="relative flex w-full justify-center">
-                    <span v-if="selectedOptionId === 'home'" aria-hidden="true" class="absolute inset-y-0 left-0 w-0.5 bg-content" />
-                    <IconButton
-                        :accessible-label="t(TEXT, 'home.aria')"
+            <div class="flex flex-col gap-y-2 py-2">
+                <!-- Options ─ Each option is inset 8px from both sides of the rail, with a small radius, as a compact list row is,
+                     so its hover and selected fills never run into the panes beside it. The current option has the
+                     selected tint, which is its own colour, as selected list rows, cards and table rows do. Hover is a
+                     light grey. -->
+                <div class="flex w-full px-2">
+                    <ActionWrapper
                         :aria-current="selectedOptionId === 'home' ? 'page' : undefined"
+                        :aria-label="t(TEXT, 'home.aria')"
+                        class="flex w-full justify-center rounded p-2.25 dark:text-content [&_svg]:size-5.5"
+                        :class="constructOptionStateClass('home')"
                         :to="{ name: 'studio', query: $route.query }"
                         @click="handleComplete"
                     >
                         <StudioHomeIcon aria-hidden="true" />
-                    </IconButton>
+                    </ActionWrapper>
                 </div>
 
-                <div v-for="config in workflowOptionConfigs" :key="config.id" class="relative flex w-full justify-center">
-                    <span v-if="selectedOptionId === config.id" aria-hidden="true" class="absolute inset-y-0 left-0 w-0.5 bg-content" />
-                    <IconButton
-                        :accessible-label="config.label"
+                <div v-for="config in workflowOptionConfigs" :key="config.id" class="flex w-full px-2">
+                    <ActionWrapper
                         :aria-current="selectedOptionId === config.id ? 'page' : undefined"
+                        :aria-label="config.label"
+                        class="flex w-full justify-center rounded p-2.25 dark:text-content [&_svg]:size-5.5"
+                        :class="constructOptionStateClass(config.id)"
                         :to="{ name: config.id, query: $route.query }"
                         @click="handleComplete"
                     >
                         <ConfigIcon class="size-5.5" :icon="config.icon" :icon-dark="config.iconDark" />
-                    </IconButton>
+                    </ActionWrapper>
                 </div>
             </div>
         </ScrollArea>

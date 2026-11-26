@@ -32,7 +32,7 @@ function handleClear(): void {
         <!-- Leading, and decorative: the magnifier says what the field is, which the field's own label already says to
              anyone not reading the screen. An icon at the other end would read as a submit, and there is nothing to
              submit — results follow the query as it is typed. -->
-        <SearchIcon aria-hidden="true" class="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-subtle" :stroke-width="1.5" />
+        <SearchIcon aria-hidden="true" class="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-subtle" :stroke-width="1.75" />
 
         <!-- An 'input' rather than a textarea: one line of value, announced as one. Enter needs no handler because
              there is no form here to submit to, and 'enterkeyhint' labels the key on a soft keyboard accordingly.
@@ -56,7 +56,7 @@ function handleClear(): void {
             size="sm"
             @click="handleClear"
         >
-            <XIcon class="size-3.5!" :stroke-width="1.5" />
+            <XIcon class="size-3.5!" :stroke-width="2" />
         </IconButton>
     </div>
 </template>

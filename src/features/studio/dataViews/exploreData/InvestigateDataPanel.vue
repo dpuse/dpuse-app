@@ -320,7 +320,9 @@ const itemReading = computed((): ItemReading | undefined => {
     return { ...readingConfig, ...sampleConfig, columnConfigs: readingColumnConfigs };
 });
 const detailColumnIndexes = computed(() =>
-    columnConfigs.value.map((columnConfig, index) => (isDerivedColumn(columnConfig) || ignoredColumnIndexes.value.has(index) ? undefined : index)).filter((index) => index !== undefined)
+    columnConfigs.value
+        .map((columnConfig, index) => (isDerivedColumn(columnConfig) || ignoredColumnIndexes.value.has(index) ? undefined : index))
+        .filter((index) => index !== undefined)
 ); // A derived column only holds values for another, and an ignored one was not loaded.
 // What each column's values are, for the bar on its tab. From the audit, so the bar says how many records it covers.
 const columnValueCounts = computed(() => (itemReading.value == null ? [] : constructColumnValueCounts(itemReading.value)));
@@ -728,7 +730,9 @@ function constructRecordsText(recordCount: number): string {
 
 function constructRunningLoadText(records: string, percentageText: string | undefined): string {
     const duration = formatElapsedDuration(loadElapsedDuration.value);
-    return percentageText == null ? t(TEXT, 'load.running.text', { duration, records }) : t(TEXT, 'load.running.percentage.text', { duration, percentage: percentageText, records });
+    return percentageText == null
+        ? t(TEXT, 'load.running.text', { duration, records })
+        : t(TEXT, 'load.running.percentage.text', { duration, percentage: percentageText, records });
 }
 
 function constructStoppedLoadText(records: string, percentageText: string | undefined): string {
@@ -741,7 +745,9 @@ function constructStoppedLoadText(records: string, percentageText: string | unde
 function constructLoadedText(recordCount: number, duration: number | undefined): string {
     const records = constructRecordsText(recordCount);
     const countId = constructCountId(recordCount);
-    return duration == null ? t(TEXT, `load.untimed.${countId}.text`, { records }) : t(TEXT, `load.complete.${countId}.text`, { duration: formatFinishedDuration(duration), records });
+    return duration == null
+        ? t(TEXT, `load.untimed.${countId}.text`, { records })
+        : t(TEXT, `load.complete.${countId}.text`, { duration: formatFinishedDuration(duration), records });
 }
 
 // Which form of a message fits the count: none, one, or more than one.
@@ -811,7 +817,7 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                             class="inline-flex items-center gap-x-1 text-accent hover:underline"
                             @click="handleToggleTransform"
                         >
-                            <SlidersHorizontalIcon aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
+                            <SlidersHorizontalIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
                             {{ t(TEXT, 'transform.label') }}
                         </ActionWrapper>
                         <!-- Store ─ Shows where the records are, in italics while it is the default no one chose. A menu of the
@@ -825,17 +831,17 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                                     :aria-label="t(TEXT, 'store.aria', { label: currentStoreConfig?.label ?? '' })"
                                     class="inline-flex items-center gap-x-1 text-accent hover:underline"
                                 >
-                                    <span class="flex size-4.5 flex-none">
+                                    <span class="flex size-5 flex-none">
                                         <ConfigIcon class="size-full" :icon="currentStoreConfig?.icon" :icon-dark="currentStoreConfig?.iconDark" />
                                     </span>
                                     <span :class="{ italic: storeIsAuto }">{{ currentStoreConfig?.label }}</span>
-                                    <ChevronDownIcon aria-hidden="true" class="size-3.5 flex-none" :stroke-width="1.5" />
+                                    <ChevronDownIcon aria-hidden="true" class="size-3.5 flex-none" :stroke-width="2" />
                                 </ActionWrapper>
                             </template>
                             <Menu.Content :label="t(TEXT, 'load.again.store.aria')" placement="bottom-end">
                                 <Menu.Item :is-checked="storeIsAuto" kind="radio" @select="handleChooseStore()">
                                     <template #icon>
-                                        <span class="flex size-4.5 flex-none">
+                                        <span class="flex size-5 flex-none">
                                             <ConfigIcon class="size-full" :icon="defaultStoreConfig?.icon" :icon-dark="defaultStoreConfig?.iconDark" />
                                         </span>
                                     </template>
@@ -851,7 +857,7 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                                     @select="handleChooseStore(storeConfig.id)"
                                 >
                                     <template #icon>
-                                        <span class="flex size-4.5 flex-none">
+                                        <span class="flex size-5 flex-none">
                                             <ConfigIcon
                                                 class="size-full"
                                                 :class="{ 'opacity-60 grayscale': storeConfig.isPlanned }"
@@ -866,7 +872,7 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                         </Menu.Root>
                         <!-- With one store there is no choice, so it only shows where the records are. -->
                         <span v-else-if="currentStoreConfig" class="inline-flex items-center gap-x-1 text-muted">
-                            <span class="flex size-4.5 flex-none">
+                            <span class="flex size-5 flex-none">
                                 <ConfigIcon class="size-full" :icon="currentStoreConfig.icon" :icon-dark="currentStoreConfig.iconDark" />
                             </span>
                             {{ currentStoreConfig.label }}
@@ -937,7 +943,7 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                             :aria-label="t(TEXT, 'transform.title')"
                             class="pointer-events-auto absolute inset-0 flex flex-col bg-surface shadow-md"
                         >
-                            <header class="flex h-10 flex-none items-center gap-x-3 border-b border-separator px-page text-xs">
+                            <header class="flex h-10 flex-none items-center gap-x-3 border-b border-separator px-page text-sm">
                                 <h2 class="m-0 mr-auto text-sm font-medium text-emphasis">{{ t(TEXT, 'transform.title') }}</h2>
                                 <!-- TODO: Apply stays dimmed until the query is wired up, because there is no change to apply yet. -->
                                 <ActionWrapper class="text-accent enabled:hover:underline" disabled>{{ t(TEXT, 'transform.apply.label') }}</ActionWrapper>
@@ -948,9 +954,9 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                         </section>
                     </Transition>
                 </div>
-                <!-- Column Detail ─ Slides down from under the column names, 74px down past the 40px toolbar and the 34px
+                <!-- Column Detail ─ Slides down from under the column names, 76px down past the 40px toolbar and the 36px
                      tab row, so the tabs stay in reach and another one can be chosen, as on the item step. -->
-                <div class="pointer-events-none absolute inset-x-0 top-18.5 bottom-0 z-10 overflow-hidden">
+                <div class="pointer-events-none absolute inset-x-0 top-19 bottom-0 z-10 overflow-hidden">
                     <Transition name="dpuse-slide-down">
                         <ColumnDetail
                             v-if="selectedColumnIndex != null && itemReading != null"
@@ -1006,7 +1012,7 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                 <span class="sr-only">{{ loadStatus.text }}</span>
             </template>
             <template v-if="investigateState.typeId === 'ready' && columnsAreFromPartialAudit" #end="{ isShort }">
-                <TriangleAlertIcon aria-hidden="true" class="inline size-3.5 align-middle text-warning-text" :stroke-width="1.5" />
+                <TriangleAlertIcon aria-hidden="true" class="inline size-3.5 align-middle text-warning-text" :stroke-width="2" />
                 <span aria-hidden="true" class="ml-1 text-warning-text">{{ t(TEXT, isShort ? 'load.partialAuditTypes.short.text' : 'load.partialAuditTypes.text') }}</span>
                 <span class="sr-only">{{ t(TEXT, 'load.partialAuditTypes.text') }}</span>
             </template>

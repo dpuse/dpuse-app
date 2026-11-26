@@ -263,9 +263,9 @@ function restoreScroll(): void {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // A tabbed header row has no gap above its tabs, so the selected tab's top border meets the top of the row, as in VS
-// Code's panel tabs. The row is 6px shorter than a plain one, so the tabs keep their height.
+// Code's panel tabs. The row is as tall as a data row, so the header and the rows below form one even grid.
 function constructHeaderRowHeightClass(hasDetail: boolean): string {
-    if (isHeaderTabbed) return hasDetail ? 'h-15.5' : 'h-8.5';
+    if (isHeaderTabbed) return hasDetail ? 'h-16' : 'h-9';
     return hasDetail ? 'h-17' : 'h-10';
 }
 
@@ -282,7 +282,7 @@ function constructHeaderClass(columnId: string): string | undefined {
         <!-- Toolbar ─ 40px high, as the other toolbars on the data view screens are. Positioned, so a control in it can
              open over the whole row. No bottom line over a tabbed header, whose grey row already marks where the table
              starts. -->
-        <div v-if="!isColumnPickerHidden" class="relative flex h-10 flex-none items-center gap-x-3 px-page text-xs" :class="{ 'border-b border-separator': !isHeaderTabbed }">
+        <div v-if="!isColumnPickerHidden" class="relative flex h-10 flex-none items-center gap-x-3 px-page text-sm" :class="{ 'border-b border-separator': !isHeaderTabbed }">
             <!-- '-ml-2' cancels the button's padding, so its icon lines up with the page edge. -->
             <TableColumnPicker class="mr-auto -ml-2" :table="table" />
             <slot name="toolbar-end" />
@@ -297,7 +297,11 @@ function constructHeaderClass(columnId: string): string | undefined {
                     <div ref="header" class="sticky top-0 z-3" role="rowgroup">
                         <div
                             class="flex border-b"
-                            :class="[constructHeaderRowHeightClass($slots['header-detail'] != null), headerBackgroundClass, isHeaderTabbed ? 'border-separator' : 'border-boundary']"
+                            :class="[
+                                constructHeaderRowHeightClass($slots['header-detail'] != null),
+                                headerBackgroundClass,
+                                isHeaderTabbed ? 'border-separator' : 'border-boundary'
+                            ]"
                             :style="{ minWidth: contentMinWidth }"
                             role="row"
                         >
@@ -308,9 +312,17 @@ function constructHeaderClass(columnId: string): string | undefined {
                                 v-for="leftLeafHeader in leftLeafHeaders"
                                 :key="leftLeafHeader.id"
                                 class="sticky"
-                                :class="[headerBackgroundClass, isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary', constructHeaderClass(leftLeafHeader.column.id)]"
+                                :class="[
+                                    headerBackgroundClass,
+                                    isCollapsedToPinned ? 'min-w-0 flex-1' : 'shrink-0 border-r border-boundary',
+                                    constructHeaderClass(leftLeafHeader.column.id)
+                                ]"
                                 role="columnheader"
-                                :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: isCollapsedToPinned ? undefined : leftLeafHeader.column.getSize() + 'px', zIndex: 2 }"
+                                :style="{
+                                    left: leftLeafHeader.column.getStart('start') + 'px',
+                                    width: isCollapsedToPinned ? undefined : leftLeafHeader.column.getSize() + 'px',
+                                    zIndex: 2
+                                }"
                             >
                                 <TableHeaderCell
                                     :header="leftLeafHeader"
@@ -338,10 +350,20 @@ function constructHeaderClass(columnId: string): string | undefined {
                                     role="columnheader"
                                     :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
                                 >
-                                    <TableHeaderCell :header="centerLeafHeader" :is-first="centerLeafHeader.id === firstLeafHeaderId" :is-menu-hidden="isColumnMenuHidden" :is-resize-hidden="columnResizeIsHidden" :is-selected="centerLeafHeader.column.id === selectedColumnId" :is-tabbed="isHeaderTabbed" @fit-width="handleFitColumn(centerLeafHeader.column.id)">
+                                    <TableHeaderCell
+                                        :header="centerLeafHeader"
+                                        :is-first="centerLeafHeader.id === firstLeafHeaderId"
+                                        :is-menu-hidden="isColumnMenuHidden"
+                                        :is-resize-hidden="columnResizeIsHidden"
+                                        :is-selected="centerLeafHeader.column.id === selectedColumnId"
+                                        :is-tabbed="isHeaderTabbed"
+                                        @fit-width="handleFitColumn(centerLeafHeader.column.id)"
+                                    >
                                         <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="centerLeafHeader.column.id" /></template>
                                         <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="centerLeafHeader.column.id" /></template>
-                                        <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="centerLeafHeader.column.id" /></template>
+                                        <template v-if="$slots['header-label-start']" #label-start
+                                            ><slot name="header-label-start" :column-id="centerLeafHeader.column.id"
+                                        /></template>
                                         <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="centerLeafHeader.column.id" /></template>
                                     </TableHeaderCell>
                                 </div>
@@ -370,8 +392,12 @@ function constructHeaderClass(columnId: string): string | undefined {
                                         <template v-if="$slots['header-label-end']" #label-end
                                             ><slot name="header-label-end" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id"
                                         /></template>
-                                        <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" /></template>
-                                        <template v-if="$slots['header-label']" #label><slot name="header-label" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id" /></template>
+                                        <template v-if="$slots['header-label-start']" #label-start
+                                            ><slot name="header-label-start" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id"
+                                        /></template>
+                                        <template v-if="$slots['header-label']" #label
+                                            ><slot name="header-label" :column-id="centerLeafHeaders[virtualColumn.index]!.column.id"
+                                        /></template>
                                     </TableHeaderCell>
                                 </div>
                             </div>
@@ -385,7 +411,14 @@ function constructHeaderClass(columnId: string): string | undefined {
                                 role="columnheader"
                                 :style="{ right: rightLeafHeader.column.getAfter('end') + 'px', width: rightLeafHeader.column.getSize() + 'px', zIndex: 2 }"
                             >
-                                <TableHeaderCell :header="rightLeafHeader" :is-menu-hidden="isColumnMenuHidden" :is-resize-hidden="columnResizeIsHidden" :is-selected="rightLeafHeader.column.id === selectedColumnId" :is-tabbed="isHeaderTabbed" @fit-width="handleFitColumn(rightLeafHeader.column.id)">
+                                <TableHeaderCell
+                                    :header="rightLeafHeader"
+                                    :is-menu-hidden="isColumnMenuHidden"
+                                    :is-resize-hidden="columnResizeIsHidden"
+                                    :is-selected="rightLeafHeader.column.id === selectedColumnId"
+                                    :is-tabbed="isHeaderTabbed"
+                                    @fit-width="handleFitColumn(rightLeafHeader.column.id)"
+                                >
                                     <template v-if="$slots['header-detail']" #detail><slot name="header-detail" :column-id="rightLeafHeader.column.id" /></template>
                                     <template v-if="$slots['header-label-end']" #label-end><slot name="header-label-end" :column-id="rightLeafHeader.column.id" /></template>
                                     <template v-if="$slots['header-label-start']" #label-start><slot name="header-label-start" :column-id="rightLeafHeader.column.id" /></template>
@@ -421,14 +454,14 @@ function constructHeaderClass(columnId: string): string | undefined {
                                     constructCellClass?.(leftLeafHeader.column.id, vRow.index)
                                 ]"
                                 :title="constructCellTitle?.(leftLeafHeader.column.id, vRow.index)"
-                                :style="{ left: leftLeafHeader.column.getStart('start') + 'px', width: isCollapsedToPinned ? undefined : leftLeafHeader.column.getSize() + 'px', zIndex: 1 }"
+                                :style="{
+                                    left: leftLeafHeader.column.getStart('start') + 'px',
+                                    width: isCollapsedToPinned ? undefined : leftLeafHeader.column.getSize() + 'px',
+                                    zIndex: 1
+                                }"
                             >
                                 <template v-if="$slots['pinned-cell']" #value
-                                    ><slot
-                                        name="pinned-cell"
-                                        :column-id="leftLeafHeader.column.id"
-                                        :row-index="vRow.index"
-                                        :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
+                                    ><slot name="pinned-cell" :column-id="leftLeafHeader.column.id" :row-index="vRow.index" :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
                                 /></template>
                                 <template v-else-if="$slots['cell-value']" #value
                                     ><slot name="cell-value" :column-id="leftLeafHeader.column.id" :row-index="vRow.index" :value="visibleRowData[i]?.[leftLeafHeader.column.id]"
@@ -451,7 +484,11 @@ function constructHeaderClass(columnId: string): string | undefined {
                                     :style="{ width: centerLeafHeader.column.getSize() + 'px' }"
                                 >
                                     <template v-if="$slots['cell-value']" #value
-                                        ><slot name="cell-value" :column-id="centerLeafHeader.column.id" :row-index="vRow.index" :value="visibleRowData[i]?.[centerLeafHeader.column.id]"
+                                        ><slot
+                                            name="cell-value"
+                                            :column-id="centerLeafHeader.column.id"
+                                            :row-index="vRow.index"
+                                            :value="visibleRowData[i]?.[centerLeafHeader.column.id]"
                                     /></template>
                                     <template v-if="$slots['cell-icon']" #icon
                                         ><slot name="cell-icon" :column-id="centerLeafHeader.column.id" :row="visibleRowData[i]" :row-index="vRow.index"
@@ -514,12 +551,7 @@ function constructHeaderClass(columnId: string): string | undefined {
                 :cross-inset-end="horizontalThumb?.visible ? SCROLL_THUMB_CROSS_INSET : 0"
                 :inset-start="headerHeight"
             />
-            <ScrollThumb
-                ref="horizontalThumb"
-                orientation="horizontal"
-                :scroll-element="scrollElement"
-                :cross-inset-end="verticalThumb?.visible ? SCROLL_THUMB_CROSS_INSET : 0"
-            />
+            <ScrollThumb ref="horizontalThumb" orientation="horizontal" :scroll-element="scrollElement" :cross-inset-end="verticalThumb?.visible ? SCROLL_THUMB_CROSS_INSET : 0" />
 
             <TableResizeLine :scroll-element="scrollElement" :table="table" />
         </div>

@@ -101,8 +101,7 @@ const needsReload = computed(() => moduleUpdateIsAvailable.value || failures.som
             <p class="mt-2 text-sm font-semibold wrap-anywhere text-warning-text">{{ entry.main.message }}</p>
 
             <p v-if="entry.cause" class="mt-2 text-sm wrap-anywhere text-warning-text/85">
-                <span class="text-sm font-semibold">{{ t(TEXT, 'cause.label') }}</span
-                >: {{ entry.cause.message }}
+                <span class="text-sm font-semibold">{{ t(TEXT, 'cause.label') }}</span>: {{ entry.cause.message }}
             </p>
 
             <!-- 'overflow-wrap: anywhere' because a trace carries chunk URLs, which have no spaces to break at and
@@ -113,7 +112,7 @@ const needsReload = computed(() => moduleUpdateIsAvailable.value || failures.som
                     class="flex w-fit cursor-pointer list-none items-center gap-1 rounded-md text-sm font-semibold text-warning-text/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring [&::-webkit-details-marker]:hidden"
                 >
                     {{ t(TEXT, 'trace.label') }}:
-                    <ChevronDownIcon class="size-4 transition-transform group-open:rotate-180" />
+                    <ChevronDownIcon class="size-4 transition-transform group-open:rotate-180" :stroke-width="1.75" />
                 </summary>
 
                 <!-- 'list-disc' restored explicitly: the preflight reset strips markers from every list, so the items
@@ -141,7 +140,7 @@ const needsReload = computed(() => moduleUpdateIsAvailable.value || failures.som
              and coloured to say so. Cancel and Retry group on the right, being the two that cost nothing. -->
         <div class="mt-6 flex flex-wrap items-center justify-between gap-2">
             <RectangleButton class="flex items-center" variant="destructive" @click="$emit('reload')">
-                <RefreshCwIcon class="mr-1.5 size-4" />
+                <RefreshCwIcon class="mr-1.5 size-4" :stroke-width="1.75" />
                 {{ t(TEXT, 'reload.label') }}
             </RectangleButton>
 
@@ -158,7 +157,7 @@ const needsReload = computed(() => moduleUpdateIsAvailable.value || failures.som
                      ring is a box-shadow and takes no layout space, where a border would add 2px and leave this button
                      visibly larger than the one beside it. -->
                 <RectangleButton v-if="canRetry" class="flex items-center inset-ring inset-ring-warning-ring/40" variant="guarded" @click="$emit('retry')">
-                    <RepeatIcon class="mr-1.5 size-4" />
+                    <RepeatIcon class="mr-1.5 size-4" :stroke-width="1.75" />
                     {{ t(TEXT, 'retry.label') }}
                 </RectangleButton>
             </div>

@@ -2,6 +2,9 @@
 // ── External Dependencies & Registrations
 import type { RouteLocationRaw } from 'vue-router';
 
+// ── Local Framework
+import { TAB_CLASSES, TAB_SELECTED_CLASSES, TAB_UNSELECTED_CLASSES } from '@/components/ui/action/action';
+
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ScrollRow from '@/components/ui/scroll/ScrollRow.vue';
@@ -21,16 +24,17 @@ defineEmits<{ select: [item: T] }>();
 
 <template>
     <!-- Links in a 'nav' rather than ARIA tabs, because each item opens its own URL. The caller names the 'nav' with
-         'aria-label'. '-mt-1.5' pulls the bar up into the empty space at the bottom of the header above it. -->
+         'aria-label'. '-mt-1.5' pulls the bar up into the empty space at the bottom of the header above it. Each tab pads its
+         label by 6px for its hover fill, so the tabs need no gap, and the first is pulled back to the page edge. -->
     <nav class="-mt-1.5 flex-none" data-region="TabBar">
-        <ScrollRow :is-borderless="isBorderless" keep-active-item-in-view row-class="items-center gap-x-3">
+        <ScrollRow :is-borderless="isBorderless" keep-active-item-in-view row-class="items-center gap-x-px">
             <ActionWrapper
                 v-for="item in items"
                 :key="item.id"
                 :aria-current="activeId === item.id ? 'page' : undefined"
                 :aria-label="item.ariaLabel"
-                class="border-y-2 border-t-transparent py-1"
-                :class="[activeId === item.id ? 'border-b-content text-emphasis' : 'border-b-transparent', item.rightAligned ? 'ml-auto' : '']"
+                class="py-1.5 first:-ml-1.5"
+                :class="[TAB_CLASSES, activeId === item.id ? TAB_SELECTED_CLASSES : TAB_UNSELECTED_CLASSES, item.rightAligned ? 'ml-auto' : '']"
                 :to="item.to"
                 @click="$emit('select', item)"
             >

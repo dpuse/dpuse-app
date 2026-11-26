@@ -19,6 +19,7 @@ interface DataViewTasksOptions {
     currentDataViewId: Readonly<Ref<string | undefined>>; // The data view open in a task. Undefined on the diagram and list.
     dataViewConfig: Readonly<Ref<DataViewConfig | undefined>>;
     dataViewConnectionLocalisedConfig: Readonly<Ref<LocalisedConfig<ConnectionConfig> | undefined>>;
+    draftIsCurrent: Readonly<Ref<boolean>>; // The data view shown is the unsaved draft, whose load is kept apart from the saved one's.
     routeIsTask: Readonly<Ref<boolean>>;
 }
 
@@ -31,7 +32,7 @@ interface DataViewTasks {
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The task bar of a data view: which tasks the user can open, what each is called, and what was chosen in each.
-export function useDataViewTasks({ currentDataViewId, dataViewConfig, dataViewConnectionLocalisedConfig, routeIsTask }: DataViewTasksOptions): DataViewTasks {
+export function useDataViewTasks({ currentDataViewId, dataViewConfig, dataViewConnectionLocalisedConfig, draftIsCurrent, routeIsTask }: DataViewTasksOptions): DataViewTasks {
     const route = useRoute();
 
     // Tasks the user has reached in this visit, which stay open when they go back to an earlier one.
@@ -53,12 +54,15 @@ export function useDataViewTasks({ currentDataViewId, dataViewConfig, dataViewCo
 
     const itemTypeId = computed(() => dataViewConnectionLocalisedConfig.value?.connectorConfig.itemTypeId); // The connector's kind of item, which names the item task.
 
-    // Each task's choice, which screen readers hear with the task.
+    // Each task's choice, which screen readers hear with the task. A task with one shows a tick. Explore Data has one
+    // while its records are loaded and still match the columns, so a change on an earlier task that needs a new load
+    // takes the tick away.
     const taskDetails = computed((): Record<string, string | undefined> => {
         const itemConfig = dataViewConfig.value?.connectionNodeConfig;
         return {
             connection: dataViewConnectionLocalisedConfig.value?.label,
-            item: itemConfig ? `${itemConfig.folderPath}/${itemConfig.label}` : undefined // The folder path and label, as the item step's trail shows them.
+            item: itemConfig ? `${itemConfig.folderPath}/${itemConfig.label}` : undefined, // The folder path and label, as the item step's trail shows them.
+            data: dataViewConfig.value != null && isDataViewLoaded(dataViewConfig.value, draftIsCurrent.value) ? t(TEXT, 'dataTask.loaded.text') : undefined
         };
     });
 

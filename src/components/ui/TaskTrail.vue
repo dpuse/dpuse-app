@@ -47,15 +47,25 @@ function isLabelHidden(item: TaskTrailItem): boolean {
     return item.isLabelHidden === true || (trailIsCompact.value && item.compactIcon != null);
 }
 
-// The last crumb is cut last, so its name stays in view after the ones before it shrink. It reads as text and turns
-// blue only on hover, even as a link. An earlier crumb is blue as a link and muted as text.
+// The last crumb is cut last, so its name stays in view after the ones before it shrink. It names the current item, so
+// it stays in the text colour even as a link, and only an underline on hover shows it can be clicked. An earlier crumb
+// is blue as a link and muted as text. Every link with a name underlines on hover, as the header's back link does,
+// because a slightly darker blue is too small a change to notice. A link shown as its icon alone has no text to
+// underline, so it takes the grey hover fill of an icon button instead, with the same padding and radius as a small
+// 'IconButton'. A matching negative margin cancels the padding, so the fill has room without moving the crumbs. The
+// trail clips its overflow, so long names can be cut short, and is widened by the same 7px on each side with padding
+// and a negative margin, so an icon-only crumb at either end keeps its whole fill.
 function constructItemClasses(item: TaskTrailItem, isLast: boolean): string[] {
     const classes = [isLabelHidden(item) ? 'flex flex-none items-center' : 'flex max-w-full min-w-0 items-center overflow-hidden'];
     if (isLast) classes.push('shrink-0');
     if (isLink(item)) {
         classes.push(
             'cursor-pointer transition-colors focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring',
-            isLast ? 'text-content hover:text-accent' : 'text-accent hover:text-accent-hover'
+            isLabelHidden(item)
+                ? '-m-1.75 rounded-lg p-1.75 hover:state-hover active:state-press'
+                : isLast
+                  ? 'text-content hover:underline hover:decoration-content/40 hover:underline-offset-2'
+                  : 'text-accent hover:text-accent-hover hover:underline hover:decoration-accent-hover/40 hover:underline-offset-2'
         );
     } else if (!isLast) {
         classes.push('text-muted');
@@ -69,7 +79,7 @@ function constructItemClasses(item: TaskTrailItem, isLast: boolean): string[] {
         ref="nav"
         :aria-hidden="hasLinks ? undefined : 'true'"
         :aria-label="label"
-        class="relative flex h-full min-w-0 items-center overflow-hidden"
+        class="relative -mx-1.75 flex h-full min-w-0 items-center overflow-hidden px-1.75"
         data-region="TaskTrail"
         :title="tooltip"
     >
@@ -77,7 +87,7 @@ function constructItemClasses(item: TaskTrailItem, isLast: boolean): string[] {
         <template v-if="back && lastItem">
             <ActionWrapper
                 :aria-label="t(TEXT, 'back.aria', { label: back.label })"
-                class="flex h-10 min-w-0 shrink cursor-pointer items-center gap-x-2 text-accent transition-colors hover:text-accent-hover focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+                class="flex h-10 min-w-0 shrink cursor-pointer items-center gap-x-2 text-muted transition-colors hover:text-content hover:underline hover:decoration-content/40 hover:underline-offset-2 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
                 @click="back.select()"
             >
                 <ArrowLeftIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />

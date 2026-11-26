@@ -73,7 +73,7 @@ function handleClose(): void {
             :title="t(TEXT, 'search.aria')"
             @click="handleOpen"
         >
-            <SearchIcon aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
+            <SearchIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
         </ActionWrapper>
         <div v-if="fieldIsOpen" ref="field" class="absolute inset-0 z-20 flex items-center bg-surface px-page">
             <ComboboxInput
@@ -91,7 +91,7 @@ function handleClose(): void {
                         :aria-label="t(TEXT, 'attention.aria')"
                         class="size-4 flex-none text-warning-text"
                         role="img"
-                        :stroke-width="1.5"
+                        :stroke-width="1.75"
                     />
                 </template>
             </ComboboxInput>

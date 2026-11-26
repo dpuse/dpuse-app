@@ -9,7 +9,6 @@
 // ── External Dependencies & Registrations
 import type { ColumnDef } from '@tanstack/vue-table';
 import {
-    ArrowRightIcon,
     BracesIcon,
     CheckIcon,
     ChevronDownIcon,
@@ -23,6 +22,7 @@ import {
     InfoIcon,
     LanguagesIcon,
     ListTreeIcon,
+    MoveRightIcon,
     RefreshCwIcon,
     RotateCwIcon,
     ScanTextIcon,
@@ -63,8 +63,6 @@ import type {
     DecimalSeparatorId,
     EncodingDetectionConfig,
     EncodingSourceId,
-    GetInfoOptions,
-    GetInfoResult,
     ListNodesOptions,
     ListNodesResult,
     LocalisedConfig,
@@ -148,7 +146,13 @@ import {
 import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from '@/features/studio/dataViews/_components/readingLabels';
 import { constructDataViewConnection, constructItemPath } from '@/features/studio/dataViews/_state/dataViewSummary';
 import { constructFittedColumnWidth, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
-import { constructLoadTimingParts, type DataViewLoadTiming, type DataViewStoreConfig, findDataViewLoadTiming, INVESTIGATE_STORE_CONNECTOR_ID } from '@/features/studio/dataViews/_state/dataViewStore';
+import {
+    constructLoadTimingParts,
+    type DataViewLoadTiming,
+    type DataViewStoreConfig,
+    findDataViewLoadTiming,
+    INVESTIGATE_STORE_CONNECTOR_ID
+} from '@/features/studio/dataViews/_state/dataViewStore';
 import { DATA_FORMAT_ICON_CONFIGS, type DataFormatIconConfig } from '@/features/studio/dataViews/_components/dataFormatIcons';
 import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, useCurrentDataView } from '@/features/studio/dataViews/_state/dataViews';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
@@ -156,6 +160,7 @@ import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage }
 import { holdStore, isStoreConnection, openStore, storeTakeover } from '@/services/storeUse';
 import { listDataViewStoreConfigs, resolveStoreConnectorId } from '@/features/studio/dataViews/_state/dataViewStore';
 import { localeId, t } from '@/state/locale';
+import { TAB_CLASSES, TAB_SELECTED_CLASSES, TAB_UNSELECTED_CLASSES } from '@/components/ui/action/action';
 import { useItemChange, wasItemRefreshRequested } from '@/features/studio/dataViews/_components/itemChange';
 
 // ── Static Components
@@ -577,9 +582,12 @@ const previewLineHighlights = computed(() => {
 const dataFormatOptions = computed<SelectOption[]>(() => {
     const options = DATA_FORMAT_GROUPS.flatMap(({ id: groupId, labelKey }) => {
         const groupLabel = t(TEXT, labelKey);
-        const groupOptions = DATA_FORMAT_CONFIGS.filter(({ id }) => findDataFormatGroupId(id) === groupId).map(
-            ({ id, supportId }): SelectOption => ({ groupLabel, id, isDisabled: supportId === 'planned', label: constructDataFormatLabel(id) })
-        );
+        const groupOptions = DATA_FORMAT_CONFIGS.filter(({ id }) => findDataFormatGroupId(id) === groupId).map(({ id, supportId }): SelectOption => ({
+            groupLabel,
+            id,
+            isDisabled: supportId === 'planned',
+            label: constructDataFormatLabel(id)
+        }));
         return sortOptionsByLabel(groupOptions);
     });
     const detectedText = detectedDataFormatId.value == null ? undefined : constructDataFormatText(detectedDataFormatId.value);
@@ -2409,21 +2417,6 @@ function loadFolderNodes(connectionConfig: LocalisedConfig<ConnectionConfig> | u
 }
 
 const infoString = ref('');
-
-async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void> {
-    try {
-        const activeConnection = await waitForActiveConnectionConfig();
-        const { processRequest } = await establishEngineWorker();
-        const options: GetInfoOptions = { path: constructItemPath(connectionNodeConfig) };
-        const { info } = (await processRequest('getInfo', activeConnection, options)) as GetInfoResult;
-        const infoWithoutChildren = { ...info };
-        delete infoWithoutChildren.children;
-        infoString.value = JSON.stringify(infoWithoutChildren);
-        console.log(infoWithoutChildren);
-    } catch (error) {
-        itemFailure.value = raiseItemFailure('Failed to read this item.', 'dpuse-app.SelectItemPanel.getInfo', error);
-    }
-}
 </script>
 
 <template>
@@ -2460,7 +2453,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <PillSegment
                     :disabled="itemFailure != null || !previewIsSelectable || auditIsRunning"
                     :disabled-reason="exploreDisabledReason"
-                    :icon="ArrowRightIcon"
+                    :icon="MoveRightIcon"
                     is-step-action
                     :label="t(TEXT, 'explore.label')"
                     @click="handleMoveToExploreStep"
@@ -2520,8 +2513,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                     :popovertarget="readChoicesPopoverId"
                     :title="t(TEXT, 'readChoices.aria', { label: item.label })"
                 >
-                    <SlidersHorizontalIcon aria-hidden="true" class="size-4.5 flex-none" />
-                    <ChevronDownIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                    <SlidersHorizontalIcon aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
+                    <ChevronDownIcon aria-hidden="true" class="size-3.5" :stroke-width="2" />
                 </ActionWrapper>
                 <Teleport v-if="previewFormatText" defer :disabled="!readChoicesAreFolded" :to="`#${readChoicesPopoverId}`">
                     <!-- In the row the wrapper takes no box of its own ('contents'), so each select is one of the toolbar's
@@ -2548,7 +2541,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             :options="encodingOptions"
                             :tone="encodingSelectTone"
                         >
-                            <template #icon><LanguagesIcon aria-hidden="true" class="size-4.5 flex-none text-muted" /></template>
+                            <template #icon><LanguagesIcon aria-hidden="true" class="size-5 flex-none text-muted" :stroke-width="1.5" /></template>
                         </SelectInput>
                         <SelectInput
                             v-if="previewFormatText && !readingIsFixed"
@@ -2569,7 +2562,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             <template #icon>
                                 <ConfigIcon
                                     v-if="(previewFormatSupport?.id === 'supported' || previewFormatSupport?.id === 'planned') && previewFormatIconConfig"
-                                    class="size-4.5 flex-none"
+                                    class="size-5 flex-none"
                                     :class="{ 'opacity-60 grayscale': previewFormatSupport.id === 'planned' }"
                                     :icon="previewFormatIconConfig.icon"
                                     :icon-dark="previewFormatIconConfig.iconDark"
@@ -2578,7 +2571,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                     :is="previewFormatSupport.icon"
                                     v-else-if="previewFormatSupport?.icon && previewFormatSupport.id !== 'supported'"
                                     aria-hidden="true"
-                                    class="size-4.5 flex-none"
+                                    class="size-5 flex-none"
                                     :class="previewFormatSupport.colorClass"
                                     :stroke-width="2.5"
                                 />
@@ -2586,7 +2579,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             <!-- Each format's icon in the open list, the same size as the closed select's. The box keeps its
                                  size when there is no icon, so every label lines up. -->
                             <template #option-icon="{ option }">
-                                <span class="flex size-4.5 flex-none">
+                                <span class="flex size-5 flex-none">
                                     <ConfigIcon
                                         class="size-full"
                                         :class="{ 'opacity-60 grayscale': constructDataFormatOptionIcon(option.id).isPlanned }"
@@ -2606,7 +2599,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             :class="readChoiceSelectClass"
                             :title="t(TEXT, 'readSetting.declared.text')"
                         >
-                            <component :is="setting.icon" v-bind="setting.iconProps" aria-hidden="true" class="size-4.5 flex-none text-muted" />
+                            <component :is="setting.icon" v-bind="setting.iconProps" aria-hidden="true" class="size-5 flex-none text-muted" />
                             <span class="sr-only">{{ t(TEXT, setting.labelKey) }}</span>
                             <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ setting.value }}</span>
                         </span>
@@ -2629,14 +2622,14 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             <template #icon>
                                 <ConfigIcon
                                     v-if="findParserToolConfig(resolvedParserId)?.icon ?? findParserToolConfig(resolvedParserId)?.iconDark"
-                                    class="size-4.5 flex-none"
+                                    class="size-5 flex-none"
                                     :icon="findParserToolConfig(resolvedParserId)?.icon"
                                     :icon-dark="findParserToolConfig(resolvedParserId)?.iconDark"
                                 />
-                                <ScanTextIcon v-else aria-hidden="true" class="size-4.5 flex-none text-muted" />
+                                <ScanTextIcon v-else aria-hidden="true" class="size-5 flex-none text-muted" :stroke-width="1.5" />
                             </template>
                             <template #option-icon="{ option }">
-                                <span class="flex size-4.5 flex-none">
+                                <span class="flex size-5 flex-none">
                                     <ConfigIcon
                                         class="size-full"
                                         :class="{ 'opacity-60 grayscale': option.id !== AUTO_OPTION_ID && !isParserUsable(option.id) }"
@@ -2668,7 +2661,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                     is-key-cap
                                     :value-delimiter-id="resolveValueDelimiterId(previewValueDelimiterId)"
                                 />
-                                <SeparatorVerticalIcon v-else aria-hidden="true" class="size-4.5 flex-none text-muted" />
+                                <SeparatorVerticalIcon v-else aria-hidden="true" class="size-5 flex-none text-muted" :stroke-width="1.5" />
                             </template>
                             <template #option-icon="{ option }"><ValueDelimiterIcon :value-delimiter-id="resolveValueDelimiterId(option.id)" /></template>
                         </SelectInput>
@@ -2689,16 +2682,12 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             :tone="selectedHasHeaders == null ? undefined : 'info'"
                         >
                             <template #icon>
-                                <HeadersIcon class="size-4.5 flex-none text-muted" :has-headers="previewHasHeaders" />
+                                <HeadersIcon class="size-5 flex-none text-muted" :has-headers="previewHasHeaders" />
                             </template>
                             <!-- An empty box of the same size stands in on Auto before detection, so the labels line up. -->
                             <template #option-icon="{ option }">
-                                <HeadersIcon
-                                    v-if="resolveHasHeaders(option.id) != null"
-                                    class="size-4.5 flex-none text-muted"
-                                    :has-headers="resolveHasHeaders(option.id) === true"
-                                />
-                                <span v-else aria-hidden="true" class="size-4.5 flex-none" />
+                                <HeadersIcon v-if="resolveHasHeaders(option.id) != null" class="size-5 flex-none text-muted" :has-headers="resolveHasHeaders(option.id) === true" />
+                                <span v-else aria-hidden="true" class="size-5 flex-none" />
                             </template>
                         </SelectInput>
                         <span
@@ -2708,7 +2697,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             :class="readChoiceSelectClass"
                             :title="t(TEXT, 'readSetting.declared.text')"
                         >
-                            <component :is="setting.icon" v-bind="setting.iconProps" aria-hidden="true" class="size-4.5 flex-none text-muted" />
+                            <component :is="setting.icon" v-bind="setting.iconProps" aria-hidden="true" class="size-5 flex-none text-muted" />
                             <span class="sr-only">{{ t(TEXT, setting.labelKey) }}</span>
                             <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ setting.value }}</span>
                         </span>
@@ -2724,7 +2713,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             :title="readChoiceValuesAreHidden ? t(TEXT, 'previewAgain.label') : undefined"
                             @click="handleRetryItem"
                         >
-                            <RefreshCwIcon aria-hidden="true" class="size-4.5 flex-none text-muted" :stroke-width="1.5" />
+                            <RefreshCwIcon aria-hidden="true" class="size-5 flex-none text-muted" :stroke-width="1.5" />
                             <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ t(TEXT, 'previewAgain.label') }}</span>
                         </ActionWrapper>
                         <!-- Audit ─ After the read choices, as it reads the item the way they set, and before the store. Audits again for a
@@ -2739,7 +2728,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 :title="readChoiceValuesAreHidden ? t(TEXT, 'audit.stop.label') : undefined"
                                 @click="stopAudit"
                             >
-                                <CircleStopIcon aria-hidden="true" class="size-4.5 flex-none text-muted" :stroke-width="1.5" />
+                                <CircleStopIcon aria-hidden="true" class="size-5 flex-none text-muted" :stroke-width="1.5" />
                                 <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ t(TEXT, 'audit.stop.label') }}</span>
                             </ActionWrapper>
                             <ActionWrapper
@@ -2750,7 +2739,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 :title="readChoiceValuesAreHidden ? t(TEXT, 'audit.again.label') : undefined"
                                 @click="handleStartAudit(undefined)"
                             >
-                                <RotateCwIcon aria-hidden="true" class="size-4.5 flex-none text-muted" :stroke-width="1.5" />
+                                <RotateCwIcon aria-hidden="true" class="size-5 flex-none text-muted" :stroke-width="1.5" />
                                 <span class="min-w-0 truncate" :class="{ 'sr-only': readChoiceValuesAreHidden }">{{ t(TEXT, 'audit.again.label') }}</span>
                             </ActionWrapper>
                             <AuditMenu
@@ -2761,7 +2750,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                 :is-label-hidden="readChoiceValuesAreHidden"
                                 @select="handleStartAudit"
                             >
-                                <RotateCwIcon aria-hidden="true" class="size-4.5 flex-none text-muted" :stroke-width="1.5" />
+                                <RotateCwIcon aria-hidden="true" class="size-5 flex-none text-muted" :stroke-width="1.5" />
                             </AuditMenu>
                         </template>
                         <!-- Store ─ Last, because it is where the records go once they are read and audited. -->
@@ -2784,14 +2773,14 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             <template #icon>
                                 <ConfigIcon
                                     v-if="findStoreConfig(storeConnectorId)?.icon ?? findStoreConfig(storeConnectorId)?.iconDark"
-                                    class="size-4.5 flex-none"
+                                    class="size-5 flex-none"
                                     :icon="findStoreConfig(storeConnectorId)?.icon"
                                     :icon-dark="findStoreConfig(storeConnectorId)?.iconDark"
                                 />
-                                <DatabaseIcon v-else aria-hidden="true" class="size-4.5 flex-none text-muted" />
+                                <DatabaseIcon v-else aria-hidden="true" class="size-5 flex-none text-muted" :stroke-width="1.5" />
                             </template>
                             <template #option-icon="{ option }">
-                                <span class="flex size-4.5 flex-none">
+                                <span class="flex size-5 flex-none">
                                     <ConfigIcon
                                         class="size-full"
                                         :class="{ 'opacity-60 grayscale': findStoreConfig(option.id)?.isPlanned }"
@@ -2825,7 +2814,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                 <div
                     v-if="!previewTabsAreFolded"
                     :aria-label="t(TEXT, 'previewTabs.aria', { label: item.label })"
-                    class="-mr-1.5 flex flex-none items-center gap-x-1 self-stretch"
+                    class="-mr-1.5 flex flex-none items-center gap-x-px self-stretch"
                     role="tablist"
                 >
                     <ActionWrapper
@@ -2835,8 +2824,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         :aria-controls="`${elementIdPrefix}-panel`"
                         :aria-label="t(TEXT, previewTab.labelKey)"
                         :aria-selected="previewTab.id === currentPreviewTabId"
-                        class="flex h-full items-center border-y-2 border-t-transparent px-1.5 enabled:hover:state-hover enabled:active:state-press"
-                        :class="previewTab.id === currentPreviewTabId ? 'border-b-content text-emphasis' : 'border-b-transparent text-muted'"
+                        class="flex h-full items-center"
+                        :class="[TAB_CLASSES, previewTab.id === currentPreviewTabId ? TAB_SELECTED_CLASSES : TAB_UNSELECTED_CLASSES]"
                         :disabled="isPreviewTabDisabled(previewTab.id)"
                         role="tab"
                         :tabindex="previewTab.id === currentPreviewTabId ? 0 : -1"
@@ -2844,7 +2833,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                         @click="currentPreviewTabId = previewTab.id"
                         @keydown="handleNavigatePreviewTabs($event, previewTabIndex)"
                     >
-                        <component :is="previewTab.icon" aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
+                        <component :is="previewTab.icon" aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
                     </ActionWrapper>
                 </div>
 
@@ -2858,8 +2847,8 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             class="flex h-7 items-center gap-x-0.5 rounded-md px-1 text-accent hover:state-hover active:state-press"
                             :title="t(TEXT, currentPreviewTab.labelKey)"
                         >
-                            <component :is="currentPreviewTab.icon" aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" />
-                            <ChevronDownIcon aria-hidden="true" class="size-3.5" :stroke-width="1.5" />
+                            <component :is="currentPreviewTab.icon" aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" />
+                            <ChevronDownIcon aria-hidden="true" class="size-3.5" :stroke-width="2" />
                         </ActionWrapper>
                     </template>
                     <Menu.Content class="min-w-40" :label="t(TEXT, 'previewTabs.aria', { label: item.label })" placement="bottom-end">
@@ -2871,7 +2860,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             kind="radio"
                             @select="handleSelectPreviewTab(previewTab.id)"
                         >
-                            <template #icon><component :is="previewTab.icon" aria-hidden="true" class="size-4.5 flex-none" :stroke-width="1.5" /></template>
+                            <template #icon><component :is="previewTab.icon" aria-hidden="true" class="size-5 flex-none" :stroke-width="1.5" /></template>
                             {{ t(TEXT, previewTab.labelKey) }}
                         </Menu.Item>
                     </Menu.Content>
@@ -2887,7 +2876,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
             >
                 <ul :aria-label="t(TEXT, 'issues.aria')" class="flex flex-col gap-y-1">
                     <li v-for="issueItem in sampleIssueItems" :key="issueItem.key" class="flex items-start gap-x-2">
-                        <component :is="issueItem.icon" aria-hidden="true" class="mt-0.5 size-4 flex-none" :class="issueItem.colorClass" :stroke-width="2" />
+                        <component :is="issueItem.icon" aria-hidden="true" class="mt-0.5 size-4 flex-none" :class="issueItem.colorClass" :stroke-width="1.75" />
                         <!-- Where it is, then what it is, then the value at fault. The lines link to the text, except in markdown,
                              which shows rendered rather than as lines. -->
                         <span class="min-w-0 wrap-break-word">
@@ -2974,7 +2963,7 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                                     aria-hidden="true"
                                     class="size-3.5 flex-none text-danger-text"
                                     :class="isNumericColumn(columnId) ? 'mr-auto' : 'order-1 ml-auto'"
-                                    :stroke-width="1.5"
+                                    :stroke-width="2"
                                 />
                                 <span class="sr-only">{{ t(TEXT, 'value.invalid.aria') }}</span>
                             </template>
@@ -2997,10 +2986,10 @@ async function getInfo(connectionNodeConfig: ConnectionNodeConfig): Promise<void
                             >
                         </template>
                     </Table>
-                    <!-- Column Detail ─ Slides down from under the header, which is a 34px tab row. The box below the header
+                    <!-- Column Detail ─ Slides down from under the header, which is a 36px tab row. The box below the header
                      clips it, so it never passes over the header. The box lets clicks through to the rows when the detail is
                      closed. -->
-                    <div class="pointer-events-none absolute inset-x-0 top-8.5 bottom-0 z-10 overflow-hidden">
+                    <div class="pointer-events-none absolute inset-x-0 top-9 bottom-0 z-10 overflow-hidden">
                         <Transition name="dpuse-slide-down">
                             <ColumnDetail
                                 v-if="selectedColumnIndex != null && activeItemReading != null"

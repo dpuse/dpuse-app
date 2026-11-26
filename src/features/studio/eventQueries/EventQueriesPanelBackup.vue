@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { useRoute } from 'vue-router';
 import { onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue';
 
 // ── DPUse Framework
@@ -43,7 +42,6 @@ const data: NetworkDiagramData = {
 const container = useTemplateRef<HTMLDivElement>('container');
 const diagramIsPending = ref(true); // The diagram area is blank while the d3 tool downloads and draws, so the wait is shown.
 const renderFailure = shallowRef<AppFailure | undefined>();
-const route = useRoute();
 const state: { view: D3NetworkView | null } = { view: null };
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -90,7 +88,7 @@ async function renderDiagram(): Promise<void> {
 
 <template>
     <StudioLayout>
-        <StudioHeader class="flex-none px-page" :overline="t(TEXT, 'studio.label')" :title="t(TEXT, 'contextualiseData.title')" :to="{ name: 'studio', query: route.query }" />
+        <StudioHeader class="flex-none px-page" :title="t(TEXT, 'contextualiseData.title')" />
 
         <Separator />
 

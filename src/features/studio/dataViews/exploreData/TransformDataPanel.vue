@@ -258,11 +258,11 @@ function typeIcon(name: string): Component {
                         :title="selectSearchOpen ? 'Hide search' : 'Show search'"
                         @click="toggleSelectSearch"
                     >
-                        <SearchIcon class="size-4" :class="selectSearchOpen ? 'text-emphasis' : 'text-subtle'" />
+                        <SearchIcon class="size-4" :class="selectSearchOpen ? 'text-emphasis' : 'text-subtle'" :stroke-width="1.75" />
                     </button>
                     <button class="rounded p-0.5 hover:state-hover" type="button" @click="clauseOpen.select = !clauseOpen.select">
-                        <ChevronUpIcon v-if="clauseOpen.select" class="size-5 text-subtle" />
-                        <ChevronDownIcon v-else class="size-5 text-subtle" />
+                        <ChevronUpIcon v-if="clauseOpen.select" class="size-5 text-subtle" :stroke-width="1.5" />
+                        <ChevronDownIcon v-else class="size-5 text-subtle" :stroke-width="1.5" />
                     </button>
                 </div>
             </div>
@@ -284,7 +284,7 @@ function typeIcon(name: string): Component {
                         :aria-label="t(TEXT, 'clearColumnSearch.aria')"
                         @click="columnSearch = ''"
                     >
-                        <XIcon class="size-4" />
+                        <XIcon class="size-4" :stroke-width="1.75" />
                     </button>
                 </div>
             </div>
@@ -336,11 +336,11 @@ function typeIcon(name: string): Component {
                 </div>
                 <div class="flex items-center gap-1">
                     <button class="rounded p-1 hover:state-hover" type="button" :title="t(TEXT, 'addCondition.label')" @click="openPicker('where')">
-                        <PlusIcon class="size-4 text-muted" />
+                        <PlusIcon class="size-4 text-muted" :stroke-width="1.75" />
                     </button>
                     <button class="rounded p-0.5 hover:state-hover" type="button" @click="clauseOpen.where = !clauseOpen.where">
-                        <ChevronDownIcon v-if="clauseOpen.where" class="size-4 text-subtle" />
-                        <ChevronRightIcon v-else class="size-4 text-subtle" />
+                        <ChevronDownIcon v-if="clauseOpen.where" class="size-4 text-subtle" :stroke-width="1.75" />
+                        <ChevronRightIcon v-else class="size-4 text-subtle" :stroke-width="1.75" />
                     </button>
                 </div>
             </div>
@@ -406,11 +406,11 @@ function typeIcon(name: string): Component {
                 </div>
                 <div class="flex items-center gap-1">
                     <button class="rounded p-1 hover:state-hover" type="button" :title="t(TEXT, 'addGrouping.label')" @click="openPicker('groupBy')">
-                        <PlusIcon class="size-4 text-muted" />
+                        <PlusIcon class="size-4 text-muted" :stroke-width="1.75" />
                     </button>
                     <button class="rounded p-0.5 hover:state-hover" type="button" @click="clauseOpen.groupBy = !clauseOpen.groupBy">
-                        <ChevronDownIcon v-if="clauseOpen.groupBy" class="size-4 text-subtle" />
-                        <ChevronRightIcon v-else class="size-4 text-subtle" />
+                        <ChevronDownIcon v-if="clauseOpen.groupBy" class="size-4 text-subtle" :stroke-width="1.75" />
+                        <ChevronRightIcon v-else class="size-4 text-subtle" :stroke-width="1.75" />
                     </button>
                 </div>
             </div>
@@ -472,11 +472,11 @@ function typeIcon(name: string): Component {
                 </div>
                 <div class="flex items-center gap-1">
                     <button class="rounded p-1 hover:state-hover" type="button" :title="t(TEXT, 'addHavingCondition.label')" @click="openPicker('having')">
-                        <PlusIcon class="size-4 text-muted" />
+                        <PlusIcon class="size-4 text-muted" :stroke-width="1.75" />
                     </button>
                     <button class="rounded p-0.5 hover:state-hover" type="button" @click="clauseOpen.having = !clauseOpen.having">
-                        <ChevronDownIcon v-if="clauseOpen.having" class="size-4 text-subtle" />
-                        <ChevronRightIcon v-else class="size-4 text-subtle" />
+                        <ChevronDownIcon v-if="clauseOpen.having" class="size-4 text-subtle" :stroke-width="1.75" />
+                        <ChevronRightIcon v-else class="size-4 text-subtle" :stroke-width="1.75" />
                     </button>
                 </div>
             </div>
@@ -542,11 +542,11 @@ function typeIcon(name: string): Component {
                 </div>
                 <div class="flex items-center gap-1">
                     <button class="rounded p-1 hover:state-hover" type="button" :title="t(TEXT, 'addSortColumn.label')" @click="openPicker('orderBy')">
-                        <PlusIcon class="size-4 text-muted" />
+                        <PlusIcon class="size-4 text-muted" :stroke-width="1.75" />
                     </button>
                     <button class="rounded p-0.5 hover:state-hover" type="button" @click="clauseOpen.orderBy = !clauseOpen.orderBy">
-                        <ChevronDownIcon v-if="clauseOpen.orderBy" class="size-4 text-subtle" />
-                        <ChevronRightIcon v-else class="size-4 text-subtle" />
+                        <ChevronDownIcon v-if="clauseOpen.orderBy" class="size-4 text-subtle" :stroke-width="1.75" />
+                        <ChevronRightIcon v-else class="size-4 text-subtle" :stroke-width="1.75" />
                     </button>
                 </div>
             </div>
@@ -617,8 +617,8 @@ function typeIcon(name: string): Component {
                 type="button"
                 @click="sqlOpen = !sqlOpen"
             >
-                <ChevronDownIcon v-if="sqlOpen" class="size-4 flex-none text-subtle" />
-                <ChevronRightIcon v-else class="size-4 flex-none text-subtle" />
+                <ChevronDownIcon v-if="sqlOpen" class="size-4 flex-none text-subtle" :stroke-width="1.75" />
+                <ChevronRightIcon v-else class="size-4 flex-none text-subtle" :stroke-width="1.75" />
                 <span class="text-muted text-[11px] font-semibold tracking-wider uppercase">SQL Preview</span>
             </button>
             <pre v-if="sqlOpen" class="overflow-x-auto overscroll-x-none px-4 py-3 text-xs text-subtle">{{ sql }}</pre>

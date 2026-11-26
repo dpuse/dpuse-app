@@ -1,12 +1,14 @@
 // ── External Dependencies & Registrations
-import { computed, type ComputedRef } from 'vue';
+import { useCssVar } from '@vueuse/core';
+import { useRoute } from 'vue-router';
+import { computed, type ComputedRef, watchEffect } from 'vue';
 
 // ── DPUse Framework
 import { type LocaleDescription, type LocaleLabel, localiseConfigs, type LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { appearanceIsDark } from '@/state/appearance';
 import { localeId } from '@/state/locale';
+import { appearanceIsDark, resolveAppearanceIcon } from '@/state/appearance';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -28,6 +30,7 @@ interface StudioOptionTaskConfig {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const GREY_CHANNEL_SPREAD = 16; // Out of 255. Setup's icon greys differ by 9 between channels, and the coloured icons by 70 or more.
 const RING_COLOR_PERCENT = 45; // How much of an option's colour a ring keeps.
 const RING_COLOR_PERCENT_DARK = 65; // More in the dark appearance, where a ring mixed that far into the near-black background is too faint to see.
 
@@ -101,6 +104,22 @@ export function useStudioOptions(): ComputedRef<LocalisedConfig<StudioOptionConf
     return computed(() => localiseConfigs<StudioOptionConfig>(STUDIO_OPTION_CONFIGS, localeId.value));
 }
 
+// Tints every selection on the page with the colour of the studio option on screen, so each part of the app keeps its
+// own colour: blue in Data Views, gold in Contextualise Data, teal in Presentations and Data Apps, and grey in Setup.
+// The colour goes on the page's root element as '--option-color', which the selected colours in 'theme.css' read, so
+// menus and dialogs moved to the body are tinted too. With no option on screen, or one whose icon is grey, there is no
+// colour, and selections take the theme's own lighter grey. The option is taken from the first path segment, as the
+// option bar takes it, so it holds on the pages beneath.
+export function useStudioOptionTint(): void {
+    const route = useRoute();
+    const optionColor = useCssVar('--option-color', document.documentElement);
+    watchEffect(() => {
+        const optionConfig = STUDIO_OPTION_CONFIGS.find((config) => config.id === route.path.split('/', 2)[1]);
+        const iconColor = optionConfig == null ? undefined : readIconColor(resolveAppearanceIcon(optionConfig.icon, optionConfig.iconDark));
+        optionColor.value = iconColor != null && isColorGrey(iconColor) ? undefined : iconColor;
+    });
+}
+
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // A ring round a diagram node is an option's colour softened towards the pane's background, as the pill's border is a
@@ -114,4 +133,12 @@ export function constructRingColor(color: string | undefined): string | undefine
 // diagram node then matches the option's button in the bar without the colour being written down twice.
 export function readIconColor(icon: string | undefined): string | undefined {
     return icon == null ? undefined : /stroke="(#[\da-f]{3,8})"/i.exec(icon)?.[1];
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A six-digit hex colour whose red, green and blue are nearly equal has no hue to tint a selection with.
+function isColorGrey(color: string): boolean {
+    const channels = [1, 3, 5].map((start) => Number.parseInt(color.slice(start, start + 2), 16));
+    return Math.max(...channels) - Math.min(...channels) < GREY_CHANNEL_SPREAD;
 }

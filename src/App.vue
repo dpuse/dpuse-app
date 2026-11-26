@@ -9,6 +9,7 @@ import { defineLazyComponent } from '@/utilities/index.ts';
 import { t } from '@/state/locale';
 import { TEXT } from './App_.json';
 import { useDialogs } from '@/state/dialogs';
+import { useStudioOptionTint } from '@/features/studio/options/useStudioOptions';
 import { appFailures, clearAppFailures, retryAppFailures } from '@/state/errors';
 import {
     type AppPaneId,
@@ -94,6 +95,8 @@ const studioViewKey = computed(() => route.matched.find((record) => record.compo
 onMounted(() => {
     initialiseServices();
 });
+
+useStudioOptionTint(); // Here, not in the studio pane, because the tint also reaches menus and dialogs outside it.
 
 // The first navigation always finishes after mount, because 'main.ts' mounts the app without waiting for the router.
 // That keeps the first paint from waiting on the route's chunk, and means 'onMounted' always runs before this.

@@ -56,7 +56,7 @@ function handleSelect(): void {
         @click="handleSelect"
     >
         <!-- Tick ─ Kept in place while unchecked, so the labels of a set line up. -->
-        <CheckIcon v-if="kind !== 'action'" aria-hidden="true" class="size-3.5 flex-none" :class="{ invisible: !isChecked }" :stroke-width="1.5" />
+        <CheckIcon v-if="kind !== 'action'" aria-hidden="true" class="size-3.5 flex-none" :class="{ invisible: !isChecked }" :stroke-width="2" />
         <slot name="icon" />
         <span class="min-w-0 flex-1">
             <slot />

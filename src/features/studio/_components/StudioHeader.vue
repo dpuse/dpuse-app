@@ -1,19 +1,14 @@
 <script setup lang="ts">
-// ── External Dependencies & Registrations
-import { ArrowLeftIcon } from '@lucide/vue';
-import type { RouteLocationRaw } from 'vue-router';
-
 // ── Local Framework
 import { assistantPaneIsVisible } from '@/state/appPanes';
 import { viewportIsWide } from '@/state/device';
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
-const { overline, title, titleIsPending, to } = defineProps<{
-    overline?: string;
+const { overline, title, titleIsPending } = defineProps<{
+    overline?: string; // The part of the app a task belongs to. Left out on a screen whose title already names it.
     title: string;
     titleIsPending?: boolean; // The title is a placeholder, such as 'Loading…', until what it names has loaded.
-    to?: RouteLocationRaw;
 }>();
 </script>
 
@@ -26,30 +21,13 @@ const { overline, title, titleIsPending, to } = defineProps<{
         <!-- Content indented from left and right to allow for logos when display is narrow.
              NOTE: If width of logos changes, the above settings need to be adjusted accordingly. -->
 
-        <!-- Overline ─ The back link. Only the overline goes back, so the link is named for where it leads and the title
-             stays a plain heading. Sized to its text, centred on narrow screens as the text is, and at least 24px tall
-             so it is easy to hit. The extra height goes above the text and is pulled up out of the way, so the text
-             sits as close to the title as before. -->
-        <component
-            :is="to ? 'RouterLink' : 'div'"
-            v-if="overline"
-            class="-mt-1.5 flex min-h-6 w-fit max-w-full min-w-0 items-end text-sm leading-tight"
-            :class="[
-                { 'mx-auto': !viewportIsWide },
-                to ? 'text-accent hover:text-accent-hover hover:underline hover:decoration-accent-hover/40 hover:underline-offset-2' : 'text-muted'
-            ]"
-            :to="to"
-        >
-            <!-- The arrow and text are centred on each other inside the bottom-aligned link. 'text-box' trims the font's
-                 empty space above the capitals and below the baseline, so the arrow centres on the letters themselves,
-                 as 'TaskBar' does for its digits. Long text is cut off sideways only ('overflow-x: clip'), because
-                 hiding overflow on both axes would clip the tails of letters like 'g' below the trimmed box. -->
-            <span class="flex min-w-0 items-center gap-x-0.5">
-                <ArrowLeftIcon class="size-4 flex-none" :stroke-width="2" />
-                <span class="min-w-0 overflow-x-clip text-ellipsis whitespace-nowrap [text-box:trim-both_cap_alphabetic]">{{ overline }}</span>
-                <span class="size-4 flex-none" />
-            </span>
-        </component>
+        <!-- Overline ─ Names the part of the app a task belongs to, above the task's own title. Plain text, not a link:
+             the views beside the tasks lead back, and the rail leads everywhere else. Centred on narrow screens as the
+             title is. Long text is cut off sideways only ('overflow-x: clip'), because hiding overflow on both axes
+             would clip the tails of letters like 'g'. -->
+        <div v-if="overline" class="max-w-full min-w-0 overflow-x-clip text-sm leading-tight text-ellipsis whitespace-nowrap text-muted" :class="{ 'text-center': !viewportIsWide }">
+            {{ overline }}
+        </div>
 
         <!-- Title ─ A placeholder title is for screen readers only, so it never flashes on screen during a short load.
              The real title fades in when it replaces the placeholder. A title already known on first render just shows,

@@ -35,7 +35,7 @@ defineEmits<{ add: [] }>();
             <!-- Add ─ The same action as the page's floating add pill, with its icon, but styled as a button in the page
                  because nothing floats here. -->
             <RectangleButton class="inline-flex items-center gap-x-1.5" variant="primary" @click="$emit('add')">
-                <PlusIcon aria-hidden="true" class="-ml-0.5 size-5" :stroke-width="1.25" />
+                <PlusIcon aria-hidden="true" class="-ml-0.5 size-5" :stroke-width="1.5" />
                 {{ t(TEXT, 'create.label', { label: actionItemLabel }) }}
             </RectangleButton>
         </div>

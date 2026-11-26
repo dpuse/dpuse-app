@@ -31,7 +31,7 @@ function handleClick(): void {
         <span class="min-w-0 truncate pl-1 font-mono">{{ name }}</span>
 
         <span v-if="sortable" class="ml-auto flex-none cursor-grab p-0.5 opacity-50 active:cursor-grabbing" data-select-handle style="touch-action: none">
-            <GripVerticalIcon class="size-3.5" />
+            <GripVerticalIcon class="size-3.5" :stroke-width="2" />
         </span>
 
         <span v-else-if="selected" class="ml-auto flex-none p-0.5 opacity-70" aria-hidden="true">

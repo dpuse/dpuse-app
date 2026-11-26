@@ -262,23 +262,70 @@ cloud, so nothing the user is still deciding reaches it.
 - **Screens report unsaved work** with `useUnsavedWork(() => …)`. A reload or leaving the page then warns, and the
   notice's Reload asks first in the app's own `ConfirmDialog`.
 
+### Toolbars and heading rows
+
+Toolbars are 40px high. Their icons are 20px (`size-5`) and their text is 14px (`text-sm`), the same as the step and
+breadcrumb rows above them, so every row of controls reads at one size. An icon in a toolbar's open list or menu is the
+same size as the closed control it belongs to. Chevrons on menu buttons stay smaller (`size-3.5`).
+
+### Icons
+
+Line icons (Lucide) come in three sizes, each with the stroke that draws a line of about 1.2px, so every icon has the
+same visual weight. The stroke setting scales with the icon, so a smaller icon needs a higher setting.
+
+- **Control icons** ─ 20px, `size-5` with `:stroke-width="1.5"`: toolbars, breadcrumbs, the step row's view icons.
+- **Icons beside 14px text** ─ 16px, `size-4` with `:stroke-width="1.75"`: column type icons.
+- **Small marks** ─ 14px, `size-3.5` with `:stroke-width="2"`: key, unique and mandatory marks, menu chevrons.
+
+A bold mark that must read at a tiny size, such as a tick in a circle, keeps its heavier stroke (2.5 or 3). Identity
+icons and logos are artwork, not line icons, and keep their own sizes.
+
 ### Hover, press and selected
 
 Each state looks the same everywhere, by meaning. The states are layers over an element's own fill, from the
 `state-*` utilities in `main.css` and the tokens in `theme.css`. Never a raw colour such as `hover:bg-zinc-100`.
 
 - **Hover and press** ─ `hover:state-hover active:state-press`, a translucent grey, on every interactive element.
-- **Selected and current** ─ `state-selected hover:state-selected-hover`, a translucent blue, for what the user chose
-  from a set or where they are: boxed cards, table rows and selected columns.
-- **Selected icon buttons** ─ `state-selected-icon hover:state-selected-icon-hover`, a translucent grey, because a
-  blue fill clashes with coloured icons: account navigation, menu choices (`IconButton` `is-active`).
-- **Rail and list rows** ─ no fill. The current option on the rail and the selected row of a compact list
-  (`ConfigCard` `is-compact`) have a square 2px `bg-content` bar, as tall as the item, on the left edge of the rail
-  or list rather than of the item. Not blue, because blue means a link.
+- **Text links** ─ blue (`text-accent`), and underlined on hover
+  (`hover:underline hover:decoration-accent-hover/40 hover:underline-offset-2`), because a slightly darker blue alone
+  is too small a change to notice. Blue is only for text with no other cue that it can be clicked, such as a breadcrumb
+  beside crumbs that cannot. A link whose icon already shows it can be clicked, such as the breadcrumb trail's back
+  link with its arrow, is muted text that darkens and underlines on hover. The last breadcrumb names the current item,
+  so it stays in the text colour even when it can be clicked, and only its hover underline shows it.
+- **Steps** ─ the task bar is a control, like tabs, not a row of links, so its labels are neutral text: the darkest
+  colour for the current step, the text colour for the others and faint grey for a locked one. Each step's state is in
+  its circle and the line after it, in blue for the current and done steps and grey for the rest. A step that can be
+  opened underlines on hover, as a link does.
+- **Icons on hover** ─ an icon-only control, including a breadcrumb shown as its icon alone, takes the grey hover fill
+  (`hover:state-hover active:state-press`). An icon beside text in a link belongs to the link, so it underlines with it
+  and takes no fill.
+- **Selected and current** ─ `state-selected hover:state-selected-hover`, for what the user chose from a set or where
+  they are: boxed cards, table rows, selected columns, rail options, list rows and selected icon buttons (`IconButton`
+  `is-active`), such as account navigation and menu choices. One setting for every selection.
+- **Selection follows the studio option** ─ the selected fill is a pale tint of the colour of the studio option on
+  screen, which is the colour of its icon: blue in Establish Data Views, gold in Contextualise Data, teal in
+  Presentations and Data Apps, and grey in Setup. Grey too where no option is on screen. Grey has its own lighter
+  strength, because a grey as strong as the tints reads as too dark. `useStudioOptionTint` sets the colour on the
+  page's root as `--option-color`, and `--selected`, `--selected-hover` and `--selected-border` in `theme.css` read
+  it. Links, focus rings, the current step and the floating pill stay blue everywhere: blue means "act here", and the
+  tint means "you are here".
+- **Rail and list rows** ─ selected, the tinted `state-selected hover:state-selected-hover`, as most design systems
+  mark a selected nav item. A selected compact list row (`ConfigCard` `is-compact`) also has a `text-emphasis` label, not
+  blue, because blue text means a link. Its weight stays the same, so selecting a row never moves its text. Not
+  selected, `hover:state-hover-row`, a light grey, so a hovered row never looks like the selection. Each row and rail
+  option is inset 8px from both sides with a small radius (`rounded`), so its fill never runs into the panes and
+  headers around it. No bar.
+- **One light grey** ─ `surface-muted` is the single light grey for what is set apart: the column header row
+  (`tab-bar`) and empty value cells (`empty-tint`). Never a near-match: point a new use at `surface-muted`.
 - **On/off toggles** ─ a darker grey (`IconButton` `is-pressed`, which sets `aria-pressed`), e.g. bold, because they
   are not a choice from a set.
 - **Floating pill** ─ solid `bg-pill`, because a translucent fill would show the content it floats over.
-- **Tabs** ─ a `border-b-content` underline and `text-emphasis` label, the same dark bar as rows, turned on its side.
+- **Tabs** ─ underline tabs, as text or as an icon alone, share `TAB_CLASSES`, `TAB_SELECTED_CLASSES` and
+  `TAB_UNSELECTED_CLASSES` from `action.ts`. Every tab has a bar under it, so a row of them reads as one set: faint at
+  rest, grey on hover, and in the studio option's colour when selected (`border-b-option-mark`, the text colour where
+  the option has none), with `text-emphasis`. Tabs sit side by side with a 1px gap (`gap-x-px` on the row), so their
+  bars read as one line of segments, as the parts of a column's value bar do. Hover and press also fill a rounded shape
+  behind the label, 28px tall as the toolbar's buttons are, and the text darkens. The fill stays clear of the bar.
 - **Column tabs** ─ a table's tabbed header (`Table` `is-header-tabbed`) follows VS Code's panel tabs instead. The
   selected tab is white with no hover. An unselected tab turns a faint off-white, halfway from `surface` to
   `backdrop`, and shows its border on hover, with `state-press` over it when pressed. It keeps the header's bottom

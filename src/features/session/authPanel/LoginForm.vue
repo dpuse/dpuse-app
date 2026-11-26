@@ -60,7 +60,9 @@ function handleSubmit(): void {
         <Separator :text="t(TEXT, 'or.label')" />
 
         <div class="flex flex-col gap-y-3">
-            <RectangleButton class="flex justify-start gap-x-2" variant="outline"><UserRoundKeyIcon class="size-5" />{{ t(TEXT, 'signInPasskey.label') }}</RectangleButton>
+            <RectangleButton class="flex justify-start gap-x-2" variant="outline"
+                ><UserRoundKeyIcon class="size-5" :stroke-width="1.5" />{{ t(TEXT, 'signInPasskey.label') }}</RectangleButton
+            >
             <RectangleButton class="flex justify-start gap-x-2" variant="outline"><AppleLogo class="size-5" />{{ t(TEXT, 'signInApple.label') }}</RectangleButton>
             <RectangleButton class="flex justify-start gap-x-2" variant="outline"><GoogleLogo class="size-5" />{{ t(TEXT, 'signInGoogle.label') }}</RectangleButton>
             <RectangleButton class="flex justify-start gap-x-2" variant="outline"><GitHubLogo class="size-5" />{{ t(TEXT, 'signInGitHub.label') }}</RectangleButton>

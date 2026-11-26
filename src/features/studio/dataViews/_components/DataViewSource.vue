@@ -70,7 +70,7 @@ const itemPathParts = computed(() => {
 
         <!-- Separator ─ On one line the item's icon alone does not show where the connection ends. A chevron does, and
              reads as a breadcrumb, because the item sits inside the connection. -->
-        <ChevronRightIcon v-if="isSingleLine && itemIsShown" aria-hidden="true" class="size-4 flex-none" :stroke-width="1.5" />
+        <ChevronRightIcon v-if="isSingleLine && itemIsShown" aria-hidden="true" class="size-4 flex-none" :stroke-width="1.75" />
 
         <!-- Item ─ Dimmed while unsaved, and always when there is none, so 'No file' never looks like a chosen item. -->
         <div

@@ -18,6 +18,6 @@ const TEXT = {
          The label is carried on 'role="status"' rather than shown, because no wording survives 64px minus the parent's
          own padding, and a truncated message reads as a rendering fault rather than a state. -->
     <div :aria-label="t(TEXT, 'loading.aria')" class="grid min-h-10 w-full min-w-0 flex-1 place-items-center" data-region="ComponentLoadingSpinner" role="status">
-        <LoaderCircleIcon aria-hidden="true" class="size-5 animate-spin text-muted" />
+        <LoaderCircleIcon aria-hidden="true" class="size-5 animate-spin text-muted" :stroke-width="1.5" />
     </div>
 </template>

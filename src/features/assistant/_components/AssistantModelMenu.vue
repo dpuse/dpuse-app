@@ -34,7 +34,7 @@ const emit = defineEmits<{ select: [modelConfig: AssistantModelConfig] }>();
                 <!-- The model alone. The provider is how the menu below groups its choices, but every model label already
                      names its vendor, so repeating it here spent a second line of the composer's bar on nothing. -->
                 <span class="min-w-0 truncate text-left">{{ modelConfig.modelLabel }}</span>
-                <ChevronDownIcon aria-hidden="true" class="size-3.5 flex-none" :stroke-width="1.5" />
+                <ChevronDownIcon aria-hidden="true" class="size-3.5 flex-none" :stroke-width="2" />
             </ActionWrapper>
         </template>
 

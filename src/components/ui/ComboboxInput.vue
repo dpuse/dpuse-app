@@ -150,7 +150,7 @@ function moveToOption(optionIndex: number): void {
 
 <template>
     <div class="relative" data-region="ComboboxInput">
-        <SearchIcon aria-hidden="true" class="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 text-muted" :stroke-width="1.5" />
+        <SearchIcon aria-hidden="true" class="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 text-muted" :stroke-width="1.75" />
         <input
             v-model="searchText"
             :aria-activedescendant="currentOptionElementId"

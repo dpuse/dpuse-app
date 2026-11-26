@@ -24,8 +24,8 @@ const { icon, iconIsLeading, label } = defineProps<Properties>();
         :class="[PILL_CLASSES, PILL_FILL_CLASSES, iconIsLeading ? 'pr-4 pl-3' : 'pr-3 pl-4']"
         data-region="PillButton"
     >
-        <component :is="icon" v-if="iconIsLeading" class="size-5" :stroke-width="1.25" />
+        <component :is="icon" v-if="iconIsLeading" class="size-5" :stroke-width="1.5" />
         <span class="text-sm">{{ label }}</span>
-        <component :is="icon" v-if="!iconIsLeading" class="size-5" :stroke-width="1.25" />
+        <component :is="icon" v-if="!iconIsLeading" class="size-5" :stroke-width="1.5" />
     </ActionWrapper>
 </template>

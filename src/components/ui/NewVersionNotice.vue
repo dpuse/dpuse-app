@@ -87,7 +87,7 @@ function handleDismiss(): void {
         <div class="flex shrink-0 justify-end gap-2">
             <RectangleButton @click="handleDismiss">{{ t(TEXT, 'later.label') }}</RectangleButton>
             <RectangleButton class="flex items-center" variant="primary" @click="handleReload">
-                <RefreshCwIcon class="mr-1.5 size-4" />
+                <RefreshCwIcon class="mr-1.5 size-4" :stroke-width="1.75" />
                 {{ t(TEXT, 'reload.label') }}
             </RectangleButton>
         </div>
