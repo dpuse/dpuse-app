@@ -70,14 +70,22 @@ describe('DataViewDocument', () => {
         expect(text.indexOf('File type')).toBeLessThan(text.indexOf('Connection section'));
     });
 
-    it('lists the file’s type, encoding and size, and leaves out a fact it does not know', () => {
+    it('lists every fact about the file, and says when one is not known', () => {
         const details = readDetails(mountDocument({ properties: { detectedReadingConfig: { encodingConfidenceLevel: undefined, encodingSourceId: 'utf8Validation' } } }), 'Details');
 
         expect(details).toEqual([
             ['File type', 'text/csv'],
             ['Encoding', 'utf-8 (valid UTF-8)'],
-            ['Size', '956 bytes']
+            ['Size', '956 bytes'],
+            ['Last modified', 'Unknown']
         ]);
+    });
+
+    it('says a file with no issues has none, and that an audit’s uncounted lines are unknown', () => {
+        const wrapper = mountDocument({ properties: { contentAuditConfig: buildContentAuditConfig() } });
+
+        expect(readDetails(wrapper, 'Reading')).toContainEqual(['Issues', 'None']);
+        expect(readDetails(wrapper, 'Auditing')).toEqual(expect.arrayContaining([['Lines', 'Unknown'], ['Empty lines', 'Unknown'], ['Uneven records', 'Unknown']]));
     });
 
     it('says the encoding was chosen, or that a chosen one could not be decoded', () => {
@@ -111,7 +119,10 @@ describe('DataViewDocument', () => {
         const wrapper = mountDocument({ properties: { dataViewConnection: buildDataViewConnection({ itemTypeId: 'table', itemTypeLabel: 'Table' }) } });
 
         expect(findSectionTitles(wrapper)).toContain('Table');
-        expect(readDetails(wrapper, 'Details')).toEqual([['Size', '956 bytes']]);
+        expect(readDetails(wrapper, 'Details')).toEqual([
+            ['Size', '956 bytes'],
+            ['Last modified', 'Unknown']
+        ]);
         expect(findPartTitles(wrapper)).not.toContain('Reading');
     });
 

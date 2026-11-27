@@ -1,7 +1,9 @@
 <script setup lang="ts">
 // The document of a data view's item, shown beside the data views on the overview and on the item step's Details tab,
 // so both say the same thing in the same words. Each section shows only when it has something to show. The caller
-// sets the heading and adds the sections only it has after the shared ones, such as the data and the connection.
+// sets the heading and adds the sections only it has after the shared ones, such as the connector. The document shows
+// no records: the sample saved with a data view is not what its store holds, which a load converts and can leave values
+// out of, and reading the store for every data view browsed would be too slow. The Explore Data step shows them.
 
 // ── External Dependencies & Registrations
 import { computed, ref } from 'vue';
@@ -41,10 +43,12 @@ interface StepLink {
     to: RouteLocationRaw;
 }
 
+// A part of the item's section and its facts. A fact that is undefined is not known, and shows as 'Unknown'. One that is
+// null does not apply to this item, such as a delimiter for a format that has none, and is left out.
 interface DetailSection {
     id: string;
     title: string;
-    details: { labelKey: keyof typeof TEXT; value: string | undefined }[];
+    details: { labelKey: keyof typeof TEXT; value: string | null | undefined }[];
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -84,7 +88,6 @@ const {
 
 defineSlots<{
     actions?(): unknown; // Beside the title.
-    'after-columns'?(): unknown; // Sections straight after the columns, such as the data.
     default?(): unknown; // Sections after all the others.
     description?(): unknown; // Under the title, above the heading's lines.
     intro?(): unknown; // Under the heading's lines.
@@ -118,9 +121,9 @@ const itemSubject = computed(() => dataViewConnection?.itemTypeId ?? 'item'); //
 // The item's title is shown as a description only when it says more than its name, as a series title does. A file's
 // title is its name, so a file shows none.
 const itemDescription = computed(() => {
-    if (!connectionNodeConfig) return;
+    if (!connectionNodeConfig) return null;
     const name = connectionNodeConfig.extension == null ? connectionNodeConfig.name : `${connectionNodeConfig.name}.${connectionNodeConfig.extension}`;
-    return connectionNodeConfig.label === name ? undefined : connectionNodeConfig.label;
+    return connectionNodeConfig.label === name ? null : connectionNodeConfig.label;
 });
 
 // Only a file has a type, an encoding and a way of being parsed. A table or an API endpoint has none of them.
@@ -131,15 +134,16 @@ const itemDetailSection = computed<DetailSection | undefined>(() => {
         title: t(TEXT, 'detail.details.title'),
         details: [
             { labelKey: 'detail.description.label', value: itemDescription.value },
-            { labelKey: 'detail.fileType.label', value: itemIsFile.value ? (itemReading?.fileType?.mime ?? connectionNodeConfig.mimeType) : undefined },
-            { labelKey: 'detail.encoding.label', value: itemReading && itemIsFile.value ? constructEncodingText(itemReading) : undefined },
+            { labelKey: 'detail.fileType.label', value: itemIsFile.value ? (itemReading?.fileType?.mime ?? connectionNodeConfig.mimeType) : null },
+            { labelKey: 'detail.encoding.label', value: itemIsFile.value ? (itemReading ? constructEncodingText(itemReading) : undefined) : null },
             { labelKey: 'detail.size.label', value: connectionNodeConfig.size == null ? undefined : formatNumberAsStorageSize(connectionNodeConfig.size) },
             { labelKey: 'detail.lastModified.label', value: connectionNodeConfig.lastModifiedAt == null ? undefined : formatDateTime(connectionNodeConfig.lastModifiedAt) }
         ]
     };
 });
 
-// ── Item Parts ─ What parsing, auditing and loading the item found. A part with nothing to show is left out.
+// ── Item Parts ─ What reading, auditing and loading the item found. Reading is for a file, and auditing and loading are
+// there once they have happened.
 const parserLabel = computed(() => {
     const parserId = itemReading?.parserId;
     if (parserId == null) return;
@@ -150,8 +154,9 @@ const parserLabel = computed(() => {
     return parserToolConfigs.find((parserToolConfig) => parserToolConfig.id === parserId)?.label;
 });
 const issueCountText = computed(() => {
-    const count = itemReading?.issues.length ?? 0;
-    if (count === 0) return;
+    if (itemReading == null) return;
+    const count = itemReading.issues.length;
+    if (count === 0) return t(TEXT, 'issue.none.text');
     return t(TEXT, count === 1 ? 'issue.one.text' : 'issue.other.text', { count });
 });
 const loadTiming = computed(() => (dataViewId == null ? undefined : findDataViewLoadTiming(dataViewId)));
@@ -183,13 +188,14 @@ const sections = computed(() => {
 // ── Columns
 const columnCount = computed(() => itemReading?.columnConfigs.filter((columnConfig) => !isDerivedColumn(columnConfig)).length ?? 0); // The columns the table lists, which leaves out derived ones.
 
-// ── Item Section ─ The item's details, how it was parsed, what the audit found and the last load, as parts of one
-// section about the item. Each part shows only the facts there are, and a part with none is left out.
+// ── Item Section ─ The item's details, how it was read, what the audit found and the last load, as parts of one section
+// about the item. Every fact that applies to the item is listed, and one that is not known says so, because a missing
+// row reads as "not there", not "not known".
 const itemSectionTitle = computed(() => dataViewConnection?.itemTypeLabel ?? t(TEXT, 'item.title'));
 const shownItemParts = computed(() =>
     [itemDetailSection.value, ...sections.value]
         .filter((section) => section != null)
-        .map((section) => omitMissingDetails(section))
+        .map((section) => resolveShownDetails(section))
         .filter((section) => section.details.length > 0)
 );
 
@@ -203,8 +209,12 @@ function constructStepLink(stepId: DataViewStepId, labelKey: keyof typeof TEXT, 
     return { label: t(TEXT, labelKey, { number: String(stepNumber) }), stepNumber, to };
 }
 
-function omitMissingDetails(section: DetailSection): DetailSection {
-    return { ...section, details: section.details.filter((detail) => detail.value != null && detail.value !== '') };
+// Leaves out the facts that do not apply, and names the ones that are not known.
+function resolveShownDetails(section: DetailSection): DetailSection {
+    const details = section.details
+        .filter((detail) => detail.value !== null)
+        .map((detail) => ({ ...detail, value: detail.value == null || detail.value === '' ? t(TEXT, 'detail.unknown.text') : detail.value }));
+    return { ...section, details };
 }
 
 // The encoding the sample was decoded with, and why: the user's choice, or how detection found it. A chosen encoding the
@@ -237,25 +247,26 @@ function constructDataFormatText({ dataFormatId, fileType }: ItemReading): strin
 }
 
 // Headers and delimiters only apply to delimited text. There they always show, and a parse that found none says so.
-function constructHeadersText({ dataFormatId, hasHeaders }: ItemReading): string | undefined {
-    if (dataFormatId !== 'dtv') return;
+function constructHeadersText({ dataFormatId, hasHeaders }: ItemReading): string | null {
+    if (dataFormatId !== 'dtv') return null;
     if (hasHeaders == null) return t(TEXT, 'detail.notDetected.text');
     return t(TEXT, hasHeaders ? 'detail.hasHeaders.yes.text' : 'detail.hasHeaders.no.text');
 }
 
-function constructRecordDelimiterText({ dataFormatId, recordDelimiterId }: ItemReading): string | undefined {
-    if (dataFormatId !== 'dtv') return;
+function constructRecordDelimiterText({ dataFormatId, recordDelimiterId }: ItemReading): string | null {
+    if (dataFormatId !== 'dtv') return null;
     return recordDelimiterId == null ? t(TEXT, 'detail.notDetected.text') : constructRecordDelimiterLabel(recordDelimiterId);
 }
 
-function constructValueDelimiterText({ dataFormatId, valueDelimiterId }: ItemReading): string | undefined {
-    if (dataFormatId !== 'dtv') return;
+function constructValueDelimiterText({ dataFormatId, valueDelimiterId }: ItemReading): string | null {
+    if (dataFormatId !== 'dtv') return null;
     return valueDelimiterId == null ? t(TEXT, 'detail.notDetected.text') : constructValueDelimiterLabel(valueDelimiterId);
 }
 
-// How much of the item the audit read, and what share of the item that is when its size is known.
-function constructAuditedAmountText(auditConfig: ContentAuditConfig): string | undefined {
-    if (auditConfig.byteCount === 0) return;
+// How much of the item the audit read, and what share of the item that is when its size is known. An item not read as
+// bytes, such as a table, has no amount.
+function constructAuditedAmountText(auditConfig: ContentAuditConfig): string | null {
+    if (auditConfig.byteCount === 0) return null;
     const itemSize = connectionNodeConfig?.size ?? 0;
     if (itemSize === 0) return formatNumberAsStorageSize(auditConfig.byteCount);
     if (auditConfig.isComplete) return t(TEXT, 'detail.auditedAmount.complete.text', { amount: formatNumberAsStorageSize(itemSize), percentage: formatStatusPercentage(100) });
@@ -372,9 +383,7 @@ function formatDateTime(timestamp: number): string {
             </div>
         </StudioDocumentSection>
 
-        <slot name="after-columns" />
-
-        <!-- Item ─ After the columns and data, because it is about where they come from. One section, named for the kind
+        <!-- Item ─ After the columns, because it is about where they come from. One section, named for the kind
              of item, with a part each for its details, its reading, its audit and its last load. An item not chosen yet
              keeps the heading and says so in one line, so the document's shape never changes. Every list is laid out the
              same way. A line under every row shows where a value that wraps ends, except under a part's last row. The

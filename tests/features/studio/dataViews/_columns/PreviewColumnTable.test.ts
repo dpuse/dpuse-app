@@ -50,12 +50,12 @@ describe('PreviewColumnTable', () => {
         expect(readMarks(mountTable([column], true))).toEqual(['No value repeats, leaving out missing ones, so this column appears to be unique']);
     });
 
-    it('counts valid, invalid and missing values under the bar, and names each count for screen readers', () => {
+    it('counts valid, invalid and missing values under the bar, a count of none included, and names each for screen readers', () => {
         const column = buildColumn({ blankValueCount: 1, emptyValueCount: 2, inferenceCounts: { string: 8 }, nullValueCount: 2 });
         const valuesCell = mountTable([column]).get('tbody td:nth-child(3)');
 
-        expect(valuesCell.findAll('[aria-hidden="true"]').at(-1)?.text().replaceAll(/\s+/gu, ' ')).toBe('8 5');
-        expect(valuesCell.get('.sr-only').text()).toBe('Valid: 8, Missing: 5');
+        expect(valuesCell.findAll('[aria-hidden="true"]').at(-1)?.text().replaceAll(/\s+/gu, ' ')).toBe('8 0 5');
+        expect(valuesCell.get('.sr-only').text()).toBe('Valid: 8, Invalid: 0, Missing: 5');
     });
 
     it('marks an estimated distinct count with ≈, named for screen readers', () => {

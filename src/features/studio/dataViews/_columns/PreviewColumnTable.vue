@@ -62,7 +62,7 @@ const columnRows = computed(() => {
         const facts = constructColumnFacts(itemReading, index, undefined, isAuditComplete);
         const counts = valueCounts.at(index);
         const columnConfig = itemReading.columnConfigs.at(index);
-        const segments = counts == null ? [] : VALUE_KINDS.map((kind) => ({ ...kind, count: kind.countValues(counts) })).filter((segment) => segment.count > 0);
+        const segments = counts == null ? [] : VALUE_KINDS.map((kind) => ({ ...kind, count: kind.countValues(counts) })); // Every kind, a count of none included, so no count is ever hidden.
         return {
             ...row,
             icon: columnIcons.value[index]?.dataSubtypeIcon ?? columnIcons.value[index]?.dataTypeIcon,
@@ -166,9 +166,15 @@ function constructValueKindLabel(valueKindId: ValueKindId): string {
                              named, because the colours alone do not say what they are. 'relative' keeps the hidden text
                              inside the scroller, or iOS Safari scrolls the whole page sideways. -->
                         <td class="relative py-1 pr-4">
-                            <template v-if="columnRow.segments.length > 0">
+                            <template v-if="columnRow.segments.some((segment) => segment.count > 0)">
                                 <span aria-hidden="true" class="flex h-2 w-40 gap-px overflow-hidden rounded-full">
-                                    <span v-for="segment in columnRow.segments" :key="segment.id" class="min-w-0.5 basis-0" :class="segment.colorClass" :style="{ flexGrow: segment.count }" />
+                                    <span
+                                        v-for="segment in columnRow.segments.filter(({ count }) => count > 0)"
+                                        :key="segment.id"
+                                        class="min-w-0.5 basis-0"
+                                        :class="segment.colorClass"
+                                        :style="{ flexGrow: segment.count }"
+                                    />
                                 </span>
                                 <span aria-hidden="true" class="mt-0.5 flex gap-x-2 text-xs text-muted tabular-nums">
                                     <span v-for="segment in columnRow.segments" :key="segment.id" class="flex items-center gap-x-1">
@@ -219,7 +225,7 @@ function constructValueKindLabel(valueKindId: ValueKindId): string {
                                         <span class="size-2 rounded-full" :class="MOST_COMMON_FORMAT_COLOR_CLASS" />
                                         {{ numberFormat.format(columnRow.mostCommonFormat.count) }}
                                     </span>
-                                    <span v-if="columnRow.mostCommonFormat.otherCount > 0" class="flex items-center gap-x-1">
+                                    <span class="flex items-center gap-x-1">
                                         <span class="size-2 rounded-full" :class="OTHER_FORMAT_COLOR_CLASS" />
                                         {{ numberFormat.format(columnRow.mostCommonFormat.otherCount) }}
                                     </span>

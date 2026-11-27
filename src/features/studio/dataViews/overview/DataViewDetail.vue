@@ -11,7 +11,6 @@ import type { DataViewConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 import type { DataViewConnection } from '@/features/studio/dataViews/_state/dataViewSummary';
 import { defineLazyComponent } from '@/utilities/index.ts';
 import { isDataViewLoaded } from '@/features/studio/dataViews/_state/dataViewStore';
-import { isDerivedColumn } from '@/features/studio/dataViews/_state/dataViewColumns';
 import { raiseAppFailure } from '@/state/errors';
 import { renderMarkdown } from '@/services/useMarkedTool';
 import { restoreItemReading } from '@/features/studio/dataViews/_state/dataViewColumns';
@@ -28,17 +27,11 @@ import Dialog from '@/components/ui/dialog/Dialog.vue';
 import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import ScrollEndButtons from '@/components/ui/scroll/ScrollEndButtons.vue';
-import ScrollRegion from '@/components/ui/scroll/ScrollRegion.vue';
 import StudioDetailLayout from '@/features/studio/_components/StudioDetailLayout.vue';
 import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
 
 // ── Dynamic Components
 const StudioDescriptorsPanel = defineLazyComponent(() => import('@/features/studio/_components/StudioDescriptorsPanel.vue'), 'StudioDescriptorsPanel');
-
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const COLLAPSED_TABLE_ROW_COUNT = 10; // Rows the data table shows until the user asks for the rest.
-const NON_BREAKING_SPACE = '\u{A0}'; // Gives a cell with no value a line of text, so its row keeps its height.
 
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
@@ -62,33 +55,13 @@ const editedDescription = ref('');
 const editedLabel = ref('');
 const editedSubjectLabel = ref(''); // Taken when the dialog opens, so its title holds steady while the label is edited.
 
-// ── Data Table ─ Starts with its first rows only, so the document stays short until the user asks for more.
-const dataTableIsExpanded = ref(false);
-
 // ── Scrolling
 const documentScrollElement = shallowRef<HTMLElement>();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// ── Item
-const itemSubject = computed(() => dataViewConnection?.itemTypeId ?? 'item'); // Messages name the connector's kind of item, e.g. 'No file selected yet', and fall back to 'item' for a connector released before it said which.
-
 // ── Reading ─ What the saved sample was read with, and its columns as the user typed them.
 const itemReading = computed(() => restoreItemReading(dataViewLocalisedConfig));
-const previewColumnLabels = computed(
-    () => itemReading.value?.columnConfigs.map((config, index) => config.label[localeId.value] ?? config.label.en ?? String(index + 1)) ?? []
-);
-// A derived column, such as a column of units, is not in the item's records, so the table leaves it out.
-const previewColumnIndexes = computed(() =>
-    (itemReading.value?.columnConfigs ?? []).map((config, index) => (isDerivedColumn(config) ? undefined : index)).filter((index) => index !== undefined)
-);
-const previewColumnIsNumeric = computed(() => itemReading.value?.columnConfigs.map((config) => config.dataTypeId === 'numeric') ?? []); // Numbers are right-aligned in figures of equal width, so their digits line up.
-
-// ── Data ─ The rows of the sample saved with the item. Its first record is the header row, as SelectItemPanel treats it.
-const previewRows = computed(() => dataViewLocalisedConfig.sampleConfig?.parsedRecords.slice(1) ?? []);
-
-// ── Data Table
-const shownPreviewRows = computed(() => (dataTableIsExpanded.value ? previewRows.value : previewRows.value.slice(0, COLLAPSED_TABLE_ROW_COUNT)));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -166,52 +139,6 @@ async function handleSaveEdits(): Promise<void> {
                 <template #description>
                     <div v-if="dataViewLocalisedConfig.description" class="text-muted" v-html="renderMarkdown(dataViewLocalisedConfig.description)" />
                     <p v-else class="text-muted">{{ t(TEXT, 'description.pending.text') }}</p>
-                </template>
-
-                <!-- Data ─ Straight after the columns, as the records those columns describe. -->
-                <template #after-columns>
-                    <StudioDocumentSection :title="t(TEXT, 'data.title')">
-                        <template v-if="previewRows.length > 0">
-                            <!-- Scrolls sideways on its own, as the columns table does. Every row has a cell for every column,
-                                 because a record can have fewer values than the item has columns. A cell with no value holds a
-                                 non-breaking space, so a record with no values is as tall as the others. The label is for screen
-                                 readers only, because the section heading already names the table on screen. -->
-                            <ScrollRegion v-slot="{ labelId }" :label="t(TEXT, 'dataTable.title')">
-                                <table :aria-labelledby="labelId" class="text-sm whitespace-nowrap">
-                                    <thead>
-                                        <tr class="text-left">
-                                            <th
-                                                v-for="columnIndex in previewColumnIndexes"
-                                                :key="columnIndex"
-                                                class="py-1 pr-4 font-normal text-muted"
-                                                :class="{ 'text-right': previewColumnIsNumeric[columnIndex] }"
-                                            >
-                                                {{ previewColumnLabels[columnIndex] }}
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(record, recordIndex) in shownPreviewRows" :key="recordIndex">
-                                            <td
-                                                v-for="columnIndex in previewColumnIndexes"
-                                                :key="columnIndex"
-                                                class="py-1 pr-4"
-                                                :class="{ 'text-right tabular-nums': previewColumnIsNumeric[columnIndex] }"
-                                            >
-                                                {{ record[columnIndex] || NON_BREAKING_SPACE }}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </ScrollRegion>
-                        </template>
-                        <p v-else class="text-muted">{{ t(TEXT, `data.pending.${itemSubject}.text`) }}</p>
-                        <div v-if="previewRows.length > COLLAPSED_TABLE_ROW_COUNT" class="mt-2 px-3 text-sm">
-                            <ActionWrapper :aria-expanded="dataTableIsExpanded" class="text-left text-accent hover:underline" @click="dataTableIsExpanded = !dataTableIsExpanded">
-                                {{ dataTableIsExpanded ? t(TEXT, 'data.showFewer.label') : t(TEXT, 'data.showAll.label', { count: previewRows.length }) }}
-                            </ActionWrapper>
-                        </div>
-                    </StudioDocumentSection>
                 </template>
 
                 <!-- Connector ─ Near the end, because the connector matters less than the item and its columns. The
