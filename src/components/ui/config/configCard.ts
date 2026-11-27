@@ -23,23 +23,30 @@ export interface Action<T extends BaseConfig = BaseConfig> {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A full-size card's metrics, in px. The card's classes state the same numbers — 'p-3', 'gap-y-3', 'h-7', 'h-17' and
-// 'pointer-coarse:h-8.5' — so a change to one must be made to the other.
+// A full-size card's metrics, in px. The card's classes state the same numbers — 'p-3', 'gap-y-3', 'h-7' and
+// 'pointer-coarse:h-8.5' — so a change to one must be made to the other. The card takes the height of a title row with
+// details from 'constructCardTitleRowHeight'.
 const CARD_PADDING_PX = 12;
 const CARD_ROW_GAP_PX = 12;
 const CARD_ROW_HEIGHT_PX = 28;
 const CARD_ROW_HEIGHT_COARSE_PX = 34; // The footer row on touch, where the action buttons grow to a comfortable target.
 const CARD_TITLE_ROW_WITH_DETAILS_HEIGHT_PX = 68; // The title row holding two detail lines below the label, each as tall as its 20px icon.
+const CARD_DETAIL_LINE_HEIGHT_PX = 24; // Each detail line past the second: its 20px icon and the 4px gap above it.
 const GRID_CELL_GAP_PX = 16; // 'Grid' leaves this above each full-size cell.
 
 // ── Composables ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// The height of a card's title row when it holds detail lines below the label: two lines, or more.
+export function constructCardTitleRowHeight(detailLineCount: number): number {
+    return CARD_TITLE_ROW_WITH_DETAILS_HEIGHT_PX + Math.max(0, detailLineCount - 2) * CARD_DETAIL_LINE_HEIGHT_PX;
+}
+
 // The grid row height for full-size cards, so hosts size the virtualiser's rows from the card rather than restating
-// its sum. 'hasFooter' is whether the cards carry actions, which take a second row; 'hasDetails' is whether they
-// carry details, which make the title row taller.
-export function useCardRowHeight(hasFooter: boolean, hasDetails = false): ComputedRef<number> {
+// its sum. 'hasFooter' is whether the cards carry actions, which take a second row; 'detailLineCount' is how many
+// detail lines they carry, which make the title row taller. None by default.
+export function useCardRowHeight(hasFooter: boolean, detailLineCount = 0): ComputedRef<number> {
     return computed(() => {
-        const cardHeight = CARD_PADDING_PX * 2 + (hasDetails ? CARD_TITLE_ROW_WITH_DETAILS_HEIGHT_PX : CARD_ROW_HEIGHT_PX);
+        const cardHeight = CARD_PADDING_PX * 2 + (detailLineCount > 0 ? constructCardTitleRowHeight(detailLineCount) : CARD_ROW_HEIGHT_PX);
         if (!hasFooter) return GRID_CELL_GAP_PX + cardHeight;
         const footerRowHeight = pointerIsCoarse.value ? CARD_ROW_HEIGHT_COARSE_PX : CARD_ROW_HEIGHT_PX;
         return GRID_CELL_GAP_PX + cardHeight + CARD_ROW_GAP_PX + footerRowHeight;

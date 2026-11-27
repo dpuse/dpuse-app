@@ -31,9 +31,9 @@ const { data: eventQueryConfigs } = useEventQueries();
 // at.
 const selectedEventQueryConfig = computed(() => eventQueryConfigs.value?.find((config) => config.id === route.params.eventQueryId));
 
-// ── Views ─ The context diagram opens first, because an event query is made for an event in the context. The saved
-// event queries are one click away. The diagram's icon leads, because it is the view the screen opens on, as on
-// Establish Data Views. Each view opens with the selected event query still selected.
+// ── Views ─ The list of saved event queries opens first, and its icon leads, as on Establish Data Views. The context
+// diagram is one click away, and adding an event query goes there, because one is made for an event in the context.
+// Each view opens with the selected event query still selected.
 const viewItems = computed((): TaskLayoutView[] => {
     const eventQueryId = selectedEventQueryConfig.value?.id;
     const diagramRoute: RouteLocationRaw =
@@ -41,8 +41,8 @@ const viewItems = computed((): TaskLayoutView[] => {
             ? { name: 'eventQueryDiagram', query: route.query }
             : constructContextDiagramRoute(resolveEventQueryDiagramFocus({}, selectedEventQueryConfig.value), route.query, eventQueryId);
     return [
-        { id: 'eventQueryDiagram', icon: GraphStarIcon, label: t(TEXT, 'diagram.label'), to: diagramRoute },
-        { id: 'eventQueryList', icon: LayoutGridIcon, label: t(TEXT, 'list.label'), to: { name: 'eventQueryList', params: { eventQueryId }, query: route.query } }
+        { id: 'eventQueryList', icon: LayoutGridIcon, label: t(TEXT, 'list.label'), to: { name: 'eventQueryList', params: { eventQueryId }, query: route.query } },
+        { id: 'eventQueryDiagram', icon: GraphStarIcon, label: t(TEXT, 'diagram.label'), to: diagramRoute }
     ];
 });
 

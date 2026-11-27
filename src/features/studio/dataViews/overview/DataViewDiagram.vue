@@ -40,13 +40,16 @@ const ITEM_TYPE_ICONS: Record<Exclude<ConnectorItemTypeId, 'file'>, string> = {
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>',
     table: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="3" x2="21" y1="15" y2="15"/><line x1="9" x2="9" y1="9" y2="21"/><line x1="15" x2="15" y1="9" y2="21"/></svg>'
 };
-// A folder of a connection shows Lucide 'database' for a connector that holds tables, or else 'folder', in the colours of
-// the item icons.
+// A folder of a connection shows Lucide 'database' for a connector that holds tables, or else 'folder'. Neutral grey,
+// as Setup's icon is, because a folder only holds the items: colour is kept for the connection and the data views. A
+// lighter grey in the dark appearance, where the darker one is lost on the near-black background.
 const FOLDER_ICONS = {
     database:
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>',
-    folder: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#488f86" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>'
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#52525b" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>',
+    folder: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#52525b" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>'
 };
+const FOLDER_ICON_COLOR = '#52525b';
+const FOLDER_ICON_COLOR_DARK = '#a1a1aa';
 const ROOT_ICON_COLOR = '#ffffff'; // The top node's icon, on the solid data views colour.
 const SETUP_OPTION_ID = 'setup'; // The studio option whose colour every node below the top one, and every line, takes, so only the top node stands out.
 
@@ -85,7 +88,7 @@ const diagramConnections = computed(() =>
             connectorId: config.connectorConfig.id,
             connectorLabel: connectorLocalisedConfig.label,
             connectorIcon: resolveAppearanceIcon(connectorLocalisedConfig.icon, connectorLocalisedConfig.iconDark),
-            folderIcon: config.connectorConfig.itemTypeId === 'table' ? FOLDER_ICONS.database : FOLDER_ICONS.folder
+            folderIcon: constructFolderIcon(config.connectorConfig.itemTypeId === 'table' ? FOLDER_ICONS.database : FOLDER_ICONS.folder)
         };
     })
 );
@@ -159,6 +162,11 @@ function handleClickBackground(): void {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A folder icon in the grey of the appearance in use.
+function constructFolderIcon(icon: string): string | undefined {
+    return resolveAppearanceIcon(icon, icon.replaceAll(FOLDER_ICON_COLOR, () => FOLDER_ICON_COLOR_DARK));
+}
 
 // A second click on the same data view opens it when it comes soon enough to make a double-click. A slower one is a
 // click on the selected data view.

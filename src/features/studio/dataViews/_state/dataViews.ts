@@ -45,8 +45,8 @@ export type DataViewsViewId = 'diagram' | 'list'; // The two ways round the save
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The view the user last had open, so the way back from a task returns to it. The diagram opens first.
-export const lastDataViewsViewId = ref<DataViewsViewId>('diagram');
+// The view the user last had open, so the way back from a task returns to it. The list opens first.
+export const lastDataViewsViewId = ref<DataViewsViewId>('list');
 
 // Set by a step whose bottom row is too wide for its detail pane, so the pill shows icons only. The row's own width
 // cannot tell, because it runs across both panes.

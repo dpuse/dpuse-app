@@ -5,7 +5,7 @@ import { useElementSize } from '@vueuse/core';
 import { computed, inject, ref, useTemplateRef } from 'vue';
 
 // ── Local Framework
-import { gridDetailIsSplitKey } from '@/components/ui/grid/gridDetail';
+import { gridDetailIsSheetKey, gridDetailIsSplitKey } from '@/components/ui/grid/gridDetail';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -27,6 +27,7 @@ defineEmits<{ close: [] }>();
 
 const actionsElement = useTemplateRef<HTMLElement>('actionsElement');
 const panesAreSplit = inject(gridDetailIsSplitKey, ref(false));
+const detailIsSheet = inject(gridDetailIsSheetKey, ref(false));
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -36,7 +37,9 @@ const headerMarginRight = computed(() => `${String(Math.max(36, actionsWidth.val
 </script>
 
 <template>
-    <div class="dpuse-prose relative pt-4 [&_ul]:list-none [&_ul]:pl-0" data-region="StudioDocumentPanel">
+    <!-- In a sheet the header starts lower, so the actions on the title row sit clear below the sheet's close button
+         rather than against it. -->
+    <div class="dpuse-prose relative [&_ul]:list-none [&_ul]:pl-0" :class="detailIsSheet ? 'pt-9' : 'pt-4'" data-region="StudioDocumentPanel">
         <!-- Header -->
         <div class="relative">
             <ActionWrapper class="group block w-full min-w-0 cursor-pointer text-left" :class="{ 'pointer-events-none': panesAreSplit }" @click="$emit('close')">
@@ -71,9 +74,9 @@ const headerMarginRight = computed(() => `${String(Math.max(36, actionsWidth.val
 
             <!-- Actions ─ Beside the header button rather than inside it, because a button may not contain buttons. They sit in
                  the right margin the header keeps clear, and are centred on the title row whatever the overline's height.
-                 '-right-1' puts the last action's centre under the assistant toggle's in the top right corner: the page
-                 margin ends 16px from the edge, so a 20px icon 4px past it is centred 30px in, as the toggle is. -->
-            <div v-if="$slots.actions" ref="actionsElement" class="absolute -right-1 bottom-0 flex h-10 items-center gap-x-2">
+                 'right-1' puts the last action's centre under the assistant toggle's in the top right corner: the page
+                 margin ends 16px from the edge, so a 20px icon 4px inside it is centred 30px in, as the toggle is. -->
+            <div v-if="$slots.actions" ref="actionsElement" class="absolute right-1 bottom-0 flex h-10 items-center gap-x-2">
                 <slot name="actions" />
             </div>
         </div>

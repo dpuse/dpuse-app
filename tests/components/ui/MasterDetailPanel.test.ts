@@ -9,8 +9,12 @@ import { TEXT as SHEET_TEXT } from '@/components/ui/SheetHeader_.json';
 import SheetHeader from '@/components/ui/SheetHeader.vue';
 import { t } from '@/state/locale';
 
-// jsdom lays nothing out, so the panel's measured width is set by each test.
-vi.mock('@vueuse/core', async (importOriginal) => ({ ...(await importOriginal<object>()), useElementSize: (): object => ({ height: ref(BODY_HEIGHT), width: bodyWidth }) }));
+// jsdom lays nothing out, so the panel's measured width is set by each test, and its foot is at the bottom of the screen.
+vi.mock('@vueuse/core', async (importOriginal) => ({
+    ...(await importOriginal<object>()),
+    useElementBounding: (): object => ({ bottom: ref(BODY_HEIGHT) }),
+    useElementSize: (): object => ({ height: ref(BODY_HEIGHT), width: bodyWidth })
+}));
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -93,14 +97,15 @@ describe('master detail panel', () => {
     });
 
     describe('with a summary', () => {
-        it('keeps the master pane on a narrow screen, with the detail as a sheet at its summary', () => {
+        it('keeps the master pane on a narrow screen, with the detail as a sheet at its lowest', () => {
             const wrapper = mountPanel(NARROW_WIDTH, { selectedItem: { id: 'a' } }, true);
 
             expect(wrapper.get('[data-test="master"]').isVisible()).toBe(true);
             expect(findSheet(wrapper).attributes('data-position')).toBe('summary');
-            expect(wrapper.get('[data-test="summary"]').text()).toBe('a');
+            expect(wrapper.find('[data-test="summary"]').exists()).toBe(false); // The top of the detail names the selection.
+            expect(wrapper.get('[data-test="detail"]').text()).toBe('a');
             expect(wrapper.find('[data-test="action"]').exists()).toBe(true);
-            expect(isInert(wrapper, 'detail')).toBe(true); // Out of sight, so out of reach.
+            expect(isInert(wrapper, 'detail')).toBe(false);
         });
 
         it('shows the summary, not a closed detail, when the detail starts closed', () => {
@@ -124,7 +129,6 @@ describe('master detail panel', () => {
 
             await sheet.get(`[aria-label="${t(SHEET_TEXT, 'handle.expand.aria')}"]`).trigger('click');
             expect(sheet.attributes('data-position')).toBe('half');
-            expect(wrapper.find('[data-test="summary"]').exists()).toBe(false); // The detail's own title takes over.
             expect(isInert(wrapper, 'detail')).toBe(false);
 
             await sheet.get(`[aria-label="${t(SHEET_TEXT, 'handle.expand.aria')}"]`).trigger('click');
@@ -167,6 +171,40 @@ describe('master detail panel', () => {
             header.vm.$emit('dragEnd', -BODY_HEIGHT); // All the way down.
             await nextTick();
             expect(sheet.attributes('data-position')).toBe('closed');
+        });
+
+        it('raises the close button over content scrolled under it, and lowers it at the top or for a new selection', async () => {
+            const wrapper = mountPanel(NARROW_WIDTH, { selectedItem: { id: 'a' } }, true);
+            const closeButton = (): ReturnType<VueWrapper['get']> => findSheet(wrapper).get(`[aria-label="${t(SHEET_TEXT, 'close.aria')}"]`);
+            const detail = wrapper.get('[data-test="detail"]').element as HTMLElement;
+            Object.defineProperties(detail, { clientHeight: { value: 100 }, scrollHeight: { value: 400 }, scrollTop: { value: 50, writable: true } });
+            await nextTick(); // The scroll listener is added once the sheet has rendered.
+
+            detail.dispatchEvent(new Event('scroll'));
+            await nextTick();
+            expect(closeButton().classes()).toContain('shadow-md');
+
+            detail.scrollTop = 0;
+            detail.dispatchEvent(new Event('scroll'));
+            await nextTick();
+            expect(closeButton().classes()).not.toContain('shadow-md');
+
+            detail.scrollTop = 50;
+            detail.dispatchEvent(new Event('scroll'));
+            await wrapper.setProps({ selectedItem: { id: 'b' } });
+            expect(closeButton().classes()).not.toContain('shadow-md');
+        });
+
+        it('leaves the close button as it is when only a sideways scroller moves', async () => {
+            const wrapper = mountPanel(NARROW_WIDTH, { selectedItem: { id: 'a' } }, true);
+            const detail = wrapper.get('[data-test="detail"]').element as HTMLElement;
+            Object.defineProperties(detail, { clientHeight: { value: 100 }, scrollHeight: { value: 100 }, scrollTop: { value: 0 } });
+            await nextTick();
+
+            detail.dispatchEvent(new Event('scroll'));
+            await nextTick();
+
+            expect(findSheet(wrapper).get(`[aria-label="${t(SHEET_TEXT, 'close.aria')}"]`).classes()).not.toContain('shadow-md');
         });
 
         it('closes the sheet from its close button and on Escape, keeping the item selected, and shows it again when asked', async () => {

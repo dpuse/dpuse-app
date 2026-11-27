@@ -110,14 +110,14 @@ const trail = computed((): TaskTrailContent => {
     return constructDataViewTrail(trailConnection.value, savedItemConfig, savedDataFormatId, routeIsTask.value ? itemStepTrail.value : undefined, labels);
 });
 
-// ── Views ─ The diagram and the list of data views. Each opens with the open or selected data view selected.
+// ── Views ─ The list and the diagram of data views. Each opens with the open or selected data view selected.
 const currentViewId = computed((): DataViewsViewId | undefined => {
     if (route.name === 'dataViewDiagram') return 'diagram';
     return route.name === 'dataViewList' ? 'list' : undefined;
 });
 const viewItems = computed((): TaskLayoutView[] => [
-    { id: 'diagram', icon: GraphStarIcon, label: t(TEXT, 'view.diagram.label'), to: constructOpenDataViewRoute('diagram') }, // First, because it is the view the screen opens on.
-    { id: 'list', icon: LayoutGridIcon, label: t(TEXT, 'view.list.label'), to: constructOpenDataViewRoute('list') }
+    { id: 'list', icon: LayoutGridIcon, label: t(TEXT, 'view.list.label'), to: constructOpenDataViewRoute('list') }, // First, because it is the view the screen opens on.
+    { id: 'diagram', icon: GraphStarIcon, label: t(TEXT, 'view.diagram.label'), to: constructOpenDataViewRoute('diagram') }
 ]);
 
 // ── Views and Task Panel ─ The layout's own 'RouterView' sits one level in, so the layout shows the spinner while the

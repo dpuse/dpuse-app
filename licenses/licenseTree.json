@@ -1,5 +1,5 @@
 {
-  "version": "1.0.321",
+  "version": "1.0.322",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -162,8 +162,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261125.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261125.1.tgz",
+      "version": "5.20261127.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261127.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -287,7 +287,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.252"
+          "version": "1.0.253"
         },
         "npm-check-updates": {
           "version": "23.1.1",
@@ -363,8 +363,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.252",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.252.tgz",
+      "version": "1.0.253",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.253.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -450,7 +450,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.252"
+          "version": "1.0.253"
         },
         "@tanstack/charts": {
           "version": "1.5.0",
@@ -2237,8 +2237,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.81.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.81.0.tgz",
+      "version": "1.82.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.82.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -4769,7 +4769,7 @@
         "@automerge/automerge-repo": {},
         "@capacitor-community/sqlite": {},
         "@cloudflare/workers-types": {
-          "version": "5.20261125.1"
+          "version": "5.20261127.1"
         },
         "@electric-sql/pglite": {},
         "@libsql/client": {},
@@ -5675,7 +5675,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261125.1"
+          "version": "5.20261127.1"
         },
         "@cloudflare/workers-utils": {
           "version": "0.57.0",

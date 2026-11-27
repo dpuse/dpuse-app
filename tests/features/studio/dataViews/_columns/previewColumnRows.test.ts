@@ -11,6 +11,7 @@ import type { ItemReading } from '@/features/studio/dataViews/_state/dataViewCol
 import {
     constructColumnFacts,
     constructColumnValueCounts,
+    constructMostCommonFormat,
     constructPreviewColumnHeaders,
     constructPreviewColumnIcons,
     constructPreviewColumnRows,
@@ -91,9 +92,42 @@ describe('constructPreviewColumnRows', () => {
         });
 
         expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({
-            formatText: '9999,9 (5), 9999 (3)',
+            distinctValueText: '2',
+            formatText: '9999,9',
+            lengthText: '1–2\u{2009},\u{2009}2',
+            notationText: 'Decimal comma',
             uniqueText: 'No'
         });
+    });
+
+    it('joins a number’s whole digits and decimal places with its own decimal separator, spaced apart, and leaves out none', () => {
+        const pointColumn = buildItemReading(false, { dataTypeId: 'numeric', validMaxDecimals: 1, validMaxWholeDigits: 2, validMinDecimals: 0, validMinWholeDigits: 2 });
+        const wholeColumn = buildItemReading(false, { dataTypeId: 'numeric', validMaxDecimals: 0, validMaxWholeDigits: 3, validMinDecimals: 0, validMinWholeDigits: 1 });
+
+        expect(constructPreviewColumnRows(pointColumn)[0]?.lengthText).toBe('2\u{2009}.\u{2009}0–1');
+        expect(constructPreviewColumnRows(wholeColumn)[0]?.lengthText).toBe('1–3');
+    });
+
+    it('gives the length of text', () => {
+        const itemReading = buildItemReading(false, { validCountsAreEstimated: true, validDistinctValueCount: 5000, validMaxSize: 12, validMinSize: 3 });
+
+        expect(constructPreviewColumnRows(itemReading)[0]).toMatchObject({ distinctValueText: '5,000', lengthText: '3–12', notationText: '' });
+    });
+
+    it('writes a number’s unit and a date’s order in one notation', () => {
+        const amountColumn = buildItemReading(false, { dataTypeId: 'numeric', decimalSeparatorId: '.', unitId: '€' });
+        const dateColumn = buildItemReading(false, { dataTypeId: 'temporal', dateOrderId: 'dayFirst' });
+
+        expect(constructPreviewColumnRows(amountColumn)[0]?.notationText).toBe('€, Decimal point');
+        expect(constructPreviewColumnRows(dateColumn)[0]?.notationText).toBe('Day first');
+    });
+
+    it('names the most common format, and counts it against every other format', () => {
+        const itemReading = buildItemReading(false, { validFormats: { a: 1, b: 5, c: 4 } });
+
+        expect(constructPreviewColumnRows(itemReading)[0]?.formatText).toBe('b');
+        expect(constructMostCommonFormat({ a: 1, b: 5, c: 4 })).toEqual({ count: 5, format: 'b', otherCount: 5 });
+        expect(constructMostCommonFormat({})).toBeUndefined();
     });
 
     it('names a derived column as derived, because the item does not hold it', () => {

@@ -107,17 +107,19 @@ describe('createAppRouter', () => {
             history.replaceState({}, '', '/');
         });
 
-        it.each([
-            ['/dataViews?studio=1', '/dataViews/diagram?studio=1'],
-            ['/eventQueries?studio=1', '/eventQueries/diagram?studio=1']
-        ])('opens the diagram first, from %s', async (path, arrivalPath) => {
-            expect(await findArrivalPath(path)).toBe(arrivalPath);
+        it('opens the data views on the list first', async () => {
+            expect(await findArrivalPath('/dataViews?studio=1')).toBe('/dataViews/list?studio=1');
+        });
+
+        it('opens the event queries on the list first', async () => {
+            expect(await findArrivalPath('/eventQueries?studio=1')).toBe('/eventQueries/list?studio=1');
         });
 
         it.each([
             ['/dataViews?dvView=list&studio=1', '/dataViews/list?studio=1'],
             ['/dataViews?dvConnector=dropbox&dvConnection=work', '/dataViews/diagram/dropbox/work'],
-            ['/dataViews?dvConnection=work', '/dataViews/diagram'],
+            ['/dataViews?dvView=diagram&studio=1', '/dataViews/diagram?studio=1'],
+            ['/dataViews?dvConnection=work', '/dataViews/list'], // A connection without its connector names no level of the diagram.
             ['/dataViews/a?dvView=list&studio=1', '/dataViews/list/a?studio=1'],
             ['/eventQueries/hr/workforce', '/eventQueries/diagram/hr/workforce']
         ])('takes the old link %s to the view it named', async (path, arrivalPath) => {

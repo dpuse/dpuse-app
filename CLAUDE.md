@@ -286,15 +286,16 @@ Each state looks the same everywhere, by meaning. The states are layers over an 
 `state-*` utilities in `main.css` and the tokens in `theme.css`. Never a raw colour such as `hover:bg-zinc-100`.
 
 - **Hover and press** ─ `hover:state-hover active:state-press`, a translucent grey, on every interactive element.
-- **Text links** ─ blue (`text-accent`), and underlined on hover
-  (`hover:underline hover:decoration-accent-hover/40 hover:underline-offset-2`), because a slightly darker blue alone
-  is too small a change to notice. Blue is only for text with no other cue that it can be clicked, such as a breadcrumb
+- **Text links** ─ the accent colour (`text-accent`), which is the studio option's colour darkened, and blue in Data
+  Views, in Setup and where no option is on screen. Underlined on hover
+  (`hover:underline hover:decoration-accent-hover/40 hover:underline-offset-2`), because a slightly darker shade alone
+  is too small a change to notice. The accent is only for text with no other cue that it can be clicked, such as a breadcrumb
   beside crumbs that cannot. A link whose icon already shows it can be clicked, such as the breadcrumb trail's back
   link with its arrow, is muted text that darkens and underlines on hover. The last breadcrumb names the current item,
   so it stays in the text colour even when it can be clicked, and only its hover underline shows it.
 - **Steps** ─ the task bar is a control, like tabs, not a row of links, so its labels are neutral text: the darkest
   colour for the current step, the text colour for the others and faint grey for a locked one. Each step's state is in
-  its circle and the line after it, in blue for the current and done steps and grey for the rest. A step that can be
+  its circle and the line after it, in the accent colour for the current and done steps and grey for the rest. A step that can be
   opened underlines on hover, as a link does.
 - **Icons on hover** ─ an icon-only control, including a breadcrumb shown as its icon alone, takes the grey hover fill
   (`hover:state-hover active:state-press`). An icon beside text in a link belongs to the link, so it underlines with it
@@ -307,8 +308,13 @@ Each state looks the same everywhere, by meaning. The states are layers over an 
   Presentations and Data Apps, and grey in Setup. Grey too where no option is on screen. Grey has its own lighter
   strength, because a grey as strong as the tints reads as too dark. `useStudioOptionTint` sets the colour on the
   page's root as `--option-color`, and `--selected`, `--selected-hover` and `--selected-border` in `theme.css` read
-  it. Links, focus rings, the current step and the floating pill stay blue everywhere: blue means "act here", and the
-  tint means "you are here".
+  it. The floating pill, the primary button, links, the current step and every other use of the accent follow the
+  option too, so a whole screen is in its option's colour. In Data Views, where the option's own colour is blue, they
+  keep the theme's blues, and a selection takes the pill's (`--pill`, `--pill-hover`, `--pill-border`) in light mode,
+  so two near-matching blues never sit side by side. Text in the accent is at least 4.5:1 on its background.
+- **Focus rings** ─ neutral, the darkest text colour (`--focus-ring`), on every focusable thing, so a ring sits beside
+  any option's colour without clashing and means only "the keyboard is here". Never a light or mid grey, which reads as
+  a border or a hover fill.
 - **Rail and list rows** ─ selected, the tinted `state-selected hover:state-selected-hover`, as most design systems
   mark a selected nav item. A selected compact list row (`ConfigCard` `is-compact`) also has a `text-emphasis` label, not
   blue, because blue text means a link. Its weight stays the same, so selecting a row never moves its text. Not
@@ -319,7 +325,15 @@ Each state looks the same everywhere, by meaning. The states are layers over an 
   (`tab-bar`) and empty value cells (`empty-tint`). Never a near-match: point a new use at `surface-muted`.
 - **On/off toggles** ─ a darker grey (`IconButton` `is-pressed`, which sets `aria-pressed`), e.g. bold, because they
   are not a choice from a set.
-- **Floating pill** ─ solid `bg-pill`, because a translucent fill would show the content it floats over.
+- **Floating pill** ─ solid `bg-pill`, because a translucent fill would show the content it floats over. Its fill,
+  border and text take the studio option's colour: gold in Contextualise Data, teal in Presentations and Data Apps. Blue
+  in Data Views, in Setup and where no option is on screen, because a grey pill would look disabled. In the dark
+  appearance the fill is a neutral grey and only the text takes the option's colour. The text is at least 4.5:1 on the
+  fill.
+- **Neutral floating controls** ─ a round control that floats over content but is not the page's main action, such as
+  the session button and a sheet's close button over scrolled content, is white with a border and a shadow
+  (`bg-surface border border-separator shadow-md`). Never the pill's colour, which marks the page's main action, and
+  never the light grey, which marks what is set apart.
 - **Tabs** ─ underline tabs, as text or as an icon alone, share `TAB_CLASSES`, `TAB_SELECTED_CLASSES` and
   `TAB_UNSELECTED_CLASSES` from `action.ts`. Every tab has a bar under it, so a row of them reads as one set: faint at
   rest, grey on hover, and in the studio option's colour when selected (`border-b-option-mark`, the text colour where

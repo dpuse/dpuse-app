@@ -287,6 +287,17 @@ describe('data view diagram', () => {
             expect(readEmployeesIcon()).toBe('<svg data-id="item"/>');
         });
 
+        it('draws a connection’s folders in neutral grey, not in the colour of its items', async () => {
+            const { wrapper } = await mountMap('/sqlite/local');
+            await wrapper.setProps({ dataViewLocalisedConfigs: [buildTable('a', '/sales'), buildTable('b', '/staff')] });
+            const folderIcons = shownData(wrapper)
+                .nodes.filter((node) => node.label === 'sales' || node.label === 'staff')
+                .map((node) => node.icon);
+
+            expect(folderIcons).toHaveLength(2);
+            for (const icon of folderIcons) expect(icon).toContain('stroke="#52525b"');
+        });
+
         it('gives a data view on a table its kind’s icon once its item is chosen, as its card does', async () => {
             const { wrapper } = await mountMap('/sqlite/local');
             const readPeopleIcon = (): string | undefined => shownData(wrapper).nodes.find((node) => node.label === 'People')?.icon;
@@ -311,6 +322,11 @@ function buildConnection(id: string, label: string, connectorId: string, connect
 // The list is a plain ref here, in place of the app's computed one.
 function setConnections(configs: LocalisedConfig<ConnectionConfig>[]): void {
     (connectionLocalisedConfigs as unknown as { value: LocalisedConfig<ConnectionConfig>[] }).value = configs;
+}
+
+// A data view on a table of the 'local' connection, in the given folder.
+function buildTable(id: string, folderPath: string): object {
+    return { id, label: id, connectionId: 'local', connectionNodeConfig: { folderPath, label: id } };
 }
 
 async function mountMap(levelPath = '', selectedDataViewId?: string): Promise<{ router: Router; wrapper: VueWrapper }> {

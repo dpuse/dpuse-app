@@ -1,6 +1,29 @@
 {
     "TEXT": {
-        "column.dataSubtype.none.text": { "en": "None", "es": "Ninguno" },
-        "columnTable.title": { "en": "Columns", "es": "Columnas" }
+        "coded.aria": {
+            "en": "A few distinct values cover many records, or every value is written to one shape, so this column appears to hold codes",
+            "es": "Unos pocos valores distintos cubren muchos registros, o todos los valores siguen una misma forma, por lo que esta columna parece contener códigos"
+        },
+        "columnTable.title": { "en": "Columns", "es": "Columnas" },
+        "distinct.estimated.aria": { "en": "Estimated", "es": "Estimado" },
+        "format.counts.text": { "en": "{count} in this format, {other} in other formats", "es": "{count} con este formato, {other} con otros formatos" },
+        "format.mostCommon.label": { "en": "Most common", "es": "Más común" },
+        "format.other.label": { "en": "Other", "es": "Otros" },
+        "key.aria": {
+            "en": "Every value is unique, none is missing and none is invalid, so this column appears to be a key",
+            "es": "Todos los valores son únicos, no falta ninguno y ninguno es no válido, por lo que esta columna parece ser una clave"
+        },
+        "mandatory.aria": {
+            "en": "Every record has a value in this column, so it appears to be mandatory",
+            "es": "Todos los registros tienen un valor en esta columna, por lo que parece ser obligatoria"
+        },
+        "type.label": { "en": "Type", "es": "Tipo" },
+        "unique.aria": {
+            "en": "No value repeats, leaving out missing ones, so this column appears to be unique",
+            "es": "Ningún valor se repite, sin contar los que faltan, por lo que esta columna parece ser única"
+        },
+        "values.label": { "en": "Values", "es": "Valores" },
+        "values.missing.label": { "en": "Missing", "es": "Faltantes" },
+        "values.part.text": { "en": "{label}: {count}", "es": "{label}: {count}" }
     }
 }

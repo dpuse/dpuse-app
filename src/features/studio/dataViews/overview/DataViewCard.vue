@@ -10,6 +10,7 @@ import type { Action } from '@/components/ui/config/configCard';
 import { t } from '@/state/locale';
 import { TEXT } from './DataViewCard_.json';
 import { constructDataViewSteps, type DataViewConnection } from '@/features/studio/dataViews/_state/dataViewSummary';
+import { isDataViewLoaded, resolveDataViewStore } from '@/features/studio/dataViews/_state/dataViewStore';
 
 // ── Static Components
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
@@ -33,6 +34,9 @@ const progressDescription = computed(() => {
     return done === steps.value.length ? t(TEXT, 'progress.complete.text') : t(TEXT, 'progress.text', { done, total: steps.value.length });
 });
 
+// ── Store ─ Where the records are loaded, and whether they are there yet.
+const store = computed(() => ({ ...resolveDataViewStore(dataViewLocalisedConfig), isLoaded: isDataViewLoaded(dataViewLocalisedConfig, false) }));
+
 // ── Actions
 const actions = computed((): Action<DataViewConfig>[] => [
     {
@@ -47,8 +51,9 @@ const actions = computed((): Action<DataViewConfig>[] => [
 </script>
 
 <template>
-    <!-- '@click', '@category-click', 'selected' and 'is-inert' reach 'ConfigCard' by attribute fallthrough, so this must
-         stay single-root. -->
+    <!-- '@click', '@category-click', 'selected', 'is-inert' and 'detail-line-count' reach 'ConfigCard' by attribute
+         fallthrough, so this must stay single-root. The details are four lines: the connection, the folder, the item and
+         the store. -->
     <ConfigCard :actions="actions" :category-label="dataViewConnection?.categoryLabel" :config="dataViewLocalisedConfig" hides-icon>
         <template #details>
             <DataViewSource
@@ -56,7 +61,9 @@ const actions = computed((): Action<DataViewConfig>[] => [
                 :connection-node-config="dataViewLocalisedConfig.connectionNodeConfig"
                 :data-format-id="dataViewLocalisedConfig.readingConfig?.dataFormatId"
                 :data-view-connection="dataViewConnection"
+                is-folder-line-shown
                 :item-type-id="dataViewConnection?.itemTypeId"
+                :store="store"
             />
         </template>
 

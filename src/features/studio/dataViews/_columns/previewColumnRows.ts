@@ -30,6 +30,20 @@ export interface ColumnFacts {
 
 export type PreviewColumnRow = Record<(typeof PREVIEW_COLUMN_KEYS)[number], string>;
 
+// A number's length in its parts, so the table can set the decimal places apart from the whole digits.
+export interface DecimalLengthParts {
+    decimalsText: string;
+    separator: string; // The column's own decimal separator, so the length reads like its numbers.
+    wholeDigitsText: string;
+}
+
+// The format most of a column's values are written in, with how many values have it and how many have any other.
+export interface MostCommonFormat {
+    count: number;
+    format: string;
+    otherCount: number;
+}
+
 export interface PreviewColumnIcons {
     dataSubtypeIcon: Component | undefined; // Undefined when the subtype has no label.
     dataTypeIcon: Component;
@@ -51,13 +65,20 @@ export const PREVIEW_COLUMN_KEYS = [
     'label',
     'dataTypeLabel',
     'dataSubtypeLabel',
+    'validValueText',
+    'distinctValueText',
     'invalidValueText',
     'nullValueText',
     'blankValueText',
     'emptyValueText',
     'uniqueText',
+    'lengthText',
+    'notationText',
     'formatText'
 ] as const;
+
+
+export const THIN_SPACE = '\u{2009}'; // Either side of the decimal separator in a number's length.
 
 export const PREVIEW_COLUMN_MARKS_WIDTH_PX = 60; // A tab's marks beside its name: the type icon, 22px, the mandatory and key marks, 34px, and 4px so a measured name is never a pixel short.
 
@@ -111,32 +132,42 @@ export function constructPreviewColumnHeaders(): PreviewColumnRow {
         blankValueText: t(TEXT, 'column.blankValues.label'),
         dataSubtypeLabel: t(TEXT, 'column.dataSubtype.label'),
         dataTypeLabel: t(TEXT, 'column.dataType.label'),
+        distinctValueText: t(TEXT, 'column.distinctValues.label'),
         emptyValueText: t(TEXT, 'column.emptyValues.label'),
-        formatText: t(TEXT, 'column.formats.label'),
+        formatText: t(TEXT, 'column.format.label'),
         invalidValueText: t(TEXT, 'column.invalidValues.label'),
         label: t(TEXT, 'column.label'),
+        lengthText: t(TEXT, 'column.length.label'),
+        notationText: t(TEXT, 'column.notation.label'),
         nullValueText: t(TEXT, 'column.nullValues.label'),
-        uniqueText: t(TEXT, 'column.unique.label')
+        uniqueText: t(TEXT, 'column.unique.label'),
+        validValueText: t(TEXT, 'column.validValues.label')
     };
 }
 
 // One row per column of the preview. The invalid count is the sampled values, the header excluded, that do not fit the
-// column's type, as the engine counts them when it chooses. A column with no sampled values has none to count.
+// column's type, as the engine counts them when it chooses. A column with no sampled values has none to count. A fact
+// that does not apply to the column's type, such as a date order for text, is left blank.
 export function constructPreviewColumnRows(itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders'>): PreviewColumnRow[] {
     const numberFormat = new Intl.NumberFormat(localeId.value);
     return itemReading.columnConfigs.map((columnConfig, index) => {
         const { count, total } = countColumnValues(columnConfig, itemReading.hasHeaders === true);
+        const isNumeric = columnConfig.dataTypeId === 'numeric';
         return {
             label: constructColumnLabel(columnConfig, index),
             dataTypeLabel: constructDataTypeLabel(columnConfig.dataTypeId),
             dataSubtypeLabel:
                 columnConfig.dataSubtypeId === undefined || columnConfig.dataSubtypeId === 'plain' ? '' : t(TEXT, DATA_SUBTYPE_LABEL_KEYS[columnConfig.dataSubtypeId]), // Plain text has no special format, so it gets no subtype label and real subtypes stand out.
+            uniqueText: formatYesNo(columnConfig.validIsUnique),
+            validValueText: formatCount(columnConfig.validValueCount, numberFormat),
+            distinctValueText: formatCount(columnConfig.validDistinctValueCount, numberFormat), // An estimate for a column with too many distinct values to count exactly, which the table marks.
             invalidValueText: total === 0 ? '' : numberFormat.format(total - count),
             nullValueText: formatCount(columnConfig.nullValueCount, numberFormat),
             blankValueText: formatCount(columnConfig.blankValueCount, numberFormat),
             emptyValueText: formatCount(columnConfig.emptyValueCount, numberFormat),
-            uniqueText: formatYesNo(columnConfig.validIsUnique),
-            formatText: formatCounts(columnConfig.validFormats, numberFormat)
+            lengthText: formatLength(columnConfig, numberFormat),
+            notationText: formatNotation(itemReading, index, isNumeric),
+            formatText: constructMostCommonFormat(columnConfig.validFormats)?.format ?? '' // How many values have it, the table shows as a bar.
         };
     });
 }
@@ -148,7 +179,7 @@ function constructColumnLabel(columnConfig: ItemReading['columnConfigs'][number]
 }
 
 // What each column's values are, for the bar in its header. Follows a type the user chose, as the rows do.
-export function constructColumnValueCounts(itemReading: ItemReading): ColumnValueCounts[] {
+export function constructColumnValueCounts(itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders'>): ColumnValueCounts[] {
     return itemReading.columnConfigs.map((columnConfig) => {
         const { count, total } = countColumnValues(columnConfig, itemReading.hasHeaders === true);
         return {
@@ -182,6 +213,26 @@ export function constructPreviewColumnIcons(itemReading: Pick<ItemReading, 'colu
         dataSubtypeIcon: dataSubtypeId === undefined || dataSubtypeId === 'plain' ? undefined : DATA_SUBTYPE_ICONS[dataSubtypeId],
         dataTypeIcon: DATA_TYPE_ICONS[dataTypeId]
     }));
+}
+
+// The whole digits and decimal places of a number column with decimals. Undefined for any other column, whose length
+// is one range.
+export function constructDecimalLengthParts(columnConfig: ColumnAuditConfig): DecimalLengthParts | undefined {
+    const { decimalSeparatorId = '.', dataTypeId, validMaxDecimals, validMaxWholeDigits, validMinDecimals, validMinWholeDigits } = columnConfig;
+    if (dataTypeId !== 'numeric' || validMaxDecimals == null || validMaxDecimals === 0) return;
+    const numberFormat = new Intl.NumberFormat(localeId.value);
+    const wholeDigitsText = formatRange(validMinWholeDigits, validMaxWholeDigits, numberFormat);
+    if (wholeDigitsText === '') return;
+    return { decimalsText: formatRange(validMinDecimals, validMaxDecimals, numberFormat), separator: decimalSeparatorId, wholeDigitsText };
+}
+
+// Undefined for a column with no formats. Counts may be missing from a preview read before they were measured.
+export function constructMostCommonFormat(formatCounts: Record<string, number> | undefined): MostCommonFormat | undefined {
+    const entries = Object.entries(formatCounts ?? {}).toSorted((left, right) => right[1] - left[1]);
+    const mostCommon = entries.at(0);
+    if (mostCommon == null) return;
+    const otherCount = entries.slice(1).reduce((sum, [, count]) => sum + count, 0);
+    return { count: mostCommon[1], format: mostCommon[0], otherCount };
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -222,12 +273,43 @@ export function formatYesNo(isTrue: boolean | undefined): string {
     return t(TEXT, isTrue ? 'answer.yes.label' : 'answer.no.label');
 }
 
-// Most frequent first. Counts may be missing from a preview read before they were measured.
-function formatCounts(counts: Record<string, number> | undefined, numberFormat: Intl.NumberFormat): string {
-    return Object.entries(counts ?? {})
-        .toSorted((left, right) => right[1] - left[1])
-        .map(([key, count]) => `${key} (${numberFormat.format(count)})`)
-        .join(', ');
+// From the smallest to the largest, or one figure when they are the same.
+function formatRange(minimum: number | undefined, maximum: number | undefined, numberFormat: Intl.NumberFormat): string {
+    if (minimum == null || maximum == null) return '';
+    if (minimum === maximum) return numberFormat.format(minimum);
+    return t(TEXT, 'column.range.text', { maximum: numberFormat.format(maximum), minimum: numberFormat.format(minimum) });
+}
+
+// How long a column's values are: text by its characters, and numbers by their whole digits then their decimal places.
+// Thin spaces either side of the separator make the two ranges read as two, rather than as one number. A number with no
+// decimal places shows its whole digits alone.
+function formatLength(columnConfig: ColumnAuditConfig, numberFormat: Intl.NumberFormat): string {
+    if (columnConfig.dataTypeId === 'string') return formatRange(columnConfig.validMinSize, columnConfig.validMaxSize, numberFormat);
+    if (columnConfig.dataTypeId !== 'numeric') return '';
+    const parts = constructDecimalLengthParts(columnConfig);
+    return parts == null ? formatRange(columnConfig.validMinWholeDigits, columnConfig.validMaxWholeDigits, numberFormat) : `${parts.wholeDigitsText}${THIN_SPACE}${parts.separator}${THIN_SPACE}${parts.decimalsText}`;
+}
+
+// How a column's values are written, where that applies: the unit of its numbers, its decimal separator and its date
+// order. A unit shows only when there is one, because a lone 'None' would not say what it is about.
+function formatNotation(itemReading: Pick<ItemReading, 'columnConfigs'>, columnIndex: number, isNumeric: boolean): string {
+    const columnConfig = itemReading.columnConfigs.at(columnIndex);
+    if (columnConfig == null) return '';
+    const unitColumnConfig = itemReading.columnConfigs.find((config) => config.derivedFromColumnIndex === columnIndex);
+    let unitIds: string[] = [];
+    if (isNumeric) unitIds = columnConfig.unitId == null ? Object.keys(unitColumnConfig?.validFrequentValues ?? {}) : [columnConfig.unitId];
+    const parts = [...unitIds, formatDecimalSeparator(columnConfig.decimalSeparatorId), formatDateOrder(columnConfig.dateOrderId)].filter((part) => part !== '');
+    return new Intl.ListFormat(localeId.value, { style: 'short', type: 'unit' }).format(parts);
+}
+
+function formatDecimalSeparator(decimalSeparatorId: ColumnAuditConfig['decimalSeparatorId']): string {
+    if (decimalSeparatorId == null) return '';
+    return t(TEXT, decimalSeparatorId === ',' ? 'column.decimalSeparator.comma.text' : 'column.decimalSeparator.point.text');
+}
+
+function formatDateOrder(dateOrderId: ColumnAuditConfig['dateOrderId']): string {
+    if (dateOrderId == null) return '';
+    return t(TEXT, dateOrderId === 'dayFirst' ? 'column.dateOrder.dayFirst.text' : 'column.dateOrder.monthFirst.text');
 }
 
 // How many of a column's values fit its current type, of those it holds. A header record's own value is not data.

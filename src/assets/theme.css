@@ -18,6 +18,7 @@
     --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
     --shadow-dialog: 0 20px 50px rgb(0 0 0 / 0.25), 0 2px 6px rgb(0 0 0 / 0.08); /* Floating dialog */
+    --shadow-sheet: 0 -4px 24px rgb(0 0 0 / 0.12), 0 -1px 4px rgb(0 0 0 / 0.06); /* Sheet over the foot of a narrow screen, so it lifts off what is behind it */
 
     --animate-pending-letter: pending-letter 1600ms ease-in-out infinite;
     --animate-shimmer: shimmer 1.2s ease-in-out infinite;
@@ -126,8 +127,8 @@
     --color-selected-border: var(--selected-border);
     --color-option-mark: var(--option-mark); /* The bar under a selected tab */
 
-    /* Floating pill ─ the page's primary action. Solid, because it floats over content that would show through a
-       translucent fill. */
+    /* Floating pill ─ the page's primary action, in the studio option's colour. Solid, because it floats over content
+       that would show through a translucent fill. */
     --color-pill: var(--pill);
     --color-pill-hover: var(--pill-hover);
     --color-pill-border: var(--pill-border); /* Its outline and the lines between its buttons. */
@@ -155,13 +156,18 @@
     --hint: var(--color-zinc-500); /* Paler than muted, still above 4.5:1 on the plain background. Never under a hover, press or selected layer. */
     --subtle: var(--color-zinc-400);
     --emphasis: var(--color-zinc-900);
-    --accent: var(--color-blue-600);
-    --accent-hover: var(--color-blue-700);
-    /* Focus follows the accent because focus is an interactive state, but it is its own token so it can be
-       retuned without touching links. blue-600 is about 5.2:1 on the white surface and 4.9:1 on the zinc-50 backdrop,
-       clearing the 3:1 that WCAG 2.2's focus-appearance criterion asks for. The zinc-300 this replaces was
-       1.5:1 — visible in theory and not in practice. */
-    --focus-ring: var(--accent);
+    /* Links, the current step and other interactive text and marks take the studio option's colour, darkened so text
+       in it is at least 5.3:1 on the surface and on a selected tint. Blue where no option is on screen, and in Setup,
+       whose colour is grey. */
+    --accent-tint: color-mix(in srgb, var(--option-color) 65%, black);
+    --accent-hover-tint: color-mix(in srgb, var(--option-color) 50%, black);
+    --accent: var(--accent-tint, var(--color-blue-600));
+    --accent-hover: var(--accent-hover-tint, var(--color-blue-700));
+    /* Focus is neutral, the darkest text colour, so it sits beside any studio option's colour without clashing and
+       means only "the keyboard is here". zinc-900 is 17.7:1 on the white surface, far past the 3:1 that WCAG 2.2's
+       focus-appearance criterion asks for. Never a light or mid grey, which would read as a border or a hover fill:
+       the zinc-300 once used here was 1.5:1, visible in theory and not in practice. */
+    --focus-ring: var(--emphasis);
 
     /* Light mode status colors — Tailwind UI's documented badge/alert palette (bg-50/text-700/ring-600, amber bumped to text-800 for contrast). */
     --success: var(--color-green-50);
@@ -220,12 +226,36 @@
     --selected: var(--selected-tint, color-mix(in srgb, black 6%, transparent));
     --selected-hover: var(--selected-hover-tint, color-mix(in srgb, black 9%, transparent));
     --hover-row: color-mix(in srgb, black 3%, transparent); /* A light grey for rail options and list rows, so a hovered row never looks like the tinted selection. */
-    --selected-text: var(--color-blue-700);
     --option-mark: var(--option-color, var(--content)); /* Marks where the user is at full strength, as the selected tint does faintly: the studio option's colour, or the text colour where it has none. Follows dark mode through '--content'. */
     --selected-border: var(--selected-border-tint, var(--color-zinc-300)); /* Edge of a selected card, in its fill's colour. */
-    --pill: var(--color-blue-50);
-    --pill-hover: var(--color-blue-100);
-    --pill-border: var(--color-blue-200);
+    /* The floating pill takes the studio option's colour too, so a page's main action matches its selections: the
+       selected tints made solid over the surface, because a pill floats over content. Its text is the option's colour
+       darkened, which is at least 6.4:1 on the fill for every option. Blue where no option is on screen, and in Setup,
+       whose grey would make the main action look disabled. */
+    --pill-tint: color-mix(in srgb, var(--option-color) 14%, var(--surface));
+    --pill-hover-tint: color-mix(in srgb, var(--option-color) 19%, var(--surface));
+    --pill-border-tint: color-mix(in srgb, var(--option-color) 40%, var(--surface));
+    --pill-text-tint: color-mix(in srgb, var(--option-color) 55%, black);
+    --pill: var(--pill-tint, var(--color-blue-50));
+    --pill-hover: var(--pill-hover-tint, var(--color-blue-100));
+    --pill-border: var(--pill-border-tint, var(--color-blue-200));
+    --selected-text: var(--pill-text-tint, var(--color-blue-700)); /* The pill's text and icons. */
+}
+
+/* Data Views' option colour is blue, and its pill and links keep the theme's own blues, which are a little lighter and
+   cleaner than a tint of the option's blue. A selection there takes the pill's blues, so the pill and the selection
+   match as they do under every other option. 'useStudioOptionTint' names the option on screen on the page's root. Light mode
+   only, because the dark pill is a neutral grey. */
+:root:not(.dark)[data-studio-option='dataViews'] {
+    --pill-tint: var(--color-blue-50);
+    --pill-hover-tint: var(--color-blue-100);
+    --pill-border-tint: var(--color-blue-200);
+    --pill-text-tint: var(--color-blue-700);
+    --accent-tint: var(--color-blue-600);
+    --accent-hover-tint: var(--color-blue-700);
+    --selected-tint: var(--pill);
+    --selected-hover-tint: var(--pill-hover);
+    --selected-border-tint: var(--pill-border);
 }
 
 /* Dark mode colors. */
@@ -247,9 +277,11 @@
     --hint: var(--color-zinc-400); /* The same as muted, because zinc-500 falls below 4.5:1 on the dark background. */
     --subtle: var(--color-zinc-500);
     --emphasis: var(--color-zinc-100);
-    --accent: var(--color-blue-400);
-    --accent-hover: var(--color-blue-200);
-    --focus-ring: var(--accent); /* blue-400: 7.8:1 on the zinc-950 surface, 7:1 on the zinc-900 backdrop. */
+    --accent-tint: color-mix(in srgb, var(--option-color) 70%, white); /* The option's colour lightened: at least 7.3:1 on the zinc-950 surface and the zinc-900 backdrop. */
+    --accent-hover-tint: color-mix(in srgb, var(--option-color) 45%, white);
+    --accent: var(--accent-tint, var(--color-blue-400));
+    --accent-hover: var(--accent-hover-tint, var(--color-blue-200));
+    --focus-ring: var(--emphasis); /* zinc-100: 18.1:1 on the zinc-950 surface. */
 
     /* Dark mode status colors — Tailwind UI's documented dark badge/alert palette (bg-400/10, text-400, ring-400/20; green uses 500 for bg and ring). */
     --success: color-mix(in srgb, var(--color-green-500) 10%, transparent);
@@ -303,12 +335,13 @@
     --selected: var(--selected-tint, color-mix(in srgb, white 12%, transparent));
     --selected-hover: var(--selected-hover-tint, color-mix(in srgb, white 16%, transparent));
     --hover-row: var(--hover); /* Already lighter than the selected fill. */
-    --selected-text: var(--color-blue-200);
     --option-mark: var(--option-color, var(--content));
     --selected-border: var(--selected-border-tint, var(--color-zinc-600));
-    --pill: var(--color-zinc-700); /* Neutral, because a dark blue reads as muddy navy on the near-black surface. */
+    --pill: var(--color-zinc-700); /* Neutral, because a dark tint of an option's colour reads as muddy on the near-black surface. */
     --pill-hover: var(--color-zinc-600);
     --pill-border: var(--color-zinc-600);
+    --pill-text-tint: color-mix(in srgb, var(--option-color) 40%, white); /* The option's colour lightened: at least 4.8:1 on the pill and its hover. */
+    --selected-text: var(--pill-text-tint, var(--color-blue-200));
 }
 
 /* Dark mode softens Tailwind's colours: the same steps with their chroma halved, lightness and hue kept, so contrast is

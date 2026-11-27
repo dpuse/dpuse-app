@@ -238,6 +238,9 @@ function clampFromZero(value: number, max: number): number {
 </script>
 
 <template>
+    <!-- Track ─ The vertical track is as wide as the page margin, 16px, so it never lies over content, such as the
+         actions at the right of a document's title, and takes their clicks. The thumb, 10px at most on hover, fits
+         inside it. -->
     <div
         v-if="visible"
         ref="track"
@@ -249,7 +252,7 @@ function clampFromZero(value: number, max: number): number {
         aria-valuemin="0"
         aria-valuemax="100"
         class="group pointer-events-auto absolute cursor-pointer transition-opacity duration-200 ease-[ease]"
-        :class="[isVertical ? 'inset-y-0 right-0 w-6' : 'inset-x-0 bottom-0 h-6', thumbsShown ? 'opacity-100' : 'opacity-0']"
+        :class="[isVertical ? 'inset-y-0 right-0 w-4' : 'inset-x-0 bottom-0 h-6', thumbsShown ? 'opacity-100' : 'opacity-0']"
         :style="isVertical ? { bottom: crossInsetEnd + 'px', top: insetStart + 'px' } : { left: insetStart + 'px', right: crossInsetEnd + 'px' }"
         @pointerdown="handlePointerDown"
         @touchstart.passive="handleTouchStart"

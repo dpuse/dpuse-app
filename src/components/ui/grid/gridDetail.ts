@@ -17,3 +17,8 @@ export const GRID_DETAIL_SPLIT_THRESHOLD_PX = 768;
 // above, which is the standalone case, and the fallback there is 'not split': that keeps the way back rather than
 // stranding the user in a panel with no exit.
 export const gridDetailIsSplitKey: InjectionKey<Ref<boolean>> = Symbol('gridDetailIsSplit');
+
+// Whether the detail is a sheet over the foot of a narrow screen, whose handle and close button float over the top of
+// the detail. A detail header starts lower there, so its actions sit clear of the close button. Absent, and so 'not a
+// sheet', wherever no panel is above.
+export const gridDetailIsSheetKey: InjectionKey<Ref<boolean>> = Symbol('gridDetailIsSheet');

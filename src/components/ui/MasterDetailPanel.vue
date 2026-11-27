@@ -2,17 +2,17 @@
 // Two panes: on the left the caller's own way of choosing an item, such as a grid of cards or a diagram, and on the
 // right the chosen item's detail. With room, the two sit side by side. Without, one shows at a time, unless the caller
 // fills the 'detail-summary' slot. The left pane then stays, and the detail becomes a sheet that slides up over its
-// foot: first to a summary, then to half and to the whole height. That suits a diagram the user is still finding their
+// foot: first to the top of the detail, then to half and to the whole height. That suits a diagram the user is still finding their
 // way round.
 
 // ── External Dependencies & Registrations
-import { type ComponentPublicInstance, computed, provide, ref, useTemplateRef, watch } from 'vue';
-import { onKeyStroke, useElementSize } from '@vueuse/core';
+import { computed, provide, ref, useTemplateRef, watch } from 'vue';
+import { onKeyStroke, useElementBounding, useElementSize, useEventListener } from '@vueuse/core';
 
 // ── Local Framework
 import { t } from '@/state/locale';
 import { TEXT } from './MasterDetailPanel_.json';
-import { GRID_DETAIL_SPLIT_THRESHOLD_PX, gridDetailIsSplitKey } from '@/components/ui/grid/gridDetail';
+import { GRID_DETAIL_SPLIT_THRESHOLD_PX, gridDetailIsSheetKey, gridDetailIsSplitKey } from '@/components/ui/grid/gridDetail';
 
 // ── Static Components
 import SheetHeader from '@/components/ui/SheetHeader.vue';
@@ -27,6 +27,8 @@ type DetailPosition = 'closed' | 'full' | 'half' | 'summary';
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const SHEET_POSITIONS: DetailPosition[] = ['closed', 'summary', 'half', 'full']; // From the lowest to the highest.
+const SHEET_SUMMARY_HEIGHT = '6rem'; // Shows the top of the detail at the sheet's lowest: the overline and the first line of the title, below the extra space a document header keeps under the close button.
+const SHEET_TOP_GAP_PX = 8; // The sheet stops this far below the top of the screen at its whole height, as far in as it sits from the sides.
 const SHEET_CLOSE_HEIGHT_PX = 60; // A sheet let go below this, which is well under its summary's height, closes.
 const SHEET_STEP_DRAG_PX = 40; // A drag shorter than this leaves the sheet where it was.
 
@@ -43,7 +45,7 @@ const slots = defineSlots<{
     header?(properties: { isSplit: boolean }): unknown;
     master(properties: { detailIsShown: boolean; dismissDetail: () => void; isSplit: boolean; openDetail: () => void }): unknown; // 'openDetail' shows the selected item's detail or summary again after the user closed it. 'dismissDetail' hides both and keeps the item selected, as Escape does.
     detail(properties: { item: T; close: () => void }): unknown;
-    'detail-summary'?(properties: { item: T }): unknown; // Filling it makes the detail a sheet on a narrow screen, which shows this while at its lowest. It must be filled from the start, not conditionally.
+    'detail-summary'?(properties: { item: T }): unknown; // Filling it makes the detail a sheet on a narrow screen. What it holds is not shown, because the sheet's lowest position shows the top of the detail itself. It must be filled from the start, not conditionally.
     'detail-action'?(properties: { item: T }): unknown;
     'no-selection'?(): unknown;
 }>();
@@ -52,12 +54,12 @@ const slots = defineSlots<{
 
 const bodyElement = useTemplateRef<HTMLElement>('bodyElement');
 const detailPaneElement = useTemplateRef<HTMLDivElement>('detailPane');
-const sheetHeaderComponent = useTemplateRef<ComponentPublicInstance>('sheetHeader');
+const sheetContentIsScrolled = ref(false); // The detail in the sheet is scrolled down from its top, so its content passes under the close button.
 const detailPosition = ref<DetailPosition>('closed'); // What the user last asked for, which is intent rather than visibility: side by side, the detail shows whatever this says.
 const firstSelectionIsClosed = ref(isDetailInitiallyClosed); // Cleared once the first selection arrives, which may be after the list loads.
 const shownNarrowPaneId = ref<'detail' | 'master'>(); // The pane shown on a narrow screen. Unset while the old pane fades out.
 const { height: bodyHeight, width: bodyWidth } = useElementSize(bodyElement);
-const { height: sheetHeaderHeight } = useElementSize(sheetHeaderComponent);
+const { bottom: bodyBottom } = useElementBounding(bodyElement);
 
 // ── Sheet Drag ─ Only meaningful while the sheet's handle is being dragged.
 const sheetDragStartHeight = ref(0);
@@ -75,6 +77,7 @@ provide(
     gridDetailIsSplitKey,
     computed(() => isSplit.value || hasDetailSummary)
 );
+provide(gridDetailIsSheetKey, sheetIsUsed);
 const narrowPaneId = computed(() => (!hasDetailSummary && detailPosition.value === 'full' ? 'detail' : 'master')); // A sheet lies over the master pane, so the master pane is never swapped out for it.
 const detailIsShown = computed(() => isSplit.value || detailPosition.value !== 'closed'); // In whole or in part.
 const detailPaneIsVisible = computed(() => isSplit.value || shownNarrowPaneId.value === 'detail');
@@ -83,24 +86,25 @@ const masterPaneIsVisible = computed(() => isSplit.value || shownNarrowPaneId.va
 // because the width reads 0 until then.
 defineExpose({ detailPaneIsVisible, masterPaneIsVisible, isNarrow: computed(() => bodyIsMeasured.value && !isSplit.value), isSplit });
 
-// ── Sheet ─ At its lowest the sheet is as tall as its header, which holds the summary, plus the bottom row of controls,
-// where the detail's action sits. The detail itself is then out of sight, so it is hidden from the keyboard and screen
-// readers too, until a drag starts to pull it into view.
+// ── Sheet ─ At its lowest the sheet shows the top of the detail, which names the selection, above the bottom row of
+// controls, where the detail's action sits. The detail is always there, so raising the sheet only shows more of it.
+// At its whole height the sheet rises over the page header to near the top of the screen, below any notch, so the
+// detail has all the room there is. Its foot stays on the body's foot.
+const sheetFullHeight = computed(() => `calc(${String(bodyBottom.value - SHEET_TOP_GAP_PX)}px - env(safe-area-inset-top))`);
 const sheetHeight = computed(() => {
     if (sheetDragHeight.value !== undefined) return `${String(sheetDragHeight.value)}px`;
     switch (detailPosition.value) {
         case 'closed':
             return '0px';
         case 'summary':
-            return `calc(${String(sheetHeaderHeight.value)}px + 3rem + var(--safe-bottom-offset))`;
+            return `calc(${SHEET_SUMMARY_HEIGHT} + 3rem + var(--safe-bottom-offset))`;
         case 'half':
             return '50%';
         case 'full':
-            return '100%';
+            return sheetFullHeight.value;
     }
 });
-const sheetDetailIsHidden = computed(() => sheetIsUsed.value && detailPosition.value === 'summary' && sheetDragHeight.value === undefined);
-const detailPaneStyle = computed(() => (sheetIsUsed.value ? { height: sheetHeight.value } : { maxWidth: isSplit.value ? maxDetailWidth : undefined }));
+const detailPaneStyle = computed(() => (sheetIsUsed.value ? { height: sheetHeight.value, maxHeight: sheetFullHeight.value } : { maxWidth: isSplit.value ? maxDetailWidth : undefined }));
 
 // ── Side Effects ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -117,6 +121,25 @@ watch(
         if (newActiveItemId !== undefined) firstSelectionIsClosed.value = false;
     },
     { immediate: true }
+);
+
+// Whether the sheet's content is scrolled down, from the scroll events of its scrollers, which reach the pane on their
+// way down because a scroll event does not bubble. A scroller that only scrolls sideways, such as a wide table, is left
+// out, because its top is always 0. A new selection starts at its top.
+useEventListener(
+    detailPaneElement,
+    'scroll',
+    (event: Event) => {
+        if (!(event.target instanceof HTMLElement) || event.target.scrollHeight <= event.target.clientHeight) return;
+        sheetContentIsScrolled.value = event.target.scrollTop > 0;
+    },
+    { capture: true, passive: true }
+);
+watch(
+    () => selectedItem?.id,
+    () => {
+        sheetContentIsScrolled.value = false;
+    }
 );
 
 // Going back to the master pane on a narrow screen hides the detail but keeps the item selected. Side by side, the
@@ -175,7 +198,7 @@ function handleStepSheet(): void {
 // The sheet follows the pointer, starting from the height it had when the drag began.
 function handleDragSheet(distance: number): void {
     if (sheetDragHeight.value === undefined) sheetDragStartHeight.value = detailPaneElement.value?.offsetHeight ?? 0;
-    sheetDragHeight.value = Math.min(Math.max(sheetDragStartHeight.value + distance, 0), bodyHeight.value);
+    sheetDragHeight.value = Math.min(Math.max(sheetDragStartHeight.value + distance, 0), bodyBottom.value - SHEET_TOP_GAP_PX); // The style's maximum height also clears any notch.
 }
 
 // Letting go settles the sheet on the position nearest to where it was let go. A drag that was long enough to mean it,
@@ -243,7 +266,7 @@ function resolveSheetPosition(steps: number): DetailPosition {
                     :aria-label="sheetIsUsed ? t(TEXT, 'sheet.aria') : undefined"
                     class="@container min-w-0 border-separator"
                     :class="[
-                        sheetIsUsed ? 'absolute inset-x-0 bottom-0 z-10 flex flex-col overflow-hidden border-t bg-surface' : 'relative flex-1',
+                        sheetIsUsed ? 'absolute inset-x-2 bottom-0 z-51 flex flex-col overflow-hidden rounded-t-3xl border-x border-t bg-surface shadow-sheet' : 'relative flex-1',
                         sheetIsUsed && sheetDragHeight === undefined ? 'transition-[height,visibility] duration-300 ease-out motion-reduce:transition-none' : '',
                         { 'border-l': isSplit, invisible: sheetIsUsed && detailPosition === 'closed' && sheetDragHeight === undefined }
                     ]"
@@ -251,27 +274,18 @@ function resolveSheetPosition(steps: number): DetailPosition {
                     :role="sheetIsUsed ? 'region' : undefined"
                     :style="detailPaneStyle"
                 >
-                    <!-- Sheet Header ─ Holds the summary while the sheet is at its lowest. Higher up, the detail's own
-                         title says the same. -->
+                    <!-- Sheet Header ─ Its handle and close button float over the top of the detail. -->
                     <SheetHeader
                         v-if="sheetIsUsed"
-                        ref="sheetHeader"
+                        :is-content-scrolled="sheetContentIsScrolled"
                         :is-full="detailPosition === 'full'"
                         @close="detailPosition = 'closed'"
                         @drag="handleDragSheet"
                         @drag-end="handleDragEndSheet"
                         @step="handleStepSheet"
-                    >
-                        <div v-if="selectedItem && detailPosition === 'summary'" class="px-page pb-1">
-                            <slot name="detail-summary" :item="selectedItem" />
-                        </div>
-                    </SheetHeader>
+                    />
 
-                    <div
-                        class="min-h-0 transition-opacity motion-reduce:transition-none"
-                        :class="[sheetIsUsed ? 'flex-1' : 'h-full', { 'opacity-0': sheetDetailIsHidden }]"
-                        :inert="sheetDetailIsHidden"
-                    >
+                    <div class="min-h-0" :class="sheetIsUsed ? 'flex-1' : 'h-full'">
                         <!-- Selected Item, or No Selection ─ Keyed on the item, so each new selection fades in. The old
                              detail fades out quickly first, as route views do, so it does not vanish in a flash. The
                              comments stay out here because a comment between the branches would sit inside the

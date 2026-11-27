@@ -143,22 +143,16 @@ import {
     countChosenTypeMisfits,
     PREVIEW_COLUMN_MARKS_WIDTH_PX
 } from '@/features/studio/dataViews/_columns/previewColumnRows';
-import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from '@/features/studio/dataViews/_components/readingLabels';
+import { constructDataFormatLabel, constructValueDelimiterLabel } from '@/features/studio/dataViews/_components/readingLabels';
 import { constructDataViewConnection, constructItemPath } from '@/features/studio/dataViews/_state/dataViewSummary';
 import { constructFittedColumnWidth, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
-import {
-    constructLoadTimingParts,
-    type DataViewLoadTiming,
-    type DataViewStoreConfig,
-    findDataViewLoadTiming,
-    INVESTIGATE_STORE_CONNECTOR_ID
-} from '@/features/studio/dataViews/_state/dataViewStore';
 import { DATA_FORMAT_ICON_CONFIGS, type DataFormatIconConfig } from '@/features/studio/dataViews/_components/dataFormatIcons';
 import { DATA_VIEW_SCROLL_ACTIONS_ID, DATA_VIEW_STEP_ACTION_ID, useCurrentDataView } from '@/features/studio/dataViews/_state/dataViews';
+import { type DataViewStoreConfig, INVESTIGATE_STORE_CONNECTOR_ID } from '@/features/studio/dataViews/_state/dataViewStore';
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
 import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_components/_statusBar';
 import { holdStore, isStoreConnection, openStore, storeTakeover } from '@/services/storeUse';
-import { listDataViewStoreConfigs, resolveStoreConnectorId } from '@/features/studio/dataViews/_state/dataViewStore';
+import { isDataViewLoaded, listDataViewStoreConfigs, resolveStoreConnectorId } from '@/features/studio/dataViews/_state/dataViewStore';
 import { localeId, t } from '@/state/locale';
 import { TAB_CLASSES, TAB_SELECTED_CLASSES, TAB_UNSELECTED_CLASSES } from '@/components/ui/action/action';
 import { useItemChange, wasItemRefreshRequested } from '@/features/studio/dataViews/_components/itemChange';
@@ -174,14 +168,13 @@ import ColumnValueBar from '@/features/studio/dataViews/_columns/ColumnValueBar.
 import ConfigCard from '@/components/ui/config/ConfigCard.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
 import ConfirmDialog from '@/components/ui/dialog/ConfirmDialog.vue';
-import DataViewSource from '@/features/studio/dataViews/_components/DataViewSource.vue';
+import DataViewDocument from '@/features/studio/dataViews/_components/DataViewDocument.vue';
 import ErrorNotice from '@/components/ui/error/ErrorNotice.vue';
 import GridDetailPanel from '@/components/ui/grid/GridDetailPanel.vue';
 import HeadersIcon from './HeadersIcon.vue';
 import ItemChangedNotice from '@/features/studio/dataViews/_components/ItemChangedNotice.vue';
 import { Menu } from '@/components/ui/menu';
 import PillSegment from '@/components/ui/action/PillSegment.vue';
-import PreviewColumnTable from '@/features/studio/dataViews/_columns/PreviewColumnTable.vue';
 import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 import ScrollEndButtons from '@/components/ui/scroll/ScrollEndButtons.vue';
 import SelectInput from '@/components/ui/SelectInput.vue';
@@ -189,8 +182,6 @@ import type { SelectOption } from '@/components/ui/SelectInput.vue';
 import SelectPlaceholder from '@/components/ui/placeholder/SelectPlaceholder.vue';
 import StatusBar from '@/features/studio/dataViews/_components/StatusBar.vue';
 import StructureTree from './StructureTree.vue';
-import StudioDocumentPanel from '@/features/studio/_components/StudioDocumentPanel.vue';
-import StudioDocumentSection from '@/features/studio/_components/StudioDocumentSection.vue';
 import Table from '@/components/ui/table/Table.vue';
 import type { TableFeatureSet } from '@/components/ui/table/tableFeatures';
 import type { TaskConfig } from '@/components/ui/taskBar';
@@ -281,9 +272,6 @@ const DATA_FORMAT_GROUPS: { id: DataFormatGroupId; labelKey: keyof typeof TEXT }
 const STRUCTURED_DATA_FORMAT_IDS = new Set<DataFormatId>(
     DATA_FORMAT_CONFIGS.filter(({ isStructured, supportId }) => isStructured && supportId === 'supported').map(({ id }) => id)
 ); // Nested formats the app can read, which show their structure.
-
-// ── File Details ─ What the details tab says about a file. A table, read as its source says, has none of them.
-const FILE_DETAIL_LABEL_KEYS = new Set<keyof typeof TEXT>(['detail.dataFormat.label', 'detail.encoding.label', 'detail.fileType.label']);
 
 // ── Format Supports ─ How the toolbar marks the format: readable, planned but with no reader yet, or not data at all.
 const FORMAT_SUPPORTS: FormatSupport[] = [
@@ -454,7 +442,7 @@ const route = useRoute();
 const router = useRouter();
 
 // ── Data View
-const { data: dataViewConfig } = useCurrentDataView(() => route.params.dataViewId);
+const { data: dataViewConfig, draftIsCurrent } = useCurrentDataView(() => route.params.dataViewId);
 
 // ── Audit
 const { abortAudit, auditedByteCount, auditedRecordCount, auditElapsedDuration, auditIsRunning, auditTotalRecordCount, startAudit, stopAudit } = useItemAudit(
@@ -551,11 +539,6 @@ const sampleIssueItems = computed(() =>
         valueName: constructSampleIssueValueName(issue.value)
     }))
 );
-const sampleIssueCountText = computed(() => {
-    const count = sampleIssues.value.length;
-    if (count === 0) return;
-    return t(TEXT, count === 1 ? 'issue.one.text' : 'issue.other.text', { count });
-});
 const sampleIssueBandClass = computed(() => {
     const severityId = SAMPLE_ISSUE_SEVERITY_IDS.find((id) => sampleIssues.value.some((issue) => issue.severityId === id));
     return severityId == null ? undefined : SAMPLE_ISSUE_SEVERITIES[severityId].bandClass;
@@ -826,15 +809,6 @@ const shownAuditStatusText = computed(() => (auditStatusIsShort.value ? auditSta
 
 // The details tab's amount, with the share of the item it is whenever the item's size is known. An item not read as bytes
 // has no amount.
-const auditedAmountText = computed(() => {
-    const contentAuditConfig = activeContentAuditConfig.value;
-    if (contentAuditConfig == null || contentAuditConfig.byteCount === 0) return;
-    const itemSize = activeConnectionObjectConfig.value?.size ?? 0;
-    if (itemSize === 0) return formatNumberAsStorageSize(contentAuditConfig.byteCount);
-    if (contentAuditConfig.isComplete) return t(TEXT, 'audit.detail.complete.text', { amount: formatNumberAsStorageSize(itemSize), percentage: formatStatusPercentage(100) });
-    const percentage = formatStatusPercentage(Math.min((contentAuditConfig.byteCount / itemSize) * 100, 100));
-    return t(TEXT, 'audit.detail.part.text', { amount: formatNumberAsStorageSize(contentAuditConfig.byteCount), percentage, total: formatNumberAsStorageSize(itemSize) });
-});
 
 // The next few sizes larger than what has been audited and smaller than the item, then the whole item.
 const auditChoices = computed<AuditChoice[]>(() => {
@@ -900,70 +874,9 @@ const previewUnsupportedText = computed(() => {
     return t(TEXT, 'item.unsupportedFormat.text', { format: constructDataFormatLabel(itemReading.dataFormatId) });
 });
 
-// The details tab is a read-only document of what the toolbar's choices produced. It lists only the facts there are: a
-// listing or a preview can leave any of them out. The first section is about the item itself, the second about its
-// content and the third about how it was parsed.
 // Read choices change how the item is read, so they wait for an audit of the current reading to finish.
 const readChoicesAreLocked = computed(() => previewIsPending.value || auditIsRunning.value);
 const auditActionIsShown = computed(() => activeItemReading.value != null && previewIsSelectable.value);
-
-const itemDetailGroups = computed(() => {
-    const connectionNodeConfig = activeConnectionObjectConfig.value;
-    const itemReading = activeItemReading.value;
-    if (connectionNodeConfig == null || itemReading == null) return [];
-    const detailGroups: { id: string; title: string; details: { labelKey: keyof typeof TEXT; value: string | undefined }[] }[] = [
-        {
-            id: 'item',
-            title: t(TEXT, `${itemSubject.value}.label`),
-            details: [
-                { labelKey: 'detail.folder.label', value: connectionNodeConfig.folderPath === '' ? '/' : connectionNodeConfig.folderPath }, // An item at the top of its connection has an empty folder path, shown as the top folder.
-                {
-                    labelKey: 'detail.name.label',
-                    value: connectionNodeConfig.extension == null ? connectionNodeConfig.name : `${connectionNodeConfig.name}.${connectionNodeConfig.extension}`
-                },
-                { labelKey: 'detail.fileType.label', value: itemReading.fileType?.mime ?? connectionNodeConfig.mimeType },
-                { labelKey: 'detail.size.label', value: formatNumberAsStorageSize(connectionNodeConfig.size) },
-                {
-                    labelKey: 'detail.lastModified.label',
-                    value:
-                        connectionNodeConfig.lastModifiedAt == null
-                            ? undefined
-                            : new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(connectionNodeConfig.lastModifiedAt)
-                }
-            ]
-        },
-        {
-            id: 'content',
-            title: t(TEXT, 'detail.content.title'),
-            details: [
-                { labelKey: 'detail.dataFormat.label', value: previewFormatText.value },
-                { labelKey: 'detail.encoding.label', value: constructEncodingText(itemReading) },
-                {
-                    labelKey: 'detail.unreadableCharacters.label',
-                    value: itemReading.replacementCharacterCount == null ? undefined : new Intl.NumberFormat(localeId.value).format(itemReading.replacementCharacterCount)
-                },
-                { labelKey: 'detail.issues.label', value: sampleIssueCountText.value } // Listed in the band above the tabs.
-            ]
-        },
-        {
-            id: 'parsing',
-            title: t(TEXT, 'detail.parsing.title'),
-            details: [
-                { labelKey: 'parser.label', value: parserOptions.value.find((option) => option.id === itemReading.parserId)?.label },
-                { labelKey: 'recordDelimiter.label', value: constructRecordDelimiterText(itemReading) },
-                { labelKey: 'valueDelimiter.label', value: constructValueDelimiterText(itemReading) },
-                { labelKey: 'hasHeaders.label', value: constructHeadersText(itemReading) }
-            ]
-        }
-    ];
-    if (activeContentAuditConfig.value) detailGroups.push(constructAuditDetailGroup(activeContentAuditConfig.value));
-    const loadTiming = dataViewConfig.value == null ? undefined : findDataViewLoadTiming(dataViewConfig.value.id);
-    if (loadTiming != null) detailGroups.push(constructLoadDetailGroup(loadTiming));
-    return detailGroups
-        .filter((detailGroup) => itemIsFile.value || detailGroup.id !== 'parsing')
-        .map((detailGroup) => ({ ...detailGroup, details: detailGroup.details.filter((detail) => isDetailShown(detail.labelKey, detail.value)) }))
-        .filter((detailGroup) => detailGroup.details.length > 0);
-});
 
 // A column also needs checking when values do not fit a type the user chose, because a load stores them as empty.
 const columnRowsNeedingAttention = computed(() => {
@@ -1675,19 +1588,6 @@ function constructFolderNodeConfigs(folderPath: string): ConnectionNodeConfig[] 
     }));
 }
 
-// The encoding the sample was decoded with, and why: the user's choice, or how detection found it. A chosen encoding the
-// browser cannot decode is named, because the text was decoded as UTF-8 instead.
-function constructEncodingText(itemReading: ItemReading): string | undefined {
-    const encoding = itemReading.decodedEncodingId ?? itemReading.encodingId;
-    if (encoding == null) return;
-    const chosenEncodingId = selectedEncodingId.value;
-    if (chosenEncodingId != null && chosenEncodingId !== encoding) return t(TEXT, 'detail.encoding.undecodable.text', { encoding: chosenEncodingId });
-    const detectedReading = detectedReadingConfig.value;
-    const sourceText =
-        chosenEncodingId == null ? constructEncodingSourceText(detectedReading?.encodingSourceId, detectedReading?.encodingConfidenceLevel) : t(TEXT, 'encodingSource.choice.text');
-    return sourceText == null ? encoding : t(TEXT, 'detail.sourced.text', { source: sourceText, value: encoding });
-}
-
 // What detection found. A preview always reports detection, whatever the user chose.
 function recordDetectedValues(readingConfig: ReadingConfig): void {
     detectedDataFormatId.value = readingConfig.dataFormatId;
@@ -1695,23 +1595,6 @@ function recordDetectedValues(readingConfig: ReadingConfig): void {
     detectedHasHeaders.value = readingConfig.hasHeaders;
     detectedEncodingId.value = readingConfig.encodingId;
     detectedEncodingIsAssumed.value = readingConfig.encodingConfidenceLevel == null;
-}
-
-// Headers and delimiters only apply to delimited text. There they always show, and a parse that found none says so.
-function constructHeadersText({ dataFormatId, hasHeaders }: ItemReading): string | undefined {
-    if (dataFormatId !== 'dtv') return;
-    if (hasHeaders == null) return t(TEXT, 'detail.notDetected.text');
-    return t(TEXT, hasHeaders ? 'hasHeaders.yes.label' : 'hasHeaders.no.label');
-}
-
-function constructRecordDelimiterText({ dataFormatId, recordDelimiterId }: ItemReading): string | undefined {
-    if (dataFormatId !== 'dtv') return;
-    return recordDelimiterId == null ? t(TEXT, 'detail.notDetected.text') : constructRecordDelimiterLabel(recordDelimiterId);
-}
-
-function constructValueDelimiterText({ dataFormatId, valueDelimiterId }: ItemReading): string | undefined {
-    if (dataFormatId !== 'dtv') return;
-    return valueDelimiterId == null ? t(TEXT, 'detail.notDetected.text') : constructValueDelimiterLabel(valueDelimiterId);
 }
 
 // A column's Auto names the type detected for it.
@@ -1969,11 +1852,6 @@ function resolveValueDelimiterId(optionId: string): ValueDelimiterId | undefined
     return optionId === AUTO_OPTION_ID ? detectedValueDelimiterId.value : VALUE_DELIMITER_CONFIGS.find(({ id }) => id === optionId)?.id;
 }
 
-// A detail shows only when it has a value, and only a file shows the details only a file has.
-function isDetailShown(labelKey: keyof typeof TEXT, value: string | undefined): boolean {
-    return value != null && value !== '' && (itemIsFile.value || !FILE_DETAIL_LABEL_KEYS.has(labelKey));
-}
-
 // Sorted by label in the current language, because translation changes the order.
 function findDataFormatGroupId(dataFormatId: DataFormatId): DataFormatGroupId | undefined {
     return dataFormatId === 'unknown' ? undefined : DATA_FORMAT_GROUP_IDS[dataFormatId];
@@ -2073,7 +1951,8 @@ function applyHeaders(itemReading: ItemReading, hasHeaders: boolean): ItemReadin
 async function recountPreviewColumns(itemReading: ItemReading, hasHeaders: boolean): Promise<ItemReading> {
     if (!activeConnectionConfig.value) return applyPreviewHeaders(itemReading, hasHeaders);
     const { processRequest } = await establishEngineWorker();
-    const options: RecountPreviewColumnsOptions = { hasHeaders, parsedRecords: itemReading.parsedRecords };
+    const isComplete = itemReading.size != null && itemReading.size === activeConnectionObjectConfig.value?.size; // The preview holds the whole item, so what no value shows, such as a unit, is known not to be there.
+    const options: RecountPreviewColumnsOptions = { hasHeaders, isComplete, parsedRecords: itemReading.parsedRecords };
     const columnConfigs = (await processRequest('recountPreviewColumns', activeConnectionConfig.value, options)) as ColumnAuditConfig[];
     return applyPreviewHeaders({ ...itemReading, columnConfigs }, hasHeaders);
 }
@@ -2190,68 +2069,6 @@ function constructFirstContentAuditConfig(contentAuditConfig: ContentAuditConfig
         columns: itemReading.columnConfigs,
         recordCount: Math.max(0, itemReading.parsedRecords.length - (itemReading.hasHeaders === true ? 1 : 0))
     };
-}
-
-function constructAuditDetailGroup(contentAuditConfig: ContentAuditConfig): {
-    details: { labelKey: keyof typeof TEXT; value: string | undefined }[];
-    id: string;
-    title: string;
-} {
-    const numberFormat = new Intl.NumberFormat(localeId.value);
-    const formatOptionalCount = (count: number | undefined): string | undefined => (count == null ? undefined : numberFormat.format(count));
-    return {
-        id: 'audit',
-        title: t(TEXT, 'detail.audit.title'),
-        details: [
-            { labelKey: 'detail.auditedAmount.label', value: auditedAmountText.value },
-            { labelKey: 'detail.records.label', value: formatCount(contentAuditConfig.recordCount) },
-            { labelKey: 'detail.lines.label', value: formatOptionalCount(contentAuditConfig.lineCount) },
-            { labelKey: 'detail.emptyLines.label', value: formatOptionalCount(contentAuditConfig.emptyLineCount) },
-            { labelKey: 'detail.commentLines.label', value: formatOptionalCount(contentAuditConfig.commentLineCount) },
-            { labelKey: 'detail.unevenRecords.label', value: formatOptionalCount(contentAuditConfig.invalidFieldLengthCount) },
-            { labelKey: 'detail.duration.label', value: formatFinishedDuration(contentAuditConfig.duration) },
-            { labelKey: 'detail.sourceWait.label', value: constructOptionalDurationText(contentAuditConfig.sourceWaitDuration) }, // Part of the duration.
-            { labelKey: 'detail.parsing.label', value: constructOptionalDurationText(contentAuditConfig.parseDuration) }, // Part of the duration.
-            { labelKey: 'detail.columnAudit.label', value: constructOptionalDurationText(contentAuditConfig.columnAuditDuration) }, // Part of the duration.
-            { labelKey: 'detail.other.label', value: constructOptionalDurationText(constructAuditOtherDuration(contentAuditConfig)) }, // The rest of the duration.
-            { labelKey: 'detail.audited.label', value: new Intl.DateTimeFormat(localeId.value, { dateStyle: 'medium', timeStyle: 'short' }).format(contentAuditConfig.asAt) }
-        ]
-    };
-}
-
-// Where the data view's last load spent its time. Waiting, starting and parsing add up to reading, and reading,
-// converting, storing and other add up to the duration.
-function constructLoadDetailGroup(loadTiming: DataViewLoadTiming): {
-    details: { labelKey: keyof typeof TEXT; value: string | undefined }[];
-    id: string;
-    title: string;
-} {
-    const parts = constructLoadTimingParts(loadTiming);
-    return {
-        id: 'load',
-        title: t(TEXT, 'detail.load.title'),
-        details: [
-            { labelKey: 'detail.duration.label', value: formatFinishedDuration(parts.total) },
-            { labelKey: 'detail.reading.label', value: formatFinishedDuration(parts.reading) },
-            { labelKey: 'detail.sourceWait.label', value: constructOptionalDurationText(parts.waiting) }, // Part of reading.
-            { labelKey: 'detail.startingRead.label', value: constructOptionalDurationText(parts.starting) }, // Part of reading.
-            { labelKey: 'detail.parsing.label', value: constructOptionalDurationText(parts.parsing) }, // Part of reading.
-            { labelKey: 'detail.converting.label', value: formatFinishedDuration(parts.converting) },
-            { labelKey: 'detail.storing.label', value: formatFinishedDuration(parts.storing) },
-            { labelKey: 'detail.other.label', value: formatFinishedDuration(parts.other) }
-        ]
-    };
-}
-
-// What is left of an audit's duration once its timed parts are taken off, such as fetching the item before a preview,
-// loading the parser and reporting progress. Undefined for an audit whose parts were not timed.
-function constructAuditOtherDuration(contentAuditConfig: ContentAuditConfig): number | undefined {
-    const { columnAuditDuration, duration, parseDuration, sourceWaitDuration = 0 } = contentAuditConfig;
-    return parseDuration == null || columnAuditDuration == null ? undefined : Math.max(0, duration - sourceWaitDuration - parseDuration - columnAuditDuration);
-}
-
-function constructOptionalDurationText(milliseconds: number | undefined): string | undefined {
-    return milliseconds == null ? undefined : formatFinishedDuration(milliseconds);
 }
 
 // The types saved with this item. A different item starts with none.
@@ -3057,33 +2874,27 @@ const infoString = ref('');
                     scroll-area-padding-left="var(--spacing-page)"
                     @initialised="documentScrollElement = $event"
                 >
-                    <!-- Details Document ─ Laid out as the data view document's lists are, with a line under every row except
-                         the last in a section. Read-only, because the toolbar changes how the item is read. -->
-                    <StudioDocumentPanel :title="t(TEXT, 'detail.title')" @close="handleReturnToList">
-                        <!-- Source ─ Names the connection and the item, so the document stands alone. -->
-                        <DataViewSource
-                            class="mt-1 mb-4 text-sm"
-                            :connection-id="dataViewConfig?.connectionId"
-                            :connection-node-config="activeConnectionObjectConfig"
-                            :data-format-id="activeItemReading?.dataFormatId"
-                            :data-view-connection="activeDataViewConnection"
-                            :item-type-id="activeDataViewConnection?.itemTypeId"
-                        />
-                        <p v-if="previewIsUnsupported" role="status">{{ previewUnsupportedText }}</p>
-                        <StudioDocumentSection v-for="detailGroup in itemDetailGroups" :key="detailGroup.id" :title="detailGroup.title">
-                            <dl
-                                class="grid grid-cols-[minmax(7.5rem,max-content)_1fr] text-sm *:border-b *:border-separator *:py-1 [&:is(:last-child,:has(+section))>:nth-last-child(-n+2)]:border-b-0 [&>dt]:pr-4"
-                            >
-                                <template v-for="detail in detailGroup.details" :key="detail.labelKey">
-                                    <dt class="text-muted">{{ t(TEXT, detail.labelKey) }}</dt>
-                                    <dd class="m-0 min-w-0 wrap-break-word">{{ detail.value }}</dd>
-                                </template>
-                            </dl>
-                        </StudioDocumentSection>
-                        <StudioDocumentSection v-if="activeItemReading && activeItemReading.columnConfigs.length > 0" :title="t(TEXT, 'detail.columns.title')">
-                            <PreviewColumnTable :item-reading="activeItemReading" />
-                        </StudioDocumentSection>
-                    </StudioDocumentPanel>
+                    <!-- Details Document ─ The same document the data views overview shows. Read-only, because the toolbar
+                         changes how the item is read. -->
+                    <DataViewDocument
+                        :chosen-encoding-id="selectedEncodingId"
+                        :connection-id="dataViewConfig?.connectionId"
+                        :connection-node-config="activeConnectionObjectConfig"
+                        :content-audit-config="activeContentAuditConfig"
+                        current-step-id="item"
+                        :data-view-connection="activeDataViewConnection"
+                        :data-view-id="dataViewConfig?.id"
+                        :detected-reading-config="detectedReadingConfig"
+                        :is-loaded="dataViewConfig != null && isDataViewLoaded(dataViewConfig, draftIsCurrent)"
+                        :item-reading="activeItemReading"
+                        :store-connector-id="dataViewConfig?.storeConnectorId"
+                        :title="t(TEXT, 'detail.title')"
+                        @close="handleReturnToList"
+                    >
+                        <template #intro>
+                            <p v-if="previewIsUnsupported" role="status">{{ previewUnsupportedText }}</p>
+                        </template>
+                    </DataViewDocument>
                 </ScrollArea>
                 <!-- Scroll End Buttons ─ At the start of the data view's pill. Only while this detail is on screen, because
                      on a narrow screen the list can cover it. -->

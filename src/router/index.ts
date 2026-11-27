@@ -96,7 +96,7 @@ export const APP_ROUTES: RouteRecordRaw[] = [
                         path: '',
                         component: EventQueriesOverview,
                         children: [
-                            { name: 'eventQueries', path: '', redirect: (to) => ({ name: 'eventQueryDiagram', query: to.query }) }, // Kept for the studio's own links.
+                            { name: 'eventQueries', path: '', redirect: (to) => ({ name: 'eventQueryList', query: to.query }) }, // Kept for the studio's own links. Opens on the list.
                             { name: 'eventQueryDiagram', path: 'diagram/:areaId?/:modelId?/:entityId?/:eventId?/:eventQueryId?', component: EventQueryDiagram }, // The area, model, entity and event the diagram has been drilled down to, and the event query selected under the event.
                             { name: 'eventQueryList', path: 'list/:eventQueryId?', component: EventQueryList }
                         ]
@@ -215,12 +215,13 @@ function assertViewDepths(routes: RouteRecordRaw[], depth = 0): void {
     }
 }
 
-// An old link chose the view and the diagram's level in the query. The level is kept only with its connector, because
-// a connection alone would be read as a connector.
+// The screen opens on the list. An old link chose the view and the diagram's level in the query, so one that asks for
+// the diagram, or names a connector, still opens it. The level is kept only with its connector, because a connection
+// alone would be read as a connector.
 function redirectToDataViewsView(to: RouteLocation): RouteLocationRaw {
     const { dvConnection, dvConnector, dvView } = to.query;
     const query = removeOldDataViewsQuery(to.query);
-    if (dvView === 'list') return { name: 'dataViewList', query };
+    if (dvView !== 'diagram' && typeof dvConnector !== 'string') return { name: 'dataViewList', query };
     const connectorId = typeof dvConnector === 'string' ? dvConnector : undefined;
     const connectionId = connectorId != null && typeof dvConnection === 'string' ? dvConnection : undefined;
     return { name: 'dataViewDiagram', params: { connectorId, connectionId }, query };

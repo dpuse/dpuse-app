@@ -21,6 +21,10 @@ import RectangleButton from '@/components/ui/action/RectangleButton.vue';
 // ── Dynamic Components
 const EmptyPlaceholder = defineLazyComponent(() => import('@/components/ui/placeholder/EmptyPlaceholder.vue'), 'EmptyPlaceholder');
 
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const CARD_DETAIL_LINE_COUNT = 4; // The connection, the folder, the item and the store.
+
 // ── Options, Props, Slots & Emits ────────────────────────────────────────────────────────────────────────────────────
 
 const { dataViewLocalisedConfigs, retrievalIsSettled, retrievalIsSlow, selectedDataViewId } = defineProps<{
@@ -46,8 +50,9 @@ const dataViewDataSource = computed((): DataSource<LocalisedConfig<DataViewConfi
     getRows: (start, end): Promise<{ rows: LocalisedConfig<DataViewConfig>[] }> => Promise.resolve({ rows: dataViewLocalisedConfigs.slice(start, end) })
 }));
 
-// Cards here carry actions, which take a second row, and details naming the connection and item.
-const cardRowHeight = useCardRowHeight(true, true);
+// Cards here carry actions, which take a second row, and four detail lines: the connection, the folder, the item and
+// the store. The card is told the same count, so the row and the card always agree.
+const cardRowHeight = useCardRowHeight(true, CARD_DETAIL_LINE_COUNT);
 
 // The selected card is scrolled into view, so a selection restored when the list opens can be seen. Built from the id,
 // so a new object for the same data view, as a change of language gives, does not scroll the list again.
@@ -93,6 +98,7 @@ function handleFilterByCategory(): void {
             <DataViewCard
                 :data-view-connection="dataViewConnectionsById.get(item.id)"
                 :data-view-localised-config="item"
+                :detail-line-count="CARD_DETAIL_LINE_COUNT"
                 :selected="item.id === selectedDataViewId"
                 @category-click="handleFilterByCategory"
                 @click="$emit('select', item)"

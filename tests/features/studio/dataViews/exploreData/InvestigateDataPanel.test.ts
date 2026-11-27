@@ -228,6 +228,28 @@ describe('InvestigateDataPanel', () => {
         expect(table.constructCellClass('c0')).toContain('justify-end');
     });
 
+    it('gives a derived column no column of its own, and shows its unit in the number’s cell', async () => {
+        dataView.config = {
+            ...AUDITED_DATA_VIEW,
+            contentAuditConfig: {
+                asAt: 1,
+                columns: [
+                    { dataSubtypeId: 'integer', dataTypeId: 'numeric', label: { en: 'Amount' } },
+                    { dataSubtypeId: 'plain', dataTypeId: 'string', derivedFromColumnIndex: 0, label: { en: 'Amount unit' }, validFormats: { $: 1 }, validValueCount: 1 }
+                ]
+            }
+        };
+        vi.mocked(queryDataViewRecords).mockResolvedValue({ records: [[5, '$']], totalCount: 1 });
+        const wrapper = mountPanel();
+        await settle();
+
+        const table = wrapper.findComponent(TableStub).props() as TableProperties;
+        const page = await table.dataSource.getRows(0, 100);
+
+        expect(table.columnDefinitions.map((column) => column.header)).toEqual(['Amount']);
+        expect(page.rows[0]).toMatchObject({ c0: '5', u0: '$' });
+    });
+
     it('fits its columns to the first page of a load, once, so scrolling back cannot move them', async () => {
         dataView.config = AUDITED_DATA_VIEW;
         vi.mocked(queryDataViewRecords).mockResolvedValue({ records: [[7, new Date(Date.UTC(2026, 9, 28))]], totalCount: 1 });

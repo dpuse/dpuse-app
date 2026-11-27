@@ -38,7 +38,10 @@ useResizeObserver([scrollElement, contentElement], measure); // A narrower space
 </script>
 
 <template>
-    <div data-region="ScrollRegion">
+    <!-- 'contain-inline-size' keeps a wide table from widening the document around it. Without it, a scroll area that
+         grows to fit its content, such as 'ScrollArea', stretches the whole page to the table's width, so text beside it
+         runs off screen. The region still fills its parent's width. -->
+    <div class="contain-inline-size" data-region="ScrollRegion">
         <!-- Label ─ Hidden from view, but still read, when something else on screen already names the content. A hidden
              caption inside a table would do the same, but it stops Chromium merging the borders under the header row. -->
         <div :id="labelId" :class="isLabelShown ? 'mb-2 text-sm font-medium text-emphasis' : 'sr-only'">{{ label }}</div>

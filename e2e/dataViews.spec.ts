@@ -13,7 +13,7 @@ test.describe('Data views', () => {
         // eslint-disable-next-line playwright/no-skipped-test -- Skipped on purpose until the page loads reliably.
         test.skip(true, 'Suspended: the page fails to load at random (Vite module downloads cut short in Firefox, configuration WebSocket silent in WebKit).');
 
-        await page.goto('/dataViews/list'); // The list, because the diagram opens first.
+        await page.goto('/dataViews/list'); // The list, which has the 'Data View' pill.
         await page.locator('[data-region="PillButton"]').getByText('Data View', { exact: true }).click(); // The empty list's own 'Data View' button shares the name.
 
         // Nothing is saved until a connection is committed.
@@ -40,7 +40,7 @@ test.describe('Data views', () => {
         // eslint-disable-next-line playwright/no-skipped-test -- Firefox and WebKit fail to load the page at random, as the test above says.
         test.skip(browserName !== 'chromium', 'Firefox and WebKit fail to load the page at random.');
 
-        await page.goto('/dataViews/list'); // The list, because the diagram opens first.
+        await page.goto('/dataViews/list'); // The list, which has the 'Data View' pill.
         await page.locator('[data-region="PillButton"]').getByText('Data View', { exact: true }).click();
         await expect(page).toHaveURL(/\/dataViews\/new\/connections/);
         const pill = page.locator('[data-region="DataViewPill"]');
@@ -136,13 +136,14 @@ test.describe('Data views', () => {
         await expect(page).toHaveURL(/\/dataViews\/(?!new\/)[^/]+\/items/);
         const dataViewId = /\/dataViews\/([^/]+)\/items/.exec(page.url())?.[1] ?? '';
 
-        // Too narrow for the detail to sit beside the list, so it is a sheet, which starts at its summary.
+        // Too narrow for the detail to sit beside the list, so it is a sheet, which starts at its lowest, showing the top of
+        // the detail.
         await page.setViewportSize({ width: 390, height: 844 });
         await page.goto(`/dataViews/list/${dataViewId}`);
         const sheet = page.getByRole('region', { name: 'Details of the selection' });
         const card = page.locator('[data-region="ConfigCard"]');
         await expect(sheet).toHaveAttribute('data-position', 'summary');
-        await expect(sheet.getByText('Data view', { exact: true })).toBeVisible();
+        await expect(sheet.getByRole('heading', { level: 1, name: 'Untitled Data View' })).toBeVisible();
         await expect(card).toBeVisible();
 
         // The handle raises the sheet to half height, where the detail shows and the list is still on screen.

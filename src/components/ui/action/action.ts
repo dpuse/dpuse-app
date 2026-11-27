@@ -12,7 +12,7 @@ export type ButtonVariant = 'destructive' | 'ghost' | 'guarded' | 'neutral' | 'o
 
 // Fills, keyed by variant. 'positive' is absent deliberately: it had no call sites, and a variant nothing uses is a
 // promise the design has not had to keep. The coloured variants ('destructive', 'guarded', 'primary') have a border,
-// and in dark mode a stronger fill, so they stand out. The near-black page hides the 10% tint that the status colours
+// and in dark mode 'destructive' and 'guarded' have a stronger fill, so they stand out. The near-black page hides the 10% tint that the status colours
 // give tags and alerts.
 export const VARIANT_CLASSES: Record<ButtonVariant, string> = {
     destructive:
@@ -24,8 +24,9 @@ export const VARIANT_CLASSES: Record<ButtonVariant, string> = {
         'bg-warning hover:bg-warning-hover active:bg-warning-active text-warning-text inset-ring inset-ring-warning-border dark:bg-warning-hover dark:hover:bg-warning-active dark:active:bg-warning-press',
     neutral: 'bg-zinc-100 hover:state-hover active:state-press text-emphasis dark:bg-zinc-300/20 dark:text-content',
     outline: 'bg-transparent inset-ring inset-ring-separator hover:state-hover active:state-press dark:text-content',
-    primary:
-        'bg-info hover:bg-info-hover active:bg-info-active text-info-text inset-ring inset-ring-info-border dark:bg-info-hover dark:hover:bg-info-active dark:active:bg-info-press'
+    // The page's own main action where it sits in the page, so it takes the floating pill's colours, which follow the
+    // studio option, and never differs from a pill beside it.
+    primary: 'bg-pill hover:bg-pill-hover active:state-press text-selected-text inset-ring inset-ring-pill-border'
 };
 
 // Press feedback for icon buttons, selected or not. The press shows at once and fades on release, so even a quick tap,

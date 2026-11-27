@@ -117,6 +117,9 @@ export function useStudioOptionTint(): void {
         const optionConfig = STUDIO_OPTION_CONFIGS.find((config) => config.id === route.path.split('/', 2)[1]);
         const iconColor = optionConfig == null ? undefined : readIconColor(resolveAppearanceIcon(optionConfig.icon, optionConfig.iconDark));
         optionColor.value = iconColor != null && isColorGrey(iconColor) ? undefined : iconColor;
+        // Names the option too, for the theme rules that set one option's selection apart, such as Data Views' pill blues.
+        if (optionConfig == null) delete document.documentElement.dataset.studioOption;
+        else document.documentElement.dataset.studioOption = optionConfig.id;
     });
 }
 

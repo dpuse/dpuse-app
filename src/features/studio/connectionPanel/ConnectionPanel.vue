@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowRightIcon } from '@lucide/vue';
+import { MoveRightIcon } from '@lucide/vue';
 import { computed, shallowRef, watch } from 'vue';
 import { type RouteRecordNameGeneric, useRoute } from 'vue-router';
 
@@ -141,7 +141,7 @@ function initialiseActiveOptionConfig(routeName: RouteRecordNameGeneric): Option
 
             <!-- Hidden while the form has failed, as there is nothing to commit. -->
             <template #detail-action>
-                <PillButton v-if="!connectionFormFailure" :icon="ArrowRightIcon" label="Select" @click="handleCommitDetail" />
+                <PillButton v-if="!connectionFormFailure" :icon="MoveRightIcon" label="Select" @click="handleCommitDetail" />
             </template>
         </GridDetailPanel>
     </RetrievalGate>

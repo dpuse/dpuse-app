@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
-import { ArrowRightIcon, PlusIcon } from '@lucide/vue';
 import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue';
+import { MoveRightIcon, PlusIcon } from '@lucide/vue';
 import { useConfirmDialog, useTimeoutFn } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -364,7 +364,7 @@ function updateDataViewIdParameter(dataViewId?: string): void {
             <template #detail-action="{ item }">
                 <PillButton
                     v-if="item.typeId === 'dataView'"
-                    :icon="ArrowRightIcon"
+                    :icon="MoveRightIcon"
                     :label="t(TEXT, 'detail.open.label')"
                     @click="handleOpenDataView(item.dataViewLocalisedConfig)"
                 />

@@ -54,7 +54,6 @@ import {
     constructIgnoredColumnIndexes,
     constructLoadColumnConfigs,
     isDerivedColumn,
-    isEmptyUnitColumn,
     type ItemReading,
     placeLoadedValues
 } from '@/features/studio/dataViews/_state/dataViewColumns';
@@ -238,19 +237,15 @@ const loadProgress = computed(() => {
     };
 });
 
-// ── Table ─ One column for each of the data view's columns, except those the user chose to ignore, which the load left
-// out. Headers and widths stay by the column's position, so they match the column choices and the detail panel.
+// ── Table ─ One column for each of the item's columns, except those the user chose to ignore, which the load left
+// out. A derived column, such as a column of units, gets none, because its values show in the cells of the column it
+// comes from. Headers and widths stay by the column's position, so they match the column choices and the detail panel.
 const columnHeaders = computed(() => columnConfigs.value.map((columnConfig, index) => columnConfig.label[localeId.value] ?? columnConfig.label.en ?? String(index + 1)));
 const columnDefinitions = computed<ColumnDef<TableFeatureSet, DisplayRow>[]>(() =>
     columnConfigs.value
-        .map((_columnConfig, index) => (ignoredColumnIndexes.value.has(index) ? undefined : index))
+        .map((columnConfig, index) => (isDerivedColumn(columnConfig) || ignoredColumnIndexes.value.has(index) ? undefined : index))
         .filter((index) => index !== undefined)
         .map((index) => ({ accessorKey: constructColumnKey(index), header: columnHeaders.value[index], size: firstPageColumnWidths.value?.widths[index] ?? COLUMN_WIDTH_PX }))
-);
-
-// Unit columns that found no unit start hidden, and the column picker shows them.
-const hiddenColumnIds = computed(() =>
-    columnConfigs.value.map((columnConfig, index) => (isEmptyUnitColumn(columnConfig) ? constructColumnKey(index) : undefined)).filter((columnId) => columnId !== undefined)
 );
 
 // The records are read a block at a time as the table scrolls.
@@ -801,7 +796,6 @@ function constructCountId(count: number): 'one' | 'other' | 'zero' {
                     :column-definitions="columnDefinitions"
                     :construct-cell-class="constructValueCellClass"
                     :data-source="dataSource"
-                    :hidden-column-ids="hiddenColumnIds"
                     is-column-fit-to-visible-rows
                     is-header-tabbed
                     scroll-area-padding-bottom="calc(var(--vertical-scroll-bottom-screen-inset) - var(--status-bar-height))"

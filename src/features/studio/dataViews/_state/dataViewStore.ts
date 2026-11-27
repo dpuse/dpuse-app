@@ -339,6 +339,14 @@ export function listDataViewStoreConfigs(): DataViewStoreConfig[] {
     }).filter((storeConfig) => storeConfig != null);
 }
 
+// The store a data view's records are loaded into, for showing it by name and icon. A store that is no longer listed is
+// named by its id.
+export function resolveDataViewStore(dataViewConfig: Pick<DataViewConfig, 'storeConnectorId'>): Pick<DataViewStoreConfig, 'icon' | 'iconDark' | 'label'> {
+    const storeConnectorId = resolveStoreConnectorId(dataViewConfig);
+    const storeConfig = listDataViewStoreConfigs().find((config) => config.id === storeConnectorId);
+    return { icon: storeConfig?.icon ?? null, iconDark: storeConfig?.iconDark ?? null, label: storeConfig?.label ?? storeConnectorId };
+}
+
 export function resolveStoreConnectorId(dataViewConfig: Pick<DataViewConfig, 'storeConnectorId'> | undefined): string {
     return dataViewConfig?.storeConnectorId ?? INVESTIGATE_STORE_CONNECTOR_ID;
 }

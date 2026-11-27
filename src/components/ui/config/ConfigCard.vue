@@ -1,16 +1,16 @@
 <script setup lang="ts" generic="T extends BaseConfig = BaseConfig">
 // ── External Dependencies & Registrations
 import type { RouteLocationRaw } from 'vue-router';
-import { ArrowRightIcon, FunnelIcon, InfoIcon, TrashIcon } from '@lucide/vue';
 import { type Component, computed, useId } from 'vue';
+import { FunnelIcon, InfoIcon, MoveRightIcon, TrashIcon } from '@lucide/vue';
 
 // ── DPUse Framework
 import type { BaseConfig, LocalisedConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import type { Action } from './configCard';
 import { t } from '@/state/locale';
 import { TEXT } from './ConfigCard_.json';
+import { type Action, constructCardTitleRowHeight } from './configCard';
 
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
@@ -30,6 +30,7 @@ interface Properties<T extends BaseConfig> {
     actions?: Action<T>[];
     categoryLabel?: string; // Bottom left, as muted text: what kind of thing the card is, for scanning and filtering.
     config: LocalisedConfig<T>;
+    detailLineCount?: number; // How many lines the details hold, which sets the title row's height. Two by default.
     fallbackIcon?: Component; // Shown, in the muted text colour, when there is no icon to show, e.g. a folder.
     hidesIcon?: boolean; // No icon beside the label, e.g. where the details carry their own small icons.
     icon?: null | string; // Replaces the config's own icon, e.g. with that of the connector behind it.
@@ -47,6 +48,7 @@ const {
     actions = [],
     categoryLabel,
     config,
+    detailLineCount = 2,
     fallbackIcon,
     hidesIcon,
     icon,
@@ -62,7 +64,7 @@ const {
 } = defineProps<Properties<T>>();
 
 defineSlots<{
-    details?: () => unknown; // Two muted lines below the label, e.g. what a data view is built from. Makes the title row taller.
+    details?: () => unknown; // Muted lines below the label, e.g. what a data view is built from. Makes the title row taller, by 'detailLineCount' lines.
     note?: () => unknown; // Small and muted, in the footer after the category, or at the end of a compact row, e.g. a step still to do.
 }>();
 
@@ -94,7 +96,7 @@ defineOptions({ inheritAttrs: false });
 <template>
     <!-- A full-size card is a fixed height, so every card in a virtualised grid row matches: a title row, then a footer
          row of category and actions, each 'h-7' in 'p-3' with a 'gap-y-3' between; an overline grows the title row to 'h-9' to fit its
-         second line, and details grow it to 'h-17' to fit two lines below the label. 'useCardRowHeight' in './configCard'
+         second line, and details grow it to fit their lines below the label, 68px for two. 'useCardRowHeight' in './configCard'
          states the same numbers, except the overline's, which no virtualised grid uses. Compact is a single plain list row. -->
     <div
         class="relative flex size-full border"
@@ -128,7 +130,8 @@ defineOptions({ inheritAttrs: false });
         <!-- Header ─ One line only: the label truncates rather than wraps, because the card cannot grow. -->
         <div
             class="flex min-w-0 items-center gap-x-2"
-            :class="[isCompact ? 'flex-1' : $slots.details ? 'h-17 flex-none' : overline ? 'h-9 flex-none' : 'h-7 flex-none', { 'opacity-50': isDisabled }]"
+            :class="[isCompact ? 'flex-1' : $slots.details ? 'flex-none' : overline ? 'h-9 flex-none' : 'h-7 flex-none', { 'opacity-50': isDisabled }]"
+            :style="!isCompact && $slots.details ? { height: `${String(constructCardTitleRowHeight(detailLineCount))}px` } : undefined"
         >
             <!-- Icon -->
             <ConfigIcon v-if="iconIsPresent" :class="isCompact ? 'size-5' : 'size-7'" :icon="icon ?? config.icon" :icon-dark="iconDark ?? config.iconDark" />
@@ -223,7 +226,7 @@ defineOptions({ inheritAttrs: false });
                         :class="ROUND_ACTION_CLASSES"
                         @click="action.onClick(config)"
                     >
-                        <ArrowRightIcon aria-hidden="true" class="size-4 text-accent pointer-coarse:size-5" :stroke-width="1.75" />
+                        <MoveRightIcon aria-hidden="true" class="size-4 text-accent pointer-coarse:size-5" :stroke-width="1.75" />
                     </ActionWrapper>
 
                     <ActionWrapper
