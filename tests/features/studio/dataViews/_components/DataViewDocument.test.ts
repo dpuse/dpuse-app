@@ -71,14 +71,15 @@ describe('DataViewDocument', () => {
     });
 
     it('lists every fact about the file, and says when one is not known', () => {
-        const details = readDetails(mountDocument({ properties: { detectedReadingConfig: { encodingConfidenceLevel: undefined, encodingSourceId: 'utf8Validation' } } }), 'Details');
+        const wrapper = mountDocument({ properties: { detectedReadingConfig: { encodingConfidenceLevel: undefined, encodingSourceId: 'utf8Validation' } } });
+        const details = readDetails(wrapper, 'Details');
 
         expect(details).toEqual([
             ['File type', 'text/csv'],
-            ['Encoding', 'utf-8 (valid UTF-8)'],
             ['Size', '956 bytes'],
             ['Last modified', 'Unknown']
         ]);
+        expect(readDetails(wrapper, 'Reading')[0]).toEqual(['Encoding', 'utf-8 (valid UTF-8)']); // The encoding is how the file is read, not a fact about the file.
     });
 
     it('says a file with no issues has none, and that an audit’s uncounted lines are unknown', () => {
@@ -89,11 +90,11 @@ describe('DataViewDocument', () => {
     });
 
     it('says the encoding was chosen, or that a chosen one could not be decoded', () => {
-        expect(readDetails(mountDocument({ properties: { chosenEncodingId: 'utf-8' } }), 'Details')).toContainEqual(['Encoding', 'utf-8 (chosen)']);
-        expect(readDetails(mountDocument({ properties: { chosenEncodingId: 'x-unknown' } }), 'Details')).toContainEqual(['Encoding', "x-unknown can't be decoded, so UTF-8 is used"]);
+        expect(readDetails(mountDocument({ properties: { chosenEncodingId: 'utf-8' } }), 'Reading')).toContainEqual(['Encoding', 'utf-8 (chosen)']);
+        expect(readDetails(mountDocument({ properties: { chosenEncodingId: 'x-unknown' } }), 'Reading')).toContainEqual(['Encoding', "x-unknown can't be decoded, so UTF-8 is used"]);
     });
 
-    it('lists how a file was parsed, with its unreadable characters and issues', () => {
+    it('lists how a file was read, in the order it is read: decoded, recognised, then parsed', () => {
         toolConfigs.value = [{ description: { en: '' }, id: 'csvParser', label: { en: 'CSV Parser' }, parser: { dataFormatIds: ['dtv'] } } as unknown as ToolConfig];
         const itemReading = buildItemReading({
             issues: [
@@ -105,14 +106,26 @@ describe('DataViewDocument', () => {
         });
 
         expect(readDetails(mountDocument({ properties: { itemReading } }), 'Reading')).toEqual([
+            ['Encoding', 'utf-8'],
+            ['Unreadable characters', '3'],
             ['Format', 'Delimited text (CSV, TSV…)'],
             ['Parser', 'CSV Parser'],
             ['Record delimiter', 'Newline (LF)'],
             ['Value delimiter', 'Comma'],
             ['Headers', 'Yes'],
-            ['Unreadable characters', '3'],
             ['Issues', '2 issues']
         ]);
+    });
+
+    it('lists every encoding a preview detected with how sure it was, and has no such row without a preview', () => {
+        const encodingCandidates = [
+            { confidenceLevel: 0.87, id: 'utf-8' as const },
+            { confidenceLevel: 0.4, id: 'windows-1252' as const },
+            { confidenceLevel: undefined, id: 'iso-8859-1' as const }
+        ];
+        expect(readReading({ encodingCandidates })).toContainEqual(['Detected encodings', 'utf-8 (87%), windows-1252 (40%), iso-8859-1']);
+        expect(readReading({ encodingCandidates: [] })).toContainEqual(['Detected encodings', 'None, as the text is all ASCII']);
+        expect(readReading({}).map(([label]) => label)).not.toContain('Detected encodings');
     });
 
     it('has no file type, encoding or parsing for a table', () => {
@@ -207,11 +220,30 @@ describe('DataViewDocument', () => {
 
         expect(findPartTitles(mountDocument())).not.toEqual(expect.arrayContaining(['Auditing', 'Loading']));
         const wrapper = mountDocument({ properties: { contentAuditConfig, dataViewId: 'loaded' } });
-        expect(readDetails(wrapper, 'Auditing').slice(0, 2)).toEqual([
-            ['Amount', '956 bytes (100%)'],
-            ['Records', '20']
-        ]);
+        expect(readDetails(wrapper, 'Auditing')).toEqual(expect.arrayContaining([['Amount', '956 bytes (100%)'], ['Records', '20']]));
         expect(readDetails(wrapper, 'Loading')[0]).toEqual(['Duration', '2.0 sec']);
+    });
+
+    it('lists an audit’s lines, then the header row, records and empty lines they are made of', () => {
+        const contentAuditConfig = { ...buildContentAuditConfig(), commentLineCount: 0, emptyLineCount: 1, invalidFieldLengthCount: 0, lineCount: 22 };
+        const withHeader = readDetails(mountDocument({ properties: { contentAuditConfig } }), 'Auditing');
+        const withoutHeader = readDetails(mountDocument({ properties: { contentAuditConfig, itemReading: buildItemReading({ hasHeaders: false }) } }), 'Auditing');
+
+        expect(withHeader.slice(1, 6)).toEqual([
+            ['Lines', '22'],
+            ['Header rows', '1'],
+            ['Records', '20'],
+            ['Empty lines', '1'],
+            ['Comment lines', '0']
+        ]);
+        expect(withoutHeader).toContainEqual(['Header rows', '0']);
+    });
+
+    it('has no header row count for a format that has no header row', () => {
+        const itemReading = buildItemReading({ dataFormatId: 'json' });
+        const labels = readDetails(mountDocument({ properties: { contentAuditConfig: buildContentAuditConfig(), itemReading } }), 'Auditing').map(([label]) => label);
+
+        expect(labels).not.toContain('Header rows');
     });
 });
 
@@ -244,6 +276,11 @@ function readHeadingLinks(wrapper: VueWrapper): [string, unknown][] {
         .getComponent({ name: 'DataViewSource' })
         .findAllComponents(RouterLinkStub)
         .map((link) => [link.attributes('aria-label') ?? '', link.props('to')]);
+}
+
+// The rows of the Reading part of a document mounted with the given properties.
+function readReading(properties: object): string[][] {
+    return readDetails(mountDocument({ properties }), 'Reading');
 }
 
 // The heading's last line, which names the store.

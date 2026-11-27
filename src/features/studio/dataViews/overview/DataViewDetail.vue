@@ -158,7 +158,7 @@ async function handleSaveEdits(): Promise<void> {
                      section so it can grow to say what deleting would affect, once other things are built on data views.
                      The heading takes the danger colour, as the Delete button does, so the section reads as a warning. -->
                 <StudioDocumentSection class="[&_h2]:text-danger-text" :title="t(TEXT, 'delete.title')">
-                    <p>{{ t(TEXT, 'delete.text') }}</p>
+                    <p class="text-muted">{{ t(TEXT, 'delete.text') }}</p>
                     <RectangleButton :disabled="isDeleting" variant="destructive" @click="$emit('delete')">{{
                         t(TEXT, isDeleting ? 'delete.pending.label' : 'delete.label')
                     }}</RectangleButton>

@@ -2885,6 +2885,7 @@ const infoString = ref('');
                         :data-view-connection="activeDataViewConnection"
                         :data-view-id="dataViewConfig?.id"
                         :detected-reading-config="detectedReadingConfig"
+                        :encoding-candidates="detectedEncodingCandidates"
                         :is-loaded="dataViewConfig != null && isDataViewLoaded(dataViewConfig, draftIsCurrent)"
                         :item-reading="activeItemReading"
                         :store-connector-id="dataViewConfig?.storeConnectorId"

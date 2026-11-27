@@ -10,7 +10,7 @@ import { computed, ref } from 'vue';
 import { type RouteLocationRaw, useRoute } from 'vue-router';
 
 // ── DPUse Framework
-import type { ConnectionNodeConfig, ContentAuditConfig, ReadingConfig } from '@dpuse/dpuse-shared';
+import type { ConnectionNodeConfig, ContentAuditConfig, EncodingDetectionConfig, ReadingConfig } from '@dpuse/dpuse-shared';
 import { formatNumberAsDecimalNumber, formatNumberAsStorageSize, localiseConfigs } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
@@ -67,6 +67,7 @@ const {
     dataViewConnection,
     dataViewId,
     detectedReadingConfig,
+    encodingCandidates,
     isLoaded,
     itemReading,
     storeConnectorId
@@ -79,6 +80,7 @@ const {
     dataViewConnection: DataViewConnection | undefined;
     dataViewId: string | undefined; // Finds the data view's last load, for its timings.
     detectedReadingConfig?: Pick<ReadingConfig, 'encodingConfidenceLevel' | 'encodingSourceId'> | undefined; // How detection found the encoding.
+    encodingCandidates?: EncodingDetectionConfig[] | undefined; // Every encoding detection found, best first. Only a preview has them.
     isLoaded?: boolean; // The records are in the store and still match the columns.
     itemReading: ItemReading | undefined; // Undefined until the item has been read.
     overline?: string;
@@ -126,7 +128,7 @@ const itemDescription = computed(() => {
     return connectionNodeConfig.label === name ? null : connectionNodeConfig.label;
 });
 
-// Only a file has a type, an encoding and a way of being parsed. A table or an API endpoint has none of them.
+// Only a file has a type and a way of being read. A table or an API endpoint has neither.
 const itemDetailSection = computed<DetailSection | undefined>(() => {
     if (!connectionNodeConfig) return;
     return {
@@ -135,7 +137,6 @@ const itemDetailSection = computed<DetailSection | undefined>(() => {
         details: [
             { labelKey: 'detail.description.label', value: itemDescription.value },
             { labelKey: 'detail.fileType.label', value: itemIsFile.value ? (itemReading?.fileType?.mime ?? connectionNodeConfig.mimeType) : null },
-            { labelKey: 'detail.encoding.label', value: itemIsFile.value ? (itemReading ? constructEncodingText(itemReading) : undefined) : null },
             { labelKey: 'detail.size.label', value: connectionNodeConfig.size == null ? undefined : formatNumberAsStorageSize(connectionNodeConfig.size) },
             { labelKey: 'detail.lastModified.label', value: connectionNodeConfig.lastModifiedAt == null ? undefined : formatDateTime(connectionNodeConfig.lastModifiedAt) }
         ]
@@ -166,16 +167,19 @@ const sections = computed(() => {
         detailSections.push({
             id: 'reading',
             title: t(TEXT, 'detail.reading.title'),
+            // In the order a file is read: decoded, recognised, then parsed.
             details: [
+                { labelKey: 'detail.encoding.label', value: constructEncodingText(itemReading) },
+                { labelKey: 'detail.encodingCandidates.label', value: constructEncodingCandidatesText() },
+                {
+                    labelKey: 'detail.unreadableCharacters.label',
+                    value: itemReading.replacementCharacterCount == null ? undefined : formatCount(itemReading.replacementCharacterCount)
+                },
                 { labelKey: 'detail.dataFormat.label', value: constructDataFormatText(itemReading) },
                 { labelKey: 'detail.parser.label', value: parserLabel.value },
                 { labelKey: 'detail.recordDelimiter.label', value: constructRecordDelimiterText(itemReading) },
                 { labelKey: 'detail.valueDelimiter.label', value: constructValueDelimiterText(itemReading) },
                 { labelKey: 'detail.hasHeaders.label', value: constructHeadersText(itemReading) },
-                {
-                    labelKey: 'detail.unreadableCharacters.label',
-                    value: itemReading.replacementCharacterCount == null ? undefined : formatCount(itemReading.replacementCharacterCount)
-                },
                 { labelKey: 'detail.issues.label', value: issueCountText.value }
             ]
         });
@@ -230,6 +234,18 @@ function constructEncodingText(reading: ItemReading): string | undefined {
     return sourceText == null ? encoding : t(TEXT, 'detail.sourced.text', { source: sourceText, value: encoding });
 }
 
+// Every encoding detection found, best first, each with how sure it was. Only a preview has them, because they are not
+// saved with the data view, so a screen without them leaves the row out. Text that is all ASCII has none to tell apart.
+function constructEncodingCandidatesText(): string | null {
+    if (encodingCandidates == null) return null;
+    if (encodingCandidates.length === 0) return t(TEXT, 'detail.encodingCandidates.none.text');
+    const percentFormat = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 });
+    const candidateTexts = encodingCandidates.map(({ confidenceLevel, id }) =>
+        confidenceLevel == null ? id : t(TEXT, 'detail.encodingCandidates.candidate.text', { confidence: percentFormat.format(confidenceLevel), encoding: id })
+    );
+    return new Intl.ListFormat(localeId.value, { style: 'short', type: 'unit' }).format(candidateTexts);
+}
+
 function constructEncodingSourceText(encodingSourceId: ReadingConfig['encodingSourceId'], confidenceLevel: number | undefined): string | undefined {
     if (encodingSourceId == null) return;
     if (encodingSourceId !== 'detection' || confidenceLevel == null) return t(TEXT, `encodingSource.${encodingSourceId}.text`);
@@ -278,14 +294,26 @@ function constructAuditedAmountText(auditConfig: ContentAuditConfig): string | n
     });
 }
 
+// How many of the item's lines are its header row: one or none. Only delimited text has one, and it is not known until
+// the item has been read.
+function constructHeaderRowCountText(): string | null | undefined {
+    if (itemReading == null) return;
+    if (itemReading.dataFormatId !== 'dtv') return null;
+    return itemReading.hasHeaders == null ? undefined : formatCount(itemReading.hasHeaders ? 1 : 0);
+}
+
 function constructAuditSection(auditConfig: ContentAuditConfig): DetailSection {
     return {
         id: 'audit',
         title: t(TEXT, 'detail.audit.title'),
         details: [
             { labelKey: 'detail.auditedAmount.label', value: constructAuditedAmountText(auditConfig) },
-            { labelKey: 'detail.records.label', value: formatCount(auditConfig.recordCount) },
+            // The lines, then what they are made of, so the reader sees why there are more lines than records without
+            // looking up the headers setting. A quoted value over several lines is one record, so the parts need not add
+            // up to the lines.
             { labelKey: 'detail.lines.label', value: formatOptionalCount(auditConfig.lineCount) },
+            { labelKey: 'detail.headerRows.label', value: constructHeaderRowCountText() },
+            { labelKey: 'detail.records.label', value: formatCount(auditConfig.recordCount) },
             { labelKey: 'detail.emptyLines.label', value: formatOptionalCount(auditConfig.emptyLineCount) },
             { labelKey: 'detail.commentLines.label', value: formatOptionalCount(auditConfig.commentLineCount) },
             { labelKey: 'detail.unevenRecords.label', value: formatOptionalCount(auditConfig.invalidFieldLengthCount) },

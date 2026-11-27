@@ -124,16 +124,27 @@ describe('establishFileValueDelimiterId', () => {
 describe('constructPreviewContentAuditConfig', () => {
     it('counts the preview’s records, leaving out a header record, and keeps the columns counted', () => {
         const columnConfigs = [buildColumn({})];
-        const auditConfig = constructPreviewContentAuditConfig({ columnConfigs, hasHeaders: true, parsedRecords: [[], [], []], size: 40 }, 7, false);
+        const auditConfig = constructPreviewContentAuditConfig({ columnConfigs, dataFormatId: 'dtv', hasHeaders: true, parsedRecords: [[], [], []], size: 40, text: undefined }, 7, false);
 
         expect(auditConfig).toMatchObject({ asAt: 7, byteCount: 40, columns: columnConfigs, isComplete: false, recordCount: 2 });
     });
 
     it('has no bytes for an item not read as bytes', () => {
-        expect(constructPreviewContentAuditConfig({ columnConfigs: [], hasHeaders: false, parsedRecords: [[]], size: undefined }, 7, true)).toMatchObject({
-            byteCount: 0,
-            recordCount: 1
-        });
+        const itemReading = { columnConfigs: [], dataFormatId: 'json' as const, hasHeaders: false, parsedRecords: [[]], size: undefined, text: undefined };
+
+        expect(constructPreviewContentAuditConfig(itemReading, 7, true)).toMatchObject({ byteCount: 0, recordCount: 1 });
+    });
+
+    it('counts the lines, the empty line and the uneven records of delimited text, so they are not lost in a recount', () => {
+        const itemReading = { columnConfigs: [], dataFormatId: 'dtv' as const, hasHeaders: true, parsedRecords: [['a', 'b'], ['1', '2'], ['3']], size: 12, text: 'a,b\n1,2\n3\n' };
+
+        expect(constructPreviewContentAuditConfig(itemReading, 7, true)).toMatchObject({ commentLineCount: 0, emptyLineCount: 1, invalidFieldLengthCount: 1, lineCount: 4 });
+    });
+
+    it('leaves the lines unknown for a format that has none', () => {
+        const itemReading = { columnConfigs: [], dataFormatId: 'json' as const, hasHeaders: true, parsedRecords: [['a']], size: 3, text: '[1]' };
+
+        expect(constructPreviewContentAuditConfig(itemReading, 7, true).lineCount).toBeUndefined();
     });
 });
 

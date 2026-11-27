@@ -15,7 +15,7 @@ import type {
     StructurePath,
     ValueDelimiterId
 } from '@dpuse/dpuse-shared';
-import { DATA_FORMAT_CONFIGS, DATA_TYPE_CONFIGS } from '@dpuse/dpuse-shared';
+import { countPreviewLines, DATA_FORMAT_CONFIGS, DATA_TYPE_CONFIGS } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
@@ -108,22 +108,25 @@ export function establishFileValueDelimiterId(appliedReading: AppliedReading): V
 }
 
 // What the sample's records alone show, for when the columns have to be counted again from them. The columns are the
-// ones counted, before any choice of the user's is put on them.
+// ones counted, before any choice of the user's is put on them. The lines of delimited text are counted from the
+// sample's text, as the connector counts them for an item's first audit, so they are not lost when the columns are
+// counted again. A nested format has no lines to count.
 export function constructPreviewContentAuditConfig(
-    itemReading: Pick<ItemReading, 'columnConfigs' | 'hasHeaders' | 'parsedRecords' | 'size'>,
+    itemReading: Pick<ItemReading, 'columnConfigs' | 'dataFormatId' | 'hasHeaders' | 'parsedRecords' | 'size' | 'text'>,
     asAt: number,
     isComplete: boolean
 ): ContentAuditConfig {
+    const lineCounts = itemReading.dataFormatId === 'dtv' && itemReading.text != null ? countPreviewLines(itemReading.text, itemReading.parsedRecords, isComplete) : undefined;
     return {
         asAt,
         byteCount: itemReading.size ?? 0,
         columns: itemReading.columnConfigs,
-        commentLineCount: undefined,
+        commentLineCount: lineCounts?.commentLineCount,
         duration: 0,
-        emptyLineCount: undefined,
-        invalidFieldLengthCount: undefined,
+        emptyLineCount: lineCounts?.emptyLineCount,
+        invalidFieldLengthCount: lineCounts?.invalidFieldLengthCount,
         isComplete,
-        lineCount: undefined,
+        lineCount: lineCounts?.lineCount,
         recordCount: Math.max(0, itemReading.parsedRecords.length - (itemReading.hasHeaders === true ? 1 : 0)),
         sourceWaitDuration: undefined
     };
