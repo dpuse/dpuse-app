@@ -16,15 +16,15 @@ import { formatNumberAsDecimalNumber, formatNumberAsStorageSize, localiseConfigs
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
 import { isDerivedColumn } from '@/features/studio/dataViews/_state/dataViewColumns';
-import type { ItemReading } from '@/features/studio/dataViews/_state/dataViewColumns';
 import { resolveDataViewStore } from '@/features/studio/dataViews/_state/dataViewStore';
+import type { SavedItemReading } from '@/features/studio/dataViews/_state/dataViewColumns';
 import { TASK_CONFIGS } from '@/features/studio/dataViews/_useDataViewTasks_.json';
 import { TEXT } from './DataViewDocument_.json';
 import { toolConfigs } from '@/state/configs';
 import { constructDataFormatLabel, constructRecordDelimiterLabel, constructValueDelimiterLabel } from './readingLabels';
 import { constructLoadTimingParts, type DataViewLoadTiming, findDataViewLoadTiming } from '@/features/studio/dataViews/_state/dataViewStore';
 import type { DataViewConnection, DataViewStepId } from '@/features/studio/dataViews/_state/dataViewSummary';
-import { formatFinishedDuration, formatStatusPercentage } from './_statusBar';
+import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from './_statusBar';
 import { localeId, t } from '@/state/locale';
 
 // ── Static Components
@@ -40,15 +40,15 @@ import StudioDocumentSection from '@/features/studio/_components/StudioDocumentS
 interface StepLink {
     label: string;
     stepNumber: number;
-    to: RouteLocationRaw;
+    to: RouteLocationRaw | undefined; // Undefined for a step that cannot be opened from here, which shows the link disabled.
 }
 
 // A part of the item's section and its facts. A fact that is undefined is not known, and shows as 'Unknown'. One that is
-// null does not apply to this item, such as a delimiter for a format that has none, and is left out.
+// null does not apply to this item, such as a delimiter for a format that has none, and shows as 'Not applicable', muted.
 interface DetailSection {
     id: string;
     title: string;
-    details: { labelKey: keyof typeof TEXT; value: string | null | undefined }[];
+    details: { isMuted?: boolean; labelKey: keyof typeof TEXT; value: string | null | undefined }[];
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -80,9 +80,9 @@ const {
     dataViewConnection: DataViewConnection | undefined;
     dataViewId: string | undefined; // Finds the data view's last load, for its timings.
     detectedReadingConfig?: Pick<ReadingConfig, 'encodingConfidenceLevel' | 'encodingSourceId'> | undefined; // How detection found the encoding.
-    encodingCandidates?: EncodingDetectionConfig[] | undefined; // Every encoding detection found, best first. Only a preview has them.
+    encodingCandidates?: EncodingDetectionConfig[] | undefined; // Every encoding detection found, best first. Undefined for a data view saved before they were kept.
     isLoaded?: boolean; // The records are in the store and still match the columns.
-    itemReading: ItemReading | undefined; // Undefined until the item has been read.
+    itemReading: SavedItemReading | undefined; // Undefined until the item has been read.
     overline?: string;
     storeConnectorId?: string | undefined; // Undefined for the default store.
     title: string;
@@ -106,8 +106,9 @@ const columnTableIsExpanded = ref(false); // A long table starts with its first 
 
 // ── Step Links ─ The heading's connection, item and store lines end in links to the steps that change them, as the task
 // bar's steps do.
-// A step that cannot be opened yet is not linked: an item is chosen from a connection, and the records can only be
-// explored once the item has been previewed. A new data view is not saved yet, so it is named as the route names it.
+// A step that cannot be opened yet has its link disabled, never hidden: an item is chosen from a connection, and the
+// records can only be explored once the item has been previewed. The link to the step on screen is disabled too. A new
+// data view is not saved yet, so it is named as the route names it.
 const linkedDataViewId = computed(() => dataViewId ?? (typeof route.params.dataViewId === 'string' ? route.params.dataViewId : undefined));
 const connectionStepLink = computed(() => constructStepLink('connection', 'step.connection.aria', true));
 const itemStepLink = computed(() => constructStepLink('item', connectionNodeConfig == null ? 'step.itemSelect.aria' : 'step.itemChange.aria', connectionId != null));
@@ -193,8 +194,8 @@ const sections = computed(() => {
 const columnCount = computed(() => itemReading?.columnConfigs.filter((columnConfig) => !isDerivedColumn(columnConfig)).length ?? 0); // The columns the table lists, which leaves out derived ones.
 
 // ── Item Section ─ The item's details, how it was read, what the audit found and the last load, as parts of one section
-// about the item. Every fact that applies to the item is listed, and one that is not known says so, because a missing
-// row reads as "not there", not "not known".
+// about the item. Every fact is listed, and one that does not apply or is not known says so, because a missing row
+// reads as "not there".
 const itemSectionTitle = computed(() => dataViewConnection?.itemTypeLabel ?? t(TEXT, 'item.title'));
 const shownItemParts = computed(() =>
     [itemDetailSection.value, ...sections.value]
@@ -206,24 +207,26 @@ const shownItemParts = computed(() =>
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The link shows the step's number from the task bar, so the reader can find the step there too.
-function constructStepLink(stepId: DataViewStepId, labelKey: keyof typeof TEXT, canBeOpened: boolean): StepLink | undefined {
-    if (!canBeOpened || stepId === currentStepId || linkedDataViewId.value == null) return;
+function constructStepLink(stepId: DataViewStepId, labelKey: keyof typeof TEXT, canBeOpened: boolean): StepLink {
     const stepNumber = assertDefined(TASK_CONFIGS.find((taskConfig) => taskConfig.id === stepId)).number;
-    const to: RouteLocationRaw = { name: stepId, params: { dataViewId: linkedDataViewId.value }, query: route.query };
+    const isLinked = canBeOpened && stepId !== currentStepId && linkedDataViewId.value != null;
+    const to: RouteLocationRaw | undefined = isLinked ? { name: stepId, params: { dataViewId: linkedDataViewId.value }, query: route.query } : undefined;
     return { label: t(TEXT, labelKey, { number: String(stepNumber) }), stepNumber, to };
 }
 
-// Leaves out the facts that do not apply, and names the ones that are not known.
+// Every fact keeps its row, so the list is the same for every item. One that does not apply says so, muted, and one
+// that is not known says that.
 function resolveShownDetails(section: DetailSection): DetailSection {
-    const details = section.details
-        .filter((detail) => detail.value !== null)
-        .map((detail) => ({ ...detail, value: detail.value == null || detail.value === '' ? t(TEXT, 'detail.unknown.text') : detail.value }));
+    const details = section.details.map((detail) => {
+        if (detail.value === null) return { ...detail, isMuted: true, value: t(TEXT, 'detail.notApplicable.text') };
+        return { ...detail, value: detail.value == null || detail.value === '' ? t(TEXT, 'detail.unknown.text') : detail.value };
+    });
     return { ...section, details };
 }
 
 // The encoding the sample was decoded with, and why: the user's choice, or how detection found it. A chosen encoding the
 // browser cannot decode is named, because the text was decoded as UTF-8 instead.
-function constructEncodingText(reading: ItemReading): string | undefined {
+function constructEncodingText(reading: SavedItemReading): string | undefined {
     const encoding = reading.decodedEncodingId ?? reading.encodingId;
     if (encoding == null) return;
     if (chosenEncodingId != null && chosenEncodingId !== encoding) return t(TEXT, 'detail.encoding.undecodable.text', { encoding: chosenEncodingId });
@@ -234,10 +237,10 @@ function constructEncodingText(reading: ItemReading): string | undefined {
     return sourceText == null ? encoding : t(TEXT, 'detail.sourced.text', { source: sourceText, value: encoding });
 }
 
-// Every encoding detection found, best first, each with how sure it was. Only a preview has them, because they are not
-// saved with the data view, so a screen without them leaves the row out. Text that is all ASCII has none to tell apart.
-function constructEncodingCandidatesText(): string | null {
-    if (encodingCandidates == null) return null;
+// Every encoding detection found, best first, each with how sure it was. A data view saved before they were kept has
+// none on record, so they are not known. Text that is all ASCII has none to tell apart.
+function constructEncodingCandidatesText(): string | undefined {
+    if (encodingCandidates == null) return;
     if (encodingCandidates.length === 0) return t(TEXT, 'detail.encodingCandidates.none.text');
     const percentFormat = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 });
     const candidateTexts = encodingCandidates.map(({ confidenceLevel, id }) =>
@@ -255,7 +258,7 @@ function constructEncodingSourceText(encodingSourceId: ReadingConfig['encodingSo
 
 // A file recognised as something other than data, such as a PDF or an image, has no format, so the type the preview
 // detected names it instead. A container type names it by the item's extension, so a legacy Excel file reads 'XLS'.
-function constructDataFormatText({ dataFormatId, fileType }: ItemReading): string {
+function constructDataFormatText({ dataFormatId, fileType }: SavedItemReading): string {
     if (fileType == null || dataFormatId !== 'unknown') return constructDataFormatLabel(dataFormatId);
     const itemExtension = connectionNodeConfig?.extension;
     const isNamedByItem = itemExtension != null && itemExtension !== '' && CONTAINER_FILE_TYPE_EXTENSIONS.has(fileType.ext);
@@ -263,18 +266,18 @@ function constructDataFormatText({ dataFormatId, fileType }: ItemReading): strin
 }
 
 // Headers and delimiters only apply to delimited text. There they always show, and a parse that found none says so.
-function constructHeadersText({ dataFormatId, hasHeaders }: ItemReading): string | null {
+function constructHeadersText({ dataFormatId, hasHeaders }: SavedItemReading): string | null {
     if (dataFormatId !== 'dtv') return null;
     if (hasHeaders == null) return t(TEXT, 'detail.notDetected.text');
     return t(TEXT, hasHeaders ? 'detail.hasHeaders.yes.text' : 'detail.hasHeaders.no.text');
 }
 
-function constructRecordDelimiterText({ dataFormatId, recordDelimiterId }: ItemReading): string | null {
+function constructRecordDelimiterText({ dataFormatId, recordDelimiterId }: SavedItemReading): string | null {
     if (dataFormatId !== 'dtv') return null;
     return recordDelimiterId == null ? t(TEXT, 'detail.notDetected.text') : constructRecordDelimiterLabel(recordDelimiterId);
 }
 
-function constructValueDelimiterText({ dataFormatId, valueDelimiterId }: ItemReading): string | null {
+function constructValueDelimiterText({ dataFormatId, valueDelimiterId }: SavedItemReading): string | null {
     if (dataFormatId !== 'dtv') return null;
     return valueDelimiterId == null ? t(TEXT, 'detail.notDetected.text') : constructValueDelimiterLabel(valueDelimiterId);
 }
@@ -362,8 +365,11 @@ function formatOptionalCount(count: number | undefined): string | undefined {
     return count == null ? undefined : formatCount(count);
 }
 
-function formatOptionalDuration(milliseconds: number | undefined): string | undefined {
-    return milliseconds == null ? undefined : formatFinishedDuration(milliseconds);
+// A part of an audit's or a load's time that was not timed apart took none of its own, so it shows as zero: an item's
+// first audit has no wait, because its bytes were fetched before it started, and a source that holds typed values has
+// no parser. A plain zero, because 'formatFinishedDuration' shows a zero as a time too short to show.
+function formatOptionalDuration(milliseconds: number | undefined): string {
+    return milliseconds == null ? formatElapsedDuration(0) : formatFinishedDuration(milliseconds);
 }
 
 function formatDateTime(timestamp: number): string {
@@ -426,7 +432,7 @@ function formatDateTime(timestamp: number): string {
                     >
                         <template v-for="detail in part.details" :key="detail.labelKey">
                             <dt class="text-muted">{{ t(TEXT, detail.labelKey) }}</dt>
-                            <dd class="m-0 min-w-0 wrap-break-word">{{ detail.value }}</dd>
+                            <dd class="m-0 min-w-0 wrap-break-word" :class="{ 'text-muted': detail.isMuted }">{{ detail.value }}</dd>
                         </template>
                     </dl>
                 </div>

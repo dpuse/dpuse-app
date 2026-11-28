@@ -152,7 +152,7 @@ import { type DataViewStoreConfig, INVESTIGATE_STORE_CONNECTOR_ID } from '@/feat
 import { findConnectionLocalisedConfig, toolConfigs } from '@/state/configs';
 import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_components/_statusBar';
 import { holdStore, isStoreConnection, openStore, storeTakeover } from '@/services/storeUse';
-import { isDataViewLoaded, listDataViewStoreConfigs, resolveStoreConnectorId } from '@/features/studio/dataViews/_state/dataViewStore';
+import { isDataViewLoaded, listDataViewStoreConfigs, parseDataViewSampleRecords, resolveStoreConnectorId } from '@/features/studio/dataViews/_state/dataViewStore';
 import { localeId, t } from '@/state/locale';
 import { TAB_CLASSES, TAB_SELECTED_CLASSES, TAB_UNSELECTED_CLASSES } from '@/components/ui/action/action';
 import { useItemChange, wasItemRefreshRequested } from '@/features/studio/dataViews/_components/itemChange';
@@ -402,7 +402,7 @@ const detectedEncodingIsAssumed = ref(false);
 const detectedValueDelimiterId = ref<ValueDelimiterId>();
 const detectedHasHeaders = ref<boolean>();
 const detectedReadingConfig = shallowRef<ReadingConfig>(); // The latest preview's detection, saved as the data view's reading.
-const detectedEncodingCandidates = shallowRef<EncodingDetectionConfig[]>(); // Only from a preview, so a saved item opened without one has none.
+const detectedEncodingCandidates = shallowRef<EncodingDetectionConfig[]>(); // Every encoding detected, from a preview or from the saved reading of an item opened without one.
 const detectedStructureIndex = shallowRef<StructureIndex>(); // Only from a preview, so a saved item opened without one has none.
 
 // ── Column Types ─ The type, date order and decimal separator the user chose for a column, by its id in the table,
@@ -996,8 +996,8 @@ watch(
         try {
             const previewObjectResult = await readPreviewObjectResult(newActiveItem, isNewReadChoice, isRetry);
             if (previewObjectResult == null || currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
-            detectedReadingConfig.value = previewObjectResult.readingConfig;
-            detectedEncodingCandidates.value = previewObjectResult.encodingCandidates;
+            detectedReadingConfig.value = constructDetectedReadingConfig(previewObjectResult);
+            detectedEncodingCandidates.value = detectedReadingConfig.value.encodingCandidates;
             detectedStructureIndex.value = previewObjectResult.structureIndex; // A saved item opens without a preview, so it has no map until it is read again.
 
             const itemReading = constructItemReading(previewObjectResult);
@@ -1500,7 +1500,7 @@ function constructPreviewOptions(connectionNodeConfig: ConnectionNodeConfig, isN
 // A saved item opens as it was saved. It is previewed again only on a retry, which 'Preview again' also makes, or when a
 // read choice changes. Undefined when there is no connection to preview with.
 async function readPreviewObjectResult(connectionNodeConfig: ConnectionNodeConfig, isNewReadChoice: boolean, isRetry: boolean): Promise<PreviewObjectResult | undefined> {
-    const savedPreviewObjectResult = isNewReadChoice || isRetry ? undefined : findSavedPreviewObjectResult(connectionNodeConfig);
+    const savedPreviewObjectResult = isNewReadChoice || isRetry ? undefined : await readSavedPreviewObjectResult(connectionNodeConfig);
     if (savedPreviewObjectResult != null) return savedPreviewObjectResult;
     const { processRequest } = await establishEngineWorker();
     if (!activeConnectionConfig.value) return;
@@ -1508,13 +1508,23 @@ async function readPreviewObjectResult(connectionNodeConfig: ConnectionNodeConfi
     return (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewObjectResult;
 }
 
+// The reading a preview detected, with every encoding it detected, so they are saved with the data view. A connector
+// built before the reading kept them returns them beside it. A saved item opened without a preview has them in its
+// saved reading.
+function constructDetectedReadingConfig({ encodingCandidates, readingConfig }: PreviewObjectResult): ReadingConfig {
+    return { ...readingConfig, encodingCandidates: readingConfig.encodingCandidates ?? encodingCandidates };
+}
+
 // The saved reading, sample and audit of the data view's own item, so it opens as it was saved. Undefined for any other
-// item.
-function findSavedPreviewObjectResult(connectionNodeConfig: ConnectionNodeConfig): PreviewObjectResult | undefined {
+// item. A saved sample does not keep the records its text was parsed into, so they are parsed from the text again,
+// which does not fetch the item.
+async function readSavedPreviewObjectResult(connectionNodeConfig: ConnectionNodeConfig): Promise<PreviewObjectResult | undefined> {
     const savedConfig = dataViewConfig.value;
     if (savedConfig == null || !isDataViewItem(connectionNodeConfig)) return;
     const { contentAuditConfig, readingConfig, sampleConfig } = savedConfig;
-    return contentAuditConfig == null || readingConfig == null || sampleConfig == null ? undefined : { contentAuditConfig, readingConfig, sampleConfig };
+    if (contentAuditConfig == null || readingConfig == null || sampleConfig == null) return;
+    const parsedRecords = await parseDataViewSampleRecords(savedConfig);
+    return { contentAuditConfig, readingConfig, sampleConfig: { ...sampleConfig, parsedRecords } };
 }
 
 function constructReadChoices(): ReadingChoiceConfig {
@@ -1729,10 +1739,11 @@ function addColumnsChangedIssue(itemReading: ItemReading): ItemReading {
 // 'shouldLoadRecords' is for a refresh chosen on Explore, which then opens to load the records.
 async function refreshChangedItem(shouldLoadRecords: boolean): Promise<void> {
     const changedItemConfig = currentItemConfig.value;
-    const readSampleConfig = dataViewConfig.value?.sampleConfig; // As the data view read the item, before the fresh preview changes it.
-    if (changedItemConfig == null || readSampleConfig == null) return;
-    const readAuditConfig = dataViewConfig.value?.contentAuditConfig;
-    const readColumns = constructItemColumns(readSampleConfig.parsedRecords, constructAppliedReading(readSampleConfig).hasHeaders === true);
+    const readDataViewConfig = dataViewConfig.value; // As the data view read the item, before the fresh preview changes it.
+    const readSampleConfig = readDataViewConfig?.sampleConfig;
+    if (changedItemConfig == null || readDataViewConfig == null || readSampleConfig == null) return;
+    const readAuditConfig = readDataViewConfig.contentAuditConfig;
+    const readColumns = constructItemColumns(await parseDataViewSampleRecords(readDataViewConfig), constructAppliedReading(readSampleConfig).hasHeaders === true);
 
     readingIsChanged.value = true; // A refresh is the user's change, so the fresh preview goes into the data view with the item's new version.
     activeConnectionObjectConfig.value = changedItemConfig;
@@ -2042,8 +2053,8 @@ async function readLargerPreview(): Promise<AuditObjectContentResult | undefined
         const previewObjectResult = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewObjectResult;
         if (currentRequestId !== previewRequestId.value) return;
         // More of the item gives detection more to go on, so its result replaces the first one.
-        detectedReadingConfig.value = previewObjectResult.readingConfig;
-        detectedEncodingCandidates.value = previewObjectResult.encodingCandidates;
+        detectedReadingConfig.value = constructDetectedReadingConfig(previewObjectResult);
+        detectedEncodingCandidates.value = detectedReadingConfig.value.encodingCandidates;
         recordDetectedValues(previewObjectResult.readingConfig);
         // More records can show a header the first preview missed, unless the user chose whether there is one.
         const detectedReading = constructItemReading(previewObjectResult);

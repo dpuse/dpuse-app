@@ -12,6 +12,8 @@ import type {
     LoadTiming,
     LocalisedConfig,
     ObjectColumnConfig,
+    ParsedRecord,
+    ParseSampleRecordsOptions,
     QueryRecordsOptions,
     QueryRecordsResult,
     StoreRecord,
@@ -131,13 +133,14 @@ export async function loadDataViewRecords(
     const sourceIsFile = sourceConnectionConfig.connectorConfig.itemTypeId === 'file'; // Only a file has an encoding and a value delimiter.
     const storeConnectorId = resolveStoreConnectorId(dataViewConfig);
     const loadKey = constructLoadKey(storeConnectorId, dataViewConfig.id, isDraft);
+    const sampleRecords = appliedReading.hasHeaders === true ? await parseDataViewSampleRecords(dataViewConfig) : []; // Only the header record is needed, and a saved sample no longer keeps its records.
     const tablePath = `${dataViewConfig.id}-${crypto.randomUUID()}`;
     addUnwantedTablePaths(storeConnectorId, [tablePath]); // Until the load succeeds, so a table left by a failure, reload or crash is dropped.
     const options: EngineLoadObjectRecordsOptions = {
         columnConfigs: constructLoadColumnConfigs(dataViewConfig),
         hasHeaders: appliedReading.hasHeaders === true,
         ignoredColumnIndexes: constructIgnoredColumnIndexes(dataViewConfig),
-        headerValues: appliedReading.hasHeaders === true ? dataViewConfig.sampleConfig?.parsedRecords[0] : undefined,
+        headerValues: sampleRecords.at(0),
         path: tablePath,
         requestId,
         sourceConnectionConfig,
@@ -243,6 +246,23 @@ export async function queryDataViewColumnValueCounts(
 // Undefined for a load made before the counts were kept, or when there is no load.
 export function findDataViewInvalidValueCounts(dataViewConfig: Pick<DataViewConfig, 'id' | 'storeConnectorId'>, isDraft: boolean): number[] | undefined {
     return loadInvalidValueCounts.value[constructDataViewLoadKey(dataViewConfig, isDraft)];
+}
+
+// The records of a data view's sample. A saved sample that has its text does not keep them, so they are parsed from the
+// text again in the engine, where the parser tools load. A sample that still has them, such as a draft's or a table's,
+// gives them without a parse.
+export async function parseDataViewSampleRecords(dataViewConfig: Pick<DataViewConfig, 'connectionId' | 'connectionNodeConfig' | 'sampleConfig'>): Promise<ParsedRecord[]> {
+    const { connectionNodeConfig, sampleConfig } = dataViewConfig;
+    if (sampleConfig == null) return [];
+    if (sampleConfig.parsedRecords != null) return sampleConfig.parsedRecords;
+    const connectionConfig = assertDefined(findConnectionLocalisedConfig(dataViewConfig.connectionId), 'No connection for this data view.');
+    const { dataFormatId, parserId, structurePath, text, valueDelimiterId } = sampleConfig;
+    const options: ParseSampleRecordsOptions = {
+        isComplete: sampleConfig.size != null && sampleConfig.size === connectionNodeConfig?.size, // The sample holds the whole item, so a quote left open at its end is an error.
+        sampleConfig: { dataFormatId, parserId, structurePath, text, valueDelimiterId }
+    };
+    const { processRequest } = await establishEngineWorker();
+    return (await processRequest('parseSampleRecords', connectionConfig, options)) as ParsedRecord[];
 }
 
 // Undefined until the data view has loaded since the page opened.

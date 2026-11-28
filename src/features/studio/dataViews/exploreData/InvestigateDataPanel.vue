@@ -54,8 +54,8 @@ import {
     constructIgnoredColumnIndexes,
     constructLoadColumnConfigs,
     isDerivedColumn,
-    type ItemReading,
-    placeLoadedValues
+    placeLoadedValues,
+    type SavedItemReading
 } from '@/features/studio/dataViews/_state/dataViewColumns';
 import { constructFittedColumnWidth, HEADER_MENU_WIDTH_PX, HEADER_TAB_INSET_PX } from '@/components/ui/table/tableColumnWidth';
 import { formatElapsedDuration, formatFinishedDuration, formatStatusPercentage } from '@/features/studio/dataViews/_components/_statusBar';
@@ -305,7 +305,7 @@ const numberFormats = computed(() =>
 // would make the loaded records out of date. The choices show as they are, each as its one option, and link to the item
 // step, where they can be changed. A column with more different values than the audit counts gets its counts from the
 // store, which holds every value.
-const itemReading = computed((): ItemReading | undefined => {
+const itemReading = computed((): SavedItemReading | undefined => {
     const { readingConfig, sampleConfig } = dataViewConfig.value ?? {};
     if (readingConfig == null || sampleConfig == null) return undefined;
     const storeCounts = selectedColumnValueCounts.value?.dataSourceId === dataSource.value.id ? selectedColumnValueCounts.value : undefined;

@@ -154,6 +154,20 @@ describe('data views', () => {
             expect(cachedList()?.map((config) => config.id)).toStrictEqual(['a', 'b', created.id]);
         });
 
+        it('stores a sample without the records its text can give again, and keeps the records of a sample with no text', async () => {
+            const { mutateAsync } = await runInComponent(() => useUpdateDataView());
+            const textSample = { issues: [], parsedRecords: [['a']], size: 2, text: 'a\n' };
+            const tableSample = { issues: [], parsedRecords: [['a']], size: undefined, text: undefined };
+
+            const savedDataViewConfig = await mutateAsync({ ...buildDataView('a', 'Sales'), sampleConfig: textSample });
+            await mutateAsync({ ...buildDataView('b', 'Stock'), sampleConfig: tableSample });
+
+            expect(vi.mocked(upsertWorkspaceStoreRecord).mock.calls[0]?.[1]).toMatchObject({ sampleConfig: { issues: [], size: 2, text: 'a\n' } });
+            expect(vi.mocked(upsertWorkspaceStoreRecord).mock.calls[0]?.[1].sampleConfig).not.toHaveProperty('parsedRecords');
+            expect(savedDataViewConfig.sampleConfig).not.toHaveProperty('parsedRecords'); // The app holds what was stored.
+            expect(vi.mocked(upsertWorkspaceStoreRecord).mock.calls[1]?.[1]).toMatchObject({ sampleConfig: { parsedRecords: [['a']] } });
+        });
+
         it('stores the data view without its icon, which is added on reading', async () => {
             const { mutateAsync } = await runInComponent(() => useUpdateDataView());
 

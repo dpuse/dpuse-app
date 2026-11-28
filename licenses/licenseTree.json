@@ -1,5 +1,5 @@
 {
-  "version": "1.0.325",
+  "version": "1.0.326",
   "name": "dpuse-app",
   "dependencies": {
     "@axe-core/playwright": {
@@ -172,7 +172,7 @@
               "version": "2.16.2"
             },
             "@cloudflare/workers-types": {
-              "version": "5.20261127.1"
+              "version": "5.20261128.1"
             },
             "@cloudflare/workers-utils": {
               "version": "0.57.0",
@@ -245,8 +245,8 @@
       }
     },
     "@cloudflare/workers-types": {
-      "version": "5.20261127.1",
-      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261127.1.tgz",
+      "version": "5.20261128.1",
+      "resolved": "https://registry.npmjs.org/@cloudflare/workers-types/-/workers-types-5.20261128.1.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-development": {
@@ -370,7 +370,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.254"
+          "version": "1.0.256"
         },
         "npm-check-updates": {
           "version": "23.1.1",
@@ -446,8 +446,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.254",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.254.tgz",
+      "version": "1.0.256",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.256.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -533,7 +533,7 @@
           }
         },
         "@dpuse/dpuse-shared": {
-          "version": "1.0.254"
+          "version": "1.0.256"
         },
         "@tanstack/charts": {
           "version": "1.5.0",
@@ -2320,8 +2320,8 @@
       }
     },
     "@lucide/vue": {
-      "version": "1.82.0",
-      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.82.0.tgz",
+      "version": "1.83.0",
+      "resolved": "https://registry.npmjs.org/@lucide/vue/-/vue-1.83.0.tgz",
       "overridden": false,
       "dependencies": {
         "vue": {
@@ -4852,7 +4852,7 @@
         "@automerge/automerge-repo": {},
         "@capacitor-community/sqlite": {},
         "@cloudflare/workers-types": {
-          "version": "5.20261127.1"
+          "version": "5.20261128.1"
         },
         "@electric-sql/pglite": {},
         "@libsql/client": {},
@@ -5758,7 +5758,7 @@
           "version": "2.16.2"
         },
         "@cloudflare/workers-types": {
-          "version": "5.20261127.1"
+          "version": "5.20261128.1"
         },
         "@cloudflare/workers-utils": {
           "version": "0.58.0",

@@ -33,7 +33,7 @@ const LINK_CLASSES = 'ml-auto pl-4';
 interface SourceLink {
     label: string; // What going to the step is for, which screen readers hear.
     stepNumber: number;
-    to: RouteLocationRaw;
+    to?: RouteLocationRaw | undefined; // Left out for a step that cannot be opened from here, which shows the link disabled.
 }
 
 const { connectionId, connectionNodeConfig, dataFormatId, dataViewConnection, isFolderLineShown, isSingleLine, itemTypeId, store } = defineProps<{

@@ -21,4 +21,18 @@ describe('StepLink', () => {
         expect(link.props('to')).toEqual({ name: 'connection' });
         expect(link.find('.lucide-move-right-icon, .lucide-move-right').exists()).toBe(true);
     });
+
+    it('stays in place, disabled and going nowhere, for a step that cannot be opened', () => {
+        const wrapper = mount(StepLink, {
+            global: { stubs: { RouterLink: RouterLinkStub } },
+            props: { label: 'Change the item in step 2', stepNumber: 2 }
+        });
+        const link = wrapper.get('[data-region="StepLink"]');
+
+        expect(wrapper.findComponent(RouterLinkStub).exists()).toBe(false);
+        expect(link.text()).toBe('2');
+        expect(link.attributes('aria-disabled')).toBe('true');
+        expect(link.attributes('aria-label')).toBe('Change the item in step 2');
+        expect(link.attributes('href')).toBeUndefined();
+    });
 });

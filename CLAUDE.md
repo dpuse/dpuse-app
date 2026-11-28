@@ -209,6 +209,9 @@ Using the strings:
   label is empty.
 - **Unknown, never hidden.** A list of facts always shows every fact. A value that cannot be known says 'Unknown'. It
   is never left blank or dropped, because a missing row reads as "not there", not "not known".
+- **Disabled, never hidden.** A row, link or control that does not apply right now stays in its place, dimmed or
+  disabled, so nothing comes and goes: a step link for the step on screen is disabled, and a count or time with nothing
+  to report shows 0.
 - **Translate in a `computed`** that reads `localeId.value`, never in a watcher or on load. Translating re-creates the
   objects, so a watcher on a selection watches its id, not the object.
 - **TODOs about JSON contents** go as a trailing comment on the import line, naming the key and languages, because

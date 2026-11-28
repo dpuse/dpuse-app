@@ -122,6 +122,13 @@ function constructValueKindLabel(valueKindId: ValueKindId): string {
                         </th>
                         <th v-for="key in PROPERTY_KEYS" :key="key" class="py-1 pr-4 font-normal text-muted" :class="{ 'text-right': key === 'distinctValueText' }">
                             {{ columnHeaders[key] }}
+                            <!-- Length Key ─ A length is a range, shortest to longest, and a number with decimal places shows
+                                 two. The key is written as such a cell is, with the separator in extra bold and the decimal
+                                 places in italics, so it says which range is which. -->
+                            <span v-if="key === 'lengthText'" aria-hidden="true" class="mt-0.5 block text-xs"
+                                >{{ t(TEXT, 'length.range.label') }}{{ THIN_SPACE }}<span class="font-extrabold">.</span>{{ THIN_SPACE
+                                }}<span class="italic">{{ t(TEXT, 'length.decimals.label') }}</span></span
+                            >
                             <span v-if="key === 'formatText'" aria-hidden="true" class="mt-0.5 flex gap-x-2 text-xs">
                                 <span class="flex items-center gap-x-1">
                                     <span class="size-2 rounded-full" :class="MOST_COMMON_FORMAT_COLOR_CLASS" />

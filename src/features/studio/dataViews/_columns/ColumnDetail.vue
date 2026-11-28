@@ -19,7 +19,7 @@ import {
     formatYesNo,
     type PreviewColumnRow
 } from './previewColumnRows';
-import { type ColumnType, constructColumnTypeId, type ItemReading } from '@/features/studio/dataViews/_state/dataViewColumns';
+import { type ColumnType, constructColumnTypeId, type SavedItemReading } from '@/features/studio/dataViews/_state/dataViewColumns';
 import { localeId, t } from '@/state/locale';
 import { TAB_CLASSES, TAB_SELECTED_CLASSES, TAB_UNSELECTED_CLASSES } from '@/components/ui/action/action';
 
@@ -101,7 +101,7 @@ const {
     isDateOrderDisabled?: boolean; // No date in the column could be read either way, so the order is shown but cannot be changed.
     isIgnored?: boolean;
     isTypeDisabled?: boolean;
-    itemReading: ItemReading;
+    itemReading: SavedItemReading;
     nullWordReading?: 'empty' | 'text'; // How words such as 'NA' read. 'NULL' is always empty. Only a text column has the choice. Not a boolean, because Vue reads a missing boolean as false.
     typeOptions: SelectOption[];
     typeValue: string;

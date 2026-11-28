@@ -23,6 +23,7 @@ import {
     listDataViewStoreConfigs,
     loadDataViewRecords,
     openDataViewStore,
+    parseDataViewSampleRecords,
     promoteDraftLoad,
     queryDataViewColumnValueCounts,
     queryDataViewRecords,
@@ -112,6 +113,39 @@ describe('dataViewStore', () => {
         await openDataViewStore(INVESTIGATE_STORE_CONNECTOR_ID, undefined, true);
 
         expect(processRequest).toHaveBeenCalledWith('openStore', { id: INVESTIGATE_STORE_CONNECTOR_ID }, { takeOver: true });
+    });
+
+    it('gives a sample’s records as they are when it still has them, without asking the engine', async () => {
+        expect(await parseDataViewSampleRecords(DATA_VIEW)).toEqual([['Name']]);
+        expect(processRequest).not.toHaveBeenCalled();
+    });
+
+    it('parses a saved sample’s records from its text in the engine, and says whether the sample is the whole item', async () => {
+        processRequest.mockResolvedValue([['Name'], ['Ada']]);
+        const sampleConfig = { dataFormatId: 'dtv', issues: [], parserId: 'parser1', size: 9, structurePath: undefined, text: 'Name\nAda\n', valueDelimiterId: ',' };
+        const wholeItem = { ...DATA_VIEW, connectionNodeConfig: { ...DATA_VIEW.connectionNodeConfig, size: 9 }, sampleConfig } as unknown as DataViewConfig;
+        const partOfItem = { ...DATA_VIEW, connectionNodeConfig: { ...DATA_VIEW.connectionNodeConfig, size: 500 }, sampleConfig } as unknown as DataViewConfig;
+
+        expect(await parseDataViewSampleRecords(wholeItem)).toEqual([['Name'], ['Ada']]);
+        await parseDataViewSampleRecords(partOfItem);
+
+        const { issues: _issues, size: _size, ...parsedSampleConfig } = sampleConfig;
+        expect(processRequest).toHaveBeenNthCalledWith(1, 'parseSampleRecords', expect.objectContaining({ id: 'source1' }), { isComplete: true, sampleConfig: parsedSampleConfig });
+        expect(processRequest.mock.calls[1]?.[2]).toMatchObject({ isComplete: false });
+    });
+
+    it('has no records for a data view with no sample', async () => {
+        expect(await parseDataViewSampleRecords({ ...DATA_VIEW, sampleConfig: undefined })).toEqual([]);
+    });
+
+    it('takes a load’s header values from the saved sample’s text when its records were not saved', async () => {
+        processRequest.mockResolvedValueOnce([['Name'], ['Ada']]).mockResolvedValueOnce({ columnsHaveChanged: false, invalidValueCounts: [0], recordCount: 1 });
+        const sampleConfig = { ...DATA_VIEW.sampleConfig, parsedRecords: undefined, text: 'Name\nAda\n' };
+
+        await loadDataViewRecords({ ...DATA_VIEW, id: 'dataView21', sampleConfig } as unknown as DataViewConfig, false, vi.fn()); // The loaded record is kept for the session, so another id starts clean.
+
+        expect(processRequest.mock.calls.slice(0, 2).map(([requestName]) => requestName)).toEqual(['parseSampleRecords', 'loadObjectRecords']);
+        expect(processRequest.mock.calls[1]?.[2]).toMatchObject({ headerValues: ['Name'] });
     });
 
     it('loads from the source the way the data view reads it, reports progress, and remembers the columns it loaded', async () => {

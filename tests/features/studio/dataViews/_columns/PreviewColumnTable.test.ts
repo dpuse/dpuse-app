@@ -83,6 +83,14 @@ describe('PreviewColumnTable', () => {
         expect(headers.at(-1)?.text().replaceAll(/\s+/gu, ' ')).toBe('Format Most common Other');
     });
 
+    it('says under the length header what a length’s ranges are, written as a cell with decimal places is', () => {
+        const lengthKey = mountTable([buildColumn({})]).get('th:nth-child(5) [aria-hidden="true"]');
+
+        expect(lengthKey.text()).toBe('min–max\u{2009}.\u{2009}decimals');
+        expect(lengthKey.get('.font-extrabold').text()).toBe('.');
+        expect(lengthKey.get('.italic').text()).toBe('decimals');
+    });
+
     it('sets lengths in figures of equal width, so ranges of the same shape line up', () => {
         expect(mountTable([buildColumn({ validMaxSize: 12, validMinSize: 3 })]).get('tbody td:nth-child(5)').classes()).toContain('tabular-nums');
     });

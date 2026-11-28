@@ -12,6 +12,7 @@ import type { ListObjectStructureEntriesOptions, ListStructureEntriesResult } fr
 import { assertDefined } from '@/utilities/index.ts';
 import { constructAppliedReading } from './dataViewColumns';
 import { constructItemPath } from './dataViewSummary';
+import { constructSavedSampleConfig } from './dataViewColumns';
 import type { DataViewDiagramFocus } from './dataViewFocus';
 import { draftDataViewConfig } from './dataViewDraft';
 import { establishEngineWorker } from '@/services/engine';
@@ -263,8 +264,10 @@ function restoreDataViewConfig(storedDataViewConfig: DataViewConfig): DataViewCo
 // The cache is written here rather than in 'onSuccess', because only here is the store the change went to known.
 async function saveDataViewConfig(dataViewConfig: DataViewConfig): Promise<DataViewConfig> {
     try {
-        const storeId = await upsertWorkspaceStoreRecord('dataViews', { ...dataViewConfig, icon: null, iconDark: null }); // The icon is added on reading, so it is not stored.
-        const savedDataViewConfig = { ...dataViewConfig, icon: dataViewIcon };
+        // The sample's records are left out where its text can give them again, so the sample is not stored twice.
+        const sampleConfig = dataViewConfig.sampleConfig == null ? undefined : constructSavedSampleConfig(dataViewConfig.sampleConfig);
+        const storeId = await upsertWorkspaceStoreRecord('dataViews', { ...dataViewConfig, icon: null, iconDark: null, sampleConfig }); // The icon is added on reading, so it is not stored.
+        const savedDataViewConfig = { ...dataViewConfig, icon: dataViewIcon, sampleConfig };
         if (storeId === workspaceStoreId.value) writeDataViewConfigToCache(savedDataViewConfig); // A save that finishes after signing in or out stays out of the next user's lists.
         return savedDataViewConfig;
     } catch (error) {

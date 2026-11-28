@@ -8,6 +8,7 @@ import type {
     DataViewConfig,
     DateOrderId,
     DecimalSeparatorId,
+    ParsedRecord,
     PreviewObjectResult,
     ReadingConfig,
     SampleConfig,
@@ -22,9 +23,13 @@ import { assertDefined } from '@/utilities/index.ts';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// An item as it shows on screen: how it is read, its sample and its columns, kept together so a change of one stays in
-// step with the others.
-export type ItemReading = SampleConfig & ReadingConfig & { columnConfigs: ColumnAuditConfig[] };
+// A saved data view's item: how it is read, its sample and its columns. Its sample has its records only when it has no
+// text to parse them from again, such as a table's.
+export type SavedItemReading = SampleConfig & ReadingConfig & { columnConfigs: ColumnAuditConfig[] };
+
+// An item as it shows on screen: how it is read, its sample with its records, and its columns, kept together so a
+// change of one stays in step with the others.
+export type ItemReading = SavedItemReading & { parsedRecords: ParsedRecord[] };
 
 // How an item is actually read: the way its sample was read, which follows the user's choices. An audit and a load read
 // the item this way.
@@ -61,8 +66,8 @@ export function constructItemReading({ contentAuditConfig, readingConfig, sample
     return { ...readingConfig, ...sampleConfig, columnConfigs: contentAuditConfig.columns };
 }
 
-// The text is saved with the records it was parsed into, so the two always match. The sample also keeps how it was read,
-// so an audit and a load read the item the same way.
+// A sample as a draft data view holds it, with the records its text was parsed into, so the two always match while the
+// item is being worked on. The sample also keeps how it was read, so an audit and a load read the item the same way.
 export function constructSampleConfig(itemReading: ItemReading): SampleConfig {
     const {
         dataFormatId,
@@ -92,6 +97,15 @@ export function constructSampleConfig(itemReading: ItemReading): SampleConfig {
         text,
         valueDelimiterId
     };
+}
+
+// A sample as it is saved. Its records are left out when it has the text they were parsed from, because they can be
+// parsed from it again and would otherwise be stored twice. A sample with no text, such as a table's, keeps them, as
+// they are the only copy.
+export function constructSavedSampleConfig(sampleConfig: SampleConfig): SampleConfig {
+    if (sampleConfig.text == null) return sampleConfig;
+    const { parsedRecords: _parsedRecords, ...savedSampleConfig } = sampleConfig;
+    return savedSampleConfig;
 }
 
 export function constructAppliedReading(sampleConfig: SampleConfig): AppliedReading {
@@ -293,7 +307,7 @@ export function constructDataTypeCellClass(dataTypeId: ColumnType['dataTypeId'] 
 }
 
 // The saved item with its columns put back, for what shows an item, each column as the user wants it read.
-export function restoreItemReading(dataViewConfig: Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig' | 'readingConfig' | 'sampleConfig'>): ItemReading | undefined {
+export function restoreItemReading(dataViewConfig: Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig' | 'readingConfig' | 'sampleConfig'>): SavedItemReading | undefined {
     const { readingConfig, sampleConfig } = dataViewConfig;
     if (sampleConfig == null || readingConfig == null) return;
     return { ...readingConfig, ...sampleConfig, columnConfigs: resolveColumnConfigs(dataViewConfig) };

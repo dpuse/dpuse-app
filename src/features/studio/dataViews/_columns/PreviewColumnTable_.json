@@ -13,6 +13,8 @@
             "en": "Every value is unique, none is missing and none is invalid, so this column appears to be a key",
             "es": "Todos los valores son únicos, no falta ninguno y ninguno es no válido, por lo que esta columna parece ser una clave"
         },
+        "length.decimals.label": { "en": "decimals", "es": "decimales" },
+        "length.range.label": { "en": "min–max", "es": "mín–máx" },
         "mandatory.aria": {
             "en": "Every record has a value in this column, so it appears to be mandatory",
             "es": "Todos los registros tienen un valor en esta columna, por lo que parece ser obligatoria"

@@ -120,6 +120,7 @@ async function handleSaveEdits(): Promise<void> {
                 :data-view-connection="dataViewConnection"
                 :data-view-id="dataViewLocalisedConfig.id"
                 :detected-reading-config="dataViewLocalisedConfig.readingConfig"
+                :encoding-candidates="dataViewLocalisedConfig.readingConfig?.encodingCandidates"
                 :is-loaded="isDataViewLoaded(dataViewLocalisedConfig, false)"
                 :item-reading="itemReading"
                 :overline="t(TEXT, 'dataViews.label')"

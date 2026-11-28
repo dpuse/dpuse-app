@@ -75,6 +75,7 @@ describe('DataViewDocument', () => {
         const details = readDetails(wrapper, 'Details');
 
         expect(details).toEqual([
+            ['Description', 'Not applicable'],
             ['File type', 'text/csv'],
             ['Size', '956 bytes'],
             ['Last modified', 'Unknown']
@@ -107,6 +108,7 @@ describe('DataViewDocument', () => {
 
         expect(readDetails(mountDocument({ properties: { itemReading } }), 'Reading')).toEqual([
             ['Encoding', 'utf-8'],
+            ['Detected encodings', 'Unknown'],
             ['Unreadable characters', '3'],
             ['Format', 'Delimited text (CSV, TSV…)'],
             ['Parser', 'CSV Parser'],
@@ -117,7 +119,7 @@ describe('DataViewDocument', () => {
         ]);
     });
 
-    it('lists every encoding a preview detected with how sure it was, and has no such row without a preview', () => {
+    it('lists every encoding detected with how sure it was, and says they are unknown when none were kept', () => {
         const encodingCandidates = [
             { confidenceLevel: 0.87, id: 'utf-8' as const },
             { confidenceLevel: 0.4, id: 'windows-1252' as const },
@@ -125,17 +127,20 @@ describe('DataViewDocument', () => {
         ];
         expect(readReading({ encodingCandidates })).toContainEqual(['Detected encodings', 'utf-8 (87%), windows-1252 (40%), iso-8859-1']);
         expect(readReading({ encodingCandidates: [] })).toContainEqual(['Detected encodings', 'None, as the text is all ASCII']);
-        expect(readReading({}).map(([label]) => label)).not.toContain('Detected encodings');
+        expect(readReading({})).toContainEqual(['Detected encodings', 'Unknown']);
     });
 
-    it('has no file type, encoding or parsing for a table', () => {
+    it('says a table’s file type does not apply, muted, and has no reading part', () => {
         const wrapper = mountDocument({ properties: { dataViewConnection: buildDataViewConnection({ itemTypeId: 'table', itemTypeLabel: 'Table' }) } });
 
         expect(findSectionTitles(wrapper)).toContain('Table');
         expect(readDetails(wrapper, 'Details')).toEqual([
+            ['Description', 'Not applicable'],
+            ['File type', 'Not applicable'],
             ['Size', '956 bytes'],
             ['Last modified', 'Unknown']
         ]);
+        expect(wrapper.findAll('dd.text-muted').map((value) => value.text())).toEqual(['Not applicable', 'Not applicable']);
         expect(findPartTitles(wrapper)).not.toContain('Reading');
     });
 
@@ -182,14 +187,16 @@ describe('DataViewDocument', () => {
         ]);
     });
 
-    it('does not link the step it is shown on, or a step that cannot be opened yet', () => {
+    it('disables the link to the step it is shown on, and to a step that cannot be opened yet, and never hides one', () => {
         const onItemStep = mountDocument({ properties: { currentStepId: 'item' } });
         const beforeAnyItem = mountDocument({ properties: { connectionNodeConfig: undefined, itemReading: undefined } });
         const beforeAnyConnection = mountDocument({ properties: { connectionId: undefined, connectionNodeConfig: undefined, itemReading: undefined } });
 
+        expect(readDisabledHeadingLinks(onItemStep)).toEqual(['Change the item in step 2']);
         expect(readHeadingLinks(onItemStep).map(([label]) => label)).toEqual(['Change the connection in step 1', 'Explore the records in step 3']);
+        expect(readDisabledHeadingLinks(beforeAnyItem)).toEqual(['Explore the records in step 3']);
         expect(readHeadingLinks(beforeAnyItem).map(([label]) => label)).toEqual(['Change the connection in step 1', 'Choose the item in step 2']);
-        expect(readHeadingLinks(beforeAnyConnection).map(([label]) => label)).toEqual(['Change the connection in step 1']);
+        expect(readDisabledHeadingLinks(beforeAnyConnection)).toEqual(['Choose the item in step 2', 'Explore the records in step 3']);
     });
 
     it('names the store, and says when the records are not loaded yet', () => {
@@ -224,6 +231,14 @@ describe('DataViewDocument', () => {
         expect(readDetails(wrapper, 'Loading')[0]).toEqual(['Duration', '2.0 sec']);
     });
 
+    it('shows a part of an audit’s time that was not timed apart as zero, and the ones that were as timed', () => {
+        const firstAudit = readDetails(mountDocument({ properties: { contentAuditConfig: buildContentAuditConfig() } }), 'Auditing');
+        const timedAudit = readDetails(mountDocument({ properties: { contentAuditConfig: { ...buildContentAuditConfig(), sourceWaitDuration: 30 } } }), 'Auditing');
+
+        expect(firstAudit).toContainEqual(['Waiting for data', '0 sec']);
+        expect(timedAudit).toContainEqual(['Waiting for data', '0.03 sec']);
+    });
+
     it('lists an audit’s lines, then the header row, records and empty lines they are made of', () => {
         const contentAuditConfig = { ...buildContentAuditConfig(), commentLineCount: 0, emptyLineCount: 1, invalidFieldLengthCount: 0, lineCount: 22 };
         const withHeader = readDetails(mountDocument({ properties: { contentAuditConfig } }), 'Auditing');
@@ -239,11 +254,11 @@ describe('DataViewDocument', () => {
         expect(withoutHeader).toContainEqual(['Header rows', '0']);
     });
 
-    it('has no header row count for a format that has no header row', () => {
+    it('says the header row count does not apply to a format that has no header row', () => {
         const itemReading = buildItemReading({ dataFormatId: 'json' });
-        const labels = readDetails(mountDocument({ properties: { contentAuditConfig: buildContentAuditConfig(), itemReading } }), 'Auditing').map(([label]) => label);
+        const details = readDetails(mountDocument({ properties: { contentAuditConfig: buildContentAuditConfig(), itemReading } }), 'Auditing');
 
-        expect(labels).not.toContain('Header rows');
+        expect(details).toContainEqual(['Header rows', 'Not applicable']);
     });
 });
 
@@ -268,6 +283,14 @@ function mountDocument({
     });
     wrappers.push(wrapper);
     return wrapper;
+}
+
+// The names screen readers hear for the disabled links in the heading's lines.
+function readDisabledHeadingLinks(wrapper: VueWrapper): (string | undefined)[] {
+    return wrapper
+        .getComponent({ name: 'DataViewSource' })
+        .findAll('[aria-disabled="true"]')
+        .map((link) => link.attributes('aria-label'));
 }
 
 // Each link in the heading's lines, as the name screen readers hear and where it goes.
