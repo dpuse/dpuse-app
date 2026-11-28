@@ -173,30 +173,6 @@ describe('chosen column types', () => {
         expect(constructChosenColumnTypes(auditedColumns)).toStrictEqual(chosenColumnTypes);
     });
 
-    it('fill in the subtype of a type saved without one', () => {
-        const auditedColumns = buildAuditedColumns(
-            [
-                buildColumn({ dataSubtypeId: 'decimal', dataTypeId: 'numeric' }),
-                buildColumn({ dataSubtypeId: 'plain', dataTypeId: 'string' }),
-                buildColumn({ dataSubtypeId: 'plain', dataTypeId: 'string' }),
-                buildColumn({ dataSubtypeId: 'plain', dataTypeId: 'string' })
-            ],
-            {
-                0: buildColumnChoice({ dataTypeId: 'numeric' }),
-                1: buildColumnChoice({ dataTypeId: 'numeric' }),
-                2: buildColumnChoice({ dataTypeId: 'temporal' }),
-                3: buildColumnChoice({ dataTypeId: 'boolean' })
-            }
-        );
-
-        expect(constructChosenColumnTypes(auditedColumns)).toStrictEqual({
-            0: { dataSubtypeId: 'decimal', dataTypeId: 'numeric' },
-            1: { dataSubtypeId: 'integer', dataTypeId: 'numeric' },
-            2: { dataSubtypeId: 'dateTime', dataTypeId: 'temporal' },
-            3: { dataSubtypeId: undefined, dataTypeId: 'boolean' }
-        });
-    });
-
     it('are empty without a data view', () => {
         expect(constructChosenColumnTypes(undefined)).toStrictEqual({});
     });
@@ -264,9 +240,6 @@ describe('resolveColumnConfig', () => {
 
     it('keeps the detected type and subtype otherwise', () => {
         expect(resolveColumnConfig(buildColumn({ dataSubtypeId: 'integer', dataTypeId: 'numeric' }), undefined)).toMatchObject({ dataSubtypeId: 'integer', dataTypeId: 'numeric' });
-        expect(resolveColumnConfig(buildColumn({ dataSubtypeId: 'integer', dataTypeId: 'numeric' }), buildColumnChoice({ dataTypeId: 'numeric' }))).toMatchObject({
-            dataSubtypeId: 'integer'
-        });
     });
 });
 

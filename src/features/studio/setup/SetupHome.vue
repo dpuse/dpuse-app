@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // ── External Dependencies & Registrations
 import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
 // ── DPUse Framework
 import type { LocalisedConfig } from '@dpuse/dpuse-shared';
@@ -16,6 +17,10 @@ import ScrollArea from '@/components/ui/scroll/ScrollArea.vue';
 
 const { setupOptionLocalisedConfigs } = defineProps<{ setupOptionLocalisedConfigs: LocalisedConfig<SetupOptionConfig>[] }>();
 
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const route = useRoute();
+
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const pluginOptionLocalisedConfigs = computed(() => setupOptionLocalisedConfigs.filter((config) => config.id !== 'home'));
@@ -27,7 +32,7 @@ const pluginOptionLocalisedConfigs = computed(() => setupOptionLocalisedConfigs.
              columns from that width, so it would stay three columns wide and scroll sideways in a narrow view. -->
         <div class="max-w-4xl">
             <div class="grid grid-cols-[repeat(auto-fit,minmax(16rem,1fr))] gap-4 pt-4 pl-page">
-                <ConfigCard v-for="config in pluginOptionLocalisedConfigs" :key="config.id" :config="config" :to="{ name: config.to, query: $route.query }" />
+                <ConfigCard v-for="config in pluginOptionLocalisedConfigs" :key="config.id" :config="config" :to="{ name: config.to, query: route.query }" />
             </div>
         </div>
     </ScrollArea>

@@ -56,8 +56,7 @@ const { connectionId, connectionNodeConfig, dataFormatId, dataViewConnection, is
 
 const connectionLabel = computed(() => dataViewConnection?.label ?? t(TEXT, connectionId == null ? 'connection.none.text' : 'connection.unavailable.text'));
 const itemIsShown = computed(() => !isSingleLine || dataViewConnection != null || connectionNodeConfig != null);
-// Messages name the connector's kind of item, e.g. 'No file', and fall back to 'item' for a connector released before
-// it said which.
+// Messages name the connector's kind of item, e.g. 'No file', and fall back to 'item' until a connection is chosen.
 const itemSubject = computed(() => itemTypeId ?? 'item');
 const itemIcon = computed(() => (connectionNodeConfig ? resolveItemIcon(connectionNodeConfig, dataFormatId, itemTypeId) : undefined));
 

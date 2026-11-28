@@ -108,7 +108,7 @@ describe('DataViewDocument', () => {
 
         expect(readDetails(mountDocument({ properties: { itemReading } }), 'Reading')).toEqual([
             ['Encoding', 'utf-8'],
-            ['Detected encodings', 'Unknown'],
+            ['Detected encodings', 'Not applicable'],
             ['Unreadable characters', '3'],
             ['Format', 'Delimited text (CSV, TSV…)'],
             ['Parser', 'CSV Parser'],
@@ -119,7 +119,7 @@ describe('DataViewDocument', () => {
         ]);
     });
 
-    it('lists every encoding detected with how sure it was, and says they are unknown when none were kept', () => {
+    it('lists every encoding detected with how sure it was, and says they do not apply when none were detected', () => {
         const encodingCandidates = [
             { confidenceLevel: 0.87, id: 'utf-8' as const },
             { confidenceLevel: 0.4, id: 'windows-1252' as const },
@@ -127,7 +127,7 @@ describe('DataViewDocument', () => {
         ];
         expect(readReading({ encodingCandidates })).toContainEqual(['Detected encodings', 'utf-8 (87%), windows-1252 (40%), iso-8859-1']);
         expect(readReading({ encodingCandidates: [] })).toContainEqual(['Detected encodings', 'None, as the text is all ASCII']);
-        expect(readReading({})).toContainEqual(['Detected encodings', 'Unknown']);
+        expect(readReading({})).toContainEqual(['Detected encodings', 'Not applicable']);
     });
 
     it('says a table’s file type does not apply, muted, and has no reading part', () => {

@@ -80,7 +80,7 @@ const {
     dataViewConnection: DataViewConnection | undefined;
     dataViewId: string | undefined; // Finds the data view's last load, for its timings.
     detectedReadingConfig?: Pick<ReadingConfig, 'encodingConfidenceLevel' | 'encodingSourceId'> | undefined; // How detection found the encoding.
-    encodingCandidates?: EncodingDetectionConfig[] | undefined; // Every encoding detection found, best first. Undefined for a data view saved before they were kept.
+    encodingCandidates?: EncodingDetectionConfig[] | undefined; // Every encoding detection found, best first. Undefined when no text was decoded.
     isLoaded?: boolean; // The records are in the store and still match the columns.
     itemReading: SavedItemReading | undefined; // Undefined until the item has been read.
     overline?: string;
@@ -119,7 +119,7 @@ const storeLine = computed(() => ({ ...resolveDataViewStore({ storeConnectorId }
 
 // ── Item
 const itemIsFile = computed(() => dataViewConnection?.itemTypeId === 'file');
-const itemSubject = computed(() => dataViewConnection?.itemTypeId ?? 'item'); // Messages name the connector's kind of item, e.g. 'No file selected yet', and fall back to 'item' for a connector released before it said which.
+const itemSubject = computed(() => dataViewConnection?.itemTypeId ?? 'item'); // Messages name the connector's kind of item, e.g. 'No file selected yet', and fall back to 'item' when the connection has gone.
 
 // The item's title is shown as a description only when it says more than its name, as a series title does. A file's
 // title is its name, so a file shows none.
@@ -237,10 +237,10 @@ function constructEncodingText(reading: SavedItemReading): string | undefined {
     return sourceText == null ? encoding : t(TEXT, 'detail.sourced.text', { source: sourceText, value: encoding });
 }
 
-// Every encoding detection found, best first, each with how sure it was. A data view saved before they were kept has
-// none on record, so they are not known. Text that is all ASCII has none to tell apart.
-function constructEncodingCandidatesText(): string | undefined {
-    if (encodingCandidates == null) return;
+// Every encoding detection found, best first, each with how sure it was. An item whose encoding was not detected, such
+// as XML, which states its own, has none, so the row does not apply. Text that is all ASCII has none to tell apart.
+function constructEncodingCandidatesText(): string | null {
+    if (encodingCandidates == null) return null;
     if (encodingCandidates.length === 0) return t(TEXT, 'detail.encodingCandidates.none.text');
     const percentFormat = new Intl.NumberFormat(localeId.value, { style: 'percent', maximumFractionDigits: 0 });
     const candidateTexts = encodingCandidates.map(({ confidenceLevel, id }) =>

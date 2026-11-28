@@ -10,9 +10,8 @@ import { accountConfigStatus, type ConnectionAccountConfig, connectionAccountCon
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A connection saved before connections had ids has no 'id', and is known by its connector's id.
 interface AccountMessage {
-    config?: { connections?: (Omit<ConnectionAccountConfig, 'id'> & { id?: string })[] };
+    config?: { connections?: ConnectionAccountConfig[] };
 }
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -25,10 +24,7 @@ const socket = useMonitorSocket<AccountMessage>({
         accountConfigStatus.value = { typeId: 'pending' }; // Data from a previous connection can't be trusted as current until the next one has proven itself.
     },
     onMessage: (message) => {
-        connectionAccountConfigs.value = (message.config?.connections ?? []).map((connection) => ({
-            connectorId: connection.connectorId,
-            id: connection.id ?? connection.connectorId
-        }));
+        connectionAccountConfigs.value = (message.config?.connections ?? []).map(({ connectorId, id }) => ({ connectorId, id }));
         accountConfigStatus.value = { typeId: 'ready' };
     },
     // Raised at app level because no screen shows the account's connections on their own. The failed status stops

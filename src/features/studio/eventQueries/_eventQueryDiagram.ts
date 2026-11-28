@@ -34,7 +34,7 @@ export interface EventQueryDiagramNode {
 export interface EventQueryDiagramEventQuery {
     id: string;
     label: string;
-    contextEventReference?: ContextEventReference | undefined;
+    contextEventReference: ContextEventReference;
 }
 
 // The name of the add node, in the user's language, and how the nodes look, which the caller works out from the app's

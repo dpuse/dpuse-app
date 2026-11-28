@@ -6,6 +6,9 @@
 // Sized for a pane rather than a page. The original was laid out for the width of a browser window — 'py-24', a
 // 7xl measure, a 5xl heading — and this pane can be a fifth of one.
 
+// ── External Dependencies & Registrations
+import { useRoute } from 'vue-router';
+
 // ── Local Framework
 import { useStudioOptions } from '@/features/studio/options/useStudioOptions';
 
@@ -15,6 +18,10 @@ import { TEXT } from './ChatEmptyState_.json';
 // ── Static Components
 import ActionWrapper from '@/components/ui/action/ActionWrapper.vue';
 import ConfigIcon from '@/components/ui/config/ConfigIcon.vue';
+
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const route = useRoute();
 
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -30,7 +37,7 @@ const workflowOptionConfigs = useStudioOptions();
              inside a pane nested in another pane, so neither splitter's position is visible to a media query. -->
         <ul class="mt-6 grid grid-cols-1 gap-3 @md:grid-cols-2">
             <li v-for="config in workflowOptionConfigs" :key="config.id" class="flex">
-                <ActionWrapper class="flex flex-1 flex-col items-start rounded-md border border-separator p-3 text-left" :to="{ name: config.id, query: $route.query }">
+                <ActionWrapper class="flex flex-1 flex-col items-start rounded-md border border-separator p-3 text-left" :to="{ name: config.id, query: route.query }">
                     <span class="flex items-center gap-x-2 text-sm font-semibold text-emphasis">
                         <ConfigIcon class="size-6" :icon="config.icon" :icon-dark="config.iconDark" />
                         {{ config.label }}

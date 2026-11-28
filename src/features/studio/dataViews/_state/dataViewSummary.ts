@@ -27,8 +27,8 @@ export interface DataViewConnection {
     connectorLabel: string;
     icon?: null | string;
     iconDark?: null | string;
-    itemTypeId: ConnectorItemTypeId | undefined; // The connector's kind of item. Undefined for a connector released before it said which.
-    itemTypeLabel: string | undefined;
+    itemTypeId: ConnectorItemTypeId; // The connector's kind of item.
+    itemTypeLabel: string;
     label: string;
     status: ReturnType<typeof getComponentStatus> | undefined; // The connector's; undefined for general availability, which has no label.
     version: string; // The connector's.
@@ -44,15 +44,14 @@ export function constructItemPath(connectionNodeConfig: ConnectionNodeConfig): s
 
 export function constructDataViewConnection(connectionLocalisedConfig: LocalisedConfig<ConnectionConfig>, localeId: LocaleId): DataViewConnection {
     const { connectorConfig } = connectionLocalisedConfig;
-    const itemTypeId = connectorConfig.itemTypeId as ConnectorItemTypeId | undefined; // Missing from a connector released before the field existed.
     return {
         categoryLabel: constructConnectorCategoryConfig(connectorConfig.categoryId, localeId).label,
         connectorId: connectorConfig.id,
         connectorLabel: localiseConfig(connectorConfig, localeId).label,
         icon: connectionLocalisedConfig.icon,
         iconDark: connectionLocalisedConfig.iconDark,
-        itemTypeId,
-        itemTypeLabel: itemTypeId ? constructConnectorItemTypeConfig(itemTypeId, localeId).label : undefined,
+        itemTypeId: connectorConfig.itemTypeId,
+        itemTypeLabel: constructConnectorItemTypeConfig(connectorConfig.itemTypeId, localeId).label,
         label: connectionLocalisedConfig.label,
         status: connectorConfig.statusId ? getComponentStatus(connectorConfig.statusId, localeId) : undefined,
         version: connectorConfig.version

@@ -90,13 +90,6 @@ describe('event query panel context event', () => {
 
         expect(readFacts(wrapper)).toStrictEqual(['Foundation', 'Party', TEXT['event.pending.text'].en, TEXT['event.pending.text'].en]);
     });
-
-    it('says so for an event query saved without a context event', async () => {
-        const wrapper = await mountPanel(undefined);
-
-        expect(wrapper.findAll('dd')).toHaveLength(0);
-        expect(wrapper.text()).toContain(TEXT['event.none.text'].en);
-    });
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

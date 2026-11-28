@@ -133,9 +133,8 @@ describe('resolveEventQueryDiagramFocus', () => {
         expect(resolveEventQueryDiagramFocus({ areaId: 'fdn' }, HIRES)).toStrictEqual(BIRTH_FOCUS);
     });
 
-    it('keeps the level the URL names when no event query is selected, or the selected one has no event', () => {
+    it('keeps the level the URL names when no event query is selected', () => {
         expect(resolveEventQueryDiagramFocus({ areaId: 'fdn' })).toStrictEqual({ areaId: 'fdn' });
-        expect(resolveEventQueryDiagramFocus({ areaId: 'fdn' }, { contextEventReference: undefined })).toStrictEqual({ areaId: 'fdn' });
     });
 });
 

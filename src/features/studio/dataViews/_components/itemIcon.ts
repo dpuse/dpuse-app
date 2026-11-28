@@ -26,8 +26,8 @@ const ITEM_TYPE_ICONS: Record<ConnectorItemTypeId, Component> = { apiEndpoint: B
 
 // The icon of a chosen item, the same wherever it is shown. An item with an icon of its own shows it. A file shows its
 // format's icon once it has been previewed. Any other item shows what kind of item it is. A table connector's items
-// always show the table grid, even the application emulator's, whose tables are stored as CSV files. A connector
-// released before it said which kind shows the table grid.
+// always show the table grid, even the application emulator's, whose tables are stored as CSV files. An item whose
+// connection has gone shows the table grid.
 export function resolveItemIcon(
     connectionNodeConfig: Pick<ConnectionNodeConfig, 'icon' | 'iconDark'>,
     dataFormatId: DataFormatId | undefined,

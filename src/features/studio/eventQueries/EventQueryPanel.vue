@@ -60,15 +60,15 @@ const documentScrollElement = shallowRef<HTMLElement>();
 // ── Event ─ The context event the event query is for, named from the context as it is now, so the names follow the
 // language. The area and model are named by the context, and the entity and event by the model, which loads separately.
 const contextEventReference = computed(() => eventQueryLocalisedConfig.contextEventReference);
-const { data: contextModelConfig, isPending: contextModelIsPending } = useContextModel(() => contextEventReference.value?.modelId);
-const contextAreaConfig = computed(() => contextConfig.value?.areas.find((config) => config.id === contextEventReference.value?.areaId));
-const contextEntityConfig = computed(() => contextModelConfig.value?.entities.find((config) => config.id === contextEventReference.value?.entityId));
+const { data: contextModelConfig, isPending: contextModelIsPending } = useContextModel(() => contextEventReference.value.modelId);
+const contextAreaConfig = computed(() => contextConfig.value?.areas.find((config) => config.id === contextEventReference.value.areaId));
+const contextEntityConfig = computed(() => contextModelConfig.value?.entities.find((config) => config.id === contextEventReference.value.entityId));
 
 // Every fact is always listed. A name the context no longer has says 'Unknown', because a missing row would read as
 // "not there", not "not known".
 const contextEventFacts = computed(() => {
-    const modelReferenceConfig = contextAreaConfig.value?.models.find((config) => config.id === contextEventReference.value?.modelId);
-    const eventConfig = contextEntityConfig.value?.events.find((config) => config.id === contextEventReference.value?.eventId);
+    const modelReferenceConfig = contextAreaConfig.value?.models.find((config) => config.id === contextEventReference.value.modelId);
+    const eventConfig = contextEntityConfig.value?.events.find((config) => config.id === contextEventReference.value.eventId);
     const modelPartFallback = t(TEXT, contextModelIsPending.value ? 'event.pending.text' : 'event.unknown.text'); // The entity and event are not known until the model loads.
     return [
         {
@@ -154,7 +154,6 @@ async function handleSaveEdits(): Promise<void> {
                      column that widens to fit its longest label. -->
                 <StudioDocumentSection :title="t(TEXT, 'event.title')">
                     <dl
-                        v-if="contextEventReference"
                         class="grid grid-cols-[minmax(7.5rem,max-content)_1fr] text-sm *:border-b *:border-separator *:py-1 [&>:nth-last-child(-n+2)]:border-b-0 [&>dt]:pr-4"
                     >
                         <template v-for="fact in contextEventFacts" :key="fact.id">
@@ -162,7 +161,6 @@ async function handleSaveEdits(): Promise<void> {
                             <dd class="m-0 min-w-0 wrap-break-word">{{ fact.value }}</dd>
                         </template>
                     </dl>
-                    <p v-else class="text-muted">{{ t(TEXT, 'event.none.text') }}</p>
                 </StudioDocumentSection>
 
                 <!-- Last, and apart from Edit, so a destructive action is never one slip away from an everyday one. -->

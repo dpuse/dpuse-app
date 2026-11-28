@@ -71,8 +71,8 @@ export interface LoadTimingParts {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A data view saved before it had a choice of store loads into the default, SQLite, because it needs far less memory and a
-// much smaller download than DuckDB.
+// A data view with no store chosen loads into the default, SQLite, because it needs far less memory and a much smaller
+// download than DuckDB.
 export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-sqlite-wasm';
 //export const INVESTIGATE_STORE_CONNECTOR_ID = 'dpuse-connector-duckdb-wasm';
 // PGlite is planned and has no connector yet. Its icons are PGlite's own, from its repository (Apache-2.0).

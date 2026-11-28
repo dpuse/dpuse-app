@@ -370,7 +370,7 @@ describe('InvestigateDataPanel', () => {
     it('shows each column’s marks on its tab, as the item step does: its type, a type the user chose and what a whole audit found', async () => {
         dataView.config = {
             ...AUDITED_DATA_VIEW,
-            columnChoiceConfigs: { 1: { dataSubtypeId: undefined, dataTypeId: 'string' } },
+            columnChoiceConfigs: { 1: { dataSubtypeId: 'plain', dataTypeId: 'string' } },
             contentAuditConfig: {
                 asAt: 1,
                 columns: [

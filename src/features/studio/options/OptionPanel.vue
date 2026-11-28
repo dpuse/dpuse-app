@@ -77,7 +77,7 @@ function constructOptionStateClass(optionId: string): string {
                         :aria-label="t(TEXT, 'home.aria')"
                         class="flex w-full justify-center rounded p-2.25 dark:text-content [&_svg]:size-5.5"
                         :class="constructOptionStateClass('home')"
-                        :to="{ name: 'studio', query: $route.query }"
+                        :to="{ name: 'studio', query: route.query }"
                         @click="handleComplete"
                     >
                         <StudioHomeIcon aria-hidden="true" />
@@ -90,7 +90,7 @@ function constructOptionStateClass(optionId: string): string {
                         :aria-label="config.label"
                         class="flex w-full justify-center rounded p-2.25 dark:text-content [&_svg]:size-5.5"
                         :class="constructOptionStateClass(config.id)"
-                        :to="{ name: config.id, query: $route.query }"
+                        :to="{ name: config.id, query: route.query }"
                         @click="handleComplete"
                     >
                         <ConfigIcon class="size-5.5" :icon="config.icon" :icon-dark="config.iconDark" />

@@ -180,7 +180,7 @@ const focusedEventQueryLocalisedConfigs = computed(() => {
     return eventQueryLocalisedConfigs.value.filter((config) => {
         const reference = config.contextEventReference;
         return (
-            reference?.areaId === focusedReference.areaId &&
+            reference.areaId === focusedReference.areaId &&
             reference.modelId === focusedReference.modelId &&
             reference.entityId === focusedReference.entityId &&
             reference.eventId === focusedReference.eventId

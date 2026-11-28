@@ -470,7 +470,7 @@ const gridDetailPanelComponent = useTemplateRef<{ detailPaneIsVisible: boolean; 
 // language.
 const activeConnectionConfig = computed(() => findConnectionLocalisedConfig(dataViewConfig.value?.connectionId));
 const activeDataViewConnection = computed(() => (activeConnectionConfig.value ? constructDataViewConnection(activeConnectionConfig.value, localeId.value) : undefined));
-const itemSubject = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId ?? 'item'); // Wording names the connector's kind of item, e.g. 'File', and falls back to 'item' for a connector released before it said which.
+const itemSubject = computed(() => activeConnectionConfig.value?.connectorConfig.itemTypeId ?? 'item'); // Wording names the connector's kind of item, e.g. 'File', and falls back to 'item' until a connection is chosen.
 // Only the data view's own item opens from what was saved, so only it can be out of date. Undefined until its source has
 // been checked, so 'Preview again' does not flash up while the check runs.
 const savedItemChangeId = computed(() => {
@@ -492,7 +492,7 @@ const readingIsFixed = computed(() => !itemIsFile.value || activeItemReading.val
 const itemTypeIcon = computed(() => {
     const itemTypeId = activeConnectionConfig.value?.connectorConfig.itemTypeId;
     if (itemTypeId === 'apiEndpoint') return BracesIcon;
-    return itemTypeId === 'file' ? FileIcon : SheetIcon; // A connector released before it named its kind of item shows tables, as the summary row does.
+    return itemTypeId === 'file' ? FileIcon : SheetIcon;
 });
 
 const backLabel = computed(() => currentFolderNodes.value.at(-1)?.label ?? t(TEXT, 'home.label')); // Names the folder the back button returns to.
@@ -996,7 +996,7 @@ watch(
         try {
             const previewObjectResult = await readPreviewObjectResult(newActiveItem, isNewReadChoice, isRetry);
             if (previewObjectResult == null || currentRequestId !== previewRequestId.value || activeConnectionObjectConfig.value !== newActiveItem) return;
-            detectedReadingConfig.value = constructDetectedReadingConfig(previewObjectResult);
+            detectedReadingConfig.value = previewObjectResult.readingConfig;
             detectedEncodingCandidates.value = detectedReadingConfig.value.encodingCandidates;
             detectedStructureIndex.value = previewObjectResult.structureIndex; // A saved item opens without a preview, so it has no map until it is read again.
 
@@ -1508,16 +1508,6 @@ async function readPreviewObjectResult(connectionNodeConfig: ConnectionNodeConfi
     return (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewObjectResult;
 }
 
-// The reading a preview detected, with every encoding it detected, so they are saved with the data view. A connector
-// built before the reading kept them returns them beside it. A saved item opened without a preview has them in its
-// saved reading.
-function constructDetectedReadingConfig({ encodingCandidates, readingConfig }: PreviewObjectResult): ReadingConfig {
-    return { ...readingConfig, encodingCandidates: readingConfig.encodingCandidates ?? encodingCandidates };
-}
-
-// The saved reading, sample and audit of the data view's own item, so it opens as it was saved. Undefined for any other
-// item. A saved sample does not keep the records its text was parsed into, so they are parsed from the text again,
-// which does not fetch the item.
 async function readSavedPreviewObjectResult(connectionNodeConfig: ConnectionNodeConfig): Promise<PreviewObjectResult | undefined> {
     const savedConfig = dataViewConfig.value;
     if (savedConfig == null || !isDataViewItem(connectionNodeConfig)) return;
@@ -2053,7 +2043,7 @@ async function readLargerPreview(): Promise<AuditObjectContentResult | undefined
         const previewObjectResult = (await processRequest('previewObject', activeConnectionConfig.value, options)) as PreviewObjectResult;
         if (currentRequestId !== previewRequestId.value) return;
         // More of the item gives detection more to go on, so its result replaces the first one.
-        detectedReadingConfig.value = constructDetectedReadingConfig(previewObjectResult);
+        detectedReadingConfig.value = previewObjectResult.readingConfig;
         detectedEncodingCandidates.value = detectedReadingConfig.value.encodingCandidates;
         recordDetectedValues(previewObjectResult.readingConfig);
         // More records can show a header the first preview missed, unless the user chose whether there is one.

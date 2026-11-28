@@ -167,7 +167,7 @@ const { ignoreItemChange, itemChangedAt, itemChangeIsShown } = useItemChange(dat
 // ── Derived State ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const storeConnectorId = computed(() => resolveStoreConnectorId(dataViewConfig.value)); // Chosen on the item step or here, or else the default store.
-const invalidValueCounts = computed(() => (dataViewConfig.value == null ? [] : (findDataViewInvalidValueCounts(dataViewConfig.value, draftIsCurrent.value) ?? []))); // Kept with the load, so they show on every visit. A load made before they were kept has none.
+const invalidValueCounts = computed(() => (dataViewConfig.value == null ? [] : (findDataViewInvalidValueCounts(dataViewConfig.value, draftIsCurrent.value) ?? []))); // Kept with the load, so they show on every visit. None until the data view has loaded.
 const storeConfigs = computed(() => listDataViewStoreConfigs()); // With the planned stores, which are listed but cannot be chosen yet.
 const storeIsChoosable = computed(() => storeConfigs.value.filter((storeConfig) => !storeConfig.isPlanned).length > 1);
 const currentStoreConfig = computed(() => storeConfigs.value.find((storeConfig) => storeConfig.id === storeConnectorId.value));

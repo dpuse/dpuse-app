@@ -16,7 +16,7 @@ import type {
     StructurePath,
     ValueDelimiterId
 } from '@dpuse/dpuse-shared';
-import { countPreviewLines, DATA_FORMAT_CONFIGS, DATA_TYPE_CONFIGS } from '@dpuse/dpuse-shared';
+import { countPreviewLines, DATA_FORMAT_CONFIGS } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { assertDefined } from '@/utilities/index.ts';
@@ -180,10 +180,7 @@ export function constructColumnChoiceConfigs(
 }
 
 export function constructChosenColumnTypes(dataViewConfig: Pick<DataViewConfig, 'columnChoiceConfigs' | 'contentAuditConfig'> | undefined): ChosenColumnTypes {
-    const columnConfigs = dataViewConfig?.contentAuditConfig?.columns ?? [];
-    const entries = Object.entries(dataViewConfig?.columnChoiceConfigs ?? {}).map(
-        ([columnId, columnChoiceConfig]) => [columnId, constructChosenColumnType(columnChoiceConfig, columnConfigs[Number(columnId)])] as const
-    );
+    const entries = Object.entries(dataViewConfig?.columnChoiceConfigs ?? {}).map(([columnId, columnChoiceConfig]) => [columnId, constructChosenColumnType(columnChoiceConfig)] as const);
     return Object.fromEntries(entries.filter(([, chosenColumnType]) => chosenColumnType != null));
 }
 
@@ -234,7 +231,7 @@ export function resolveColumnConfig(columnConfig: ColumnAuditConfig, columnChoic
         ...columnConfig,
         ...dateReading,
         ...numericReading,
-        ...constructChosenColumnType(columnChoiceConfig, columnConfig),
+        ...constructChosenColumnType(columnChoiceConfig),
         dateOrderId: dateOrderId ?? columnConfig.dateOrderId,
         decimalSeparatorId: decimalSeparatorId ?? columnConfig.decimalSeparatorId,
         nullWordsAreEmpty: columnChoiceConfig?.nullWordsAreEmpty ?? columnConfig.nullWordsAreEmpty,
@@ -315,12 +312,8 @@ export function restoreItemReading(dataViewConfig: Pick<DataViewConfig, 'columnC
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A type saved without a subtype keeps the detected subtype when it is the detected type, as detection's subtype only
-// describes detection's type. Otherwise it takes the subtype the engine stored it as.
-function constructChosenColumnType(columnChoiceConfig: ColumnChoiceConfig | undefined, columnConfig: ColumnAuditConfig | undefined): ColumnType | undefined {
+function constructChosenColumnType(columnChoiceConfig: ColumnChoiceConfig | undefined): ColumnType | undefined {
     const chosenDataTypeId = columnChoiceConfig?.dataTypeId;
     if (chosenDataTypeId == null) return;
-    const detectedDataSubtypeId = chosenDataTypeId === columnConfig?.dataTypeId ? columnConfig.dataSubtypeId : undefined;
-    const defaultDataSubtypeId = DATA_TYPE_CONFIGS.find(({ id }) => id === chosenDataTypeId)?.defaultSubtypeId; // How the engine stores a type with no subtype, which is what a type chosen before subtypes could be chosen means.
-    return { dataSubtypeId: columnChoiceConfig?.dataSubtypeId ?? detectedDataSubtypeId ?? defaultDataSubtypeId, dataTypeId: chosenDataTypeId };
+    return { dataSubtypeId: columnChoiceConfig?.dataSubtypeId, dataTypeId: chosenDataTypeId };
 }
